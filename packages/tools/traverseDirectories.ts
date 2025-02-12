@@ -88,7 +88,7 @@ export const traverseDirectories = async (dir: string | string[]) => {
       // 将文件夹的子文件压如队列
       dirs.push(dirInfo);
       const childFiles = await readdir(fp);
-      childFiles.forEach((cf) => {
+      childFiles.forEach(cf => {
         dirs.push(path.resolve(fp, cf));
       });
     } else if (info.isFile()) {

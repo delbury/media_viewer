@@ -5,6 +5,6 @@ app.use(async (ctx) => {
   ctx.body = 'Hello World';
 });
 
-app.listen(3000, () => {
+app.listen(4002, () => {
   console.log('server started');
 });
