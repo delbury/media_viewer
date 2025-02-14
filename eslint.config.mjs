@@ -35,6 +35,7 @@ export default [
     rules: {
       '@typescript-eslint/no-unused-vars': 'warn',
       'react/react-in-jsx-scope': 'off',
+      'react/self-closing-comp': 'warn',
     },
   },
 ];

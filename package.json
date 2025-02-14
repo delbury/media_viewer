@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test-tools": "node --import tsx ./packages/test.local.ts"
+    "test-tools": "node --import tsx ./packages/test.local.ts",
+    "client": "pnpm --filter client run dev"
   },
   "keywords": [],
   "author": "",
