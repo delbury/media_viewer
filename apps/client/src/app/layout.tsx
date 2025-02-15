@@ -4,8 +4,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import classNames from 'classnames';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import './globals.css';
-import style from './layout.module.scss';
+import './globals.scss';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -27,11 +26,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.log(123123, style.layout);
-
   return (
     <html lang="en">
-      <body className={classNames(geistSans.variable, geistMono.variable, style.layout)}>
+      <body className={classNames(geistSans.variable, geistMono.variable)}>
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>{children}</ThemeProvider>
         </AppRouterCacheProvider>
