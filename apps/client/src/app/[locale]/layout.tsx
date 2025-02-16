@@ -1,3 +1,4 @@
+import Header from '@/components/Header';
 import { routing } from '@/i18n/routing';
 import theme from '@/style/theme';
 import { Box } from '@mui/material';
@@ -11,6 +12,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { ErrorBoundary } from 'react-error-boundary';
 import './globals.scss';
+import style from './layout.module.scss';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -58,7 +60,10 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           <AppRouterCacheProvider>
             <ThemeProvider theme={theme}>
-              <ErrorBoundary fallback={<Box>Something went wrong</Box>}>{children}</ErrorBoundary>
+              <ErrorBoundary fallback={<Box>Something went wrong</Box>}>
+                <Header />
+                <Box className={style.container}>{children}</Box>
+              </ErrorBoundary>
             </ThemeProvider>
           </AppRouterCacheProvider>
         </NextIntlClientProvider>
