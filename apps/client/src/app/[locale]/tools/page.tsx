@@ -1,12 +1,12 @@
 import { TFunction } from '@/types';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
-import { Box, Card, CardActions, CardHeader, IconButton } from '@mui/material';
+import { Box, Card, CardActions, CardHeader, Link } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 
 const getTools = (t: TFunction) => [
   {
-    title: t('File'),
+    title: t('Repeat File Analyzer'),
     path: '/tools',
   },
 ];
@@ -19,14 +19,17 @@ export default function Tools() {
     <Box>
       {tools.map(tool => (
         <Card key={tool.path}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Link
+            href=""
+            color="inherit"
+            underline="none"
+            sx={{ display: 'flex', justifyContent: 'space-between' }}
+          >
             <CardHeader title={tool.title} />
             <CardActions>
-              <IconButton>
-                <OpenInNewOutlinedIcon />
-              </IconButton>
+              <OpenInNewOutlinedIcon />
             </CardActions>
-          </Box>
+          </Link>
         </Card>
       ))}
     </Box>

@@ -1,5 +1,6 @@
 import { routing } from '@/i18n/routing';
 import theme from '@/style/theme';
+import { Box } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { ThemeProvider } from '@mui/material/styles';
 import classNames from 'classnames';
@@ -8,6 +9,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { notFound } from 'next/navigation';
+import { ErrorBoundary } from 'react-error-boundary';
 import './globals.scss';
 
 const geistSans = Geist({
@@ -55,7 +57,9 @@ export default async function RootLayout({
       <body className={classNames(geistSans.variable, geistMono.variable)}>
         <NextIntlClientProvider messages={messages}>
           <AppRouterCacheProvider>
-            <ThemeProvider theme={theme}>{children}</ThemeProvider>
+            <ThemeProvider theme={theme}>
+              <ErrorBoundary fallback={<Box>Something went wrong</Box>}>{children}</ErrorBoundary>
+            </ThemeProvider>
           </AppRouterCacheProvider>
         </NextIntlClientProvider>
       </body>
