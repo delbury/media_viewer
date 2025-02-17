@@ -1,5 +1,10 @@
 {
   "Tools": {
-    "Repeat File Analyzer": "重复文件分析"
+    "RepeatFileAnalyzer": "重复文件分析",
+    "SelectDirectory": "选择文件夹"
+  },
+  "Common": {
+    "OK": "确认",
+    "Cancel": "取消"
   }
 }

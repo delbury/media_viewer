@@ -7,13 +7,13 @@ import { useMemo } from 'react';
 
 const getTools = (t: TFunction) => [
   {
-    title: t('Repeat File Analyzer'),
+    title: t('Tools.RepeatFileAnalyzer'),
     path: '/tools/repeat-file',
   },
 ];
 
 export default function Tools() {
-  const t = useTranslations('Tools');
+  const t = useTranslations();
   const tools = useMemo(() => getTools(t), [t]);
 
   return (

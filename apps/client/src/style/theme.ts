@@ -3,7 +3,15 @@ import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   cssVariables: true,
-  components: {},
+  components: {
+    MuiButton: {
+      defaultProps: {
+        sx: {
+          textTransform: 'none',
+        },
+      },
+    },
+  },
 });
 
 export default theme;
