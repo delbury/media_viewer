@@ -1,10 +1,17 @@
 import Koa from 'koa';
+import { directoryRouter } from './router/directory';
+
+const routers = [directoryRouter];
+
+const PORT = 4002;
+
 const app = new Koa();
 
-app.use(async (ctx) => {
-  ctx.body = 'Hello World';
-});
+for (const r of routers) {
+  app.use(r.routes());
+  app.use(r.allowedMethods());
+}
 
-app.listen(4002, () => {
-  console.log('server started');
+app.listen(PORT, () => {
+  console.info(`server started on ${PORT}`);
 });

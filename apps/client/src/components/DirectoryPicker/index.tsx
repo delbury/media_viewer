@@ -1,6 +1,7 @@
 'use client';
 
 import { useDialog } from '@/hooks/useDialog';
+import { useSwr } from '@/hooks/useSwr';
 import { FolderOutlined } from '@mui/icons-material';
 import {
   Box,
@@ -23,9 +24,9 @@ import style from './index.module.scss';
 export default function DirectoryPicker() {
   const t = useTranslations();
   const { open, handleClose, handleOpen } = useDialog(true);
+  const dirsRes = useSwr('dirTree');
   const [dirPath, setDirPath] = useState('/aa/b/c');
   const pathList = useMemo(() => dirPath.split('/').filter(it => !!it), [dirPath]);
-
   const [subDirs] = useState(['aaa zxc as da zxc zxc asd as zxc zxcasd zxcxcas as da zxc zxc as', 'bbb', 'ccc']);
 
   const handleOk = useCallback(() => {

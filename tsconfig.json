@@ -11,7 +11,8 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {}
   },
   "exclude": ["node_modules", "dist", "**/*.mjs", "**/*.js"]
 }

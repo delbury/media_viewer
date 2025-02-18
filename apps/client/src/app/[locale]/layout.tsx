@@ -1,4 +1,5 @@
 import Header from '@/components/Header';
+import Layout from '@/components/Layout';
 import { routing } from '@/i18n/routing';
 import '@/style/globals.scss';
 import theme from '@/style/theme';
@@ -61,8 +62,10 @@ export default async function RootLayout({
           <AppRouterCacheProvider>
             <ThemeProvider theme={theme}>
               <ErrorBoundary fallback={<Box>Something went wrong</Box>}>
-                <Header />
-                <Box className={style.container}>{children}</Box>
+                <Layout>
+                  <Header />
+                  <Box className={style.container}>{children}</Box>
+                </Layout>
               </ErrorBoundary>
             </ThemeProvider>
           </AppRouterCacheProvider>

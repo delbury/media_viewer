@@ -1,0 +1,15 @@
+import { Method } from 'axios';
+
+export interface ApiConfig {
+  url: string;
+  method: Method;
+}
+
+export const API_CONFIGS = {
+  dirTree: {
+    url: '/dir/tree',
+    method: 'get',
+  },
+} satisfies Record<string, ApiConfig>;
+
+export type ApiKeys = keyof typeof API_CONFIGS;
