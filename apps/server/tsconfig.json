@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "noImplicitAny": true,
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "paths": {
+      "#/*": ["./src/*"],
+      "#pkgs/*": ["../../packages/*"]
+    },
+    "rootDir": "./"
+  },
+  "exclude": ["node_modules", "dist", "**/*.mjs", "**/*.js"]
+}

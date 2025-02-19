@@ -10,6 +10,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "imports": {
+    "#/*": "./src/*",
+    "#pkgs/*": "../../../packages/*"
+  },
   "devDependencies": {
     "@types/koa": "^2.15.0",
     "@types/koa__router": "^12.0.4",
