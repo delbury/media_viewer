@@ -1,5 +1,10 @@
+import dotenv from 'dotenv';
 import Koa from 'koa';
 import { directoryRouter } from './router/directory';
+
+dotenv.config({
+  path: process.env.NODE_ENV?.trim() === 'dev' ? './.env.dev' : './.env',
+});
 
 const routers = [directoryRouter];
 

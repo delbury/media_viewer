@@ -2,7 +2,7 @@
 
 import { useDialog } from '@/hooks/useDialog';
 import { useSwr } from '@/hooks/useSwr';
-import { FolderOutlined } from '@mui/icons-material';
+import { FolderOutlined, LoopOutlined } from '@mui/icons-material';
 import {
   Box,
   Breadcrumbs,
@@ -11,6 +11,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   List,
   ListItemButton,
   ListItemIcon,
@@ -24,7 +25,7 @@ import style from './index.module.scss';
 export default function DirectoryPicker() {
   const t = useTranslations();
   const { open, handleClose, handleOpen } = useDialog(true);
-  const dirsRes = useSwr('dirTree');
+  const updateRequest = useSwr('dirUpdate', { lazy: true });
   const [dirPath, setDirPath] = useState('/aa/b/c');
   const pathList = useMemo(() => dirPath.split('/').filter(it => !!it), [dirPath]);
   const [subDirs] = useState(['aaa zxc as da zxc zxc asd as zxc zxcasd zxcxcas as da zxc zxc as', 'bbb', 'ccc']);
@@ -88,9 +89,19 @@ export default function DirectoryPicker() {
             ))}
           </List>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>{t('Common.Cancel')}</Button>
-          <Button onClick={handleOk}>{t('Common.OK')}</Button>
+        <DialogActions sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box>
+            <IconButton
+              loading={updateRequest.isLoading}
+              onClick={updateRequest.refresh}
+            >
+              <LoopOutlined />
+            </IconButton>
+          </Box>
+          <Box>
+            <Button onClick={handleClose}>{t('Common.Cancel')}</Button>
+            <Button onClick={handleOk}>{t('Common.OK')}</Button>
+          </Box>
         </DialogActions>
       </Dialog>
     </Box>

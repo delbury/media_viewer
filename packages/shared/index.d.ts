@@ -1,5 +1,5 @@
 export interface ApiResponseBase<T = unknown> {
-  msg: string;
+  msg?: string;
   code: number;
-  data: T;
+  data?: T;
 }

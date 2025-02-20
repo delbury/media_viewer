@@ -3,7 +3,7 @@ import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 
 interface CommonInfo {
-  basePath: string;
+  basePath?: string;
   fullPath: string;
   name: string;
   created: number;
@@ -26,9 +26,17 @@ interface NewInfoParams {
 }
 const formatPath = (p: string) => p.replaceAll('\\', '/');
 const newCommonInfo = ({ bp, fp, info }: NewInfoParams = {}): CommonInfo => {
+  let basePath = formatPath(bp ?? '');
+  if (basePath.endsWith('/')) basePath = basePath.slice(0, basePath.length - 1);
+
+  let fullPath = formatPath(fp ?? '');
+  if (fullPath) {
+    fullPath = fullPath.replace(basePath, '') || '/';
+  }
+
   return {
-    basePath: formatPath(bp ?? ''),
-    fullPath: formatPath(fp ?? ''),
+    basePath,
+    fullPath,
     name: fp ? path.basename(fp) : '',
     created: info?.birthtimeMs ?? 0,
     updated: info?.mtimeMs ?? 0,
@@ -61,6 +69,7 @@ export const traverseDirectories = async (dir: string | string[]) => {
   const dirs: Array<string | DirectoryInfo> = Array.isArray(dir) ? [...dir] : [dir];
   const treeNode: DirectoryInfo = newDirectoryInfo();
   const fileList: FileInfo[] = [];
+  const dirList: DirectoryInfo[] = [];
   // 当前的文件夹数组
   let currentDir: DirectoryInfo;
   dirs.unshift(treeNode);
@@ -91,16 +100,24 @@ export const traverseDirectories = async (dir: string | string[]) => {
       childFiles.forEach(cf => {
         dirs.push(path.resolve(fp, cf));
       });
+      // 所有文件夹信息放入数组
+      dirList.push(dirInfo);
     } else if (info.isFile()) {
       // 是文件，创建并保存当前文件信息对象
       const fileInfo = newFileInfo({ bp, fp, info });
       currentDir.files.push(fileInfo);
+      // 所有文件信息放入数组
       fileList.push(fileInfo);
     }
   }
 
+  // 移除 basePath
+  fileList.forEach(info => (info.basePath = null));
+  dirList.forEach(info => (info.basePath = null));
   return {
     treeNode,
     fileList,
   };
 };
+
+export type TraverseDirectoriesReturnValue = Awaited<ReturnType<typeof traverseDirectories>>;

@@ -5,14 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --watch ./src --ext js,ts,json,mjs --exec \"node --import tsx ./main.ts\""
+    "dev": "set NODE_ENV=dev && nodemon --watch ./src --watch ./.env --watch ./.env.dev --ext js,ts,json,mjs --exec \"node --import tsx ./main.ts\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "imports": {
     "#/*": "./src/*",
-    "#pkgs/*": "../../../packages/*"
+    "#pkgs/*": "../../packages/*"
   },
   "devDependencies": {
     "@types/koa": "^2.15.0",
@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@koa/router": "^13.1.0",
+    "dotenv": "^16.4.7",
     "koa": "^2.15.3"
   }
 }

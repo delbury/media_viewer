@@ -6,8 +6,8 @@ export interface ApiConfig {
 }
 
 export const API_CONFIGS = {
-  dirTree: {
-    url: '/dir/tree',
+  dirUpdate: {
+    url: '/dir/update',
     method: 'get',
   },
 } satisfies Record<string, ApiConfig>;

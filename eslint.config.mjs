@@ -44,6 +44,12 @@ export default [
       'react/jsx-closing-bracket-location': ['warn', 'tag-aligned'],
       // 自动换行后的缩进（例如 2 空格）
       'react/jsx-indent-props': ['warn', 2],
+      'no-console': [
+        'warn',
+        {
+          allow: ['info'],
+        },
+      ],
     },
   },
 ];
