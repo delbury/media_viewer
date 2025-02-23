@@ -1,16 +1,14 @@
 'use client';
 
-import { useDialog } from '@/hooks/useDialog';
+import Dialog from '@/components/Dialog';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { useDialogState } from '@/hooks/useDialogState';
 import { useSwr } from '@/hooks/useSwr';
 import { FolderOutlined, LoopOutlined } from '@mui/icons-material';
 import {
   Box,
   Breadcrumbs,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   IconButton,
   List,
   ListItemButton,
@@ -24,11 +22,15 @@ import style from './index.module.scss';
 
 export default function DirectoryPicker() {
   const t = useTranslations();
-  const { open, handleClose, handleOpen } = useDialog(true);
+  const { visible, handleClose, handleOpen } = useDialogState(true);
   const updateRequest = useSwr('dirUpdate', { lazy: true });
+  // example: /a/b/c
   const [dirPath, setDirPath] = useState('/aa/b/c');
   const pathList = useMemo(() => dirPath.split('/').filter(it => !!it), [dirPath]);
-  const [subDirs] = useState(['aaa zxc as da zxc zxc asd as zxc zxcasd zxcxcas as da zxc zxc as', 'bbb', 'ccc']);
+  const [subDirs] = useState([]);
+
+  // 二次确认是否刷新
+  const { dialog: confirmDialog, handleOpenSkipConfirm: confirmOpen } = useConfirmDialog(updateRequest.refresh);
 
   const handleOk = useCallback(() => {
     handleClose();
@@ -44,13 +46,21 @@ export default function DirectoryPicker() {
         {t('Tools.SelectDirectory')}
       </Button>
 
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        fullWidth
-      >
-        <DialogTitle>{t('Tools.SelectDirectory')}</DialogTitle>
-        <DialogContent>
+      {visible && (
+        <Dialog
+          open={visible}
+          onClose={handleClose}
+          onOk={handleOk}
+          title={t('Tools.SelectDirectory')}
+          leftFooter={
+            <IconButton
+              loading={updateRequest.isLoading}
+              onClick={confirmOpen}
+            >
+              <LoopOutlined />
+            </IconButton>
+          }
+        >
           {/* 已选文件夹 */}
           <Breadcrumbs>
             <Typography />
@@ -88,22 +98,10 @@ export default function DirectoryPicker() {
               </ListItemButton>
             ))}
           </List>
-        </DialogContent>
-        <DialogActions sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Box>
-            <IconButton
-              loading={updateRequest.isLoading}
-              onClick={updateRequest.refresh}
-            >
-              <LoopOutlined />
-            </IconButton>
-          </Box>
-          <Box>
-            <Button onClick={handleClose}>{t('Common.Cancel')}</Button>
-            <Button onClick={handleOk}>{t('Common.OK')}</Button>
-          </Box>
-        </DialogActions>
-      </Dialog>
+
+          {confirmDialog}
+        </Dialog>
+      )}
     </Box>
   );
 }

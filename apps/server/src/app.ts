@@ -1,10 +1,6 @@
-import dotenv from 'dotenv';
+import { logInfo } from '#pkgs/tools/utils.js';
 import Koa from 'koa';
 import { directoryRouter } from './router/directory';
-
-dotenv.config({
-  path: process.env.NODE_ENV?.trim() === 'dev' ? './.env.dev' : './.env',
-});
 
 const routers = [directoryRouter];
 
@@ -18,5 +14,5 @@ for (const r of routers) {
 }
 
 app.listen(PORT, () => {
-  console.info(`server started on ${PORT}`);
+  logInfo(`server started on ${PORT}`);
 });

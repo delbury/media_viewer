@@ -4,6 +4,7 @@
     "SelectDirectory": "选择文件夹"
   },
   "Common": {
+    "AreYouSure": "确定？",
     "OK": "确认",
     "Cancel": "取消"
   }
