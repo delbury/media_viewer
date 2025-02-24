@@ -10,6 +10,10 @@ export const API_CONFIGS = {
     url: '/dir/update',
     method: 'get',
   },
+  dirTree: {
+    url: '/dir/tree',
+    method: 'get',
+  },
 } satisfies Record<string, ApiConfig>;
 
 export type ApiKeys = keyof typeof API_CONFIGS;

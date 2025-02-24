@@ -1,5 +1,5 @@
 import { returnBody, returnError } from '#/util';
-import { writeDataToFile } from '#pkgs/tools/fileOperation';
+import { readDataFromFile, writeDataToFile } from '#pkgs/tools/fileOperation';
 import { traverseDirectories, TraverseDirectoriesReturnValue } from '#pkgs/tools/traverseDirectories';
 import Router from '@koa/router';
 import path from 'node:path';
@@ -44,6 +44,19 @@ directoryRouter.get('/update', async ctx => {
   } finally {
     updateTask.loading = false;
   }
+});
+
+directoryRouter.get('/tree', async ctx => {
+  // 优先取内存缓存
+  if (updateTask.cache) {
+    ctx.body = returnBody(updateTask.cache.treeNode);
+    return;
+  }
+  // 取本地缓存
+  const json = await readDataFromFile(CACHE_DATA_PATH, updateTask.localCacheFileName);
+  // 缓存到内存
+  updateTask.cache = json;
+  ctx.body = returnBody(updateTask.cache.treeNode);
 });
 
 export { directoryRouter };

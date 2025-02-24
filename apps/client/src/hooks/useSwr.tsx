@@ -1,25 +1,34 @@
 'use client';
 
 import { API_CONFIGS, ApiKeys, instance, TIMEOUT } from '@/request';
-import { ApiResponseBase } from '@shared';
+import { ApiResponseBase, DirUpdateDate } from '@shared';
 import { useNotifications } from '@toolpad/core';
-import { AxiosError, AxiosResponse } from 'axios';
+import { AxiosError } from 'axios';
 import { useCallback } from 'react';
-import useSWR from 'swr';
+import useSWR, { KeyedMutator } from 'swr';
 
-export const useSwr = function <D = unknown>(
+interface UseSwrOptions {
+  lazy?: boolean;
+}
+interface UseSwrReturnValue<T> {
+  data?: T;
+  isLoading: boolean;
+  isValidating: boolean;
+  mutate: KeyedMutator<ApiResponseBase<T>>;
+  refresh: () => void;
+}
+
+// 类型重载
+function useSwr(key: 'dirUpdate', options?: UseSwrOptions): UseSwrReturnValue<DirUpdateDate>;
+function useSwr(key: 'dirTree', options?: UseSwrOptions): UseSwrReturnValue<DirUpdateDate['treeNode']>;
+function useSwr<D extends Record<string, unknown> = Record<string, unknown>>(
   apiKey: ApiKeys,
-  options?: {
-    lazy?: boolean;
-  }
-) {
+  options?: UseSwrOptions
+): UseSwrReturnValue<D> {
   const { lazy = false } = options ?? {};
   const notifications = useNotifications();
   const { url, method } = API_CONFIGS[apiKey];
-  const { data, isLoading, isValidating, mutate } = useSWR<
-    AxiosResponse<ApiResponseBase<D>>,
-    AxiosError<ApiResponseBase>
-  >(
+  const { data, isLoading, isValidating, mutate } = useSWR<ApiResponseBase<D>, AxiosError<ApiResponseBase>>(
     url,
     async () => {
       const res = await instance.request({
@@ -43,10 +52,12 @@ export const useSwr = function <D = unknown>(
   );
 
   return {
-    data,
+    data: data?.data,
     isLoading,
     isValidating,
     mutate,
     refresh: useCallback(() => mutate(), [mutate]),
   };
-};
+}
+
+export { useSwr };
