@@ -6,4 +6,5 @@ export interface ApiResponseBase<T = unknown> {
   data?: T;
 }
 
-export type DirUpdateDate = TraverseDirectoriesReturnValue;
+export type DirUpdateData = TraverseDirectoriesReturnValue;
+export type DirTreeData = DirUpdateData['treeNode'];

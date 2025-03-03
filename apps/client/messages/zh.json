@@ -1,11 +1,14 @@
 {
   "Tools": {
     "RepeatFileAnalyzer": "重复文件分析",
-    "SelectDirectory": "选择文件夹"
+    "SelectDirectory": "选择文件夹",
+    "NoDirectories": "当前目录下已无文件夹"
   },
   "Common": {
     "AreYouSure": "确定？",
     "OK": "确认",
-    "Cancel": "取消"
+    "Cancel": "取消",
+    "Select": "选择",
+    "Empty": "无内容"
   }
 }

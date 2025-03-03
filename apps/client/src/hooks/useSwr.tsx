@@ -1,11 +1,13 @@
 'use client';
 
 import { API_CONFIGS, ApiKeys, instance, TIMEOUT } from '@/request';
-import { ApiResponseBase, DirUpdateDate } from '@shared';
+import { ApiResponseBase, DirTreeData, DirUpdateData } from '@shared';
 import { useNotifications } from '@toolpad/core';
 import { AxiosError } from 'axios';
 import { useCallback } from 'react';
 import useSWR, { KeyedMutator } from 'swr';
+
+export type * from '@shared';
 
 interface UseSwrOptions {
   lazy?: boolean;
@@ -19,8 +21,9 @@ interface UseSwrReturnValue<T> {
 }
 
 // 类型重载
-function useSwr(key: 'dirUpdate', options?: UseSwrOptions): UseSwrReturnValue<DirUpdateDate>;
-function useSwr(key: 'dirTree', options?: UseSwrOptions): UseSwrReturnValue<DirUpdateDate['treeNode']>;
+function useSwr(key: 'dirUpdate', options?: UseSwrOptions): UseSwrReturnValue<DirUpdateData>;
+function useSwr(key: 'dirTree', options?: UseSwrOptions): UseSwrReturnValue<DirTreeData>;
+
 function useSwr<D extends Record<string, unknown> = Record<string, unknown>>(
   apiKey: ApiKeys,
   options?: UseSwrOptions
