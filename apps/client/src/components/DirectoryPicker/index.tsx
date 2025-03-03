@@ -17,16 +17,24 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Empty from '../Empty';
 import style from './index.module.scss';
+
+const useStyles = makeStyles({
+  ol: {
+    rowGap: '8px',
+  },
+});
 
 const SEPARATOR = '/';
 
 export default function DirectoryPicker() {
   const t = useTranslations();
   const { visible, handleClose, handleOpen } = useDialogState(true);
+  const classes = useStyles();
 
   // 后端强制更新文件信息
   const updateRequest = useSwr('dirUpdate', { lazy: true });
@@ -40,9 +48,17 @@ export default function DirectoryPicker() {
   // 当前目录下的子文件夹
   const [currentDirs, setCurrentDirs] = useState<DirTreeData[]>([]);
 
+  // 初始化数据
   useEffect(() => {
     setCurrentDirs(dirRequest.data?.children ?? []);
+    setPathList([]);
   }, [dirRequest.data]);
+  useEffect(() => {
+    if (updateRequest.data) {
+      setCurrentDirs(updateRequest.data?.treeNode?.children ?? []);
+      setPathList([]);
+    }
+  }, [updateRequest.data]);
 
   const handleSelectChild = (dir: DirTreeData) => {
     setPathList([...pathList, dir.name]);
@@ -79,7 +95,10 @@ export default function DirectoryPicker() {
           }
         >
           {/* 已选文件夹 */}
-          <Breadcrumbs separator={SEPARATOR}>
+          <Breadcrumbs
+            separator={SEPARATOR}
+            classes={{ ol: classes.ol }}
+          >
             <Box sx={{ fontSize: 0 }}>
               <OtherHousesOutlined fontSize="small" />
             </Box>
