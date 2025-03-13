@@ -1,4 +1,4 @@
-import { TraverseDirectoriesReturnValue } from '../tools/traverseDirectories';
+import { DirectoryInfo, TraverseDirectoriesReturnValue } from '../tools/traverseDirectories';
 
 export interface ApiResponseBase<T = unknown> {
   msg?: string;
@@ -6,5 +6,5 @@ export interface ApiResponseBase<T = unknown> {
   data?: T;
 }
 
-export type DirUpdateData = TraverseDirectoriesReturnValue;
-export type DirTreeData = DirUpdateData['treeNode'];
+type DirUpdateData = TraverseDirectoriesReturnValue;
+export type { DirectoryInfo, DirUpdateData };

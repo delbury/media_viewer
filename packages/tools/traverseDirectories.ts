@@ -9,15 +9,19 @@ interface CommonInfo {
   created: number;
   updated: number;
 }
-interface FileInfo extends CommonInfo {
+export interface FileInfo extends CommonInfo {
   size: number;
   namePure: string;
   nameExt: string;
   [key: string]: unknown;
 }
-interface DirectoryInfo extends CommonInfo {
+export interface DirectoryInfo extends CommonInfo {
   files: FileInfo[];
   children: DirectoryInfo[];
+  // 当前文件夹的文件数
+  selfFilesCount: number;
+  // 当前文件夹和其所有子文件夹的文件数
+  totalFilesCount: number;
 }
 interface NewInfoParams {
   bp?: string;
@@ -56,6 +60,8 @@ const newDirectoryInfo = (params?: NewInfoParams): DirectoryInfo => {
     ...newCommonInfo(params),
     files: [],
     children: [],
+    selfFilesCount: 0,
+    totalFilesCount: 0,
   };
 };
 
@@ -111,6 +117,8 @@ export const traverseDirectories = async (dir: string | string[]) => {
     }
   }
 
+  calcFileCount(treeNode);
+
   // 移除 basePath
   fileList.forEach(info => (info.basePath = null));
   dirList.forEach(info => (info.basePath = null));
@@ -118,6 +126,17 @@ export const traverseDirectories = async (dir: string | string[]) => {
     treeNode,
     fileList,
   };
+};
+
+// 递归计算文件数
+const calcFileCount = (dirInfo: DirectoryInfo) => {
+  dirInfo.selfFilesCount = dirInfo.files.length;
+  let total = dirInfo.selfFilesCount;
+  for (const child of dirInfo.children) {
+    total += calcFileCount(child);
+  }
+  dirInfo.totalFilesCount = total;
+  return total;
 };
 
 export type TraverseDirectoriesReturnValue = Awaited<ReturnType<typeof traverseDirectories>>;

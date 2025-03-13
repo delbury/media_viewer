@@ -3,24 +3,14 @@
 import Dialog from '@/components/Dialog';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { useDialogState } from '@/hooks/useDialogState';
-import { DirTreeData, useSwr } from '@/hooks/useSwr';
-import { formatDate } from '@/utils';
-import { FolderOutlined, LoopOutlined, OtherHouses, OtherHousesOutlined } from '@mui/icons-material';
-import {
-  Box,
-  Breadcrumbs,
-  Button,
-  Chip,
-  Divider,
-  IconButton,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-} from '@mui/material';
+import { DirectoryInfo, useSwr } from '@/hooks/useSwr';
+import { LoopOutlined, OtherHouses, OtherHousesOutlined } from '@mui/icons-material';
+import { Box, Breadcrumbs, Button, Chip, Divider, IconButton, List, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Empty from '../Empty';
+import DirectoryItem from './DirectoryItem';
+import FilesInfo from './FilesInfo';
 import style from './index.module.scss';
 import { useStyles } from './style';
 
@@ -39,10 +29,12 @@ export default function DirectoryPicker() {
   // 请求文件夹树
   const dirRequest = useSwr('dirTree');
   // example: /a/b/c
-  const [pathList, setPathList] = useState<DirTreeData[]>([]);
+  const [pathList, setPathList] = useState<DirectoryInfo[]>([]);
   // 当前目录下的子文件夹
   const currentPathNode = useMemo(() => pathList[pathList.length - 1], [pathList]);
   const currentDirs = useMemo(() => currentPathNode?.children ?? [], [currentPathNode]);
+  const currentTotalFileCount = useMemo(() => currentPathNode?.totalFilesCount ?? 0, [currentPathNode]);
+  const currentSelfFileCount = useMemo(() => currentPathNode?.selfFilesCount ?? 0, [currentPathNode]);
   const isAtHome = pathList.length === 1;
 
   // 设置当前已选文件夹
@@ -57,7 +49,7 @@ export default function DirectoryPicker() {
     setPathList(updateRequest.data?.treeNode ? [updateRequest.data.treeNode] : []);
   }, [updateRequest.data]);
 
-  const handleSelectChild = (dir: DirTreeData) => {
+  const handleSelectChild = (dir: DirectoryInfo) => {
     setPathList([...pathList, dir]);
   };
 
@@ -80,7 +72,15 @@ export default function DirectoryPicker() {
           open={visible}
           onClose={handleClose}
           onOk={handleOk}
-          title={t('Tools.SelectDirectory')}
+          title={
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography>{t('Tools.SelectDirectory')}</Typography>
+              <FilesInfo
+                total={currentTotalFileCount}
+                self={currentSelfFileCount}
+              />
+            </Box>
+          }
           leftFooter={
             <IconButton
               loading={updateRequest.isLoading}
@@ -124,7 +124,7 @@ export default function DirectoryPicker() {
                       variant={isLast ? 'filled' : 'outlined'}
                       color={isLast ? 'primary' : 'default'}
                       onClick={() => setTarget(index)}
-                      style={{ maxWidth: 'min(300px, 40vw)' }}
+                      style={{ maxWidth: 'min(300px, 35vw)' }}
                     />
                   </Box>
                 );
@@ -136,39 +136,11 @@ export default function DirectoryPicker() {
             {/* 当前文件夹的子文件夹 */}
             <List>
               {currentDirs.map(dir => (
-                <ListItemButton
+                <DirectoryItem
                   key={dir.name}
+                  dir={dir}
                   onClick={() => handleSelectChild(dir)}
-                >
-                  <ListItemIcon>
-                    <FolderOutlined fontSize="large" />
-                  </ListItemIcon>
-
-                  <ListItemText
-                    primary={dir.name}
-                    secondary={
-                      <>
-                        <span>{formatDate(dir.updated)}</span>
-                        <span>{dir.files?.length} files</span>
-                      </>
-                    }
-                    slotProps={{
-                      primary: {
-                        sx: {
-                          overflow: 'hidden',
-                          whiteSpace: 'nowrap',
-                          textOverflow: 'ellipsis',
-                        },
-                      },
-                      secondary: {
-                        sx: {
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                        },
-                      },
-                    }}
-                  />
-                </ListItemButton>
+                />
               ))}
               {!currentDirs.length && <Empty label={t('Tools.NoDirectories')} />}
             </List>

@@ -9,6 +9,9 @@
     "OK": "确认",
     "Cancel": "取消",
     "Select": "选择",
-    "Empty": "无内容"
+    "Empty": "无内容",
+    "Files": "files",
+    "Total": "total",
+    "Self": "self"
   }
 }
