@@ -1,8 +1,7 @@
 import { Box, Breadcrumbs, Chip, IconButton } from '@mui/material';
-import { useStyles } from './style';
+import { PathBtn, useStyles } from './style';
 import { OtherHouses, OtherHousesOutlined } from '@mui/icons-material';
 import { DirectoryInfo } from '@shared';
-import style from './index.module.scss';
 
 const SEPARATOR = '/';
 
@@ -39,10 +38,7 @@ const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
             </IconButton>
           </Box>
         ) : (
-          <Box
-            className={style.path_btn}
-            key={key}
-          >
+          <PathBtn key={key}>
             <Chip
               label={path.name}
               size="small"
@@ -51,7 +47,7 @@ const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
               onClick={() => onItemClick?.(index)}
               style={{ maxWidth: 'min(300px, 35vw)' }}
             />
-          </Box>
+          </PathBtn>
         );
       })}
     </Breadcrumbs>
