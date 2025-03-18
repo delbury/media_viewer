@@ -27,15 +27,14 @@ directoryRouter.get('/update', async ctx => {
     return;
   }
 
-  const rootDir = DIRECTORY_ROOT;
-  if (!rootDir) {
+  if (!DIRECTORY_ROOT) {
     ctx.body = returnError('no root dir');
     return;
   }
 
   try {
     updateTask.loading = true;
-    const res = await traverseDirectories(rootDir);
+    const res = await traverseDirectories(DIRECTORY_ROOT);
     ctx.body = returnBody(res);
     // 更新内存缓存
     updateTask.cache = res;
@@ -56,7 +55,7 @@ directoryRouter.get('/tree', async ctx => {
   const json = await readDataFromFile(CACHE_DATA_PATH, updateTask.localCacheFileName);
   // 缓存到内存
   updateTask.cache = json;
-  ctx.body = returnBody(updateTask.cache.treeNode);
+  ctx.body = returnBody(updateTask.cache?.treeNode ?? null);
 });
 
 export { directoryRouter };

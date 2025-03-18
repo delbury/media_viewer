@@ -2,7 +2,7 @@
   "Tools": {
     "RepeatFileAnalyzer": "重复文件分析",
     "SelectDirectory": "选择文件夹",
-    "NoDirectories": "当前目录下已无文件夹"
+    "NoDirectories": "当前目录下无文件夹"
   },
   "Common": {
     "AreYouSure": "确定？",

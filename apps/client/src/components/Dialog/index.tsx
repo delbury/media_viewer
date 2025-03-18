@@ -1,5 +1,6 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack } from '@mui/material';
 import { useTranslations } from 'next-intl';
+import { useCallback } from 'react';
 
 interface DialogProps {
   open: boolean;
@@ -14,6 +15,11 @@ interface DialogProps {
 const CompDialog = (props: DialogProps) => {
   const { open, onClose, loading, onCancel, onOk, children, leftFooter, title } = props;
   const t = useTranslations();
+
+  const handleCancel = useCallback(() => {
+    onCancel?.();
+    onClose?.();
+  }, [onCancel, onClose]);
 
   return (
     <Dialog
@@ -30,7 +36,7 @@ const CompDialog = (props: DialogProps) => {
           spacing={2}
         >
           <Button
-            onClick={onCancel}
+            onClick={handleCancel}
             variant="outlined"
             size="small"
           >
