@@ -13,7 +13,6 @@ import { getLocale, getMessages } from 'next-intl/server';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { ErrorBoundary } from 'react-error-boundary';
-import style from './layout.module.scss';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -64,7 +63,7 @@ export default async function RootLayout({
               <ErrorBoundary fallback={<Box>Something went wrong</Box>}>
                 <Layout>
                   <Header />
-                  <Box className={style.container}>{children}</Box>
+                  <Box sx={{ padding: 24 }}>{children}</Box>
                 </Layout>
               </ErrorBoundary>
             </ThemeProvider>

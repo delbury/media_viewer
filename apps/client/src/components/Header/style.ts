@@ -1,4 +1,8 @@
-.header {
+'use client';
+
+import { Box, styled } from '@mui/material';
+
+export const HeaderWrapper = styled(Box)`
   display: flex;
   gap: 24px;
   align-items: center;
@@ -11,4 +15,4 @@
     font-size: 32px;
     color: var(--color-text-light);
   }
-}
+`;
