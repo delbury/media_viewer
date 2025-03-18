@@ -4,22 +4,18 @@ import Dialog from '@/components/Dialog';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { useDialogState } from '@/hooks/useDialogState';
 import { DirectoryInfo, useSwr } from '@/hooks/useSwr';
-import { LoopOutlined, OtherHouses, OtherHousesOutlined } from '@mui/icons-material';
-import { Box, Breadcrumbs, Button, Chip, Divider, IconButton, List, Typography } from '@mui/material';
+import { LoopOutlined } from '@mui/icons-material';
+import { Box, Button, Divider, IconButton, List, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Empty from '../Empty';
 import DirectoryItem from './DirectoryItem';
 import FilesInfo from './FilesInfo';
-import style from './index.module.scss';
-import { useStyles } from './style';
-
-const SEPARATOR = '/';
+import DirectoryPath from './DirectoryPath';
 
 export default function DirectoryPicker() {
   const t = useTranslations();
   const { visible, handleClose, handleOpen } = useDialogState(true);
-  const classes = useStyles();
 
   // 后端强制更新文件信息
   const updateRequest = useSwr('dirUpdate', { lazy: true });
@@ -92,44 +88,10 @@ export default function DirectoryPicker() {
         >
           <Box height={'50vh'}>
             {/* 已选文件夹 */}
-            <Breadcrumbs
-              separator={SEPARATOR}
-              classes={{ ol: classes.ol }}
-            >
-              {pathList.map((path, index) => {
-                const isFirst = index === 0;
-                const isLast = index === pathList.length - 1;
-                const key = `${path}_${index}`;
-                return isFirst ? (
-                  <Box
-                    sx={{ fontSize: 0 }}
-                    key={key}
-                  >
-                    <IconButton
-                      size="small"
-                      color={isAtHome ? 'primary' : void 0}
-                      onClick={() => setTarget(index)}
-                    >
-                      {isAtHome ? <OtherHouses /> : <OtherHousesOutlined />}
-                    </IconButton>
-                  </Box>
-                ) : (
-                  <Box
-                    className={style.path_btn}
-                    key={key}
-                  >
-                    <Chip
-                      label={path.name}
-                      size="small"
-                      variant={isLast ? 'filled' : 'outlined'}
-                      color={isLast ? 'primary' : 'default'}
-                      onClick={() => setTarget(index)}
-                      style={{ maxWidth: 'min(300px, 35vw)' }}
-                    />
-                  </Box>
-                );
-              })}
-            </Breadcrumbs>
+            <DirectoryPath
+              pathList={pathList}
+              onItemClick={setTarget}
+            />
 
             <Divider style={{ marginTop: 8 }} />
 
