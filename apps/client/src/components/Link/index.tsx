@@ -7,6 +7,11 @@ const Link = (props: LinkProps) => {
       component="div"
       {...props}
       href={null}
+      sx={{
+        ':hover *': {
+          color: 'primary.main',
+        },
+      }}
     >
       <RouterLink
         style={{ display: 'contents' }}
@@ -18,4 +23,4 @@ const Link = (props: LinkProps) => {
   );
 };
 
-export { Link };
+export default Link;

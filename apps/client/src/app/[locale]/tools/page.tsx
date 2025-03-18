@@ -1,7 +1,7 @@
-import { Link } from '@/components/Link';
+import Link from '@/components/Link';
 import { TFunction } from '@/types';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
-import { Box, Card, CardActions, CardHeader } from '@mui/material';
+import { Box, Card, CardActionArea, CardActions, CardHeader } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 
@@ -25,12 +25,20 @@ export default function Tools() {
             color="inherit"
             underline="none"
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <CardActionArea
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                ':hover': {
+                  backgroundColor: 'action.hover',
+                },
+              }}
+            >
               <CardHeader title={tool.title} />
               <CardActions>
                 <OpenInNewOutlinedIcon />
               </CardActions>
-            </Box>
+            </CardActionArea>
           </Link>
         </Card>
       ))}
