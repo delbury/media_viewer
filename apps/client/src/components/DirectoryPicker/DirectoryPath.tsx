@@ -21,7 +21,7 @@ const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
     <Breadcrumbs
       separator={SEPARATOR}
       classes={{ ol: classes.ol }}
-      sx={{ marginBottom: '12px' }}
+      sx={{ marginBottom: '8px' }}
     >
       {pathList.map((path, index) => {
         const isFirst = index === 0;

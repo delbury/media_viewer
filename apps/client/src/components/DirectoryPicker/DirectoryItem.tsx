@@ -1,9 +1,10 @@
 import { formatDate } from '@/utils';
 import { FolderOutlined } from '@mui/icons-material';
-import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { ListItemIcon, ListItemText } from '@mui/material';
 import { DirectoryInfo } from '@shared';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
+import { StyledListItemButton } from './style';
 
 interface DirectoryItemProps {
   dir: DirectoryInfo;
@@ -18,15 +19,14 @@ const DirectoryItem = ({ dir, onClick }: DirectoryItemProps) => {
     [t, dir.updated]
   );
   const fileInfo = useMemo(
-    () => `${t('Common.Total')} ${dir.files?.length ?? 0} ${t('Common.Files')}`,
-    [t, dir.files?.length]
+    () => `${t('Common.Total')} ${dir.totalFilesCount} ${t('Common.Files')}`,
+    [t, dir.totalFilesCount]
   );
 
   return (
-    <ListItemButton
+    <StyledListItemButton
       key={dir.name}
       onClick={onClick}
-      sx={{ paddingLeft: 0, paddingRight: 0 }}
     >
       <ListItemIcon sx={{ minWidth: 40 }}>
         <FolderOutlined fontSize="large" />
@@ -56,7 +56,7 @@ const DirectoryItem = ({ dir, onClick }: DirectoryItemProps) => {
           },
         }}
       />
-    </ListItemButton>
+    </StyledListItemButton>
   );
 };
 

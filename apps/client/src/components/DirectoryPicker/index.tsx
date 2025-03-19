@@ -5,7 +5,7 @@ import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { useDialogState } from '@/hooks/useDialogState';
 import { DirectoryInfo, useSwr } from '@/hooks/useSwr';
 import { LoopOutlined } from '@mui/icons-material';
-import { Box, Button, IconButton, List } from '@mui/material';
+import { Box, Button, IconButton, List, Stack } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Empty from '../Empty';
@@ -13,6 +13,7 @@ import DirectoryItem from './DirectoryItem';
 import FilesInfo from './FilesInfo';
 import DirectoryPath from './DirectoryPath';
 import ResizeContainer from '../ResizeContainer';
+import FileItem from './FileItem';
 
 export default function DirectoryPicker() {
   const t = useTranslations();
@@ -30,6 +31,7 @@ export default function DirectoryPicker() {
   // 当前目录下的子文件夹
   const currentPathNode = useMemo(() => pathList[pathList.length - 1], [pathList]);
   const currentDirs = useMemo(() => currentPathNode?.children ?? [], [currentPathNode]);
+  const currentFiles = useMemo(() => currentPathNode?.files ?? [], [currentPathNode]);
   const currentTotalFileCount = useMemo(() => currentPathNode?.totalFilesCount ?? 0, [currentPathNode]);
   const currentSelfFileCount = useMemo(() => currentPathNode?.selfFilesCount ?? 0, [currentPathNode]);
 
@@ -89,22 +91,52 @@ export default function DirectoryPicker() {
             pathList={pathList}
             onItemClick={setTarget}
           />
-          {/* 当前文件夹的子文件夹 */}
-          <ResizeContainer defaultHeight={'30vh'}>
-            <List sx={{ padding: 0 }}>
-              {currentDirs.map(dir => (
-                <DirectoryItem
-                  key={dir.name}
-                  dir={dir}
-                  onClick={() => handleSelectChild(dir)}
-                />
-              ))}
-              {!currentDirs.length && <Empty label={t('Tools.NoDirectories')} />}
-            </List>
-          </ResizeContainer>
+          <ResizeContainer.Wrapper height="50vh">
+            {/* 当前文件夹的子文件夹 */}
+            <ResizeContainer
+              title={t('Tools.CurrentDirectories')}
+              emptyText={t('Tools.NoDirectories')}
+              isEmpty={!currentDirs.length}
+            >
+              {currentDirs.length && (
+                <List sx={{ padding: 0 }}>
+                  {currentDirs.map(dir => (
+                    <DirectoryItem
+                      key={dir.fullPath}
+                      dir={dir}
+                      onClick={() => handleSelectChild(dir)}
+                    />
+                  ))}
+                </List>
+              )}
+            </ResizeContainer>
 
-          {/* 当前文件夹的文件 */}
-          <ResizeContainer defaultHeight={'20vh'}>xxx</ResizeContainer>
+            {/* 当前文件夹的文件 */}
+            <ResizeContainer
+              height="20vh"
+              title={t('Tools.CurrentFiles')}
+              emptyText={t('Tools.NoFiles')}
+              isEmpty={!currentFiles.length}
+              resizePosition="top"
+              sx={{ marginTop: '8px' }}
+            >
+              {currentFiles.length && (
+                <Stack
+                  direction="row"
+                  gap={1}
+                  useFlexGap
+                  sx={{ flexWrap: 'wrap', padding: '4px' }}
+                >
+                  {currentFiles.map(file => (
+                    <FileItem
+                      key={file.fullPath}
+                      file={file}
+                    />
+                  ))}
+                </Stack>
+              )}
+            </ResizeContainer>
+          </ResizeContainer.Wrapper>
 
           {confirmDialog}
         </Dialog>
