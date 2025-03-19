@@ -1,7 +1,7 @@
 'use client';
 
 import { API_CONFIGS, ApiKeys, instance, TIMEOUT } from '@/request';
-import { ApiResponseBase, DirTreeData, DirUpdateData } from '@shared';
+import { ApiResponseBase, DirectoryInfo, DirUpdateData } from '@shared';
 import { useNotifications } from '@toolpad/core';
 import { AxiosError } from 'axios';
 import { useCallback } from 'react';
@@ -22,7 +22,7 @@ interface UseSwrReturnValue<T> {
 
 // 类型重载
 function useSwr(key: 'dirUpdate', options?: UseSwrOptions): UseSwrReturnValue<DirUpdateData>;
-function useSwr(key: 'dirTree', options?: UseSwrOptions): UseSwrReturnValue<DirTreeData>;
+function useSwr(key: 'dirTree', options?: UseSwrOptions): UseSwrReturnValue<DirectoryInfo>;
 
 function useSwr<D extends Record<string, unknown> = Record<string, unknown>>(
   apiKey: ApiKeys,

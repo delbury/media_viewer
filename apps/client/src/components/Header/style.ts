@@ -13,7 +13,7 @@ export const HeaderWrapper = styled(Box)`
   background-color: var(--color-bg-dark);
 
   * {
-    font-size: 32px;
+    font-size: 2.5rem;
     color: var(--color-text-light);
   }
 `;

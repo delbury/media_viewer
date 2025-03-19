@@ -1,21 +1,9 @@
-import { SxProps, Theme } from '@mui/material';
-import { ScrollBox } from './style';
+import ResizeContainerItem from './ResizeContainerItem';
+import ResizeContainerWrapper from './ResizeContainerWrapper';
 
-interface ResizeContainerProps {
-  children?: React.ReactNode;
-  defaultHeight?: string;
-  sx?: SxProps<Theme>;
-}
-
-const ResizeContainer = ({ children, defaultHeight, sx }: ResizeContainerProps) => {
-  return (
-    <ScrollBox
-      height={defaultHeight}
-      sx={sx}
-    >
-      {children}
-    </ScrollBox>
-  );
+const ResizeContainer = ResizeContainerItem as typeof ResizeContainerItem & {
+  Wrapper: typeof ResizeContainerWrapper;
 };
+ResizeContainer.Wrapper = ResizeContainerWrapper;
 
 export default ResizeContainer;

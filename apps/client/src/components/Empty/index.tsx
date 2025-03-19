@@ -2,7 +2,7 @@ import { Box, styled, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
 
 const EmptyTip = styled(Typography)(({ theme }) => ({
-  color: theme.palette.grey[500],
+  color: theme.palette.text.secondary,
 }));
 
 const Empty = ({ label }: { label?: string }) => {
