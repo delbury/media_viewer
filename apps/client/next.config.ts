@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  compiler: {
+    emotion: true,
+    styledComponents: true,
+  },
 };
 
 export default withNextIntl(nextConfig);

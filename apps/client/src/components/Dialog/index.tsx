@@ -1,6 +1,7 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Stack } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
+import { StyledDialogTitleRow } from './style';
 
 interface DialogProps {
   open: boolean;
@@ -9,11 +10,12 @@ interface DialogProps {
   onOk?: () => void;
   onCancel?: () => void;
   children?: React.ReactNode;
-  leftFooter?: React.ReactNode;
+  leftFooterSlot?: React.ReactNode;
   title?: React.ReactNode;
+  titleRightSlot?: React.ReactNode;
 }
 const CompDialog = (props: DialogProps) => {
-  const { open, onClose, loading, onCancel, onOk, children, leftFooter, title } = props;
+  const { open, onClose, loading, onCancel, onOk, children, leftFooterSlot: leftFooter, title, titleRightSlot } = props;
   const t = useTranslations();
 
   const handleCancel = useCallback(() => {
@@ -27,7 +29,13 @@ const CompDialog = (props: DialogProps) => {
       onClose={onClose}
       fullWidth
     >
-      <DialogTitle>{title}</DialogTitle>
+      <StyledDialogTitleRow>
+        <DialogTitle sx={{ padding: 0 }}>{title}</DialogTitle>
+        {titleRightSlot}
+      </StyledDialogTitleRow>
+
+      <Divider />
+
       <DialogContent>{children}</DialogContent>
       <DialogActions sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Box>{leftFooter}</Box>

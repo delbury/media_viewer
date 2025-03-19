@@ -5,13 +5,14 @@ import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { useDialogState } from '@/hooks/useDialogState';
 import { DirectoryInfo, useSwr } from '@/hooks/useSwr';
 import { LoopOutlined } from '@mui/icons-material';
-import { Box, Button, Divider, IconButton, List, Typography } from '@mui/material';
+import { Box, Button, IconButton, List } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Empty from '../Empty';
 import DirectoryItem from './DirectoryItem';
 import FilesInfo from './FilesInfo';
 import DirectoryPath from './DirectoryPath';
+import ResizeContainer from '../ResizeContainer';
 
 export default function DirectoryPicker() {
   const t = useTranslations();
@@ -31,7 +32,6 @@ export default function DirectoryPicker() {
   const currentDirs = useMemo(() => currentPathNode?.children ?? [], [currentPathNode]);
   const currentTotalFileCount = useMemo(() => currentPathNode?.totalFilesCount ?? 0, [currentPathNode]);
   const currentSelfFileCount = useMemo(() => currentPathNode?.selfFilesCount ?? 0, [currentPathNode]);
-  const isAtHome = pathList.length === 1;
 
   // 设置当前已选文件夹
   const setTarget = (index: number) => {
@@ -68,16 +68,14 @@ export default function DirectoryPicker() {
           open={visible}
           onClose={handleClose}
           onOk={handleOk}
-          title={
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography>{t('Tools.SelectDirectory')}</Typography>
-              <FilesInfo
-                total={currentTotalFileCount}
-                self={currentSelfFileCount}
-              />
-            </Box>
+          title={t('Tools.SelectDirectory')}
+          titleRightSlot={
+            <FilesInfo
+              total={currentTotalFileCount}
+              self={currentSelfFileCount}
+            />
           }
-          leftFooter={
+          leftFooterSlot={
             <IconButton
               loading={updateRequest.isLoading}
               onClick={confirmOpen}
@@ -86,17 +84,14 @@ export default function DirectoryPicker() {
             </IconButton>
           }
         >
-          <Box height={'50vh'}>
-            {/* 已选文件夹 */}
-            <DirectoryPath
-              pathList={pathList}
-              onItemClick={setTarget}
-            />
-
-            <Divider style={{ marginTop: 8 }} />
-
-            {/* 当前文件夹的子文件夹 */}
-            <List>
+          {/* 已选文件夹 */}
+          <DirectoryPath
+            pathList={pathList}
+            onItemClick={setTarget}
+          />
+          {/* 当前文件夹的子文件夹 */}
+          <ResizeContainer defaultHeight={'30vh'}>
+            <List sx={{ padding: 0 }}>
               {currentDirs.map(dir => (
                 <DirectoryItem
                   key={dir.name}
@@ -106,7 +101,10 @@ export default function DirectoryPicker() {
               ))}
               {!currentDirs.length && <Empty label={t('Tools.NoDirectories')} />}
             </List>
-          </Box>
+          </ResizeContainer>
+
+          {/* 当前文件夹的文件 */}
+          <ResizeContainer defaultHeight={'20vh'}>xxx</ResizeContainer>
 
           {confirmDialog}
         </Dialog>
