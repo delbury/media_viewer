@@ -1,7 +1,11 @@
-import { Box, Breadcrumbs, Chip, IconButton } from '@mui/material';
-import { PathBtn, useStyles } from './style';
-import { OtherHouses, OtherHousesOutlined } from '@mui/icons-material';
+import { Box, Breadcrumbs, Chip } from '@mui/material';
+import { PathNodeTitle, PathNodeWrapper, useStyles } from './style';
+import { OtherHousesOutlined } from '@mui/icons-material';
 import { DirectoryInfo } from '@shared';
+
+const CountTag = ({ count }: { count: number }) => {
+  return <span style={{ marginInlineStart: '0.5em' }}>: {count}</span>;
+};
 
 const SEPARATOR = '/';
 
@@ -13,41 +17,39 @@ interface DirectoryPathProps {
 const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
   const classes = useStyles();
 
-  const isAtHome = pathList.length === 1;
-
   return (
     <Breadcrumbs
       separator={SEPARATOR}
       classes={{ ol: classes.ol }}
+      sx={{ marginBottom: '12px' }}
     >
       {pathList.map((path, index) => {
         const isFirst = index === 0;
         const isLast = index === pathList.length - 1;
         const key = `${path}_${index}`;
-        return isFirst ? (
-          <Box
-            sx={{ fontSize: 0 }}
-            key={key}
-          >
-            <IconButton
-              size="small"
-              color={isAtHome ? 'primary' : void 0}
-              onClick={() => onItemClick?.(index)}
-            >
-              {isAtHome ? <OtherHouses /> : <OtherHousesOutlined />}
-            </IconButton>
-          </Box>
-        ) : (
-          <PathBtn key={key}>
+
+        return (
+          <PathNodeWrapper key={key}>
             <Chip
-              label={path.name}
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {isFirst ? (
+                    <div style={{ fontSize: 0 }}>
+                      <OtherHousesOutlined fontSize="small" />
+                    </div>
+                  ) : (
+                    <PathNodeTitle>{path.name}</PathNodeTitle>
+                  )}
+                  <CountTag count={path.totalFilesCount} />
+                </Box>
+              }
               size="small"
               variant={isLast ? 'filled' : 'outlined'}
               color={isLast ? 'primary' : 'default'}
               onClick={() => onItemClick?.(index)}
               style={{ maxWidth: 'min(300px, 35vw)' }}
             />
-          </PathBtn>
+          </PathNodeWrapper>
         );
       })}
     </Breadcrumbs>

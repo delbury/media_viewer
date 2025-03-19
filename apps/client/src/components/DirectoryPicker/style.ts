@@ -1,5 +1,6 @@
-import { Box, styled } from '@mui/material';
+import { Box, Theme, styled as muiStyled } from '@mui/material';
 import { makeStyles } from '@mui/styles';
+import styled from '@emotion/styled';
 
 export const useStyles = makeStyles({
   ol: {
@@ -7,11 +8,24 @@ export const useStyles = makeStyles({
   },
 });
 
-export const PathBtn = styled(Box)`
+export const PathNodeWrapper = styled(Box)`
   cursor: pointer;
+`;
 
-  &:hover * {
+export const PathNodeTitle = styled(Box)`
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  ${PathNodeWrapper}:hover & {
     text-decoration: underline;
     text-underline-offset: 1.5px;
   }
 `;
+
+export const HighlightText = muiStyled('span')(({ theme }) => ({
+  color: theme.palette.primary.main,
+  fontWeight: 700,
+}));
