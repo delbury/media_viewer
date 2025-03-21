@@ -13,6 +13,9 @@ export const useConfirmDialog = (onOk?: () => unknown | Promise<unknown>) => {
         <Dialog
           open={visible}
           title={t('Common.AreYouSure')}
+          dialogProps={{
+            maxWidth: 'xs',
+          }}
           onCancel={handleClose}
           onOk={async () => {
             await onOk?.();
