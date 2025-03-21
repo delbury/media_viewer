@@ -118,7 +118,7 @@ export default function DirectoryPicker() {
               emptyText={t('Tools.NoFiles')}
               isEmpty={!currentFiles.length}
               resizePosition="top"
-              sx={{ marginTop: '8px' }}
+              persistentKey="directoryPickerFiles"
             >
               {currentFiles.length && (
                 <Stack

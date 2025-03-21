@@ -1,4 +1,14 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Stack } from '@mui/material';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Stack,
+  DialogProps as RawDialogProps,
+} from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import { StyledDialogTitleRow } from './style';
@@ -13,9 +23,21 @@ interface DialogProps {
   leftFooterSlot?: React.ReactNode;
   title?: React.ReactNode;
   titleRightSlot?: React.ReactNode;
+  dialogProps?: Partial<RawDialogProps>;
 }
 const CompDialog = (props: DialogProps) => {
-  const { open, onClose, loading, onCancel, onOk, children, leftFooterSlot: leftFooter, title, titleRightSlot } = props;
+  const {
+    open,
+    onClose,
+    loading,
+    onCancel,
+    onOk,
+    children,
+    leftFooterSlot: leftFooter,
+    title,
+    titleRightSlot,
+    dialogProps,
+  } = props;
   const t = useTranslations();
 
   const handleCancel = useCallback(() => {
@@ -25,6 +47,7 @@ const CompDialog = (props: DialogProps) => {
 
   return (
     <Dialog
+      {...dialogProps}
       open={open}
       onClose={onClose}
       fullWidth

@@ -1,13 +1,17 @@
 import { Box, styled } from '@mui/material';
 
 export const ScrollBox = styled(Box)`
+  flex: 1;
   overflow-y: auto;
   background-clip: content-box;
+  /* border: 1px solid var(--mui-palette-divider); */
+  /* border-radius: 8px; */
 `;
 
 export const ContainerWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
+  gap: 8px;
 `;
 
 export const BarWrapper = styled(Box)(({ theme }) => ({
@@ -23,3 +27,9 @@ export const BarWrapper = styled(Box)(({ theme }) => ({
     backgroundColor: theme.palette.action.selected,
   },
 }));
+
+export const ContainerItem = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+`;
