@@ -17,7 +17,7 @@ export const ScrollFloatTipBar = styled(Box, {
   zIndex: 0,
   left: 0,
   right: 0,
-  height: 8,
+  height: 12,
   top: isAtTop ? 0 : void 0,
   bottom: isAtBottom ? 0 : void 0,
   display: 'flex',

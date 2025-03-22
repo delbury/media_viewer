@@ -87,7 +87,7 @@ const ScrollBox = ({ children, sx, floatBarDisabled }: ScrollBoxProps) => {
         <ScrollFloatTipBar isAtTop>
           <KeyboardArrowUpOutlined
             fontSize="small"
-            sx={{ marginBottom: '-4px' }}
+            sx={{ marginBottom: '-2px' }}
           />
         </ScrollFloatTipBar>
       )}
@@ -95,7 +95,7 @@ const ScrollBox = ({ children, sx, floatBarDisabled }: ScrollBoxProps) => {
         <ScrollFloatTipBar isAtBottom>
           <KeyboardArrowDownOutlined
             fontSize="small"
-            sx={{ marginTop: '-4px' }}
+            sx={{ marginTop: '-2px' }}
           />
         </ScrollFloatTipBar>
       )}
