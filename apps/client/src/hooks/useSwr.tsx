@@ -9,8 +9,9 @@ import useSWR, { KeyedMutator } from 'swr';
 
 export type * from '@shared';
 
-interface UseSwrOptions {
+interface UseSwrOptions<T> {
   lazy?: boolean;
+  onSuccess?: (data: ApiResponseBase<T>) => void;
 }
 interface UseSwrReturnValue<T> {
   data?: T;
@@ -21,14 +22,14 @@ interface UseSwrReturnValue<T> {
 }
 
 // 类型重载
-function useSwr(key: 'dirUpdate', options?: UseSwrOptions): UseSwrReturnValue<DirUpdateData>;
-function useSwr(key: 'dirTree', options?: UseSwrOptions): UseSwrReturnValue<DirectoryInfo>;
+function useSwr<T = DirUpdateData>(key: 'dirUpdate', options?: UseSwrOptions<T>): UseSwrReturnValue<DirUpdateData>;
+function useSwr<T = DirectoryInfo>(key: 'dirTree', options?: UseSwrOptions<T>): UseSwrReturnValue<DirectoryInfo>;
 
 function useSwr<D extends Record<string, unknown> = Record<string, unknown>>(
   apiKey: ApiKeys,
-  options?: UseSwrOptions
+  options?: UseSwrOptions<D>
 ): UseSwrReturnValue<D> {
-  const { lazy = false } = options ?? {};
+  const { lazy = false, onSuccess } = options ?? {};
   const notifications = useNotifications();
   const { url, method } = API_CONFIGS[apiKey];
   const { data, isLoading, isValidating, mutate } = useSWR<ApiResponseBase<D>, AxiosError<ApiResponseBase>>(
@@ -51,6 +52,7 @@ function useSwr<D extends Record<string, unknown> = Record<string, unknown>>(
           severity: 'error',
         });
       },
+      ...(onSuccess ? { onSuccess } : {}),
     }
   );
 

@@ -1,7 +1,7 @@
-import { Box, Breadcrumbs, Chip } from '@mui/material';
-import { PathNodeTitle, PathNodeWrapper, useStyles } from './style';
 import { OtherHousesOutlined } from '@mui/icons-material';
+import { Box, Breadcrumbs, Chip } from '@mui/material';
 import { DirectoryInfo } from '@shared';
+import { PathNodeTitle, PathNodeWrapper, useStyles } from './style';
 
 const CountTag = ({ count }: { count: number }) => {
   return <span style={{ marginInlineStart: '0.5em' }}>: {count}</span>;
