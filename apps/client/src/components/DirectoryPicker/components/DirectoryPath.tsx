@@ -1,6 +1,7 @@
 import { OtherHousesOutlined } from '@mui/icons-material';
 import { Box, Breadcrumbs, Chip } from '@mui/material';
 import { DirectoryInfo } from '@shared';
+import { useEffect, useRef } from 'react';
 import { PATH_SEPARATOR } from '../constant';
 import { StyledPathNodeTitle, StyledPathNodeWrapper, useStyles } from '../style';
 
@@ -15,11 +16,22 @@ interface DirectoryPathProps {
 
 const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
   const classes = useStyles();
+  const wrapperRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (wrapperRef.current) {
+      wrapperRef.current.scrollTo({
+        top: wrapperRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+  }, [pathList]);
 
   return (
     <Breadcrumbs
+      ref={wrapperRef}
       separator={PATH_SEPARATOR}
-      classes={{ ol: classes.ol }}
+      classes={{ root: classes.root, ol: classes.ol, separator: classes.separator }}
       sx={{ marginBottom: '8px' }}
     >
       {pathList.map((path, index) => {
