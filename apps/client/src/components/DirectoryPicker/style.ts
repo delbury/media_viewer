@@ -3,8 +3,16 @@ import { Box, Card, ListItemButton, styled as muiStyled, Typography } from '@mui
 import { makeStyles } from '@mui/styles';
 
 export const useStyles = makeStyles({
+  root: {
+    maxHeight: '10vh',
+    overflowY: 'auto',
+  },
   ol: {
-    rowGap: '8px',
+    rowGap: '4px',
+  },
+  separator: {
+    marginLeft: '4px',
+    marginRight: '4px',
   },
 });
 
