@@ -8,12 +8,12 @@ import { LoopOutlined } from '@mui/icons-material';
 import { Box, Button, IconButton, List, Stack } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Empty from '../Empty';
-import DirectoryItem from './DirectoryItem';
-import FilesInfo from './FilesInfo';
-import DirectoryPath from './DirectoryPath';
+import ErrorBoundary from '../ErrorBoundary';
 import ResizeContainer from '../ResizeContainer';
+import DirectoryItem from './DirectoryItem';
+import DirectoryPath from './DirectoryPath';
 import FileItem from './FileItem';
+import FilesInfo from './FilesInfo';
 
 export default function DirectoryPicker() {
   const t = useTranslations();
@@ -56,91 +56,93 @@ export default function DirectoryPicker() {
   }, [handleClose]);
 
   return (
-    <Box>
-      <Button
-        variant="contained"
-        size="small"
-        onClick={handleOpen}
-      >
-        {t('Tools.SelectDirectory')}
-      </Button>
-
-      {visible && (
-        <Dialog
-          open={visible}
-          onClose={handleClose}
-          onOk={handleOk}
-          title={t('Tools.SelectDirectory')}
-          titleRightSlot={
-            <FilesInfo
-              total={currentTotalFileCount}
-              self={currentSelfFileCount}
-            />
-          }
-          leftFooterSlot={
-            <IconButton
-              loading={updateRequest.isLoading}
-              onClick={confirmOpen}
-            >
-              <LoopOutlined />
-            </IconButton>
-          }
+    <ErrorBoundary>
+      <Box>
+        <Button
+          variant="contained"
+          size="small"
+          onClick={handleOpen}
         >
-          {/* 已选文件夹 */}
-          <DirectoryPath
-            pathList={pathList}
-            onItemClick={setTarget}
-          />
-          <ResizeContainer.Wrapper height="50vh">
-            {/* 当前文件夹的子文件夹 */}
-            <ResizeContainer
-              title={t('Tools.CurrentDirectories')}
-              emptyText={t('Tools.NoDirectories')}
-              isEmpty={!currentDirs.length}
-            >
-              {currentDirs.length && (
-                <List sx={{ padding: 0 }}>
-                  {currentDirs.map(dir => (
-                    <DirectoryItem
-                      key={dir.fullPath}
-                      dir={dir}
-                      onClick={() => handleSelectChild(dir)}
-                    />
-                  ))}
-                </List>
-              )}
-            </ResizeContainer>
+          {t('Tools.SelectDirectory')}
+        </Button>
 
-            {/* 当前文件夹的文件 */}
-            <ResizeContainer
-              height="20vh"
-              title={t('Tools.CurrentFiles')}
-              emptyText={t('Tools.NoFiles')}
-              isEmpty={!currentFiles.length}
-              resizePosition="top"
-              persistentKey="directoryPickerFiles"
-            >
-              {currentFiles.length && (
-                <Stack
-                  direction="row"
-                  gap={1}
-                  useFlexGap
-                  sx={{ flexWrap: 'wrap', padding: '4px' }}
-                >
-                  {currentFiles.map(file => (
-                    <FileItem
-                      key={file.fullPath}
-                      file={file}
-                    />
-                  ))}
-                </Stack>
-              )}
-            </ResizeContainer>
-          </ResizeContainer.Wrapper>
+        {visible && (
+          <Dialog
+            open={visible}
+            onClose={handleClose}
+            onOk={handleOk}
+            title={t('Tools.SelectDirectory')}
+            titleRightSlot={
+              <FilesInfo
+                total={currentTotalFileCount}
+                self={currentSelfFileCount}
+              />
+            }
+            leftFooterSlot={
+              <IconButton
+                loading={updateRequest.isLoading}
+                onClick={confirmOpen}
+              >
+                <LoopOutlined />
+              </IconButton>
+            }
+          >
+            {/* 已选文件夹 */}
+            <DirectoryPath
+              pathList={pathList}
+              onItemClick={setTarget}
+            />
+            <ResizeContainer.Wrapper height="50vh">
+              {/* 当前文件夹的子文件夹 */}
+              <ResizeContainer
+                title={t('Tools.CurrentDirectories')}
+                emptyText={t('Tools.NoDirectories')}
+                isEmpty={!currentDirs.length}
+              >
+                {currentDirs.length && (
+                  <List sx={{ padding: 0 }}>
+                    {currentDirs.map(dir => (
+                      <DirectoryItem
+                        key={dir.fullPath}
+                        dir={dir}
+                        onClick={() => handleSelectChild(dir)}
+                      />
+                    ))}
+                  </List>
+                )}
+              </ResizeContainer>
 
-          {confirmDialog}
-        </Dialog>
-      )}
-    </Box>
+              {/* 当前文件夹的文件 */}
+              <ResizeContainer
+                height="20vh"
+                title={t('Tools.CurrentFiles')}
+                emptyText={t('Tools.NoFiles')}
+                isEmpty={!currentFiles.length}
+                resizePosition="top"
+                persistentKey="directoryPickerFiles"
+              >
+                {currentFiles.length && (
+                  <Stack
+                    direction="row"
+                    gap={1}
+                    useFlexGap
+                    sx={{ flexWrap: 'wrap', padding: '4px' }}
+                  >
+                    {currentFiles.map(file => (
+                      <FileItem
+                        key={file.fullPath}
+                        file={file}
+                      />
+                    ))}
+                  </Stack>
+                )}
+              </ResizeContainer>
+            </ResizeContainer.Wrapper>
+
+            {confirmDialog}
+          </Dialog>
+        )}
+      </Box>
+    </ErrorBoundary>
   );
 }

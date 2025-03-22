@@ -1,6 +1,7 @@
 'use client';
 
-import { MouseEventHandler, useEffect, useRef } from 'react';
+import { MouseEventHandler, useCallback, useEffect, useRef } from 'react';
+import { useThrottle } from './useThrottle';
 
 interface UseDragParams {
   callback: (offset: [number, number]) => void | false;
@@ -18,6 +19,16 @@ export const useDrag = ({ callback, watchAxis = 'both', defaultOffset }: UseDrag
   // 当次拖拽时，鼠标相对于点击原点的实时偏移值
   const currentOffsetOnTime = useRef<[number, number]>([0, 0]);
 
+  // 事件回调
+  const bindFnMouseMove = useRef<(ev: MouseEvent) => void>(null);
+  const bindFnMouseUp = useRef<() => void>(null);
+
+  const mouseMoveThrottle = useThrottle((dx: number, dy: number) => {
+    const flag = callback([dx, dy]);
+    if (flag === false) return;
+    currentOffsetOnTime.current = [dx, dy];
+  }, 10);
+
   const fnMouseMove = (ev: MouseEvent) => {
     const dx = watchAxis === 'y' ? 0 : ev.clientX - (startPosition.current?.[0] ?? 0) + lastOffset.current[0];
     const dy = watchAxis === 'x' ? 0 : ev.clientY - (startPosition.current?.[1] ?? 0) + lastOffset.current[1];
@@ -31,23 +42,24 @@ export const useDrag = ({ callback, watchAxis = 'both', defaultOffset }: UseDrag
     }
 
     // 节流
-    if (!timer.current) {
-      timer.current = window.setTimeout(() => {
-        timer.current = null;
-
-        const flag = callback([dx, dy]);
-        if (flag === false) return;
-
-        currentOffsetOnTime.current = [dx, dy];
-      }, 10);
-    }
+    mouseMoveThrottle(dx, dy);
   };
+
+  const clearEvents = useCallback(() => {
+    if (bindFnMouseMove.current) {
+      document.removeEventListener('mousemove', bindFnMouseMove.current);
+      bindFnMouseMove.current = null;
+    }
+    if (bindFnMouseUp.current) {
+      document.removeEventListener('mouseup', bindFnMouseUp.current);
+      bindFnMouseUp.current = null;
+    }
+  }, [bindFnMouseMove, bindFnMouseUp]);
 
   const fnMouseUp = () => {
     startPosition.current = null;
     lastOffset.current = [...currentOffsetOnTime.current];
-    document.removeEventListener('mousemove', fnMouseMove);
-    document.removeEventListener('mouseup', fnMouseUp);
+    clearEvents();
   };
 
   const fnMouseDown: MouseEventHandler<HTMLElement> = ev => {
@@ -57,13 +69,14 @@ export const useDrag = ({ callback, watchAxis = 'both', defaultOffset }: UseDrag
 
     document.addEventListener('mousemove', fnMouseMove);
     document.addEventListener('mouseup', fnMouseUp);
+    bindFnMouseMove.current = fnMouseMove;
+    bindFnMouseUp.current = fnMouseUp;
   };
 
   // 移除事件
   useEffect(() => {
     return () => {
-      document.removeEventListener('mousemove', fnMouseMove);
-      document.removeEventListener('mouseup', fnMouseUp);
+      clearEvents();
     };
   }, []);
 

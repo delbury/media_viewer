@@ -16,8 +16,10 @@ const nextConfig: NextConfig = {
   },
   compiler: {
     emotion: true,
-    styledComponents: true,
+    // styledComponents: true,
   },
+  // 严格模式下，在开发环境下，组件会挂载两次
+  reactStrictMode: false,
 };
 
 export default withNextIntl(nextConfig);
