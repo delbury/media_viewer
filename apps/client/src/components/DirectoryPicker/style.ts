@@ -1,6 +1,6 @@
-import { Box, Card, ListItemButton, styled as muiStyled } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 import styled from '@emotion/styled';
+import { Box, Card, ListItemButton, styled as muiStyled, Typography } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 
 export const useStyles = makeStyles({
   ol: {
@@ -8,24 +8,30 @@ export const useStyles = makeStyles({
   },
 });
 
-export const PathNodeWrapper = styled(Box)`
+export const StyledBtnRow = styled(Box)`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+export const StyledPathNodeWrapper = styled(Box)`
   cursor: pointer;
 `;
 
-export const PathNodeTitle = styled(Box)`
+export const StyledPathNodeTitle = styled(Box)`
   flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 
-  ${PathNodeWrapper}:hover & {
+  ${StyledPathNodeWrapper}:hover & {
     text-decoration: underline;
     text-underline-offset: 1.5px;
   }
 `;
 
-export const HighlightText = muiStyled('span')(({ theme }) => ({
+export const StyledHighlightText = muiStyled('span')(({ theme }) => ({
   color: theme.palette.primary.main,
   fontWeight: 700,
 }));
@@ -55,4 +61,18 @@ export const StyledFileExt = styled(Box)`
 
 export const StyledListItemButton = styled(ListItemButton)`
   padding: 4px;
+`;
+
+export const StyledSelectedInfoWrapper = styled(Box)`
+  display: flex;
+  column-gap: 4px;
+  flex-wrap: wrap;
+`;
+
+export const StyledSelectedInfoName = styled(Typography)`
+  display: inline-block;
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;

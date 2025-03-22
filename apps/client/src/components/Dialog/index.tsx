@@ -6,8 +6,8 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  Stack,
   DialogProps as RawDialogProps,
+  Stack,
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
@@ -60,6 +60,9 @@ const CompDialog = (props: DialogProps) => {
       <Divider />
 
       <DialogContent>{children}</DialogContent>
+
+      <Divider />
+
       <DialogActions sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Box>{leftFooter}</Box>
         <Stack

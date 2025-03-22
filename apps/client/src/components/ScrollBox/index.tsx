@@ -2,7 +2,7 @@ import { useIdleCallback } from '@/hooks/useIdleCallback';
 import { KeyboardArrowDownOutlined, KeyboardArrowUpOutlined } from '@mui/icons-material';
 import { SxProps, Theme } from '@mui/material';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
-import { ScrollBoxContent, ScrollBoxWrapper, ScrollFloatTipBar } from './style';
+import { StyledScrollBoxContent, StyledScrollBoxWrapper, StyledScrollFloatTipBar } from './style';
 
 export interface ScrollBoxProps {
   children?: React.ReactNode;
@@ -80,26 +80,26 @@ const ScrollBox = ({ children, sx, floatBarDisabled }: ScrollBoxProps) => {
   }, []);
 
   return (
-    <ScrollBoxWrapper sx={sx}>
-      <ScrollBoxContent ref={wrapperRef}>{children}</ScrollBoxContent>
+    <StyledScrollBoxWrapper sx={sx}>
+      <StyledScrollBoxContent ref={wrapperRef}>{children}</StyledScrollBoxContent>
 
       {!floatBarDisabled && isScrollable && !isScrollAtTop && (
-        <ScrollFloatTipBar isAtTop>
+        <StyledScrollFloatTipBar isAtTop>
           <KeyboardArrowUpOutlined
             fontSize="small"
             sx={{ marginBottom: '-2px' }}
           />
-        </ScrollFloatTipBar>
+        </StyledScrollFloatTipBar>
       )}
       {!floatBarDisabled && isScrollable && !isScrollAtBottom && (
-        <ScrollFloatTipBar isAtBottom>
+        <StyledScrollFloatTipBar isAtBottom>
           <KeyboardArrowDownOutlined
             fontSize="small"
             sx={{ marginTop: '-2px' }}
           />
-        </ScrollFloatTipBar>
+        </StyledScrollFloatTipBar>
       )}
-    </ScrollBoxWrapper>
+    </StyledScrollBoxWrapper>
   );
 };
 

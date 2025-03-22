@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import Empty from '../Empty';
 import ScrollBox, { ScrollBoxProps } from '../ScrollBox';
 import ResizeBar, { RESIZE_BAR_SIZE, ResizeBarProps } from './ResizeBar';
-import { ContainerItem } from './style';
+import { StyledContainerItem } from './style';
 
 interface ResizeContainerProps {
   children?: React.ReactNode;
@@ -54,7 +54,7 @@ const ResizeContainer = ({
   }, [height, sizeOffset, resizePosition]);
 
   return (
-    <ContainerItem
+    <StyledContainerItem
       sx={{
         height: currentHeight,
         flex: height ? void 0 : 1,
@@ -82,7 +82,7 @@ const ResizeContainer = ({
           }}
         />
       )}
-    </ContainerItem>
+    </StyledContainerItem>
   );
 };
 

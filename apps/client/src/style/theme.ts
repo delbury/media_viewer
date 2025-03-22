@@ -11,6 +11,13 @@ const theme = createTheme({
         },
       },
     },
+    MuiTypography: {
+      defaultProps: {
+        variantMapping: {
+          body2: 'span',
+        },
+      },
+    },
   },
 });
 

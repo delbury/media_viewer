@@ -1,12 +1,12 @@
 import { Box, styled } from '@mui/material';
 
-export const ContainerWrapper = styled(Box)`
+export const StyledContainerWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
   gap: 8px;
 `;
 
-export const BarWrapper = styled(Box)(({ theme }) => ({
+export const StyledBarWrapper = styled(Box)(({ theme }) => ({
   position: 'absolute',
   display: 'flex',
   justifyContent: 'center',
@@ -21,7 +21,7 @@ export const BarWrapper = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const ContainerItem = styled(Box)`
+export const StyledContainerItem = styled(Box)`
   display: flex;
   flex-direction: column;
   overflow: hidden;

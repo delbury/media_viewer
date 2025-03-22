@@ -1,5 +1,5 @@
 import { SxProps, Theme } from '@mui/material';
-import { ContainerWrapper } from './style';
+import { StyledContainerWrapper } from './style';
 
 interface ResizeContainerWrapperProps {
   children?: React.ReactNode;
@@ -9,12 +9,12 @@ interface ResizeContainerWrapperProps {
 
 const ResizeContainerWrapper = ({ height, children, sx }: ResizeContainerWrapperProps) => {
   return (
-    <ContainerWrapper
+    <StyledContainerWrapper
       height={height}
       sx={sx}
     >
       {children}
-    </ContainerWrapper>
+    </StyledContainerWrapper>
   );
 };
 

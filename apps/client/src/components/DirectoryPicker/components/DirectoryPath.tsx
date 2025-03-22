@@ -1,13 +1,12 @@
 import { OtherHousesOutlined } from '@mui/icons-material';
 import { Box, Breadcrumbs, Chip } from '@mui/material';
 import { DirectoryInfo } from '@shared';
-import { PathNodeTitle, PathNodeWrapper, useStyles } from './style';
+import { PATH_SEPARATOR } from '../constant';
+import { StyledPathNodeTitle, StyledPathNodeWrapper, useStyles } from '../style';
 
 const CountTag = ({ count }: { count: number }) => {
   return <span style={{ marginInlineStart: '0.5em' }}>: {count}</span>;
 };
-
-const SEPARATOR = '/';
 
 interface DirectoryPathProps {
   pathList: DirectoryInfo[];
@@ -19,7 +18,7 @@ const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
 
   return (
     <Breadcrumbs
-      separator={SEPARATOR}
+      separator={PATH_SEPARATOR}
       classes={{ ol: classes.ol }}
       sx={{ marginBottom: '8px' }}
     >
@@ -29,7 +28,7 @@ const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
         const key = `${path}_${index}`;
 
         return (
-          <PathNodeWrapper key={key}>
+          <StyledPathNodeWrapper key={key}>
             <Chip
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -38,7 +37,7 @@ const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
                       <OtherHousesOutlined fontSize="small" />
                     </div>
                   ) : (
-                    <PathNodeTitle>{path.name}</PathNodeTitle>
+                    <StyledPathNodeTitle>{path.name}</StyledPathNodeTitle>
                   )}
                   <CountTag count={path.totalFilesCount} />
                 </Box>
@@ -47,9 +46,9 @@ const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
               variant={isLast ? 'filled' : 'outlined'}
               color={isLast ? 'primary' : 'default'}
               onClick={() => onItemClick?.(index)}
-              style={{ maxWidth: 'min(300px, 35vw)' }}
+              style={{ maxWidth: 'min(200px, 30vw)' }}
             />
-          </PathNodeWrapper>
+          </StyledPathNodeWrapper>
         );
       })}
     </Breadcrumbs>

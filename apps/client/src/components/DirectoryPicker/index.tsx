@@ -1,39 +1,40 @@
 'use client';
 
 import { useDialogState } from '@/hooks/useDialogState';
-import { Box, Button } from '@mui/material';
+import { Button } from '@mui/material';
 import { DirectoryInfo } from '@shared';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 import ErrorBoundary from '../ErrorBoundary';
-import PickViewer from './PickViewer';
+import PickViewer from './components/PickViewer';
+import SelectedPathInfo from './components/SelectedPathInfo';
+import { StyledBtnRow } from './style';
 
 export default function DirectoryPicker() {
   const { visible, handleClose, handleOpen } = useDialogState(true);
   const t = useTranslations();
-
-  const handlePickOk = (dirInfo?: DirectoryInfo) => {
-    console.log(dirInfo);
-  };
+  const [selectedPathList, setSelectedPathList] = useState<DirectoryInfo[]>([]);
 
   return (
     <ErrorBoundary>
-      <Box>
+      <StyledBtnRow>
         <Button
           variant="contained"
           size="small"
           onClick={handleOpen}
+          sx={{ flexShrink: 0 }}
         >
           {t('Tools.SelectDirectory')}
         </Button>
 
-        {visible && (
-          <PickViewer
-            visible={visible}
-            onClose={handleClose}
-            onOk={handlePickOk}
-          />
-        )}
-      </Box>
+        <SelectedPathInfo selectedPathList={selectedPathList} />
+      </StyledBtnRow>
+
+      <PickViewer
+        visible={visible}
+        onClose={handleClose}
+        onOk={setSelectedPathList}
+      />
     </ErrorBoundary>
   );
 }
