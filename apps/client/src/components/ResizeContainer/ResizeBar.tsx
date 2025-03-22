@@ -1,8 +1,8 @@
+import { useDrag } from '@/hooks/useDrag';
+import { MoreHorizOutlined } from '@mui/icons-material';
 import { BoxProps } from '@mui/material';
 import { useMemo, useRef } from 'react';
 import { BarWrapper } from './style';
-import { MoreHorizOutlined } from '@mui/icons-material';
-import { useDrag } from '@/hooks/useDrag';
 
 export interface ResizeBarProps {
   position: 'top' | 'bottom';
@@ -51,7 +51,7 @@ const ResizeBar = ({ position, onSizeChange, defaultOffset }: ResizeBarProps) =>
       sx={{ ...barStyle }}
       {...events}
     >
-      <MoreHorizOutlined />
+      <MoreHorizOutlined fontSize="small" />
     </BarWrapper>
   );
 };

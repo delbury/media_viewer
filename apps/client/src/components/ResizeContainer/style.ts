@@ -1,13 +1,5 @@
 import { Box, styled } from '@mui/material';
 
-export const ScrollBox = styled(Box)`
-  flex: 1;
-  overflow-y: auto;
-  background-clip: content-box;
-  /* border: 1px solid var(--mui-palette-divider); */
-  /* border-radius: 8px; */
-`;
-
 export const ContainerWrapper = styled(Box)`
   display: flex;
   flex-direction: column;
@@ -22,6 +14,7 @@ export const BarWrapper = styled(Box)(({ theme }) => ({
   width: '100%',
   cursor: 'ns-resize',
   backgroundColor: theme.palette.action.hover,
+  color: theme.palette.text.secondary,
 
   ':hover': {
     backgroundColor: theme.palette.action.selected,

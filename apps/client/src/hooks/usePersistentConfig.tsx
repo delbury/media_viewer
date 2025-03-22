@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useIdleCallback } from './useIdleCallback';
 
 const LOCAL_STORAGE_CONFIG_KEY = '_persistent_config';
 
@@ -27,27 +28,25 @@ const setLocalConfig = (key: string, val?: unknown) => {
 
   if (localConfig) localConfig[key] = val;
 };
+const saveLocalConfig = () => {
+  localStorage.setItem(LOCAL_STORAGE_CONFIG_KEY, JSON.stringify(localConfig));
+};
 
 export function usePersistentConfig<T = unknown>(defaultValue: T, key?: string): [T, (val: T) => void] {
   const [value, setValue] = useState(key ? ((getLocalConfig(key) as T) ?? defaultValue) : defaultValue);
-  const cbId = useRef<number>(null);
+
+  const saveLocalConfigIdle = useIdleCallback(saveLocalConfig);
+
   const setValueWithLocal = useCallback(
     (val: T) => {
       setValue(val);
       if (key && localConfig) {
         setLocalConfig(key, val);
 
-        // 性能优化
-        if (cbId.current) {
-          window.cancelIdleCallback(cbId.current);
-        }
-        cbId.current = window.requestIdleCallback(() => {
-          localStorage.setItem(LOCAL_STORAGE_CONFIG_KEY, JSON.stringify(localConfig));
-          cbId.current = null;
-        });
+        saveLocalConfigIdle();
       }
     },
-    [setValue, key]
+    [setValue, key, saveLocalConfigIdle]
   );
 
   return [value, setValueWithLocal];
