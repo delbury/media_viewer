@@ -5,7 +5,7 @@ import { LoopOutlined } from '@mui/icons-material';
 import { IconButton, List, Stack } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
-import ResizeContainer from '../ResizeContainer';
+import ResizeContainer from '../../ResizeContainer';
 import DirectoryItem from './DirectoryItem';
 import DirectoryPath from './DirectoryPath';
 import FileItem from './FileItem';
@@ -14,7 +14,7 @@ import FilesInfo from './FilesInfo';
 interface PickViewerProps {
   visible: boolean;
   onClose: () => void;
-  onOk?: (dirInfo?: DirectoryInfo) => void;
+  onOk?: (dirInfo: DirectoryInfo[]) => void;
 }
 
 const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
@@ -56,8 +56,8 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
 
   const handleOk = useCallback(() => {
     onClose();
-    onOk?.(currentPathNode);
-  }, [onClose, onOk, currentPathNode]);
+    onOk?.(pathList);
+  }, [onClose, onOk, pathList]);
 
   return (
     <Dialog

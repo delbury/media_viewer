@@ -1,16 +1,16 @@
 import { Box, styled } from '@mui/material';
 
-export const ScrollBoxWrapper = styled(Box)`
+export const StyledScrollBoxWrapper = styled(Box)`
   position: relative;
   overflow: hidden;
 `;
 
-export const ScrollBoxContent = styled(Box)`
+export const StyledScrollBoxContent = styled(Box)`
   height: 100%;
   overflow-y: auto;
 `;
 
-export const ScrollFloatTipBar = styled(Box, {
+export const StyledScrollFloatTipBar = styled(Box, {
   shouldForwardProp: prop => !['isAtTop', 'isAtBottom'].includes(prop as string),
 })<{ isAtTop?: boolean; isAtBottom?: boolean }>(({ theme: { palette }, isAtBottom, isAtTop }) => ({
   position: 'absolute',

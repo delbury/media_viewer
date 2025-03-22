@@ -1,9 +1,9 @@
 'use client';
 
-import { Box } from '@mui/material';
 import styled from '@emotion/styled';
+import { Box } from '@mui/material';
 
-export const HeaderWrapper = styled(Box)`
+export const StyledHeaderWrapper = styled(Box)`
   display: flex;
   gap: 24px;
   align-items: center;

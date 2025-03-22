@@ -13,6 +13,7 @@
   },
   "Common": {
     "AreYouSure": "确定？",
+    "AreYouSureDoOperation": "确定执行该操作？",
     "OK": "确认",
     "Cancel": "取消",
     "Select": "选择",

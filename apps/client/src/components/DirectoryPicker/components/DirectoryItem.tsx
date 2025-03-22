@@ -4,7 +4,7 @@ import { ListItemIcon, ListItemText } from '@mui/material';
 import { DirectoryInfo } from '@shared';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import { StyledListItemButton } from './style';
+import { StyledListItemButton } from '../style';
 
 interface DirectoryItemProps {
   dir: DirectoryInfo;

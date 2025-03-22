@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { HighlightText } from './style';
+import { StyledHighlightText } from '../style';
 
 interface FilesInfoProps {
   total: number;
@@ -22,7 +22,7 @@ const FilesInfo = ({ total, self }: FilesInfoProps) => {
           variantMapping={{ subtitle2: 'span' }}
         >
           {`${t('Tools.SelfFiles')}: `}
-          <HighlightText>{self}</HighlightText>
+          <StyledHighlightText>{self}</StyledHighlightText>
         </Typography>
       </Box>
 
@@ -32,7 +32,7 @@ const FilesInfo = ({ total, self }: FilesInfoProps) => {
           variantMapping={{ subtitle2: 'span' }}
         >
           {`${t('Tools.TotalFiles')}: `}
-          <HighlightText>{total}</HighlightText>
+          <StyledHighlightText>{total}</StyledHighlightText>
         </Typography>
       </Box>
     </Typography>

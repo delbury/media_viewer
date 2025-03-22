@@ -22,7 +22,9 @@ export const useConfirmDialog = (onOk?: () => unknown | Promise<unknown>) => {
             handleClose();
           }}
           onClose={handleClose}
-        />
+        >
+          {t('Common.AreYouSureDoOperation')}
+        </Dialog>
       ),
     [visible, t, onOk, handleClose]
   );
