@@ -7,3 +7,36 @@ export const TEXT_REG = /\.(pdf|txt)/i;
 
 // 文件夹信息行的高度
 export const DIRECTORY_ITEM_HEIGHT = 54;
+
+// 文件排序选项
+export type FileSortField = 'default' | 'name' | 'size' | 'type' | 'updated' | 'created' | 'duration';
+export const FILE_SORT_OPTIONS: { label: string; value: FileSortField }[] = [
+  {
+    label: 'Common.Type',
+    value: 'type',
+  },
+  {
+    label: 'Common.Size',
+    value: 'size',
+  },
+  {
+    label: 'Common.Duration',
+    value: 'duration',
+  },
+  {
+    label: 'Common.Default',
+    value: 'default',
+  },
+  {
+    label: 'Common.Name',
+    value: 'name',
+  },
+  {
+    label: 'Common.Updated',
+    value: 'updated',
+  },
+  {
+    label: 'Common.Created',
+    value: 'created',
+  },
+];

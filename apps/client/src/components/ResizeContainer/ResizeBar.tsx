@@ -26,7 +26,7 @@ const ResizeBar = ({ position, onSizeChange, defaultOffset }: ResizeBarProps) =>
         barPositionY.current.unshift(rect.y);
         barPositionY.current.length = 2;
 
-        // 到边界了，不再触发
+        //当前的偏移量和上一次的偏移量相同，到边界了，不再触发
         if (barPositionY.current[0] === barPositionY.current[1]) return false;
       }
     },

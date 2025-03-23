@@ -95,14 +95,12 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(({ children, sx,
       resizeObserver.observe(elm);
 
       // 滚动事件
-      const fnScroll = () => {
-        detectScrollExistIdle(elm);
-      };
-      elm.addEventListener('scroll', fnScroll);
+      const controller = new AbortController();
+      elm.addEventListener('scroll', () => detectScrollExistIdle(elm), { signal: controller.signal });
 
       // 解绑事件
       return () => {
-        elm.removeEventListener('scroll', fnScroll);
+        controller.abort();
         mutationObserver.disconnect();
         resizeObserver.disconnect();
       };

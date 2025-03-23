@@ -19,6 +19,7 @@ interface ResizeContainerProps {
   // 保存拖动 size 本地配置的 key
   persistentKey?: string;
   scrollBoxProps?: ScrollBoxProps;
+  beforeContentSlot?: React.ReactNode;
 }
 
 const ResizeContainer = ({
@@ -31,6 +32,7 @@ const ResizeContainer = ({
   sx,
   persistentKey,
   scrollBoxProps,
+  beforeContentSlot,
 }: ResizeContainerProps) => {
   const t = useTranslations();
   const resizable = !!resizePosition;
@@ -62,6 +64,7 @@ const ResizeContainer = ({
       }}
     >
       {!!title && <Typography sx={{ color: 'text.secondary', marginBottom: '4px' }}>{title}</Typography>}
+      {beforeContentSlot}
       <ScrollBox
         {...scrollBoxProps}
         sx={{ flex: 1 }}
