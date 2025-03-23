@@ -6,9 +6,9 @@ import { IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import ResizeContainer from '../../ResizeContainer';
+import CurrentFilesInfo from './CurrentFilesInfo';
 import DirectoryItemList from './DirectoryItemList';
 import FileItemList from './FileItemList';
-import FilesInfo from './FilesInfo';
 import SelectingPathInfo from './SelectingPathInfo';
 
 interface PickViewerProps {
@@ -66,7 +66,7 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
       onOk={handleOk}
       title={t('Tools.SelectDirectory')}
       titleRightSlot={
-        <FilesInfo
+        <CurrentFilesInfo
           total={currentTotalFileCount}
           self={currentSelfFileCount}
         />
@@ -87,28 +87,13 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
       />
       <ResizeContainer.Wrapper height="50vh">
         {/* 当前文件夹的子文件夹 */}
-        <ResizeContainer
-          // title={t('Tools.CurrentDirectories')}
-          emptyText={t('Tools.NoDirectories')}
-          isEmpty={!currentDirs.length}
-        >
-          <DirectoryItemList
-            dirs={currentDirs}
-            onClick={handleSelectChild}
-          />
-        </ResizeContainer>
+        <DirectoryItemList
+          dirs={currentDirs}
+          onClick={handleSelectChild}
+        />
 
         {/* 当前文件夹的文件 */}
-        <ResizeContainer
-          height="20vh"
-          // title={t('Tools.CurrentFiles')}
-          emptyText={t('Tools.NoFiles')}
-          isEmpty={!currentFiles.length}
-          resizePosition="top"
-          persistentKey="directoryPickerFiles"
-        >
-          <FileItemList files={currentFiles} />
-        </ResizeContainer>
+        <FileItemList files={currentFiles} />
       </ResizeContainer.Wrapper>
 
       {confirmDialog}

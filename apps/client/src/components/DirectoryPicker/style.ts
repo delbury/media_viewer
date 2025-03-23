@@ -54,7 +54,7 @@ export const StyledFileCard = styled(Card)`
   height: 100px;
   font-size: 1rem;
 `;
-export const StyledFileTitle = styled(Box)`
+export const StyledFileName = styled(Box)`
   display: -webkit-box;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -63,12 +63,20 @@ export const StyledFileTitle = styled(Box)`
   -webkit-box-orient: vertical;
   font-size: 1rem;
 `;
-export const StyledFileExt = styled(Box)`
+export const StyledFileTitle = styled(Box)`
   margin-bottom: 4px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 1.2rem;
+  font-size: 2.4rem;
+`;
+export const StyledFileMoreInfo = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  & > * {
+    line-height: 1.2;
+  }
 `;
 
 export const StyledListItemButton = styled(ListItemButton)`

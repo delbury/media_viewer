@@ -1,3 +1,4 @@
+import { formatFileSize } from '@/utils';
 import {
   FeaturedPlayListOutlined,
   MusicVideoOutlined,
@@ -5,24 +6,25 @@ import {
   PanoramaOutlined,
   SmartDisplayOutlined,
 } from '@mui/icons-material';
+import { SvgIconOwnProps, Typography } from '@mui/material';
 import { FileInfo } from '@shared';
 import { AUDIO_REG, IMG_REG, TEXT_REG, VIDEO_REG } from '../constant';
-import { StyledFileCard, StyledFileExt, StyledFileTitle } from '../style';
+import { StyledFileCard, StyledFileMoreInfo, StyledFileName, StyledFileTitle } from '../style';
 
-const FileIcon = ({ ext }: { ext: string }) => {
+const FileIcon = ({ ext, iconProps }: { ext: string; iconProps?: SvgIconOwnProps }) => {
   if (VIDEO_REG.test(ext)) {
-    return <SmartDisplayOutlined />;
+    return <SmartDisplayOutlined {...iconProps} />;
   }
   if (AUDIO_REG.test(ext)) {
-    return <MusicVideoOutlined />;
+    return <MusicVideoOutlined {...iconProps} />;
   }
   if (IMG_REG.test(ext)) {
-    return <PanoramaOutlined />;
+    return <PanoramaOutlined {...iconProps} />;
   }
   if (TEXT_REG.test(ext)) {
-    return <FeaturedPlayListOutlined />;
+    return <FeaturedPlayListOutlined {...iconProps} />;
   }
-  return <NoteOutlined />;
+  return <NoteOutlined {...iconProps} />;
 };
 
 interface FileItemProps {
@@ -32,11 +34,27 @@ interface FileItemProps {
 const FileItem = ({ file }: FileItemProps) => {
   return (
     <StyledFileCard>
-      <StyledFileExt>
-        <FileIcon ext={file.nameExt} />
-        <span>{file.nameExt || '-'}</span>
-      </StyledFileExt>
-      <StyledFileTitle>{file.name}</StyledFileTitle>
+      <StyledFileTitle>
+        <FileIcon
+          ext={file.nameExt}
+          iconProps={{ fontSize: 'inherit' }}
+        />
+        <StyledFileMoreInfo>
+          <Typography
+            variant="body2"
+            sx={{ textTransform: 'uppercase' }}
+          >
+            {file.nameExt || '-'}
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ color: 'text.secondary' }}
+          >
+            {formatFileSize(file.size)}
+          </Typography>
+        </StyledFileMoreInfo>
+      </StyledFileTitle>
+      <StyledFileName>{file.name}</StyledFileName>
     </StyledFileCard>
   );
 };

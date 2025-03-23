@@ -2,12 +2,12 @@ import { Box, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { StyledHighlightText } from '../style';
 
-interface FilesInfoProps {
+interface CurrentFilesInfoProps {
   total: number;
   self: number;
 }
 
-const FilesInfo = ({ total, self }: FilesInfoProps) => {
+const CurrentFilesInfo = ({ total, self }: CurrentFilesInfoProps) => {
   const t = useTranslations();
 
   return (
@@ -39,4 +39,4 @@ const FilesInfo = ({ total, self }: FilesInfoProps) => {
   );
 };
 
-export default FilesInfo;
+export default CurrentFilesInfo;

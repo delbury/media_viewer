@@ -1,5 +1,7 @@
+import ResizeContainer from '@/components/ResizeContainer';
 import { List } from '@mui/material';
 import { DirectoryInfo } from '@shared';
+import { useTranslations } from 'next-intl';
 import DirectoryItem from './DirectoryItem';
 
 interface DirectoryItemListProps {
@@ -8,8 +10,14 @@ interface DirectoryItemListProps {
 }
 
 const DirectoryItemList = ({ dirs, onClick }: DirectoryItemListProps) => {
+  const t = useTranslations();
+
   return (
-    <>
+    <ResizeContainer
+      // title={t('Tools.CurrentDirectories')}
+      emptyText={t('Tools.NoDirectories')}
+      isEmpty={!dirs.length}
+    >
       {dirs.length && (
         <List sx={{ padding: 0 }}>
           {dirs.map(dir => (
@@ -21,7 +29,7 @@ const DirectoryItemList = ({ dirs, onClick }: DirectoryItemListProps) => {
           ))}
         </List>
       )}
-    </>
+    </ResizeContainer>
   );
 };
 
