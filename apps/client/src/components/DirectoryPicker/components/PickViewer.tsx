@@ -2,13 +2,13 @@ import Dialog from '@/components/Dialog';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { DirectoryInfo, useSwr } from '@/hooks/useSwr';
 import { LoopOutlined } from '@mui/icons-material';
-import { IconButton, List, Stack } from '@mui/material';
+import { IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import ResizeContainer from '../../ResizeContainer';
-import DirectoryItem from './DirectoryItem';
+import DirectoryItemList from './DirectoryItemList';
 import DirectoryPath from './DirectoryPath';
-import FileItem from './FileItem';
+import FileItemList from './FileItemList';
 import FilesInfo from './FilesInfo';
 
 interface PickViewerProps {
@@ -92,17 +92,10 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
           emptyText={t('Tools.NoDirectories')}
           isEmpty={!currentDirs.length}
         >
-          {currentDirs.length && (
-            <List sx={{ padding: 0 }}>
-              {currentDirs.map(dir => (
-                <DirectoryItem
-                  key={dir.fullPath}
-                  dir={dir}
-                  onClick={() => handleSelectChild(dir)}
-                />
-              ))}
-            </List>
-          )}
+          <DirectoryItemList
+            dirs={currentDirs}
+            onClick={handleSelectChild}
+          />
         </ResizeContainer>
 
         {/* 当前文件夹的文件 */}
@@ -114,21 +107,7 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
           resizePosition="top"
           persistentKey="directoryPickerFiles"
         >
-          {currentFiles.length && (
-            <Stack
-              direction="row"
-              gap={1}
-              useFlexGap
-              sx={{ flexWrap: 'wrap', padding: '4px' }}
-            >
-              {currentFiles.map(file => (
-                <FileItem
-                  key={file.fullPath}
-                  file={file}
-                />
-              ))}
-            </Stack>
-          )}
+          <FileItemList files={currentFiles} />
         </ResizeContainer>
       </ResizeContainer.Wrapper>
 
