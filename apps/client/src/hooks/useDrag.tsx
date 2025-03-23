@@ -1,6 +1,6 @@
 'use client';
 
-import { MouseEventHandler, useCallback, useEffect, useRef } from 'react';
+import { DOMAttributes, MouseEventHandler, useCallback, useEffect, useRef } from 'react';
 import { useThrottle } from './useThrottle';
 
 interface UseDragParams {
@@ -10,8 +10,10 @@ interface UseDragParams {
   defaultOffset?: [number, number];
 }
 
+const MOVE_EVENT_NAME = 'pointermove';
+const UP_EVENT_NAME = 'pointerup';
+
 export const useDrag = ({ callback, watchAxis = 'both', defaultOffset }: UseDragParams) => {
-  const timer = useRef<number>(null);
   // 鼠标点击的原点
   const startPosition = useRef<[number, number]>(null);
   // 累积的偏移，用于多次拖拽的累积计算
@@ -30,6 +32,8 @@ export const useDrag = ({ callback, watchAxis = 'both', defaultOffset }: UseDrag
   }, 10);
 
   const fnMouseMove = (ev: MouseEvent) => {
+    ev.preventDefault();
+
     const dx = watchAxis === 'y' ? 0 : ev.clientX - (startPosition.current?.[0] ?? 0) + lastOffset.current[0];
     const dy = watchAxis === 'x' ? 0 : ev.clientY - (startPosition.current?.[1] ?? 0) + lastOffset.current[1];
 
@@ -47,11 +51,11 @@ export const useDrag = ({ callback, watchAxis = 'both', defaultOffset }: UseDrag
 
   const clearEvents = useCallback(() => {
     if (bindFnMouseMove.current) {
-      document.removeEventListener('mousemove', bindFnMouseMove.current);
+      document.removeEventListener(MOVE_EVENT_NAME, bindFnMouseMove.current);
       bindFnMouseMove.current = null;
     }
     if (bindFnMouseUp.current) {
-      document.removeEventListener('mouseup', bindFnMouseUp.current);
+      document.removeEventListener(UP_EVENT_NAME, bindFnMouseUp.current);
       bindFnMouseUp.current = null;
     }
   }, [bindFnMouseMove, bindFnMouseUp]);
@@ -67,8 +71,8 @@ export const useDrag = ({ callback, watchAxis = 'both', defaultOffset }: UseDrag
 
     startPosition.current = [ev.clientX, ev.clientY];
 
-    document.addEventListener('mousemove', fnMouseMove);
-    document.addEventListener('mouseup', fnMouseUp);
+    document.addEventListener(MOVE_EVENT_NAME, fnMouseMove);
+    document.addEventListener(UP_EVENT_NAME, fnMouseUp);
     bindFnMouseMove.current = fnMouseMove;
     bindFnMouseUp.current = fnMouseUp;
   };
@@ -82,7 +86,7 @@ export const useDrag = ({ callback, watchAxis = 'both', defaultOffset }: UseDrag
 
   return {
     events: {
-      onMouseDown: fnMouseDown,
-    },
+      onPointerDown: fnMouseDown,
+    } satisfies DOMAttributes<HTMLElement>,
   };
 };

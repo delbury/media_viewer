@@ -15,6 +15,7 @@ export const StyledBarWrapper = styled(Box)(({ theme }) => ({
   cursor: 'ns-resize',
   backgroundColor: theme.palette.action.hover,
   color: theme.palette.text.secondary,
+  touchAction: 'none',
 
   ':hover': {
     backgroundColor: theme.palette.action.selected,

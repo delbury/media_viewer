@@ -1,9 +1,10 @@
+import ScrollBox, { ScrollBoxInstance } from '@/components/ScrollBox';
 import { OtherHousesOutlined } from '@mui/icons-material';
-import { Box, Breadcrumbs, Chip } from '@mui/material';
+import { Box, Chip, Typography } from '@mui/material';
 import { DirectoryInfo } from '@shared';
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PATH_SEPARATOR } from '../constant';
-import { StyledPathNodeTitle, StyledPathNodeWrapper, useStyles } from '../style';
+import { StyledPathNode, StyledPathNodeTitle, StyledPathWrapper } from '../style';
 
 const CountTag = ({ count }: { count: number }) => {
   return <span style={{ marginInlineStart: '0.5em' }}>: {count}</span>;
@@ -15,55 +16,55 @@ interface DirectoryPathProps {
 }
 
 const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
-  const classes = useStyles();
-  const wrapperRef = useRef<HTMLElement>(null);
+  const scrollRef = useRef<ScrollBoxInstance>(null);
+  // 布局是否换行
+  const [isWrap, setIsWrap] = useState(true);
 
+  // 路径变更时，滚动到底部
   useEffect(() => {
-    if (wrapperRef.current) {
-      wrapperRef.current.scrollTo({
-        top: wrapperRef.current.scrollHeight,
-        behavior: 'smooth',
-      });
-    }
+    scrollRef.current?.scrollToBottom();
   }, [pathList]);
 
   return (
-    <Breadcrumbs
-      ref={wrapperRef}
-      separator={PATH_SEPARATOR}
-      classes={{ root: classes.root, ol: classes.ol, separator: classes.separator }}
-      sx={{ marginBottom: '8px' }}
+    <ScrollBox
+      ref={scrollRef}
+      sx={{ maxHeight: '10vh', display: 'flex', flexDirection: 'column' }}
     >
-      {pathList.map((path, index) => {
-        const isFirst = index === 0;
-        const isLast = index === pathList.length - 1;
-        const key = `${path}_${index}`;
+      <StyledPathWrapper isWrap={isWrap}>
+        {pathList.map((path, index) => {
+          const isFirst = index === 0;
+          const isLast = index === pathList.length - 1;
+          const key = `${path}_${index}`;
 
-        return (
-          <StyledPathNodeWrapper key={key}>
-            <Chip
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {isFirst ? (
-                    <div style={{ fontSize: 0 }}>
-                      <OtherHousesOutlined fontSize="small" />
-                    </div>
-                  ) : (
-                    <StyledPathNodeTitle>{path.name}</StyledPathNodeTitle>
-                  )}
-                  <CountTag count={path.totalFilesCount} />
-                </Box>
-              }
-              size="small"
-              variant={isLast ? 'filled' : 'outlined'}
-              color={isLast ? 'primary' : 'default'}
-              onClick={() => onItemClick?.(index)}
-              style={{ maxWidth: 'min(200px, 30vw)' }}
-            />
-          </StyledPathNodeWrapper>
-        );
-      })}
-    </Breadcrumbs>
+          return (
+            <React.Fragment key={key}>
+              <StyledPathNode>
+                <Chip
+                  label={
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      {isFirst ? (
+                        <div style={{ fontSize: 0 }}>
+                          <OtherHousesOutlined fontSize="small" />
+                        </div>
+                      ) : (
+                        <StyledPathNodeTitle>{path.name}</StyledPathNodeTitle>
+                      )}
+                      <CountTag count={path.totalFilesCount} />
+                    </Box>
+                  }
+                  size="small"
+                  variant={isLast ? 'filled' : 'outlined'}
+                  color={isLast ? 'primary' : 'default'}
+                  onClick={() => onItemClick?.(index)}
+                  sx={{ maxWidth: 'min(200px, 30vw)', height: '20px' }}
+                />
+              </StyledPathNode>
+              {!isLast && <Typography variant="body1">{PATH_SEPARATOR}</Typography>}
+            </React.Fragment>
+          );
+        })}
+      </StyledPathWrapper>
+    </ScrollBox>
   );
 };
 

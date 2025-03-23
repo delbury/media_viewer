@@ -1,7 +1,7 @@
 import { useIdleCallback } from '@/hooks/useIdleCallback';
 import { KeyboardArrowDownOutlined, KeyboardArrowUpOutlined } from '@mui/icons-material';
 import { SxProps, Theme } from '@mui/material';
-import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState, useTransition } from 'react';
 import { StyledScrollBoxContent, StyledScrollBoxWrapper, StyledScrollFloatTipBar } from './style';
 
 export interface ScrollBoxProps {
@@ -11,15 +11,46 @@ export interface ScrollBoxProps {
   floatBarDisabled?: boolean;
 }
 
+export interface ScrollBoxInstance {
+  scrollTo: (params: { top?: number; left?: number }) => void;
+  scrollToBottom: () => void;
+  scrollToRight: () => void;
+}
+
 // 滚动到顶部或者底部的阈值
 const SCROLL_THRESHOLD = 10;
 
-const ScrollBox = ({ children, sx, floatBarDisabled }: ScrollBoxProps) => {
+const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(({ children, sx, floatBarDisabled }, ref) => {
   const wrapperRef = useRef<HTMLElement>(null);
   const [isScrollable, setIsScrollable] = useState(false);
   const [isScrollAtTop, setIsScrollAtTop] = useState(true);
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(false);
   const [, startTransition] = useTransition();
+
+  const scrollTo: ScrollBoxInstance['scrollTo'] = useCallback(
+    ({ top, left }) => {
+      wrapperRef.current?.scrollTo({
+        top,
+        left,
+        behavior: 'smooth',
+      });
+    },
+    [wrapperRef]
+  );
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      scrollTo,
+      scrollToBottom: () => {
+        scrollTo({ top: wrapperRef.current?.scrollHeight });
+      },
+      scrollToRight: () => {
+        scrollTo({ left: wrapperRef.current?.scrollLeft });
+      },
+    }),
+    [scrollTo]
+  );
 
   // 检测滚动状态
   const detectScrollExist = useCallback(
@@ -101,6 +132,8 @@ const ScrollBox = ({ children, sx, floatBarDisabled }: ScrollBoxProps) => {
       )}
     </StyledScrollBoxWrapper>
   );
-};
+});
+
+ScrollBox.displayName = 'ScrollBox';
 
 export default ScrollBox;

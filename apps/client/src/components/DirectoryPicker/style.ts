@@ -1,20 +1,16 @@
 import styled from '@emotion/styled';
 import { Box, Card, ListItemButton, styled as muiStyled, Typography } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 
-export const useStyles = makeStyles({
-  root: {
-    maxHeight: '10vh',
-    overflowY: 'auto',
-  },
-  ol: {
-    rowGap: '4px',
-  },
-  separator: {
-    marginLeft: '4px',
-    marginRight: '4px',
-  },
-});
+export const StyledPathWrapper = styled(Box, {
+  shouldForwardProp: prop => prop !== 'isWrap',
+})<{ isWrap?: boolean }>`
+  flex: 1;
+  display: flex;
+  flex-wrap: ${({ isWrap }) => (isWrap ? 'wrap' : 'nowrap')};
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 4px;
+`;
 
 export const StyledBtnRow = styled(Box)`
   display: flex;
@@ -22,7 +18,7 @@ export const StyledBtnRow = styled(Box)`
   gap: 12px;
 `;
 
-export const StyledPathNodeWrapper = styled(Box)`
+export const StyledPathNode = styled(Box)`
   cursor: pointer;
 `;
 
@@ -33,7 +29,7 @@ export const StyledPathNodeTitle = styled(Box)`
   text-overflow: ellipsis;
   white-space: nowrap;
 
-  ${StyledPathNodeWrapper}:hover & {
+  ${StyledPathNode}:hover & {
     text-decoration: underline;
     text-underline-offset: 1.5px;
   }
