@@ -71,18 +71,21 @@ export const StyledHighlightText = muiStyled('span')(({ theme }) => ({
 /** CurrentFilesInfo 组件使用 */
 
 /** FileItem 组件使用 */
-export const StyledFileCard = styled(Card)`
+export const StyledFileCardWrapper = styled(Card)`
   padding: 8px;
   width: 100px;
   height: 100px;
   font-size: 1rem;
+  flex: 1 0 100px;
 `;
 export const StyledFileMoreInfo = styled(Box)`
+  width: 50%;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  & > * {
-    line-height: 1.2;
+  & > *:not(:first-child) {
+    line-height: 1;
+    font-size: 0.8rem;
   }
 `;
 export const StyledFileName = styled(Box)`
@@ -99,7 +102,6 @@ export const StyledFileTitle = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 2.4rem;
 `;
 /** FileItem 组件使用 */
 
