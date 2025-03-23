@@ -29,7 +29,7 @@ const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
   return (
     <ScrollBox
       ref={scrollRef}
-      sx={{ maxHeight: '10vh', display: 'flex', flexDirection: 'column' }}
+      sx={{ maxHeight: '10vh', display: 'flex', flexDirection: 'column', mb: '8px' }}
     >
       <StyledPathWrapper isWrap={isWrap}>
         {Btn}

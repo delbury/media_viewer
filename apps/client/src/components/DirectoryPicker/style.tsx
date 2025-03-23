@@ -59,7 +59,6 @@ export const StyledPathWrapper = styled(Box, {
   display: flex;
   flex-wrap: ${({ isWrap }) => (isWrap ? 'wrap' : 'nowrap')};
   align-items: center;
-  padding-bottom: 8px;
   gap: 4px;
 `;
 /** SelectingPathInfo 组件使用 */
@@ -131,11 +130,46 @@ export const StyledSelectedInfoName = muiStyled(Typography, {
 /** SelectedPathInfo 组件使用 */
 
 /** FileItemList 组件使用 */
-export const StyledToggleButtonGroup = styled(ToggleButtonGroup)`
-  height: '24px';
-`;
+export const StyledToggleButtonGroup = styled(({ ...props }) => (
+  <ToggleButtonGroup
+    size="small"
+    {...props}
+  />
+))`
+  height: 20px;
+  display: flex;
+` as typeof ToggleButtonGroup;
 export const StyledToggleButton = styled(ToggleButton)`
-  padding: 0 4px;
+  position: relative;
+  padding: 0 6px;
   white-space: nowrap;
+`;
+export const StyledSelectedBadge = muiStyled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: 0,
+  right: 0,
+  fontSize: '0.75rem',
+  width: '12px',
+  height: '12px',
+  borderRadius: '50%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: theme.palette.primary.dark,
+  color: theme.palette.primary.contrastText,
+  opacity: 0.5,
+  transform: 'scale(0.75)',
+  transformOrigin: 'top right',
+}));
+export const StyledFileToolRow = styled(Box)`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+`;
+export const StyledFileResetBtn = styled(IconButton)`
+  /* margin-right: 12px; */
+  padding: 0;
+  font-size: 0;
 `;
 /** FileItemList 组件使用 */

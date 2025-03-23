@@ -51,6 +51,12 @@ const CompDialog = (props: DialogProps) => {
       open={open}
       onClose={onClose}
       fullWidth
+      sx={{
+        '& .MuiDialog-paper': {
+          margin: '0 16px',
+          width: 'calc(100% - 32px)',
+        },
+      }}
     >
       <StyledDialogTitleRow>
         <DialogTitle sx={{ padding: 0 }}>{title}</DialogTitle>
@@ -59,7 +65,7 @@ const CompDialog = (props: DialogProps) => {
 
       <Divider />
 
-      <DialogContent>{children}</DialogContent>
+      <DialogContent sx={{ padding: '12px 16px' }}>{children}</DialogContent>
 
       <Divider />
 

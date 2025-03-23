@@ -35,7 +35,7 @@ const saveLocalConfig = () => {
 export function usePersistentConfig<T = unknown>(defaultValue: T, key?: string): [T, (val: T) => void] {
   const [value, setValue] = useState(key ? ((getLocalConfig(key) as T) ?? defaultValue) : defaultValue);
 
-  const saveLocalConfigIdle = useIdleCallback(saveLocalConfig);
+  const saveLocalConfigIdle = useIdleCallback(saveLocalConfig, 100);
 
   const setValueWithLocal = useCallback(
     (val: T) => {

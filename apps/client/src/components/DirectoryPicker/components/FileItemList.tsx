@@ -1,12 +1,60 @@
 import ResizeContainer from '@/components/ResizeContainer';
 import ScrollBox from '@/components/ScrollBox';
 import { usePersistentConfig } from '@/hooks/usePersistentConfig';
-import { Box, Stack, ToggleButtonGroup, Typography } from '@mui/material';
+import { RestartAltOutlined } from '@mui/icons-material';
+import { Stack, ToggleButtonGroupProps, Typography } from '@mui/material';
 import { FileInfo } from '@shared';
 import { useTranslations } from 'next-intl';
-import { FILE_SORT_OPTIONS, FileSortField } from '../constant';
-import { StyledToggleButton } from '../style';
+import { useMemo } from 'react';
+import { FILE_FILTER_OPTIONS, FILE_SORT_OPTIONS, FILE_TYPE_EXTS, FileFilterField, FileSortField } from '../constant';
+import {
+  StyledFileResetBtn,
+  StyledFileToolRow,
+  StyledSelectedBadge,
+  StyledToggleButton,
+  StyledToggleButtonGroup,
+} from '../style';
 import FileItem from './FileItem';
+
+const TBG = ({
+  items,
+  showOrder,
+  value,
+  rawLabel,
+  ...props
+}: ToggleButtonGroupProps & {
+  items: {
+    value: string;
+    label: string;
+  }[];
+  showOrder?: boolean;
+  rawLabel?: boolean;
+}) => {
+  const t = useTranslations();
+
+  return (
+    <StyledToggleButtonGroup
+      color="primary"
+      value={value}
+      {...props}
+    >
+      {items.map(item => {
+        const order =
+          showOrder && Array.isArray(value) ? (value?.findIndex((field: string) => field === item.value) ?? -1) + 1 : 0;
+
+        return (
+          <StyledToggleButton
+            key={item.value}
+            value={item.value}
+          >
+            <Typography variant="body2">{rawLabel ? item.label : t(item.label)}</Typography>
+            {!!showOrder && !!order && <StyledSelectedBadge>{order}</StyledSelectedBadge>}
+          </StyledToggleButton>
+        );
+      })}
+    </StyledToggleButtonGroup>
+  );
+};
 
 interface FileItemListProps {
   files: FileInfo[];
@@ -14,11 +62,46 @@ interface FileItemListProps {
 
 type FileSortMode = 'desc' | 'asc';
 
+const DEFAULT_VALUES = {
+  sortMode: 'desc' as FileSortMode,
+  sortField: [] as FileSortField[],
+  filterFileType: null,
+  filterFileExts: [] as string[],
+};
+
 const FileItemList = ({ files }: FileItemListProps) => {
   const t = useTranslations();
 
-  const [sortMode, setSortMode] = usePersistentConfig<FileSortMode>('desc', 'directoryPickerFilesSortMode');
-  const [sortField, setSortField] = usePersistentConfig<FileSortField>('name', 'directoryPickerFilesSortField');
+  const [sortMode, setSortMode] = usePersistentConfig<FileSortMode>(
+    DEFAULT_VALUES.sortMode,
+    'directoryPickerFilesSortMode'
+  );
+  const [sortField, setSortField] = usePersistentConfig<FileSortField[]>(
+    DEFAULT_VALUES.sortField,
+    'directoryPickerFilesSortField'
+  );
+
+  const [filterFileType, setFilterFileType] = usePersistentConfig<FileFilterField | null>(
+    DEFAULT_VALUES.filterFileType,
+    'directoryPickerFilesFilterFileType'
+  );
+
+  const [filterFileExts, setFilterFileExts] = usePersistentConfig<string[]>(
+    DEFAULT_VALUES.filterFileExts,
+    'directoryPickerFilesFilterFileExts'
+  );
+
+  const fileTypeExts = useMemo(() => {
+    if (!filterFileType) return [];
+    return FILE_TYPE_EXTS[filterFileType];
+  }, [filterFileType]);
+
+  const handleReset = () => {
+    setSortMode(DEFAULT_VALUES.sortMode);
+    setSortField(DEFAULT_VALUES.sortField);
+    setFilterFileType(DEFAULT_VALUES.filterFileType);
+    setFilterFileExts(DEFAULT_VALUES.filterFileExts);
+  };
 
   return (
     <ResizeContainer
@@ -29,42 +112,52 @@ const FileItemList = ({ files }: FileItemListProps) => {
       resizePosition="top"
       persistentKey="directoryPickerFiles"
       beforeContentSlot={
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px', pb: '4px' }}>
-          <ToggleButtonGroup
-            color="primary"
-            exclusive
-            value={sortMode}
-            onChange={(_, value) => value && setSortMode(value)}
-            size="small"
-            sx={{ height: '24px' }}
-          >
-            <StyledToggleButton value="desc">
-              <Typography variant="body2">{t('Common.Desc')}</Typography>
-            </StyledToggleButton>
-            <StyledToggleButton value="asc">
-              <Typography variant="body2">{t('Common.Asc')}</Typography>
-            </StyledToggleButton>
-          </ToggleButtonGroup>
-          <ScrollBox>
-            <ToggleButtonGroup
-              color="primary"
+        <>
+          <StyledFileToolRow>
+            <StyledFileResetBtn onClick={handleReset}>
+              <RestartAltOutlined />
+            </StyledFileResetBtn>
+
+            <TBG
               exclusive
-              value={sortField}
-              onChange={(_, value) => value && setSortField(value)}
-              size="small"
-              sx={{ height: '24px' }}
-            >
-              {FILE_SORT_OPTIONS.map(opt => (
-                <StyledToggleButton
-                  key={opt.value}
-                  value={opt.value}
-                >
-                  <Typography variant="body2"> {t(opt.label)}</Typography>
-                </StyledToggleButton>
-              ))}
-            </ToggleButtonGroup>
-          </ScrollBox>
-        </Box>
+              value={sortMode}
+              onChange={(_, value) => value && setSortMode(value)}
+              items={[
+                { value: 'desc', label: 'Common.Desc' },
+                { value: 'asc', label: 'Common.Asc' },
+              ]}
+            />
+            <ScrollBox>
+              <TBG
+                items={FILE_SORT_OPTIONS}
+                value={sortField}
+                onChange={(_, value) => setSortField(value)}
+                showOrder
+              />
+            </ScrollBox>
+          </StyledFileToolRow>
+
+          <StyledFileToolRow>
+            <TBG
+              exclusive
+              items={FILE_FILTER_OPTIONS}
+              value={filterFileType}
+              onChange={(_, value) => {
+                setFilterFileType(value);
+                setFilterFileExts([]);
+              }}
+            />
+
+            <ScrollBox>
+              <TBG
+                rawLabel
+                items={fileTypeExts}
+                value={filterFileExts}
+                onChange={(_, value) => setFilterFileExts(value)}
+              />
+            </ScrollBox>
+          </StyledFileToolRow>
+        </>
       }
     >
       {files.length && (

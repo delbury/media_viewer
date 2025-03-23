@@ -48,7 +48,9 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(({ children, sx,
     ref,
     () => ({
       scrollTo,
-      scrollToEnd: () => scrollTo({ top: wrapperRef.current?.scrollHeight, left: wrapperRef.current?.scrollWidth }),
+      scrollToEnd: () => {
+        scrollTo({ top: wrapperRef.current?.scrollHeight, left: wrapperRef.current?.scrollWidth });
+      },
     }),
     [scrollTo]
   );

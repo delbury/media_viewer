@@ -17,3 +17,8 @@ export const formatFileSize = (size: number) => {
     size /= 1024;
   }
 };
+
+// 将对象转换为选项数组
+export const mapToOptions = (map: Record<string, string>) => {
+  return Object.entries(map).map(([key, value]) => ({ label: value, value: key }));
+};

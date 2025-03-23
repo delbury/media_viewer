@@ -32,6 +32,11 @@
     "Created": "创建时间",
     "Duration": "时长",
     "Asc": "升序",
-    "Desc": "降序"
+    "Desc": "降序",
+    "Image": "图片",
+    "Audio": "音频",
+    "Video": "视频",
+    "Text": "文本",
+    "Other": "其他"
   }
 }
