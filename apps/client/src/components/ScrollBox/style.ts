@@ -24,6 +24,7 @@ export const StyledScrollFloatTipBar = styled(Box, {
   justifyContent: 'center',
   alignItems: 'center',
   color: palette.text.secondary,
+  pointerEvents: 'none',
 
   '::before': {
     position: 'absolute',
@@ -32,7 +33,8 @@ export const StyledScrollFloatTipBar = styled(Box, {
     display: 'block',
     width: '100%',
     height: '100%',
-    backgroundColor: palette.grey[100],
-    boxShadow: `0 ${isAtTop ? '' : '-'}4px 12px ${palette.grey[200]}`,
+    // backgroundColor: palette.grey[100],
+    backgroundImage: `linear-gradient(to ${isAtTop ? 'bottom' : 'top'}, ${palette.grey[200]}, ${palette.grey[100]}aa)`,
+    boxShadow: `0 ${isAtTop ? '' : '-'}4px 16px ${palette.grey[200]}`,
   },
 }));

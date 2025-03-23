@@ -61,9 +61,7 @@ const ResizeContainer = ({
         ...resizableStyle,
       }}
     >
-      {!!title && (
-        <Typography sx={{ textAlign: 'left', color: 'text.secondary', marginBottom: '4px' }}>{title}</Typography>
-      )}
+      {!!title && <Typography sx={{ color: 'text.secondary', marginBottom: '4px' }}>{title}</Typography>}
       <ScrollBox
         {...scrollBoxProps}
         sx={{ flex: 1 }}
