@@ -21,9 +21,9 @@ export const useDrag = ({ callback, watchAxis = 'both', defaultOffset }: UseDrag
   // 当次拖拽时，鼠标相对于点击原点的实时偏移值
   const currentOffsetOnTime = useRef<[number, number]>([0, 0]);
 
-  // 事件回调
-  const bindFnMouseMove = useRef<(ev: MouseEvent) => void>(null);
-  const bindFnMouseUp = useRef<() => void>(null);
+  // 中断信号
+  const abortMouseMove = useRef<AbortController>(null);
+  const abortMouseUp = useRef<AbortController>(null);
 
   const mouseMoveThrottle = useThrottle((dx: number, dy: number) => {
     const flag = callback([dx, dy]);
@@ -31,50 +31,55 @@ export const useDrag = ({ callback, watchAxis = 'both', defaultOffset }: UseDrag
     currentOffsetOnTime.current = [dx, dy];
   }, 10);
 
-  const fnMouseMove = (ev: MouseEvent) => {
-    ev.preventDefault();
-
-    const dx = watchAxis === 'y' ? 0 : ev.clientX - (startPosition.current?.[0] ?? 0) + lastOffset.current[0];
-    const dy = watchAxis === 'x' ? 0 : ev.clientY - (startPosition.current?.[1] ?? 0) + lastOffset.current[1];
-
-    if (watchAxis === 'x') {
-      if (dx === currentOffsetOnTime.current[0]) return;
-    } else if (watchAxis === 'y') {
-      if (dy === currentOffsetOnTime.current[1]) return;
-    } else {
-      if (dx === currentOffsetOnTime.current[0] && dy === currentOffsetOnTime.current[1]) return;
-    }
-
-    // 节流
-    mouseMoveThrottle(dx, dy);
-  };
-
   const clearEvents = useCallback(() => {
-    if (bindFnMouseMove.current) {
-      document.removeEventListener(MOVE_EVENT_NAME, bindFnMouseMove.current);
-      bindFnMouseMove.current = null;
-    }
-    if (bindFnMouseUp.current) {
-      document.removeEventListener(UP_EVENT_NAME, bindFnMouseUp.current);
-      bindFnMouseUp.current = null;
-    }
-  }, [bindFnMouseMove, bindFnMouseUp]);
+    abortMouseMove.current?.abort();
+    abortMouseMove.current = null;
+    abortMouseUp.current?.abort();
+    abortMouseUp.current = null;
+  }, [abortMouseMove, abortMouseUp]);
 
-  const fnMouseUp = () => {
-    startPosition.current = null;
-    lastOffset.current = [...currentOffsetOnTime.current];
-    clearEvents();
-  };
-
+  // 点击事件，开始
   const fnMouseDown: MouseEventHandler<HTMLElement> = ev => {
     ev.preventDefault();
 
     startPosition.current = [ev.clientX, ev.clientY];
 
-    document.addEventListener(MOVE_EVENT_NAME, fnMouseMove);
-    document.addEventListener(UP_EVENT_NAME, fnMouseUp);
-    bindFnMouseMove.current = fnMouseMove;
-    bindFnMouseUp.current = fnMouseUp;
+    abortMouseMove.current = new AbortController();
+    abortMouseUp.current = new AbortController();
+
+    // 拖动中
+    document.addEventListener(
+      MOVE_EVENT_NAME,
+      ev => {
+        ev.preventDefault();
+
+        const dx = watchAxis === 'y' ? 0 : ev.clientX - (startPosition.current?.[0] ?? 0) + lastOffset.current[0];
+        const dy = watchAxis === 'x' ? 0 : ev.clientY - (startPosition.current?.[1] ?? 0) + lastOffset.current[1];
+
+        if (watchAxis === 'x') {
+          if (dx === currentOffsetOnTime.current[0]) return;
+        } else if (watchAxis === 'y') {
+          if (dy === currentOffsetOnTime.current[1]) return;
+        } else {
+          if (dx === currentOffsetOnTime.current[0] && dy === currentOffsetOnTime.current[1]) return;
+        }
+
+        // 节流
+        mouseMoveThrottle(dx, dy);
+      },
+      { signal: abortMouseMove.current.signal }
+    );
+
+    // 拖动结束
+    document.addEventListener(
+      UP_EVENT_NAME,
+      () => {
+        startPosition.current = null;
+        lastOffset.current = [...currentOffsetOnTime.current];
+        clearEvents();
+      },
+      { signal: abortMouseUp.current.signal }
+    );
   };
 
   // 移除事件
