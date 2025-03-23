@@ -56,7 +56,7 @@ const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
                   variant={isLast ? 'filled' : 'outlined'}
                   color={isLast ? 'primary' : 'default'}
                   onClick={() => onItemClick?.(index)}
-                  sx={{ maxWidth: 'min(200px, 30vw)', height: '20px' }}
+                  sx={{ maxWidth: 'min(200px, 30vw)' }}
                 />
               </StyledPathNode>
               {!isLast && <Typography variant="body1">{PATH_SEPARATOR}</Typography>}
