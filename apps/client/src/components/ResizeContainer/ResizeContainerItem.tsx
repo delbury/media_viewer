@@ -4,7 +4,8 @@ import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import Empty from '../Empty';
 import ScrollBox, { ScrollBoxProps } from '../ScrollBox';
-import ResizeBar, { RESIZE_BAR_SIZE, ResizeBarProps } from './ResizeBar';
+import { RESIZE_BAR_SIZE } from './constant';
+import ResizeBar, { ResizeBarProps } from './ResizeBar';
 import { StyledContainerItem } from './style';
 
 interface ResizeContainerProps {
@@ -19,8 +20,6 @@ interface ResizeContainerProps {
   persistentKey?: string;
   scrollBoxProps?: ScrollBoxProps;
 }
-
-const BAR_PADDING = RESIZE_BAR_SIZE;
 
 const ResizeContainer = ({
   children,
@@ -37,11 +36,12 @@ const ResizeContainer = ({
   const resizable = !!resizePosition;
   const resizableStyle = useMemo<BoxProps['sx']>(() => {
     if (!resizePosition) return { ...sx };
+    const padding = RESIZE_BAR_SIZE + 8;
     return {
       ...sx,
       position: 'relative',
-      paddingTop: resizePosition === 'top' ? BAR_PADDING + 'px' : void 0,
-      paddingBottom: resizePosition === 'bottom' ? BAR_PADDING + 'px' : void 0,
+      paddingTop: resizePosition === 'top' ? padding + 'px' : void 0,
+      paddingBottom: resizePosition === 'bottom' ? padding + 'px' : void 0,
     };
   }, [resizePosition, sx]);
   const [sizeOffset, setSizeOffset] = usePersistentConfig<[number, number]>([0, 0], persistentKey);

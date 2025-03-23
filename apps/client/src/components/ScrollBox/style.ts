@@ -8,7 +8,7 @@ export const StyledScrollBoxWrapper = styled(Box)`
 export const StyledScrollBoxContent = styled(Box)`
   height: 100%;
   overflow: auto;
-  overscroll-behavior: 'contain';
+  overscroll-behavior: contain;
 `;
 
 export const StyledScrollFloatTipBar = styled(Box, {

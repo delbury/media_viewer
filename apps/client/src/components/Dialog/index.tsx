@@ -10,7 +10,7 @@ import {
   Stack,
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback } from 'react';
 import { StyledDialogTitleRow } from './style';
 
 interface DialogProps {
@@ -44,26 +44,6 @@ const CompDialog = (props: DialogProps) => {
     onCancel?.();
     onClose?.();
   }, [onCancel, onClose]);
-
-  // 阻止移动端下拉页面刷新
-  const abortController = useRef<AbortController>(null);
-  useEffect(() => {
-    if (open) {
-      const controller = new AbortController();
-      abortController.current = controller;
-      document.addEventListener('touchmove', (ev: Event) => ev.preventDefault(), {
-        passive: false,
-        signal: controller.signal,
-      });
-    } else {
-      abortController.current?.abort();
-      abortController.current = null;
-    }
-    return () => {
-      abortController.current?.abort();
-      abortController.current = null;
-    };
-  }, [open]);
 
   return (
     <Dialog

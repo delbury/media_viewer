@@ -88,7 +88,7 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
       <ResizeContainer.Wrapper height="50vh">
         {/* 当前文件夹的子文件夹 */}
         <ResizeContainer
-          title={t('Tools.CurrentDirectories')}
+          // title={t('Tools.CurrentDirectories')}
           emptyText={t('Tools.NoDirectories')}
           isEmpty={!currentDirs.length}
         >
@@ -108,7 +108,7 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
         {/* 当前文件夹的文件 */}
         <ResizeContainer
           height="20vh"
-          title={t('Tools.CurrentFiles')}
+          // title={t('Tools.CurrentFiles')}
           emptyText={t('Tools.NoFiles')}
           isEmpty={!currentFiles.length}
           resizePosition="top"

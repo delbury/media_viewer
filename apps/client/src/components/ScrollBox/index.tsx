@@ -1,4 +1,4 @@
-import { useIdleCallback } from '@/hooks/useIdleCallback';
+import { useThrottle } from '@/hooks/useThrottle';
 import { KeyboardArrowDownOutlined, KeyboardArrowUpOutlined } from '@mui/icons-material';
 import { SxProps, Theme } from '@mui/material';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
@@ -66,7 +66,7 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(({ children, sx,
     },
     [setIsScrollable, setIsScrollAtTop, setIsScrollAtBottom]
   );
-  const detectScrollExistIdle = useIdleCallback(detectScrollExist, 20);
+  const detectScrollExistIdle = useThrottle(detectScrollExist, 20);
 
   // 绑定事件，实现滚动时，动态显示或隐藏可滚动提示悬浮条
   useEffect(() => {

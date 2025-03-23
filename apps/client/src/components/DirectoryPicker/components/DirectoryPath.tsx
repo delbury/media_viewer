@@ -29,7 +29,7 @@ const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
 
   return (
     <Box>
-      <Typography sx={{ color: 'text.secondary', marginBottom: '4px' }}>{t('Tools.CurrentPath')}</Typography>
+      {/* <Typography sx={{ color: 'text.secondary', marginBottom: '4px' }}>{t('Tools.CurrentPath')}</Typography> */}
       <ScrollBox
         ref={scrollRef}
         sx={{ maxHeight: '10vh', display: 'flex', flexDirection: 'column' }}
