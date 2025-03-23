@@ -1,16 +1,23 @@
 import styled from '@emotion/styled';
-import { Box, Card, ListItemButton, styled as muiStyled, Typography } from '@mui/material';
+import { Box, Card, IconButton, ListItemButton, styled as muiStyled, Typography } from '@mui/material';
 
-export const StyledPathWrapper = styled(Box, {
+export const StyledSwitchBtn = muiStyled(IconButton, {
   shouldForwardProp: prop => prop !== 'isWrap',
-})<{ isWrap?: boolean }>`
-  flex: 1;
-  display: flex;
-  flex-wrap: ${({ isWrap }) => (isWrap ? 'wrap' : 'nowrap')};
-  align-items: center;
-  margin-bottom: 8px;
-  gap: 4px;
-`;
+})<{ isWrap: boolean }>(({ theme, isWrap }) => ({
+  padding: 0,
+  width: '24px',
+  height: '24px',
+  borderWidth: '1px',
+  borderStyle: 'solid',
+  borderColor: theme.palette.grey[400],
+  color: theme.palette.grey[400],
+  transition: `transform ${theme.transitions.duration.shorter}ms`,
+  ...(isWrap
+    ? {}
+    : {
+        transform: 'rotateZ(90deg)',
+      }),
+}));
 
 export const StyledBtnRow = styled(Box)`
   display: flex;
@@ -79,4 +86,15 @@ export const StyledSelectedInfoName = styled(Typography)`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+`;
+
+export const StyledPathWrapper = styled(Box, {
+  shouldForwardProp: prop => prop !== 'isWrap',
+})<{ isWrap?: boolean }>`
+  flex: 1;
+  display: flex;
+  flex-wrap: ${({ isWrap }) => (isWrap ? 'wrap' : 'nowrap')};
+  align-items: center;
+  padding-bottom: 8px;
+  gap: 4px;
 `;

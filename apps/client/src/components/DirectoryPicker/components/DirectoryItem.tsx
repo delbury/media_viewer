@@ -4,11 +4,12 @@ import { ListItemIcon, ListItemText } from '@mui/material';
 import { DirectoryInfo } from '@shared';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
+import { DIRECTORY_ITEM_HEIGHT } from '../constant';
 import { StyledListItemButton } from '../style';
 
 interface DirectoryItemProps {
   dir: DirectoryInfo;
-  onClick?: () => void;
+  onClick?: (dir: DirectoryInfo) => void;
 }
 
 const DirectoryItem = ({ dir, onClick }: DirectoryItemProps) => {
@@ -25,8 +26,8 @@ const DirectoryItem = ({ dir, onClick }: DirectoryItemProps) => {
 
   return (
     <StyledListItemButton
-      key={dir.name}
-      onClick={onClick}
+      onClick={() => onClick?.(dir)}
+      sx={{ height: `${DIRECTORY_ITEM_HEIGHT}px` }}
     >
       <ListItemIcon sx={{ minWidth: 40 }}>
         <FolderOutlined fontSize="large" />

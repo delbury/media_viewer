@@ -7,9 +7,9 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import ResizeContainer from '../../ResizeContainer';
 import DirectoryItemList from './DirectoryItemList';
-import DirectoryPath from './DirectoryPath';
 import FileItemList from './FileItemList';
 import FilesInfo from './FilesInfo';
+import SelectingPathInfo from './SelectingPathInfo';
 
 interface PickViewerProps {
   visible: boolean;
@@ -81,7 +81,7 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
       }
     >
       {/* 已选文件夹 */}
-      <DirectoryPath
+      <SelectingPathInfo
         pathList={pathList}
         onItemClick={setTarget}
       />

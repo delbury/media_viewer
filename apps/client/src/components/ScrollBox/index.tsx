@@ -1,5 +1,10 @@
 import { useThrottle } from '@/hooks/useThrottle';
-import { KeyboardArrowDownOutlined, KeyboardArrowUpOutlined } from '@mui/icons-material';
+import {
+  KeyboardArrowDownOutlined,
+  KeyboardArrowLeftOutlined,
+  KeyboardArrowRightOutlined,
+  KeyboardArrowUpOutlined,
+} from '@mui/icons-material';
 import { SxProps, Theme } from '@mui/material';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { StyledScrollBoxContent, StyledScrollBoxWrapper, StyledScrollFloatTipBar } from './style';
@@ -13,8 +18,7 @@ export interface ScrollBoxProps {
 
 export interface ScrollBoxInstance {
   scrollTo: (params: { top?: number; left?: number }) => void;
-  scrollToBottom: () => void;
-  scrollToRight: () => void;
+  scrollToEnd: () => void;
 }
 
 // 滚动到顶部或者底部的阈值
@@ -22,9 +26,12 @@ const SCROLL_THRESHOLD = 20;
 
 const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(({ children, sx, floatBarDisabled }, ref) => {
   const wrapperRef = useRef<HTMLElement>(null);
-  const [isScrollable, setIsScrollable] = useState(false);
+  const [isScrollableX, setIsScrollableX] = useState(false);
+  const [isScrollableY, setIsScrollableY] = useState(false);
   const [isScrollAtTop, setIsScrollAtTop] = useState(true);
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(false);
+  const [isScrollAtLeft, setIsScrollAtLeft] = useState(true);
+  const [isScrollAtRight, setIsScrollAtRight] = useState(false);
 
   const scrollTo: ScrollBoxInstance['scrollTo'] = useCallback(
     ({ top, left }) => {
@@ -41,12 +48,7 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(({ children, sx,
     ref,
     () => ({
       scrollTo,
-      scrollToBottom: () => {
-        scrollTo({ top: wrapperRef.current?.scrollHeight });
-      },
-      scrollToRight: () => {
-        scrollTo({ left: wrapperRef.current?.scrollLeft });
-      },
+      scrollToEnd: () => scrollTo({ top: wrapperRef.current?.scrollHeight, left: wrapperRef.current?.scrollWidth }),
     }),
     [scrollTo]
   );
@@ -54,17 +56,17 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(({ children, sx,
   // 检测滚动状态
   const detectScrollExist = useCallback(
     (elm: HTMLElement) => {
-      const { clientHeight, scrollHeight, scrollTop } = elm;
+      const { clientHeight, scrollHeight, scrollTop, clientWidth, scrollWidth, scrollLeft } = elm;
+      setIsScrollableY(clientHeight < scrollHeight);
+      setIsScrollAtTop(scrollTop <= SCROLL_THRESHOLD);
       // 加一点阈值
-      const curIsScrollable = clientHeight < scrollHeight;
-      const curIsAtTop = scrollTop <= SCROLL_THRESHOLD;
-      const curIsAtBottom = Math.ceil(scrollTop + clientHeight) >= scrollHeight - SCROLL_THRESHOLD;
+      setIsScrollAtBottom(Math.ceil(scrollTop + clientHeight) >= scrollHeight - SCROLL_THRESHOLD);
 
-      setIsScrollable(curIsScrollable);
-      setIsScrollAtTop(curIsAtTop);
-      setIsScrollAtBottom(curIsAtBottom);
+      setIsScrollableX(clientWidth < scrollWidth);
+      setIsScrollAtLeft(scrollLeft <= SCROLL_THRESHOLD);
+      setIsScrollAtRight(Math.ceil(scrollLeft + clientWidth) >= scrollWidth - SCROLL_THRESHOLD);
     },
-    [setIsScrollable, setIsScrollAtTop, setIsScrollAtBottom]
+    [setIsScrollableY, setIsScrollAtTop, setIsScrollAtBottom]
   );
   const detectScrollExistIdle = useThrottle(detectScrollExist, 20);
 
@@ -111,19 +113,39 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(({ children, sx,
     <StyledScrollBoxWrapper sx={sx}>
       <StyledScrollBoxContent ref={wrapperRef}>{children}</StyledScrollBoxContent>
 
-      {!floatBarDisabled && isScrollable && !isScrollAtTop && (
-        <StyledScrollFloatTipBar isAtTop>
+      {/* 上 */}
+      {!floatBarDisabled && isScrollableY && !isScrollAtTop && (
+        <StyledScrollFloatTipBar barPosition="top">
           <KeyboardArrowUpOutlined
             fontSize="small"
             sx={{ marginBottom: '-2px' }}
           />
         </StyledScrollFloatTipBar>
       )}
-      {!floatBarDisabled && isScrollable && !isScrollAtBottom && (
-        <StyledScrollFloatTipBar isAtBottom>
+      {/* 下 */}
+      {!floatBarDisabled && isScrollableY && !isScrollAtBottom && (
+        <StyledScrollFloatTipBar barPosition="bottom">
           <KeyboardArrowDownOutlined
             fontSize="small"
             sx={{ marginTop: '-2px' }}
+          />
+        </StyledScrollFloatTipBar>
+      )}
+      {/* 左 */}
+      {!floatBarDisabled && isScrollableX && !isScrollAtLeft && (
+        <StyledScrollFloatTipBar barPosition="left">
+          <KeyboardArrowLeftOutlined
+            fontSize="small"
+            sx={{ marginRight: '-2px' }}
+          />
+        </StyledScrollFloatTipBar>
+      )}
+      {/* 右 */}
+      {!floatBarDisabled && isScrollableX && !isScrollAtRight && (
+        <StyledScrollFloatTipBar barPosition="right">
+          <KeyboardArrowRightOutlined
+            fontSize="small"
+            sx={{ marginLeft: '-2px' }}
           />
         </StyledScrollFloatTipBar>
       )}
