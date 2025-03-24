@@ -1,5 +1,6 @@
 import ResizeContainer from '@/components/ResizeContainer';
 import ScrollBox from '@/components/ScrollBox';
+import { useElementAnimation } from '@/hooks/useElementAnimation';
 import { usePersistentConfig } from '@/hooks/usePersistentConfig';
 import { RestartAltOutlined } from '@mui/icons-material';
 import { Stack, ToggleButtonGroupProps, Typography } from '@mui/material';
@@ -8,6 +9,7 @@ import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { FILE_FILTER_OPTIONS, FILE_SORT_OPTIONS, FILE_TYPE_EXTS, FileFilterField, FileSortField } from '../constant';
 import {
+  StyledFileCountInfo,
   StyledFileResetBtn,
   StyledFileToolRow,
   StyledSelectedBadge,
@@ -72,6 +74,8 @@ const DEFAULT_VALUES = {
 const FileItemList = ({ files }: FileItemListProps) => {
   const t = useTranslations();
 
+  const reset = useElementAnimation<HTMLButtonElement>();
+
   const [sortMode, setSortMode] = usePersistentConfig<FileSortMode>(
     DEFAULT_VALUES.sortMode,
     'directoryPickerFilesSortMode'
@@ -80,17 +84,14 @@ const FileItemList = ({ files }: FileItemListProps) => {
     DEFAULT_VALUES.sortField,
     'directoryPickerFilesSortField'
   );
-
   const [filterFileType, setFilterFileType] = usePersistentConfig<FileFilterField | null>(
     DEFAULT_VALUES.filterFileType,
     'directoryPickerFilesFilterFileType'
   );
-
   const [filterFileExts, setFilterFileExts] = usePersistentConfig<string[]>(
     DEFAULT_VALUES.filterFileExts,
     'directoryPickerFilesFilterFileExts'
   );
-
   const fileTypeExts = useMemo(() => {
     if (!filterFileType) return [];
     return FILE_TYPE_EXTS[filterFileType];
@@ -103,6 +104,11 @@ const FileItemList = ({ files }: FileItemListProps) => {
     setFilterFileExts(DEFAULT_VALUES.filterFileExts);
   };
 
+  // 筛选和排序后的文件列表
+  const filteredSortedFiles = useMemo(() => {
+    return files;
+  }, [files]);
+
   return (
     <ResizeContainer
       height="20vh"
@@ -111,10 +117,17 @@ const FileItemList = ({ files }: FileItemListProps) => {
       isEmpty={!files.length}
       resizePosition="top"
       persistentKey="directoryPickerFiles"
+      sx={{ position: 'relative' }}
       beforeContentSlot={
         <>
           <StyledFileToolRow>
-            <StyledFileResetBtn onClick={handleReset}>
+            <StyledFileResetBtn
+              ref={reset.domRef}
+              onClick={() => {
+                handleReset();
+                reset.startByPreset('rotate360');
+              }}
+            >
               <RestartAltOutlined />
             </StyledFileResetBtn>
 
@@ -158,6 +171,11 @@ const FileItemList = ({ files }: FileItemListProps) => {
             </ScrollBox>
           </StyledFileToolRow>
         </>
+      }
+      afterContentSlot={
+        <StyledFileCountInfo variant="body2">
+          {files.length} / {filteredSortedFiles.length}
+        </StyledFileCountInfo>
       }
     >
       {files.length && (

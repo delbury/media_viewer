@@ -85,7 +85,7 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
         pathList={pathList}
         onItemClick={setTarget}
       />
-      <ResizeContainer.Wrapper height="50vh">
+      <ResizeContainer.Wrapper height="60vh">
         {/* 当前文件夹的子文件夹 */}
         <DirectoryItemList
           dirs={currentDirs}

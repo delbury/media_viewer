@@ -20,6 +20,7 @@ interface ResizeContainerProps {
   persistentKey?: string;
   scrollBoxProps?: ScrollBoxProps;
   beforeContentSlot?: React.ReactNode;
+  afterContentSlot?: React.ReactNode;
 }
 
 const ResizeContainer = ({
@@ -33,6 +34,7 @@ const ResizeContainer = ({
   persistentKey,
   scrollBoxProps,
   beforeContentSlot,
+  afterContentSlot,
 }: ResizeContainerProps) => {
   const t = useTranslations();
   const resizable = !!resizePosition;
@@ -71,6 +73,8 @@ const ResizeContainer = ({
       >
         {isEmpty ? <Empty label={emptyText ?? t('Common.Empty')} /> : children}
       </ScrollBox>
+
+      {afterContentSlot}
 
       {resizable && (
         <ResizeBar

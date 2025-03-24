@@ -11,12 +11,17 @@ import {
 } from '@mui/material';
 
 /** useSwitchWrapBtn 组件使用 */
+export const StyledSwitchBtnWrapper = styled(Box)`
+  width: 24px;
+  height: 24px;
+  overflow: hidden;
+`;
 export const StyledSwitchBtn = muiStyled(IconButton, {
   shouldForwardProp: prop => prop !== 'isWrap',
 })<{ isWrap: boolean }>(({ theme, isWrap }) => ({
   padding: 0,
-  width: '24px',
-  height: '24px',
+  width: '100%',
+  height: '100%',
   borderWidth: '1px',
   borderStyle: 'solid',
   borderColor: theme.palette.grey[400],
@@ -174,4 +179,8 @@ export const StyledFileResetBtn = styled(IconButton)`
   padding: 0;
   font-size: 0;
 `;
+export const StyledFileCountInfo = muiStyled(Typography)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  textAlign: 'right',
+}));
 /** FileItemList 组件使用 */

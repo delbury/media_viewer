@@ -12,11 +12,12 @@ export const AUDIO_REG = new RegExp(`\\.(${AUDIO_EXTS.join('|')})$`, 'i');
 export const VIDEO_REG = new RegExp(`\\.(${VIDEO_EXTS.join('|')})$`, 'i');
 export const TEXT_REG = new RegExp(`\\.(${TEXT_EXTS.join('|')})$`, 'i');
 
+export type FileSortMode = 'desc' | 'asc';
 export type FileFilterField = 'image' | 'audio' | 'video';
 const FILE_FILTER_MAP: Record<FileFilterField, string> = {
-  image: 'Common.Image',
-  audio: 'Common.Audio',
   video: 'Common.Video',
+  audio: 'Common.Audio',
+  image: 'Common.Image',
   // text: 'Common.Text',
   // other: 'Common.Other',
 };
