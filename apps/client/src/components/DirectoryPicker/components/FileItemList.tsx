@@ -3,13 +3,14 @@ import ScrollBox from '@/components/ScrollBox';
 import { useElementAnimation } from '@/hooks/useElementAnimation';
 import { usePersistentConfig } from '@/hooks/usePersistentConfig';
 import { RestartAltOutlined } from '@mui/icons-material';
-import { Stack, ToggleButtonGroupProps, Typography } from '@mui/material';
+import { ToggleButtonGroupProps, Typography } from '@mui/material';
 import { FileInfo } from '@shared';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { FILE_FILTER_OPTIONS, FILE_SORT_OPTIONS, FILE_TYPE_EXTS, FileFilterField, FileSortField } from '../constant';
 import {
   StyledFileCountInfo,
+  StyledFileGrid,
   StyledFileResetBtn,
   StyledFileToolRow,
   StyledSelectedBadge,
@@ -179,19 +180,14 @@ const FileItemList = ({ files }: FileItemListProps) => {
       }
     >
       {files.length && (
-        <Stack
-          direction="row"
-          gap={1}
-          useFlexGap
-          sx={{ flexWrap: 'wrap', padding: '4px' }}
-        >
+        <StyledFileGrid>
           {files.map(file => (
             <FileItem
               key={file.fullPath}
               file={file}
             />
           ))}
-        </Stack>
+        </StyledFileGrid>
       )}
     </ResizeContainer>
   );

@@ -78,10 +78,9 @@ export const StyledHighlightText = muiStyled('span')(({ theme }) => ({
 /** FileItem 组件使用 */
 export const StyledFileCardWrapper = styled(Card)`
   padding: 8px;
-  width: 100px;
-  height: 100px;
   font-size: 1rem;
-  flex: 1 0 100px;
+  height: 100%;
+  width: 100%;
 `;
 export const StyledFileMoreInfo = styled(Box)`
   width: 50%;
@@ -183,4 +182,13 @@ export const StyledFileCountInfo = muiStyled(Typography)(({ theme }) => ({
   color: theme.palette.text.secondary,
   textAlign: 'right',
 }));
+export const StyledFileGrid = styled(Box)`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 8px;
+  padding: 8px;
+  & > * {
+    aspect-ratio: 1;
+  }
+`;
 /** FileItemList 组件使用 */
