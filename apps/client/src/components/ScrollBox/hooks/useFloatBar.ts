@@ -1,9 +1,7 @@
 import { useThrottle } from '@/hooks/useThrottle';
-import { RefObject, useCallback, useEffect, useState } from 'react';
+import { RefObject, useCallback, useState } from 'react';
 
 const SCROLL_THRESHOLD = 20;
-
-export type FnScrollTo = (params: { top?: number; left?: number }) => void;
 
 export const useFloatBar = (wrapperRef: RefObject<HTMLElement | null>, floatBarDisabled: boolean = false) => {
   const [isScrollableX, setIsScrollableX] = useState(false);
@@ -30,54 +28,6 @@ export const useFloatBar = (wrapperRef: RefObject<HTMLElement | null>, floatBarD
   );
   const detectScrollExistIdle = useThrottle(detectScrollExist, 20);
 
-  // 绑定事件，实现滚动时，动态显示或隐藏可滚动提示悬浮条
-  useEffect(() => {
-    if (floatBarDisabled) {
-      return;
-    }
-    if (wrapperRef.current) {
-      const elm = wrapperRef.current;
-
-      // 监听判断是否出现滚动条
-      // 子元素的改变
-      const mutationObserver = new MutationObserver(() => {
-        detectScrollExistIdle(elm);
-      });
-      mutationObserver.observe(elm, {
-        subtree: true,
-        childList: true,
-      });
-
-      // 自身 size 的改变
-      const resizeObserver = new ResizeObserver(() => {
-        detectScrollExistIdle(elm);
-      });
-      resizeObserver.observe(elm);
-
-      // 滚动事件
-      const controller = new AbortController();
-      elm.addEventListener('scroll', () => detectScrollExistIdle(elm), { signal: controller.signal });
-
-      // 解绑事件
-      return () => {
-        controller.abort();
-        mutationObserver.disconnect();
-        resizeObserver.disconnect();
-      };
-    }
-  }, []);
-
-  const scrollTo: FnScrollTo = useCallback(
-    ({ top, left }) => {
-      wrapperRef.current?.scrollTo({
-        top,
-        left,
-        behavior: 'smooth',
-      });
-    },
-    [wrapperRef]
-  );
-
   return {
     isScrollableX,
     isScrollableY,
@@ -85,6 +35,6 @@ export const useFloatBar = (wrapperRef: RefObject<HTMLElement | null>, floatBarD
     isScrollAtBottom,
     isScrollAtLeft,
     isScrollAtRight,
-    scrollTo,
+    detectScrollExistIdle,
   };
 };

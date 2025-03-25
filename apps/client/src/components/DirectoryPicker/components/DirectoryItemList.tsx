@@ -19,7 +19,7 @@ const DirectoryItemList = ({ dirs, onClick }: DirectoryItemListProps) => {
       emptyText={t('Tools.NoDirectories')}
       isEmpty={!dirs.length}
       scrollBoxProps={{
-        virtualList: {
+        virtualListConfig: {
           childCount: dirs.length,
           childHeight: DIRECTORY_ITEM_HEIGHT,
         },
