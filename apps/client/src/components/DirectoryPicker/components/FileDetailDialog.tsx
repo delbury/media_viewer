@@ -33,6 +33,7 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
       open={visible}
       onClose={onClose}
       title={file.name}
+      onlyClose
       dialogProps={{
         maxWidth: 'xs',
       }}

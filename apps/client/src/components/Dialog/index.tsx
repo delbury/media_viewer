@@ -10,26 +10,25 @@ import {
   Stack,
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { StyledDialogTitleRow } from './style';
 
 interface DialogProps {
   open: boolean;
   onClose?: () => void;
-  loading?: boolean;
-  onOk?: () => void;
+  onOk?: () => void | Promise<void>;
   onCancel?: () => void;
   children?: React.ReactNode;
   leftFooterSlot?: React.ReactNode;
   title?: React.ReactNode;
   titleRightSlot?: React.ReactNode;
   dialogProps?: Partial<RawDialogProps>;
+  onlyClose?: boolean;
 }
 const CompDialog = (props: DialogProps) => {
   const {
     open,
     onClose,
-    loading,
     onCancel,
     onOk,
     children,
@@ -37,13 +36,21 @@ const CompDialog = (props: DialogProps) => {
     title,
     titleRightSlot,
     dialogProps,
+    onlyClose,
   } = props;
   const t = useTranslations();
+  const [loading, setLoading] = useState(false);
 
   const handleCancel = useCallback(() => {
     onCancel?.();
     onClose?.();
   }, [onCancel, onClose]);
+
+  const handleOk = useCallback(async () => {
+    setLoading(true);
+    await onOk?.();
+    setLoading(false);
+  }, [onOk]);
 
   return (
     <Dialog
@@ -90,16 +97,18 @@ const CompDialog = (props: DialogProps) => {
             variant="outlined"
             size="small"
           >
-            {t('Common.Cancel')}
+            {onlyClose ? t('Common.Close') : t('Common.Cancel')}
           </Button>
-          <Button
-            onClick={onOk}
-            loading={loading}
-            variant="contained"
-            size="small"
-          >
-            {t('Common.OK')}
-          </Button>
+          {!onlyClose && (
+            <Button
+              onClick={handleOk}
+              loading={loading}
+              variant="contained"
+              size="small"
+            >
+              {t('Common.OK')}
+            </Button>
+          )}
         </Stack>
       </DialogActions>
     </Dialog>

@@ -38,6 +38,9 @@ const DirectoryItem = ({ dir, onClick }: DirectoryItemProps) => {
             <span>{fileInfo}</span>
           </>
         }
+        sx={{
+          margin: 0,
+        }}
         slotProps={{
           primary: {
             sx: {
@@ -50,6 +53,7 @@ const DirectoryItem = ({ dir, onClick }: DirectoryItemProps) => {
             sx: {
               display: 'flex',
               justifyContent: 'space-between',
+              fontSize: '0.8rem',
             },
           },
         }}
