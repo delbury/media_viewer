@@ -1,7 +1,7 @@
 import { usePersistentConfig } from '@/hooks/usePersistentConfig';
 import { UnfoldMoreOutlined } from '@mui/icons-material';
 import { useMemo } from 'react';
-import { StyledSwitchBtn, StyledSwitchBtnWrapper } from '../style';
+import { StyledSwitchBtn, StyledSwitchBtnWrapper } from '../style/use-switch-btn';
 
 export const useSwitchWrapBtn = (defaultIsWrap: boolean, persistentKey?: string) => {
   const [isWrap, setIsWrap] = usePersistentConfig(defaultIsWrap, persistentKey);

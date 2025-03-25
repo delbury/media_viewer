@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { StyledHighlightText } from '../style';
+import { StyledHighlightText } from '../style/current-files-info';
 
 interface CurrentFilesInfoProps {
   total: number;

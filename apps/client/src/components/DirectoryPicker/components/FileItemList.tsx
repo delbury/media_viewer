@@ -16,7 +16,7 @@ import {
   StyledSelectedBadge,
   StyledToggleButton,
   StyledToggleButtonGroup,
-} from '../style';
+} from '../style/file-item-list';
 import FileItem from './FileItem';
 
 const TBG = ({
@@ -38,6 +38,7 @@ const TBG = ({
   return (
     <StyledToggleButtonGroup
       color="primary"
+      size="small"
       value={value}
       {...props}
     >

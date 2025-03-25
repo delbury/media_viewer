@@ -5,7 +5,7 @@ import { DirectoryInfo } from '@shared';
 import React, { useEffect, useRef } from 'react';
 import { PATH_SEPARATOR } from '../constant';
 import { useSwitchWrapBtn } from '../hooks/useSwitchBtn';
-import { StyledPathNode, StyledPathNodeTitle, StyledPathWrapper } from '../style';
+import { StyledPathNode, StyledPathNodeTitle, StyledPathWrapper } from '../style/selecting-path-info';
 
 const CountTag = ({ count }: { count: number }) => {
   return <span style={{ marginInlineStart: '0.5em' }}>: {count}</span>;

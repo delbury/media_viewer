@@ -6,23 +6,41 @@ import {
   PanoramaOutlined,
   SmartDisplayOutlined,
 } from '@mui/icons-material';
-import { Box, SvgIconOwnProps, Typography } from '@mui/material';
+import { SvgIconOwnProps } from '@mui/material';
 import { FileInfo } from '@shared';
 import { AUDIO_REG, IMG_REG, TEXT_REG, VIDEO_REG } from '../constant';
-import { StyledFileCardWrapper, StyledFileMoreInfo, StyledFileName, StyledFileTitle } from '../style';
+import {
+  StyledFileCardWrapper,
+  StyledFileMoreInfo,
+  StyledFileMoreInfoExt,
+  StyledFileMoreInfoSize,
+  StyledFileName,
+  StyledFileTitle,
+} from '../style/file-item';
+import { StyledFilePosterWrapper } from '../style/file-item-list';
 
-const FileIcon = ({ ext, iconProps }: { ext: string; iconProps?: SvgIconOwnProps }) => {
+export const FileIcon = ({ ext, iconProps }: { ext: string; iconProps?: SvgIconOwnProps }) => {
   if (VIDEO_REG.test(ext)) {
     return <SmartDisplayOutlined {...iconProps} />;
   }
   if (AUDIO_REG.test(ext)) {
-    return <MusicVideoOutlined {...iconProps} />;
+    return (
+      <MusicVideoOutlined
+        viewBox="0 -1.5 24 27"
+        {...iconProps}
+      />
+    );
   }
   if (IMG_REG.test(ext)) {
     return <PanoramaOutlined {...iconProps} />;
   }
   if (TEXT_REG.test(ext)) {
-    return <FeaturedPlayListOutlined {...iconProps} />;
+    return (
+      <FeaturedPlayListOutlined
+        viewBox="0 -1.5 24 27"
+        {...iconProps}
+      />
+    );
   }
   return <NoteOutlined {...iconProps} />;
 };
@@ -35,28 +53,20 @@ const FileItem = ({ file }: FileItemProps) => {
   return (
     <StyledFileCardWrapper>
       <StyledFileTitle>
-        <Box>TODO</Box>
+        <StyledFileName>{file.name}</StyledFileName>
 
         <StyledFileMoreInfo>
-          <FileIcon
-            ext={file.nameExt}
-            iconProps={{ fontSize: 'medium' }}
-          />
-          <Typography
-            variant="body2"
-            sx={{ textTransform: 'uppercase' }}
-          >
-            {file.nameExt || '-'}
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ color: 'text.secondary' }}
-          >
-            {formatFileSize(file.size)}
-          </Typography>
+          <StyledFileMoreInfoExt variant="body2">{file.nameExt || '-'}</StyledFileMoreInfoExt>
+          <StyledFileMoreInfoSize variant="body2">{formatFileSize(file.size)}</StyledFileMoreInfoSize>
         </StyledFileMoreInfo>
       </StyledFileTitle>
-      <StyledFileName>{file.name}</StyledFileName>
+
+      <StyledFilePosterWrapper>
+        <FileIcon
+          ext={file.nameExt}
+          iconProps={{ sx: { height: '100%', width: '100%' } }}
+        />
+      </StyledFilePosterWrapper>
     </StyledFileCardWrapper>
   );
 };

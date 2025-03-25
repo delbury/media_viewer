@@ -5,7 +5,7 @@ import { DirectoryInfo } from '@shared';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { DIRECTORY_ITEM_HEIGHT } from '../constant';
-import { StyledListItemButton } from '../style';
+import { StyledListItemButton } from '../style/directory-item';
 
 interface DirectoryItemProps {
   dir: DirectoryInfo;

@@ -4,7 +4,7 @@ import { DirectoryInfo } from '@shared';
 import { useTranslations } from 'next-intl';
 import React, { useEffect, useRef } from 'react';
 import { PATH_SEPARATOR } from '../constant';
-import { StyledSelectedInfoName, StyledSelectedInfoWrapper } from '../style';
+import { StyledSelectedInfoName, StyledSelectedInfoWrapper } from '../style/selected-path-info';
 
 interface SelectedPathInfoProps {
   selectedPathList: DirectoryInfo[];
