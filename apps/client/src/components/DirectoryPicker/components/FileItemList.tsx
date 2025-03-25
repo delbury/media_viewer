@@ -5,7 +5,7 @@ import { TFunction } from '@/types';
 import { ToggleButtonGroupProps, Typography } from '@mui/material';
 import { FileInfo, FullFileType } from '@shared';
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   FILE_FILTER_OPTIONS,
   FILE_SORT_API_FIELD_MAP,
@@ -24,6 +24,7 @@ import {
   StyledToggleButton,
   StyledToggleButtonGroup,
 } from '../style/file-item-list';
+import FileDetailDialog from './FileDetailDialog';
 import FileItem from './FileItem';
 
 // 计算文件数量
@@ -196,81 +197,93 @@ const FileItemList = ({ files }: FileItemListProps) => {
     setFilterFileExts(DEFAULT_VALUES.filterFileExts);
   });
 
+  const [currentFile, setCurrentFile] = useState<FileInfo | null>(null);
+
   return (
-    <ResizeContainer
-      height="20vh"
-      // title={t('Tools.CurrentFiles')}
-      emptyText={t('Tools.NoFiles')}
-      isEmpty={!files.length}
-      resizePosition="top"
-      persistentKey="directoryPickerFiles"
-      sx={{ position: 'relative' }}
-      beforeContentSlot={
-        <>
-          <StyledFileToolRow>
-            {ResetSortBtn}
-            <TBG
-              exclusive
-              value={sortMode}
-              onChange={(_, value) => setSortMode(value)}
-              items={[
-                { value: 'desc', label: 'Common.Desc' },
-                { value: 'asc', label: 'Common.Asc' },
-              ]}
-            />
-            <ScrollBox>
+    <>
+      <ResizeContainer
+        height="20vh"
+        // title={t('Tools.CurrentFiles')}
+        emptyText={t('Tools.NoFiles')}
+        isEmpty={!files.length}
+        resizePosition="top"
+        persistentKey="directoryPickerFiles"
+        sx={{ position: 'relative' }}
+        beforeContentSlot={
+          <>
+            <StyledFileToolRow>
+              {ResetSortBtn}
               <TBG
-                items={FILE_SORT_OPTIONS}
-                value={sortField}
-                onChange={(_, value) => setSortField(value)}
-                showOrder
+                exclusive
+                value={sortMode}
+                onChange={(_, value) => setSortMode(value)}
+                items={[
+                  { value: 'desc', label: 'Common.Desc' },
+                  { value: 'asc', label: 'Common.Asc' },
+                ]}
               />
-            </ScrollBox>
-          </StyledFileToolRow>
+              <ScrollBox>
+                <TBG
+                  items={FILE_SORT_OPTIONS}
+                  value={sortField}
+                  onChange={(_, value) => setSortField(value)}
+                  showOrder
+                />
+              </ScrollBox>
+            </StyledFileToolRow>
 
-          <StyledFileToolRow>
-            {ResetFilterBtn}
-            <TBG
-              exclusive
-              items={FILE_FILTER_OPTIONS}
-              value={filterFileType}
-              onChange={(_, value) => {
-                setFilterFileType(value);
-                setFilterFileExts([]);
-              }}
-            />
-
-            <ScrollBox>
+            <StyledFileToolRow>
+              {ResetFilterBtn}
               <TBG
-                rawLabel
-                items={fileTypeExts}
-                value={filterFileExts}
-                onChange={(_, value) => setFilterFileExts(value)}
+                exclusive
+                items={FILE_FILTER_OPTIONS}
+                value={filterFileType}
+                onChange={(_, value) => {
+                  setFilterFileType(value);
+                  setFilterFileExts([]);
+                }}
               />
-            </ScrollBox>
-          </StyledFileToolRow>
-        </>
-      }
-      afterContentSlot={
-        <StyledFileAllCountInfo variant="body2">
-          <span>{fileTypeCountInfo}</span>
-          <span>
-            {files.length} / {filteredSortedFiles.length}
-          </span>
-        </StyledFileAllCountInfo>
-      }
-    >
-      {files.length && (
-        <StyledFileGrid>
-          {filteredSortedFiles.map(file => (
-            <FileItem
-              key={file.fullPath}
-              file={file}
-            />
-          ))}
-        </StyledFileGrid>
+
+              <ScrollBox>
+                <TBG
+                  rawLabel
+                  items={fileTypeExts}
+                  value={filterFileExts}
+                  onChange={(_, value) => setFilterFileExts(value)}
+                />
+              </ScrollBox>
+            </StyledFileToolRow>
+          </>
+        }
+        afterContentSlot={
+          <StyledFileAllCountInfo variant="body2">
+            <span>{fileTypeCountInfo}</span>
+            <span>
+              {files.length} / {filteredSortedFiles.length}
+            </span>
+          </StyledFileAllCountInfo>
+        }
+      >
+        {files.length && (
+          <StyledFileGrid>
+            {filteredSortedFiles.map(file => (
+              <FileItem
+                key={file.fullPath}
+                file={file}
+                onTitleClick={setCurrentFile}
+              />
+            ))}
+          </StyledFileGrid>
+        )}
+      </ResizeContainer>
+      {!!currentFile && (
+        <FileDetailDialog
+          file={currentFile}
+          visible
+          onClose={() => setCurrentFile(null)}
+        />
       )}
-    </ResizeContainer>
+    </>
   );
 };
 

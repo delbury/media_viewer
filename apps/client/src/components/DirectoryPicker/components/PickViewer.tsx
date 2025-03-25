@@ -65,6 +65,9 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
       onClose={onClose}
       onOk={handleOk}
       title={t('Tools.SelectDirectory')}
+      dialogProps={{
+        maxWidth: 'md',
+      }}
       titleRightSlot={
         <CurrentFilesInfo
           total={currentTotalFileCount}

@@ -9,6 +9,7 @@ import {
 import { SvgIconOwnProps } from '@mui/material';
 import { FileInfo } from '@shared';
 import { detectFileType } from '@tools/utils';
+import { useTranslations } from 'next-intl';
 import {
   StyledFileCardWrapper,
   StyledFileMoreInfo,
@@ -49,16 +50,19 @@ export const FileIcon = ({ ext, iconProps }: { ext: string; iconProps?: SvgIconO
 
 interface FileItemProps {
   file: FileInfo;
+  onTitleClick?: (file: FileInfo) => void;
 }
 
-const FileItem = ({ file }: FileItemProps) => {
+const FileItem = ({ file, onTitleClick }: FileItemProps) => {
+  const t = useTranslations();
+
   return (
     <StyledFileCardWrapper>
-      <StyledFileTitle>
+      <StyledFileTitle onClick={() => onTitleClick?.(file)}>
         <StyledFileName>{file.name}</StyledFileName>
 
         <StyledFileMoreInfo>
-          <StyledFileMoreInfoExt variant="body2">{file.nameExt || '-'}</StyledFileMoreInfoExt>
+          <StyledFileMoreInfoExt variant="body2">{file.nameExt || t('-')}</StyledFileMoreInfoExt>
           <StyledFileMoreInfoSize variant="body2">{formatFileSize(file.size)}</StyledFileMoreInfoSize>
         </StyledFileMoreInfo>
       </StyledFileTitle>

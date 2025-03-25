@@ -59,7 +59,17 @@ const CompDialog = (props: DialogProps) => {
       }}
     >
       <StyledDialogTitleRow>
-        <DialogTitle sx={{ padding: 0 }}>{title}</DialogTitle>
+        <DialogTitle
+          sx={{
+            padding: 0,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            maxWidth: '100%',
+          }}
+        >
+          {title}
+        </DialogTitle>
         {titleRightSlot}
       </StyledDialogTitleRow>
 
