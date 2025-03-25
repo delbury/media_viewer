@@ -21,7 +21,6 @@
     "Select": "选择",
     "Empty": "无内容",
     "Files": "文件",
-    "Colon": "：",
     "Total": "共",
     "SomethingWentWrong": "发生了一些错误",
     "Size": "大小",
@@ -38,5 +37,7 @@
     "Video": "视频",
     "Text": "文本",
     "Other": "其他"
-  }
+  },
+  ":": "：",
+  ",": "，"
 }

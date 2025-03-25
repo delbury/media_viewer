@@ -6,7 +6,7 @@ import { StyledSwitchBtn, StyledSwitchBtnWrapper } from '../style/use-switch-btn
 export const useSwitchWrapBtn = (defaultIsWrap: boolean, persistentKey?: string) => {
   const [isWrap, setIsWrap] = usePersistentConfig(defaultIsWrap, persistentKey);
 
-  const Btn = useMemo(() => {
+  const SwitchBtn = useMemo(() => {
     return (
       <StyledSwitchBtnWrapper>
         <StyledSwitchBtn
@@ -22,5 +22,5 @@ export const useSwitchWrapBtn = (defaultIsWrap: boolean, persistentKey?: string)
     );
   }, [isWrap, setIsWrap]);
 
-  return { Btn, isWrap, setIsWrap };
+  return { SwitchBtn, isWrap, setIsWrap };
 };

@@ -21,7 +21,7 @@ const CurrentFilesInfo = ({ total, self }: CurrentFilesInfoProps) => {
           variant="subtitle2"
           variantMapping={{ subtitle2: 'span' }}
         >
-          {`${t('Tools.SelfFiles')}: `}
+          {`${t('Tools.SelfFiles')}${t(':')}`}
           <StyledHighlightText>{self}</StyledHighlightText>
         </Typography>
       </Box>
@@ -31,7 +31,7 @@ const CurrentFilesInfo = ({ total, self }: CurrentFilesInfoProps) => {
           variant="subtitle2"
           variantMapping={{ subtitle2: 'span' }}
         >
-          {`${t('Tools.TotalFiles')}: `}
+          {`${t('Tools.TotalFiles')}${t(':')}`}
           <StyledHighlightText>{total}</StyledHighlightText>
         </Typography>
       </Box>

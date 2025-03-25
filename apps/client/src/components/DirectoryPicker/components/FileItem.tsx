@@ -8,7 +8,7 @@ import {
 } from '@mui/icons-material';
 import { SvgIconOwnProps } from '@mui/material';
 import { FileInfo } from '@shared';
-import { AUDIO_REG, IMG_REG, TEXT_REG, VIDEO_REG } from '../constant';
+import { detectFileType } from '@tools/utils';
 import {
   StyledFileCardWrapper,
   StyledFileMoreInfo,
@@ -20,10 +20,12 @@ import {
 import { StyledFilePosterWrapper } from '../style/file-item-list';
 
 export const FileIcon = ({ ext, iconProps }: { ext: string; iconProps?: SvgIconOwnProps }) => {
-  if (VIDEO_REG.test(ext)) {
+  const fileType = detectFileType(ext);
+
+  if (fileType === 'video') {
     return <SmartDisplayOutlined {...iconProps} />;
   }
-  if (AUDIO_REG.test(ext)) {
+  if (fileType === 'audio') {
     return (
       <MusicVideoOutlined
         viewBox="0 -1.5 24 27"
@@ -31,10 +33,10 @@ export const FileIcon = ({ ext, iconProps }: { ext: string; iconProps?: SvgIconO
       />
     );
   }
-  if (IMG_REG.test(ext)) {
+  if (fileType === 'image') {
     return <PanoramaOutlined {...iconProps} />;
   }
-  if (TEXT_REG.test(ext)) {
+  if (fileType === 'text') {
     return (
       <FeaturedPlayListOutlined
         viewBox="0 -1.5 24 27"
@@ -64,7 +66,7 @@ const FileItem = ({ file }: FileItemProps) => {
       <StyledFilePosterWrapper>
         <FileIcon
           ext={file.nameExt}
-          iconProps={{ sx: { height: '100%', width: '100%' } }}
+          iconProps={{ sx: { height: '100%', width: '100%', color: 'text.secondary' } }}
         />
       </StyledFilePosterWrapper>
     </StyledFileCardWrapper>

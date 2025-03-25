@@ -5,11 +5,7 @@ import { DirectoryInfo } from '@shared';
 import React, { useEffect, useRef } from 'react';
 import { PATH_SEPARATOR } from '../constant';
 import { useSwitchWrapBtn } from '../hooks/useSwitchBtn';
-import { StyledPathNode, StyledPathNodeTitle, StyledPathWrapper } from '../style/selecting-path-info';
-
-const CountTag = ({ count }: { count: number }) => {
-  return <span style={{ marginInlineStart: '0.5em' }}>: {count}</span>;
-};
+import { StyledCountTag, StyledPathNode, StyledPathNodeTitle, StyledPathWrapper } from '../style/selecting-path-info';
 
 interface DirectoryPathProps {
   pathList: DirectoryInfo[];
@@ -19,7 +15,7 @@ interface DirectoryPathProps {
 const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
   const scrollRef = useRef<ScrollBoxInstance>(null);
   // 布局是否换行
-  const { isWrap, Btn } = useSwitchWrapBtn(true, 'directoryPickerSelectingSwitchWrapper');
+  const { isWrap, SwitchBtn } = useSwitchWrapBtn(true, 'directoryPickerSelectingSwitchWrapper');
 
   // 路径变更时，滚动到底部
   useEffect(() => {
@@ -32,7 +28,7 @@ const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
       sx={{ maxHeight: '10vh', display: 'flex', flexDirection: 'column', mb: '8px' }}
     >
       <StyledPathWrapper isWrap={isWrap}>
-        {Btn}
+        {SwitchBtn}
 
         {pathList.map((path, index) => {
           const isFirst = index === 0;
@@ -47,7 +43,7 @@ const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
                   label={
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <StyledPathNodeTitle>{path.name}</StyledPathNodeTitle>
-                      <CountTag count={path.totalFilesCount} />
+                      <StyledCountTag>{path.totalFilesCount}</StyledCountTag>
                     </Box>
                   }
                   size="small"

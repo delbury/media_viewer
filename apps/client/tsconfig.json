@@ -20,6 +20,7 @@
     ],
     "paths": {
       "@shared": ["../../packages/shared"],
+      "@tools/*": ["../../packages/tools/*"],
       "@/*": ["./src/*"]
     }
   },

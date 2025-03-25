@@ -1,5 +1,5 @@
 import { h5Max } from '@/style/device';
-import { Box, IconButton, styled, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { Box, styled, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 
 export const StyledToggleButton = styled(ToggleButton)`
   position: relative;
@@ -32,16 +32,12 @@ export const StyledFileToolRow = styled(Box)`
   margin-bottom: 4px;
 `;
 
-export const StyledFileResetBtn = styled(IconButton)`
-  /* margin-right: 12px; */
-  padding: 0;
-  font-size: 0;
-`;
-
-export const StyledFileCountInfo = styled(Typography)`
+export const StyledFileAllCountInfo = styled(Typography)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-top: 0.2em;
   color: ${({ theme }) => theme.palette.text.secondary};
-  text-align: right;
 
   @media ${h5Max} {
     font-size: 0.6rem;
@@ -50,11 +46,15 @@ export const StyledFileCountInfo = styled(Typography)`
 
 export const StyledFileGrid = styled(Box)`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  gap: 4px;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
   padding: 4px;
   & > * {
     aspect-ratio: 1;
+  }
+
+  @media ${h5Max} {
+    gap: 4px;
   }
 `;
 

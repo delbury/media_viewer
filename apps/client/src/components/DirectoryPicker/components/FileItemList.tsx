@@ -1,23 +1,97 @@
 import ResizeContainer from '@/components/ResizeContainer';
 import ScrollBox from '@/components/ScrollBox';
-import { useElementAnimation } from '@/hooks/useElementAnimation';
 import { usePersistentConfig } from '@/hooks/usePersistentConfig';
-import { RestartAltOutlined } from '@mui/icons-material';
+import { TFunction } from '@/types';
 import { ToggleButtonGroupProps, Typography } from '@mui/material';
-import { FileInfo } from '@shared';
+import { FileInfo, FullFileType } from '@shared';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import { FILE_FILTER_OPTIONS, FILE_SORT_OPTIONS, FILE_TYPE_EXTS, FileFilterField, FileSortField } from '../constant';
 import {
-  StyledFileCountInfo,
+  FILE_FILTER_OPTIONS,
+  FILE_SORT_API_FIELD_MAP,
+  FILE_SORT_OPTIONS,
+  FILE_TYPE_EXTS,
+  FileFilterField,
+  FileSortField,
+  FileSortMode,
+} from '../constant';
+import { useResetBtn } from '../hooks/useResetBtn';
+import {
+  StyledFileAllCountInfo,
   StyledFileGrid,
-  StyledFileResetBtn,
   StyledFileToolRow,
   StyledSelectedBadge,
   StyledToggleButton,
   StyledToggleButtonGroup,
 } from '../style/file-item-list';
 import FileItem from './FileItem';
+
+// 计算文件数量
+const countFileType = (files: FileInfo[], t: TFunction) => {
+  const counts: Record<FullFileType, { label: string; value: number }> = {
+    video: { label: 'Common.Video', value: 0 },
+    audio: { label: 'Common.Audio', value: 0 },
+    image: { label: 'Common.Image', value: 0 },
+    text: { label: 'Common.Text', value: 0 },
+    other: { label: 'Common.Other', value: 0 },
+  };
+  files.forEach(file => {
+    if (counts[file.fileType]) counts[file.fileType].value++;
+  });
+  const result = Object.values(counts).filter(item => item.value > 0);
+  return result.map(item => `${t(item.label)}${t(':')}${item.value}`).join(t(','));
+};
+
+// 文件过滤
+const filterFiles = ({
+  files,
+  filterFileType,
+  filterFileExts,
+}: {
+  files: FileInfo[];
+  filterFileType: FileFilterField | null;
+  filterFileExts: string[];
+}) => {
+  if (!filterFileType) return files;
+
+  const newList = files.filter(file => {
+    if (file.fileType !== filterFileType) return false;
+    if (filterFileExts.length) {
+      // 如果有更为细致的文件类型过滤，则判断文件扩展名是否在过滤列表中
+      return filterFileExts.includes(file.nameExtPure);
+    }
+    return true;
+  });
+  return newList;
+};
+
+// 文件排序
+const sortFiles = ({
+  files,
+  sortMode,
+  sortField,
+}: {
+  files: FileInfo[];
+  sortMode: FileSortMode | null;
+  sortField: FileSortField[];
+}) => {
+  if (!sortMode || !sortField.length) return files;
+
+  const biggerNum = sortMode === 'asc' ? 1 : -1;
+  const newList = [...files];
+  newList.sort((a, b) => {
+    for (const field of sortField) {
+      // 依次比较每个排序字段，直到字段的值不相同
+      const apiField = FILE_SORT_API_FIELD_MAP[field];
+      if (a[apiField] === b[apiField]) continue;
+      if ((a[apiField] ?? 0) > (b[apiField] ?? 0)) return biggerNum;
+      else return -biggerNum;
+    }
+    return 0;
+  });
+
+  return newList;
+};
 
 const TBG = ({
   items,
@@ -64,10 +138,8 @@ interface FileItemListProps {
   files: FileInfo[];
 }
 
-type FileSortMode = 'desc' | 'asc';
-
 const DEFAULT_VALUES = {
-  sortMode: 'desc' as FileSortMode,
+  sortMode: null,
   sortField: [] as FileSortField[],
   filterFileType: null,
   filterFileExts: [] as string[],
@@ -76,9 +148,7 @@ const DEFAULT_VALUES = {
 const FileItemList = ({ files }: FileItemListProps) => {
   const t = useTranslations();
 
-  const reset = useElementAnimation<HTMLButtonElement>();
-
-  const [sortMode, setSortMode] = usePersistentConfig<FileSortMode>(
+  const [sortMode, setSortMode] = usePersistentConfig<FileSortMode | null>(
     DEFAULT_VALUES.sortMode,
     'directoryPickerFilesSortMode'
   );
@@ -99,17 +169,32 @@ const FileItemList = ({ files }: FileItemListProps) => {
     return FILE_TYPE_EXTS[filterFileType];
   }, [filterFileType]);
 
-  const handleReset = () => {
+  // 筛选和排序后的文件列表
+  const filteredFiles = useMemo(() => {
+    return filterFiles({
+      files,
+      filterFileType,
+      filterFileExts,
+    });
+  }, [files, filterFileType, filterFileExts]);
+
+  const filteredSortedFiles = useMemo(() => {
+    return sortFiles({ files: filteredFiles, sortMode, sortField });
+  }, [filteredFiles, sortMode, sortField]);
+
+  // 各类文件数量
+  const fileTypeCountInfo = useMemo(() => {
+    return countFileType(files, t);
+  }, [files, t]);
+
+  const { ResetBtn: ResetSortBtn } = useResetBtn(() => {
     setSortMode(DEFAULT_VALUES.sortMode);
     setSortField(DEFAULT_VALUES.sortField);
+  });
+  const { ResetBtn: ResetFilterBtn } = useResetBtn(() => {
     setFilterFileType(DEFAULT_VALUES.filterFileType);
     setFilterFileExts(DEFAULT_VALUES.filterFileExts);
-  };
-
-  // 筛选和排序后的文件列表
-  const filteredSortedFiles = useMemo(() => {
-    return files;
-  }, [files]);
+  });
 
   return (
     <ResizeContainer
@@ -123,20 +208,11 @@ const FileItemList = ({ files }: FileItemListProps) => {
       beforeContentSlot={
         <>
           <StyledFileToolRow>
-            <StyledFileResetBtn
-              ref={reset.domRef}
-              onClick={() => {
-                handleReset();
-                reset.startByPreset('rotate360');
-              }}
-            >
-              <RestartAltOutlined />
-            </StyledFileResetBtn>
-
+            {ResetSortBtn}
             <TBG
               exclusive
               value={sortMode}
-              onChange={(_, value) => value && setSortMode(value)}
+              onChange={(_, value) => setSortMode(value)}
               items={[
                 { value: 'desc', label: 'Common.Desc' },
                 { value: 'asc', label: 'Common.Asc' },
@@ -153,6 +229,7 @@ const FileItemList = ({ files }: FileItemListProps) => {
           </StyledFileToolRow>
 
           <StyledFileToolRow>
+            {ResetFilterBtn}
             <TBG
               exclusive
               items={FILE_FILTER_OPTIONS}
@@ -175,14 +252,17 @@ const FileItemList = ({ files }: FileItemListProps) => {
         </>
       }
       afterContentSlot={
-        <StyledFileCountInfo variant="body2">
-          {files.length} / {filteredSortedFiles.length}
-        </StyledFileCountInfo>
+        <StyledFileAllCountInfo variant="body2">
+          <span>{fileTypeCountInfo}</span>
+          <span>
+            {files.length} / {filteredSortedFiles.length}
+          </span>
+        </StyledFileAllCountInfo>
       }
     >
       {files.length && (
         <StyledFileGrid>
-          {files.map(file => (
+          {filteredSortedFiles.map(file => (
             <FileItem
               key={file.fullPath}
               file={file}

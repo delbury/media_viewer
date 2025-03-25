@@ -1,22 +1,40 @@
 import { Stats } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
+import { FullFileType } from '../shared';
+import { detectFileType } from './utils';
 
 interface CommonInfo {
+  // 文件路径
   basePath?: string;
+  // 文件全路径
   fullPath: string;
+  // 文件名
   name: string;
+  // 文件创建时间
   created: number;
+  // 文件修改时间
   updated: number;
 }
 export interface FileInfo extends CommonInfo {
+  // 文件大小
   size: number;
+  // 文件名（不包含扩展名）
   namePure: string;
+  // 文件扩展名（包含点）
   nameExt: string;
-  [key: string]: unknown;
+  // 文件扩展名（不包含点）
+  nameExtPure: string;
+  // 文件类型
+  fileType: FullFileType;
+  // 视频时长
+  duration?: number;
+  // [key: string]: unknown;
 }
 export interface DirectoryInfo extends CommonInfo {
+  // 文件列表
   files: FileInfo[];
+  // 子文件夹列表
   children: DirectoryInfo[];
   // 当前文件夹的文件数
   selfFilesCount: number;
@@ -24,8 +42,11 @@ export interface DirectoryInfo extends CommonInfo {
   totalFilesCount: number;
 }
 interface NewInfoParams {
+  // 文件路径
   bp?: string;
+  // 文件全路径
   fp?: string;
+  // 文件信息
   info?: Stats;
 }
 const formatPath = (p: string) => p.replaceAll('\\', '/');
@@ -48,11 +69,14 @@ const newCommonInfo = ({ bp, fp, info }: NewInfoParams = {}): CommonInfo => {
 };
 const newFileInfo = (params?: NewInfoParams): FileInfo => {
   const { ext, name } = path.parse(params.fp);
+  const nameExt = ext.toLowerCase();
   return {
     ...newCommonInfo(params),
     size: params?.info?.size ?? 0,
     namePure: name,
-    nameExt: ext,
+    nameExt,
+    nameExtPure: nameExt.replace('.', ''),
+    fileType: detectFileType(ext),
   };
 };
 const newDirectoryInfo = (params?: NewInfoParams): DirectoryInfo => {

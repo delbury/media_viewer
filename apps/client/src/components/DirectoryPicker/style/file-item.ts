@@ -15,7 +15,7 @@ export const StyledFileMoreInfo = styled(Box)`
   align-items: flex-end;
 `;
 export const StyledFileMoreInfoExt = styled(Typography)`
-  line-height: 1;
+  line-height: 1.2;
   font-size: 0.8rem;
   text-transform: uppercase;
 
@@ -24,7 +24,7 @@ export const StyledFileMoreInfoExt = styled(Typography)`
   }
 `;
 export const StyledFileMoreInfoSize = styled(StyledFileMoreInfoExt)`
-  line-height: 1;
+  line-height: 1.2;
   font-size: 0.8rem;
   color: ${({ theme }) => theme.palette.text.secondary};
 
@@ -39,7 +39,7 @@ export const StyledFileName = styled(Box)`
   word-break: break-all;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  line-height: 1;
+  line-height: 1.2;
   font-size: 0.8rem;
 
   @media ${h5Max} {
@@ -52,4 +52,8 @@ export const StyledFileTitle = styled(Box)`
   align-items: flex-start;
   justify-content: space-between;
   column-gap: 0.2rem;
+  cursor: pointer;
+  &:hover * {
+    color: ${({ theme }) => theme.palette.primary.main};
+  }
 `;

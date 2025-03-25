@@ -15,10 +15,7 @@ interface DirectoryItemProps {
 const DirectoryItem = ({ dir, onClick }: DirectoryItemProps) => {
   const t = useTranslations();
 
-  const timeInfo = useMemo(
-    () => `${t('Tools.UpdatedTime')}${t('Common.Colon')}${formatDate(dir.updated)}`,
-    [t, dir.updated]
-  );
+  const timeInfo = useMemo(() => `${t('Tools.UpdatedTime')}${t(':')}${formatDate(dir.updated)}`, [t, dir.updated]);
   const fileInfo = useMemo(
     () => `${t('Common.Total')} ${dir.totalFilesCount} ${t('Common.Files')}`,
     [t, dir.totalFilesCount]
