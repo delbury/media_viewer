@@ -1,20 +1,35 @@
 import { useThrottle } from '@/hooks/useThrottle';
-import { RefObject, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
+
+export type ScrollStatus = Pick<
+  HTMLElement,
+  'scrollTop' | 'scrollLeft' | 'scrollHeight' | 'scrollWidth' | 'clientHeight' | 'clientWidth'
+>;
 
 const SCROLL_THRESHOLD = 20;
 
-export const useFloatBar = (wrapperRef: RefObject<HTMLElement | null>, floatBarDisabled: boolean = false) => {
+export const useScrollStatus = () => {
   const [isScrollableX, setIsScrollableX] = useState(false);
   const [isScrollableY, setIsScrollableY] = useState(false);
   const [isScrollAtTop, setIsScrollAtTop] = useState(true);
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(false);
   const [isScrollAtLeft, setIsScrollAtLeft] = useState(true);
   const [isScrollAtRight, setIsScrollAtRight] = useState(false);
+  const [scrollStatus, setScrollStatus] = useState<ScrollStatus | null>(null);
 
   // 检测滚动状态
   const detectScrollExist = useCallback(
     (elm: HTMLElement) => {
       const { clientHeight, scrollHeight, scrollTop, clientWidth, scrollWidth, scrollLeft } = elm;
+      setScrollStatus({
+        clientHeight,
+        scrollHeight,
+        scrollTop,
+        clientWidth,
+        scrollWidth,
+        scrollLeft,
+      });
+
       setIsScrollableY(clientHeight < scrollHeight);
       setIsScrollAtTop(scrollTop <= SCROLL_THRESHOLD);
       // 加一点阈值
@@ -29,6 +44,7 @@ export const useFloatBar = (wrapperRef: RefObject<HTMLElement | null>, floatBarD
   const detectScrollExistIdle = useThrottle(detectScrollExist, 20);
 
   return {
+    scrollStatus,
     isScrollableX,
     isScrollableY,
     isScrollAtTop,

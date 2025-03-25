@@ -8,7 +8,7 @@ import { SxProps, Theme } from '@mui/material';
 import { forwardRef, useRef } from 'react';
 import { useEvents } from './hooks/useEvents';
 import { useExportHandlers } from './hooks/useExportHandlers';
-import { useFloatBar } from './hooks/useFloatBar';
+import { useScrollStatus } from './hooks/useScrollStatus';
 import { useVirtualList, VirtualListConfig } from './hooks/useVirtualList';
 import { StyledScrollBoxContent, StyledScrollBoxWrapper, StyledScrollFloatTipBar } from './style';
 
@@ -29,6 +29,7 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
 
     // 检测滚动状态，展示浮动条
     const {
+      scrollStatus,
       isScrollableX,
       isScrollableY,
       isScrollAtTop,
@@ -36,10 +37,10 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
       isScrollAtLeft,
       isScrollAtRight,
       detectScrollExistIdle,
-    } = useFloatBar(wrapperRef, floatBarDisabled);
+    } = useScrollStatus();
 
     // 虚拟列表
-    useVirtualList(wrapperRef, virtualListConfig);
+    useVirtualList(wrapperRef, scrollStatus, virtualListConfig);
 
     // 绑定事件
     useEvents({
