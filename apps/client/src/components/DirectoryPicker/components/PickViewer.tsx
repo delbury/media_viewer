@@ -41,8 +41,10 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
   const currentPathNode = useMemo(() => pathList[pathList.length - 1], [pathList]);
   const currentDirs = useMemo(() => currentPathNode?.children ?? [], [currentPathNode]);
   const currentFiles = useMemo(() => currentPathNode?.files ?? [], [currentPathNode]);
-  const currentTotalFileCount = useMemo(() => currentPathNode?.totalFilesCount ?? 0, [currentPathNode]);
-  const currentSelfFileCount = useMemo(() => currentPathNode?.selfFilesCount ?? 0, [currentPathNode]);
+
+  const currentTotalFileCount = currentPathNode?.totalFilesCount ?? 0;
+  const currentSelfFileCount = currentPathNode?.selfFilesCount ?? 0;
+  const currentSelfDirectoryCount = currentDirs.length;
 
   // 设置当前已选文件夹
   const setTarget = (index: number) => {
@@ -70,8 +72,9 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
       }}
       titleRightSlot={
         <CurrentFilesInfo
-          total={currentTotalFileCount}
-          self={currentSelfFileCount}
+          totalFiles={currentTotalFileCount}
+          selfFiles={currentSelfFileCount}
+          selfDirectories={currentSelfDirectoryCount}
         />
       }
       leftFooterSlot={
@@ -94,7 +97,6 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
           dirs={currentDirs}
           onClick={handleSelectChild}
         />
-
         {/* 当前文件夹的文件 */}
         <FileItemList files={currentFiles} />
       </ResizeContainer.Wrapper>

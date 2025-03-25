@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 
 export const StyledDialogTitleRow = styled(Box)`
   height: 48px;
-  padding: 0 24px;
+  padding: 0 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;

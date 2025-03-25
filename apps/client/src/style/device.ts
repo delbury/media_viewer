@@ -1,5 +1,6 @@
 const screenWidth = {
   mobileM: '375px',
+  mobileL: '425px',
   tablet: '768px',
   laptop: '992px',
   laptopL: '1248px',
@@ -9,6 +10,7 @@ const screenWidth = {
 
 export const screenMax = {
   mobileM: `screen and (max-width: ${screenWidth.mobileM})`,
+  mobileL: `screen and (max-width: ${screenWidth.mobileL})`,
   tablet: `screen and (max-width: ${screenWidth.tablet})`,
   laptop: `screen and (max-width: ${screenWidth.laptop})`,
   laptopL: `screen and (max-width: ${screenWidth.laptopL})`,
@@ -16,4 +18,4 @@ export const screenMax = {
   desktop: `screen and (max-width: ${screenWidth.desktop})`,
 };
 
-export const h5Max = screenMax.tablet;
+export const h5Max = screenMax.mobileL;

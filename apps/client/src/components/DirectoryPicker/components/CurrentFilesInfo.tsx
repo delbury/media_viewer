@@ -1,41 +1,37 @@
 import { Box, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { StyledHighlightText } from '../style/current-files-info';
+import { StyledHighlightText, StyledTitleRightWrapper } from '../style/current-files-info';
 
 interface CurrentFilesInfoProps {
-  total: number;
-  self: number;
+  totalFiles: number;
+  selfFiles: number;
+  selfDirectories: number;
 }
 
-const CurrentFilesInfo = ({ total, self }: CurrentFilesInfoProps) => {
+const CurrentFilesInfo = ({ totalFiles, selfFiles, selfDirectories }: CurrentFilesInfoProps) => {
   const t = useTranslations();
 
   return (
-    <Typography
-      color="textSecondary"
-      variant="subtitle1"
-      sx={{ lineHeight: 1, textAlign: 'right' }}
-    >
-      <Box>
-        <Typography
-          variant="subtitle2"
-          variantMapping={{ subtitle2: 'span' }}
-        >
-          {`${t('Tools.SelfFiles')}${t(':')}`}
-          <StyledHighlightText>{self}</StyledHighlightText>
-        </Typography>
-      </Box>
+    <StyledTitleRightWrapper>
+      <Typography variant="body2">
+        {`${t('Tools.SelfDirectories')}${t(':')}`}
+        <StyledHighlightText>{selfDirectories}</StyledHighlightText>
+      </Typography>
 
       <Box>
-        <Typography
-          variant="subtitle2"
-          variantMapping={{ subtitle2: 'span' }}
-        >
+        <Typography variant="body2">
+          {`${t('Tools.SelfFiles')}${t(':')}`}
+          <StyledHighlightText>{selfFiles}</StyledHighlightText>
+        </Typography>
+
+        <Typography variant="body2">{`${t(',')}`}</Typography>
+
+        <Typography variant="body2">
           {`${t('Tools.TotalFiles')}${t(':')}`}
-          <StyledHighlightText>{total}</StyledHighlightText>
+          <StyledHighlightText>{totalFiles}</StyledHighlightText>
         </Typography>
       </Box>
-    </Typography>
+    </StyledTitleRightWrapper>
   );
 };
 
