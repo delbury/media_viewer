@@ -4,7 +4,7 @@ import {
   KeyboardArrowRightOutlined,
   KeyboardArrowUpOutlined,
 } from '@mui/icons-material';
-import { SxProps, Theme } from '@mui/material';
+import { Box, SxProps, Theme } from '@mui/material';
 import { forwardRef, useRef } from 'react';
 import { useEvents } from './hooks/useEvents';
 import { useExportHandlers } from './hooks/useExportHandlers';
@@ -26,26 +26,28 @@ export interface ScrollBoxProps {
 const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
   ({ children, sx, floatBarDisabled, virtualListConfig }, ref) => {
     const wrapperRef = useRef<HTMLElement>(null);
+    const contentRef = useRef<HTMLElement>(null);
 
     // 检测滚动状态，展示浮动条
+    const { scrollStatus, detectScrollExistIdle } = useScrollStatus();
     const {
-      scrollStatus,
       isScrollableX,
       isScrollableY,
       isScrollAtTop,
       isScrollAtBottom,
       isScrollAtLeft,
       isScrollAtRight,
-      detectScrollExistIdle,
-    } = useScrollStatus();
+    } = scrollStatus;
 
     // 虚拟列表
-    useVirtualList(wrapperRef, scrollStatus, virtualListConfig);
+    useVirtualList(contentRef, scrollStatus, virtualListConfig);
 
     // 绑定事件
     useEvents({
       wrapperRef,
-      disabled: !!floatBarDisabled,
+      contentRef,
+      // 虚拟列表和浮动条同时不启用时，禁用事件
+      disabled: !!floatBarDisabled && !virtualListConfig,
       resizeCallback: elm => {
         detectScrollExistIdle(elm);
       },
@@ -62,7 +64,9 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
 
     return (
       <StyledScrollBoxWrapper sx={sx}>
-        <StyledScrollBoxContent ref={wrapperRef}>{children}</StyledScrollBoxContent>
+        <StyledScrollBoxContent ref={wrapperRef}>
+          <Box ref={contentRef}>{children}</Box>
+        </StyledScrollBoxContent>
 
         {/* 上 */}
         {!floatBarDisabled && isScrollableY && !isScrollAtTop && (

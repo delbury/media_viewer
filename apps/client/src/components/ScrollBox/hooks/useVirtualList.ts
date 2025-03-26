@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useMemo } from 'react';
+import { RefObject, useEffect, useLayoutEffect, useMemo } from 'react';
 import { ScrollStatus } from './useScrollStatus';
 
 export interface VirtualListConfig {
@@ -15,22 +15,33 @@ export interface VirtualListConfig {
  * 通过当前显示的元素计算出当前显示的元素的索引
  */
 export const useVirtualList = (
-  wrapperRef: RefObject<HTMLElement | null>,
-  status: ScrollStatus | null,
+  contentRef: RefObject<HTMLElement | null>,
+  status: ScrollStatus,
   config?: VirtualListConfig
 ) => {
   const enable = !!config;
 
   const totalHeight = useMemo(() => {
-    console.log(config?.childCount, config?.childHeight);
     return (config?.childCount ?? 0) * (config?.childHeight ?? 0);
   }, [config?.childCount, config?.childHeight]);
 
   useEffect(() => {
-    if (status) {
-      console.log(status);
+    console.log(status.scrollTop);
+  }, [status.scrollTop]);
+
+  // 限制子元素的尺寸
+  useLayoutEffect(() => {
+    if (!contentRef.current) return;
+    const contentElm = contentRef.current;
+
+    if (enable) {
+      contentElm.style.setProperty('height', `${totalHeight}px`, 'important');
+      contentElm.style.setProperty('overflow-y', 'hidden', 'important');
+    } else {
+      contentElm.style.removeProperty('height');
+      contentElm.style.removeProperty('overflow-y');
     }
-  }, [status]);
+  }, [enable, totalHeight, contentRef]);
 
   return {};
 };

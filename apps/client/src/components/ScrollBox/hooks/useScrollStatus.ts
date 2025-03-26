@@ -4,23 +4,44 @@ import { useCallback, useState } from 'react';
 export type ScrollStatus = Pick<
   HTMLElement,
   'scrollTop' | 'scrollLeft' | 'scrollHeight' | 'scrollWidth' | 'clientHeight' | 'clientWidth'
->;
+> & {
+  isScrollableX: boolean;
+  isScrollableY: boolean;
+  isScrollAtTop: boolean;
+  isScrollAtBottom: boolean;
+  isScrollAtLeft: boolean;
+  isScrollAtRight: boolean;
+};
 
 const SCROLL_THRESHOLD = 20;
-
+const DEFAULT_SCROLL_STATUS: ScrollStatus = {
+  scrollTop: 0,
+  scrollLeft: 0,
+  scrollHeight: 0,
+  scrollWidth: 0,
+  clientHeight: 0,
+  clientWidth: 0,
+  isScrollableX: false,
+  isScrollableY: false,
+  isScrollAtTop: true,
+  isScrollAtBottom: false,
+  isScrollAtLeft: true,
+  isScrollAtRight: false,
+};
 export const useScrollStatus = () => {
-  const [isScrollableX, setIsScrollableX] = useState(false);
-  const [isScrollableY, setIsScrollableY] = useState(false);
-  const [isScrollAtTop, setIsScrollAtTop] = useState(true);
-  const [isScrollAtBottom, setIsScrollAtBottom] = useState(false);
-  const [isScrollAtLeft, setIsScrollAtLeft] = useState(true);
-  const [isScrollAtRight, setIsScrollAtRight] = useState(false);
-  const [scrollStatus, setScrollStatus] = useState<ScrollStatus | null>(null);
-
+  const [scrollStatus, setScrollStatus] = useState<ScrollStatus>(DEFAULT_SCROLL_STATUS);
   // 检测滚动状态
   const detectScrollExist = useCallback(
     (elm: HTMLElement) => {
       const { clientHeight, scrollHeight, scrollTop, clientWidth, scrollWidth, scrollLeft } = elm;
+      const isy = clientHeight < scrollHeight;
+      const ist = scrollTop <= SCROLL_THRESHOLD;
+      const isb = Math.ceil(scrollTop + clientHeight) >= scrollHeight - SCROLL_THRESHOLD;
+
+      const isx = clientWidth < scrollWidth;
+      const isl = scrollLeft <= SCROLL_THRESHOLD;
+      const isr = Math.ceil(scrollLeft + clientWidth) >= scrollWidth - SCROLL_THRESHOLD;
+
       setScrollStatus({
         clientHeight,
         scrollHeight,
@@ -28,29 +49,20 @@ export const useScrollStatus = () => {
         clientWidth,
         scrollWidth,
         scrollLeft,
+        isScrollableX: isx,
+        isScrollableY: isy,
+        isScrollAtTop: ist,
+        isScrollAtBottom: isb,
+        isScrollAtLeft: isl,
+        isScrollAtRight: isr,
       });
-
-      setIsScrollableY(clientHeight < scrollHeight);
-      setIsScrollAtTop(scrollTop <= SCROLL_THRESHOLD);
-      // 加一点阈值
-      setIsScrollAtBottom(Math.ceil(scrollTop + clientHeight) >= scrollHeight - SCROLL_THRESHOLD);
-
-      setIsScrollableX(clientWidth < scrollWidth);
-      setIsScrollAtLeft(scrollLeft <= SCROLL_THRESHOLD);
-      setIsScrollAtRight(Math.ceil(scrollLeft + clientWidth) >= scrollWidth - SCROLL_THRESHOLD);
     },
-    [setIsScrollableY, setIsScrollAtTop, setIsScrollAtBottom]
+    [setScrollStatus]
   );
   const detectScrollExistIdle = useThrottle(detectScrollExist, 20);
 
   return {
     scrollStatus,
-    isScrollableX,
-    isScrollableY,
-    isScrollAtTop,
-    isScrollAtBottom,
-    isScrollAtLeft,
-    isScrollAtRight,
     detectScrollExistIdle,
   };
 };
