@@ -22,20 +22,34 @@ const DirectoryItemList = ({ dirs, onClick }: DirectoryItemListProps) => {
         virtualListConfig: {
           childCount: dirs.length,
           childHeight: DIRECTORY_ITEM_HEIGHT,
+          renderRow: (index, sx) => {
+            const dir = dirs[index];
+            return (
+              !!dir && (
+                <DirectoryItem
+                  key={dirs[index].fullPath}
+                  dir={dirs[index]}
+                  onClick={() => onClick?.(dirs[index])}
+                  sx={sx}
+                />
+              )
+            );
+          },
+          RowWrapperComponent: ({ children }: { children: React.ReactNode }) => (
+            <List sx={{ padding: 0 }}>{children}</List>
+          ),
         },
       }}
     >
-      {dirs.length && (
-        <List sx={{ padding: 0 }}>
-          {dirs.map(dir => (
-            <DirectoryItem
-              key={dir.fullPath}
-              dir={dir}
-              onClick={() => onClick?.(dir)}
-            />
-          ))}
-        </List>
-      )}
+      {/* <List sx={{ padding: 0 }}>
+        {dirs.map(dir => (
+          <DirectoryItem
+            key={dir.fullPath}
+            dir={dir}
+            onClick={() => onClick?.(dir)}
+          />
+        ))}
+      </List> */}
     </ResizeContainer>
   );
 };

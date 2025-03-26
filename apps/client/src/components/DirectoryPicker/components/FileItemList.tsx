@@ -119,7 +119,9 @@ const TBG = ({
     >
       {items.map(item => {
         const order =
-          showOrder && Array.isArray(value) ? (value?.findIndex((field: string) => field === item.value) ?? -1) + 1 : 0;
+          showOrder && Array.isArray(value)
+            ? (value?.findIndex((field: string) => field === item.value) ?? -1) + 1
+            : 0;
 
         return (
           <StyledToggleButton
@@ -264,17 +266,15 @@ const FileItemList = ({ files }: FileItemListProps) => {
           </StyledFileAllCountInfo>
         }
       >
-        {files.length && (
-          <StyledFileGrid>
-            {filteredSortedFiles.map(file => (
-              <FileItem
-                key={file.fullPath}
-                file={file}
-                onTitleClick={setCurrentFile}
-              />
-            ))}
-          </StyledFileGrid>
-        )}
+        <StyledFileGrid>
+          {filteredSortedFiles.map(file => (
+            <FileItem
+              key={file.fullPath}
+              file={file}
+              onTitleClick={setCurrentFile}
+            />
+          ))}
+        </StyledFileGrid>
       </ResizeContainer>
       {!!currentFile && (
         <FileDetailDialog

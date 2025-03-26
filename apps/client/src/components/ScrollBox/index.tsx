@@ -5,7 +5,7 @@ import {
   KeyboardArrowUpOutlined,
 } from '@mui/icons-material';
 import { Box, SxProps, Theme } from '@mui/material';
-import { forwardRef, useRef } from 'react';
+import { forwardRef, useMemo, useRef } from 'react';
 import { useEvents } from './hooks/useEvents';
 import { useExportHandlers } from './hooks/useExportHandlers';
 import { useScrollStatus } from './hooks/useScrollStatus';
@@ -40,7 +40,11 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
     } = scrollStatus;
 
     // 虚拟列表
-    useVirtualList(contentRef, scrollStatus, virtualListConfig);
+    const { renderIndexes, enableVirtualList } = useVirtualList(
+      contentRef,
+      scrollStatus,
+      virtualListConfig
+    );
 
     // 绑定事件
     useEvents({
@@ -62,10 +66,38 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
     // 暴露给实例方法
     useExportHandlers(ref, wrapperRef);
 
+    const CustomVirtualListWrapper = useMemo(
+      () => virtualListConfig?.RowWrapperComponent,
+      [virtualListConfig?.RowWrapperComponent]
+    );
+
+    const virtualChildren = useMemo(() => {
+      if (!virtualListConfig || !renderIndexes) return children;
+
+      const items = Array.from({ length: renderIndexes[1] - renderIndexes[0] + 1 }, (_, index) => {
+        const realIndex = index + renderIndexes[0];
+        return virtualListConfig.renderRow(realIndex, {
+          transform: `translateY(${renderIndexes[0] * virtualListConfig.childHeight}px)`,
+        });
+      });
+
+      return items;
+    }, [children, renderIndexes, virtualListConfig]);
+
     return (
       <StyledScrollBoxWrapper sx={sx}>
         <StyledScrollBoxContent ref={wrapperRef}>
-          <Box ref={contentRef}>{children}</Box>
+          <Box ref={contentRef}>
+            {enableVirtualList ? (
+              CustomVirtualListWrapper ? (
+                <CustomVirtualListWrapper>{virtualChildren}</CustomVirtualListWrapper>
+              ) : (
+                virtualChildren
+              )
+            ) : (
+              children
+            )}
+          </Box>
         </StyledScrollBoxContent>
 
         {/* 上 */}
