@@ -13,9 +13,9 @@ import {
   FILE_TYPE_EXTS,
   FileFilterField,
   FileSortField,
-  FileSortMode,
 } from '../constant';
 import { useResetBtn } from '../hooks/useResetBtn';
+import { SortMode, useSortList } from '../hooks/useSortList';
 import {
   StyledFileAllCountInfo,
   StyledFileGrid,
@@ -63,34 +63,6 @@ const filterFiles = ({
     }
     return true;
   });
-  return newList;
-};
-
-// 文件排序
-const sortFiles = ({
-  files,
-  sortMode,
-  sortField,
-}: {
-  files: FileInfo[];
-  sortMode: FileSortMode | null;
-  sortField: FileSortField[];
-}) => {
-  if (!sortMode || !sortField.length) return files;
-
-  const biggerNum = sortMode === 'asc' ? 1 : -1;
-  const newList = [...files];
-  newList.sort((a, b) => {
-    for (const field of sortField) {
-      // 依次比较每个排序字段，直到字段的值不相同
-      const apiField = FILE_SORT_API_FIELD_MAP[field];
-      if (a[apiField] === b[apiField]) continue;
-      if ((a[apiField] ?? 0) > (b[apiField] ?? 0)) return biggerNum;
-      else return -biggerNum;
-    }
-    return 0;
-  });
-
   return newList;
 };
 
@@ -151,7 +123,7 @@ const DEFAULT_VALUES = {
 const FileItemList = ({ files }: FileItemListProps) => {
   const t = useTranslations();
 
-  const [sortMode, setSortMode] = usePersistentConfig<FileSortMode | null>(
+  const [sortMode, setSortMode] = usePersistentConfig<SortMode | null>(
     DEFAULT_VALUES.sortMode,
     'directoryPickerFilesSortMode'
   );
@@ -181,9 +153,12 @@ const FileItemList = ({ files }: FileItemListProps) => {
     });
   }, [files, filterFileType, filterFileExts]);
 
-  const filteredSortedFiles = useMemo(() => {
-    return sortFiles({ files: filteredFiles, sortMode, sortField });
-  }, [filteredFiles, sortMode, sortField]);
+  const filteredSortedFiles = useSortList({
+    items: filteredFiles,
+    sortMode,
+    sortField,
+    apiFieldMap: FILE_SORT_API_FIELD_MAP,
+  });
 
   // 各类文件数量
   const fileTypeCountInfo = useMemo(() => {

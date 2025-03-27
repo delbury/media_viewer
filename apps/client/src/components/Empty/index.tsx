@@ -1,10 +1,7 @@
-import { styled, Typography } from '@mui/material';
+import { FolderOffOutlined } from '@mui/icons-material';
+import { Box } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { StyledEmptyWrapper } from './style';
-
-const EmptyTip = styled(Typography)(({ theme }) => ({
-  color: theme.palette.text.secondary,
-}));
+import { StyledEmptyTip, StyledEmptyWrapper } from './style';
 
 const Empty = ({ label }: { label?: string }) => {
   const t = useTranslations();
@@ -13,7 +10,10 @@ const Empty = ({ label }: { label?: string }) => {
 
   return (
     <StyledEmptyWrapper>
-      <EmptyTip>{text}</EmptyTip>
+      <StyledEmptyTip>
+        <FolderOffOutlined fontSize="large" />
+        <Box>{text}</Box>
+      </StyledEmptyTip>
     </StyledEmptyWrapper>
   );
 };

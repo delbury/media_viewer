@@ -2,10 +2,9 @@ import Dialog from '@/components/Dialog';
 import { formatDate, formatFileSize } from '@/utils';
 import { FileInfo } from '@tools/traverseDirectories';
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   StyledFileDetailLabel,
-  StyledFileDetailRow,
   StyledFileDetailValue,
   StyledFileDetailWrapper,
 } from '../style/file-detail-dialog';
@@ -40,13 +39,13 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
     >
       <StyledFileDetailWrapper>
         {fileInfos.map(info => (
-          <StyledFileDetailRow key={info.label}>
+          <React.Fragment key={info.label}>
             <StyledFileDetailLabel>
               {info.label}
               {t(':')}
             </StyledFileDetailLabel>
             <StyledFileDetailValue>{info.value || t('-')}</StyledFileDetailValue>
-          </StyledFileDetailRow>
+          </React.Fragment>
         ))}
       </StyledFileDetailWrapper>
     </Dialog>

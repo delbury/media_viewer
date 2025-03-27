@@ -5,7 +5,6 @@ import { AUDIO_EXTS, IMAGE_EXTS, VIDEO_EXTS } from '@tools/constant';
 export const PATH_SEPARATOR = '/';
 
 // 排序类型
-export type FileSortMode = 'desc' | 'asc';
 export type FileFilterField = Extract<FullFileType, 'image' | 'audio' | 'video'>;
 const FILE_FILTER_MAP: Record<FileFilterField, string> = {
   video: 'Common.Video',

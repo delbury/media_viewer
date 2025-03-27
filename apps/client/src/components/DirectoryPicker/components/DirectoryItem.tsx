@@ -1,5 +1,5 @@
 import { formatDate } from '@/utils';
-import { FolderOutlined } from '@mui/icons-material';
+import { FolderOutlined, SourceOutlined } from '@mui/icons-material';
 import { ListItemIcon, ListItemText, SxProps, Theme } from '@mui/material';
 import { DirectoryInfo } from '@shared';
 import { useTranslations } from 'next-intl';
@@ -16,6 +16,10 @@ interface DirectoryItemProps {
 const DirectoryItem = ({ dir, onClick, sx }: DirectoryItemProps) => {
   const t = useTranslations();
 
+  const isEmpty = useMemo(() => {
+    return !dir.totalFilesCount && !dir.children.length;
+  }, [dir.totalFilesCount, dir.children]);
+
   const timeInfo = useMemo(
     () => `${t('Tools.UpdatedTime')}${t(':')}${formatDate(dir.updated)}`,
     [t, dir.updated]
@@ -31,7 +35,7 @@ const DirectoryItem = ({ dir, onClick, sx }: DirectoryItemProps) => {
       sx={{ height: `${DIRECTORY_ITEM_HEIGHT}px`, ...sx }}
     >
       <ListItemIcon sx={{ minWidth: 40 }}>
-        <FolderOutlined fontSize="large" />
+        {isEmpty ? <FolderOutlined fontSize="large" /> : <SourceOutlined fontSize="large" />}
       </ListItemIcon>
 
       <ListItemText

@@ -65,17 +65,21 @@ const ResizeContainer = ({
         ...resizableStyle,
       }}
     >
-      {!!title && <Typography sx={{ color: 'text.secondary', marginBottom: '4px' }}>{title}</Typography>}
+      {!!title && (
+        <Typography sx={{ color: 'text.secondary', marginBottom: '4px' }}>{title}</Typography>
+      )}
       {beforeContentSlot}
-      <ScrollBox
-        {...scrollBoxProps}
-        sx={{ flex: 1 }}
-      >
-        {isEmpty ? <Empty label={emptyText ?? t('Common.Empty')} /> : children}
-      </ScrollBox>
-
+      {isEmpty ? (
+        <Empty label={emptyText ?? t('Common.Empty')} />
+      ) : (
+        <ScrollBox
+          {...scrollBoxProps}
+          sx={{ flex: 1 }}
+        >
+          {children}
+        </ScrollBox>
+      )}
       {afterContentSlot}
-
       {resizable && (
         <ResizeBar
           defaultOffset={sizeOffset}

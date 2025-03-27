@@ -3,13 +3,9 @@ import { styled } from '@mui/material/styles';
 
 export const StyledFileDetailWrapper = styled(Box)`
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: minmax(6em, 2fr) 5fr;
   column-gap: 1em;
   row-gap: 4px;
-`;
-
-export const StyledFileDetailRow = styled(Box)`
-  display: contents;
 `;
 
 export const StyledFileDetailLabel = styled(Box)`
