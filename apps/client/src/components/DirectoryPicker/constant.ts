@@ -1,5 +1,5 @@
 import { mapToOptions } from '@/utils';
-import { FileInfo, FullFileType } from '@shared';
+import { DirectoryInfo, FileInfo, FullFileType } from '@shared';
 import { AUDIO_EXTS, IMAGE_EXTS, VIDEO_EXTS } from '@tools/constant';
 
 export const PATH_SEPARATOR = '/';
@@ -35,13 +35,30 @@ export const FILE_SORT_API_FIELD_MAP: Record<FileSortField, keyof FileInfo> = {
   created: 'created',
   duration: 'duration',
 };
-
 const FILE_SORT_MAP: Record<FileSortField, string> = {
-  type: 'Common.Type',
-  size: 'Common.Size',
-  duration: 'Common.Duration',
-  name: 'Common.Name',
-  updated: 'Common.Updated',
-  created: 'Common.Created',
+  type: 'File.Type',
+  size: 'File.Size',
+  duration: 'File.Duration',
+  name: 'File.Name',
+  updated: 'File.Updated',
+  created: 'File.Created',
 };
 export const FILE_SORT_OPTIONS = mapToOptions(FILE_SORT_MAP);
+
+// 文件夹排序选项
+export type DirectorySortField = 'name' | 'updated' | 'created' | 'totalCount' | 'selfCount';
+export const DIRECTORY_SORT_API_FIELD_MAP: Record<DirectorySortField, keyof DirectoryInfo> = {
+  name: 'name',
+  updated: 'updated',
+  created: 'created',
+  totalCount: 'totalFilesCount',
+  selfCount: 'selfFilesCount',
+};
+const DIRECTORY_SORT_MAP: Record<DirectorySortField, string> = {
+  name: 'File.Name',
+  totalCount: 'File.TotalCount',
+  selfCount: 'File.SelfCount',
+  updated: 'File.Updated',
+  created: 'File.Created',
+};
+export const DIRECTORY_SORT_OPTIONS = mapToOptions(DIRECTORY_SORT_MAP);

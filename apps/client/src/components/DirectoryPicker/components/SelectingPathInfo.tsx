@@ -5,7 +5,12 @@ import { DirectoryInfo } from '@shared';
 import React, { useEffect, useRef } from 'react';
 import { PATH_SEPARATOR } from '../constant';
 import { useSwitchWrapBtn } from '../hooks/useSwitchBtn';
-import { StyledCountTag, StyledPathNode, StyledPathNodeTitle, StyledPathWrapper } from '../style/selecting-path-info';
+import {
+  StyledCountTag,
+  StyledPathNode,
+  StyledPathNodeTitle,
+  StyledPathWrapper,
+} from '../style/selecting-path-info';
 
 interface DirectoryPathProps {
   pathList: DirectoryInfo[];
@@ -25,7 +30,7 @@ const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
   return (
     <ScrollBox
       ref={scrollRef}
-      sx={{ maxHeight: '10vh', display: 'flex', flexDirection: 'column', mb: '8px' }}
+      sx={{ maxHeight: '10vh', display: 'flex', flexDirection: 'column', mb: '4px' }}
     >
       <StyledPathWrapper isWrap={isWrap}>
         {SwitchBtn}

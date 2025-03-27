@@ -25,15 +25,12 @@
     "Files": "文件",
     "Total": "共",
     "SomethingWentWrong": "发生了一些错误",
-    "Size": "大小",
-    "Type": "类型",
-    "Name": "名称",
     "Default": "默认",
-    "Updated": "更新时间",
-    "Created": "创建时间",
-    "Duration": "时长",
+    "Name": "名称",
+
     "Asc": "升序",
     "Desc": "降序",
+
     "Image": "图片",
     "Audio": "音频",
     "Video": "视频",
@@ -41,12 +38,14 @@
     "Other": "其他"
   },
   "File": {
-    "Name": "文件名",
     "Size": "大小",
-    "Created": "创建时间",
+    "Type": "类型",
+    "Name": "名称",
     "Updated": "更新时间",
+    "Created": "创建时间",
     "Duration": "时长",
-    "Path": "路径"
+    "TotalCount": "总文件数",
+    "SelfCount": "文件数"
   },
   ":": "：",
   ",": "，",
