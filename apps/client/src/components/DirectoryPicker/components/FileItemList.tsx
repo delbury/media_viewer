@@ -1,10 +1,11 @@
 import ResizeContainer from '@/components/ResizeContainer';
 import ScrollBox from '@/components/ScrollBox';
+import { VirtualListConfig } from '@/components/ScrollBox/hooks/useVirtualList';
 import { usePersistentConfig } from '@/hooks/usePersistentConfig';
 import { TFunction } from '@/types';
 import { FileInfo, FullFileType } from '@shared';
 import { useTranslations } from 'next-intl';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   FILE_FILTER_OPTIONS,
   FILE_SORT_API_FIELD_MAP,
@@ -111,6 +112,22 @@ const FileItemList = ({ files }: FileItemListProps) => {
 
   const [currentFile, setCurrentFile] = useState<FileInfo | null>(null);
 
+  const renderItem: VirtualListConfig['renderItem'] = useCallback(
+    index => {
+      const file = filteredSortedFiles[index];
+      return (
+        !!file && (
+          <FileItem
+            key={file.fullPath}
+            file={file}
+            onTitleClick={setCurrentFile}
+          />
+        )
+      );
+    },
+    [filteredSortedFiles]
+  );
+
   return (
     <>
       <ResizeContainer
@@ -154,8 +171,22 @@ const FileItemList = ({ files }: FileItemListProps) => {
             </span>
           </StyledFileAllCountInfo>
         }
+        scrollBoxProps={{
+          virtualListConfig: {
+            childCount: filteredSortedFiles.length,
+            childHeight: 100,
+            renderItem,
+            RowWrapperComponent: StyledFileGrid,
+            // calcGridLayout: contentWidth => {
+            //   const cols = Math.floor(contentWidth / 100);
+            //   return {
+            //     rows: Math.ceil(filteredSortedFiles.length / cols),
+            //   };
+            // },
+          },
+        }}
       >
-        <StyledFileGrid>
+        {/* <StyledFileGrid>
           {filteredSortedFiles.map(file => (
             <FileItem
               key={file.fullPath}
@@ -163,7 +194,7 @@ const FileItemList = ({ files }: FileItemListProps) => {
               onTitleClick={setCurrentFile}
             />
           ))}
-        </StyledFileGrid>
+        </StyledFileGrid> */}
       </ResizeContainer>
       {!!currentFile && (
         <FileDetailDialog
