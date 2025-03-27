@@ -114,7 +114,7 @@ export const traverseDirectories = async (dir: string | string[]) => {
     }
 
     // base path
-    const bp = currentDir.basePath || d;
+    const bp = currentDir.basePath || path.dirname(d);
     // full path
     const fp = path.resolve(__dirname, d);
 

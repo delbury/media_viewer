@@ -124,7 +124,6 @@ const FileItemList = ({ files }: FileItemListProps) => {
         beforeContentSlot={
           <>
             {SortToolRow}
-
             <StyledFileToolRow>
               {ResetFilterBtn}
               <ToolGroupBtn
@@ -136,7 +135,6 @@ const FileItemList = ({ files }: FileItemListProps) => {
                   setFilterFileExts([]);
                 }}
               />
-
               <ScrollBox>
                 <ToolGroupBtn
                   rawLabel
