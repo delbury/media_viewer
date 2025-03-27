@@ -2,7 +2,6 @@ import ResizeContainer from '@/components/ResizeContainer';
 import ScrollBox from '@/components/ScrollBox';
 import { usePersistentConfig } from '@/hooks/usePersistentConfig';
 import { TFunction } from '@/types';
-import { ToggleButtonGroupProps, Typography } from '@mui/material';
 import { FileInfo, FullFileType } from '@shared';
 import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
@@ -12,20 +11,13 @@ import {
   FILE_SORT_OPTIONS,
   FILE_TYPE_EXTS,
   FileFilterField,
-  FileSortField,
 } from '../constant';
 import { useResetBtn } from '../hooks/useResetBtn';
-import { SortMode, useSortList } from '../hooks/useSortList';
-import {
-  StyledFileAllCountInfo,
-  StyledFileGrid,
-  StyledFileToolRow,
-  StyledSelectedBadge,
-  StyledToggleButton,
-  StyledToggleButtonGroup,
-} from '../style/file-item-list';
+import { useSortList } from '../hooks/useSortList';
+import { StyledFileAllCountInfo, StyledFileGrid, StyledFileToolRow } from '../style/file-item-list';
 import FileDetailDialog from './FileDetailDialog';
 import FileItem from './FileItem';
+import ToolGroupBtn from './ToolGroupBtn';
 
 // 计算文件数量
 const countFileType = (files: FileInfo[], t: TFunction) => {
@@ -66,56 +58,11 @@ const filterFiles = ({
   return newList;
 };
 
-const TBG = ({
-  items,
-  showOrder,
-  value,
-  rawLabel,
-  ...props
-}: ToggleButtonGroupProps & {
-  items: {
-    value: string;
-    label: string;
-  }[];
-  showOrder?: boolean;
-  rawLabel?: boolean;
-}) => {
-  const t = useTranslations();
-
-  return (
-    <StyledToggleButtonGroup
-      color="primary"
-      size="small"
-      value={value}
-      {...props}
-    >
-      {items.map(item => {
-        const order =
-          showOrder && Array.isArray(value)
-            ? (value?.findIndex((field: string) => field === item.value) ?? -1) + 1
-            : 0;
-
-        return (
-          <StyledToggleButton
-            key={item.value}
-            value={item.value}
-          >
-            <Typography variant="body2">{rawLabel ? item.label : t(item.label)}</Typography>
-            {!!showOrder && !!order && <StyledSelectedBadge>{order}</StyledSelectedBadge>}
-          </StyledToggleButton>
-        );
-      })}
-    </StyledToggleButtonGroup>
-  );
-};
-
 interface FileItemListProps {
   files: FileInfo[];
 }
 
 const DEFAULT_VALUES = {
-  sortMode: null,
-  sortField: [] as FileSortField[],
   filterFileType: null,
   filterFileExts: [] as string[],
 };
@@ -123,14 +70,6 @@ const DEFAULT_VALUES = {
 const FileItemList = ({ files }: FileItemListProps) => {
   const t = useTranslations();
 
-  const [sortMode, setSortMode] = usePersistentConfig<SortMode | null>(
-    DEFAULT_VALUES.sortMode,
-    'directoryPickerFilesSortMode'
-  );
-  const [sortField, setSortField] = usePersistentConfig<FileSortField[]>(
-    DEFAULT_VALUES.sortField,
-    'directoryPickerFilesSortField'
-  );
   const [filterFileType, setFilterFileType] = usePersistentConfig<FileFilterField | null>(
     DEFAULT_VALUES.filterFileType,
     'directoryPickerFilesFilterFileType'
@@ -153,11 +92,11 @@ const FileItemList = ({ files }: FileItemListProps) => {
     });
   }, [files, filterFileType, filterFileExts]);
 
-  const filteredSortedFiles = useSortList({
+  const { sortedItems: filteredSortedFiles, SortToolRow } = useSortList({
     items: filteredFiles,
-    sortMode,
-    sortField,
     apiFieldMap: FILE_SORT_API_FIELD_MAP,
+    persistentKeyPrefix: 'directoryPickerFiles',
+    fileSortOptions: FILE_SORT_OPTIONS,
   });
 
   // 各类文件数量
@@ -165,10 +104,6 @@ const FileItemList = ({ files }: FileItemListProps) => {
     return countFileType(files, t);
   }, [files, t]);
 
-  const { ResetBtn: ResetSortBtn } = useResetBtn(() => {
-    setSortMode(DEFAULT_VALUES.sortMode);
-    setSortField(DEFAULT_VALUES.sortField);
-  });
   const { ResetBtn: ResetFilterBtn } = useResetBtn(() => {
     setFilterFileType(DEFAULT_VALUES.filterFileType);
     setFilterFileExts(DEFAULT_VALUES.filterFileExts);
@@ -188,30 +123,11 @@ const FileItemList = ({ files }: FileItemListProps) => {
         sx={{ position: 'relative' }}
         beforeContentSlot={
           <>
-            <StyledFileToolRow>
-              {ResetSortBtn}
-              <TBG
-                exclusive
-                value={sortMode}
-                onChange={(_, value) => setSortMode(value)}
-                items={[
-                  { value: 'desc', label: 'Common.Desc' },
-                  { value: 'asc', label: 'Common.Asc' },
-                ]}
-              />
-              <ScrollBox>
-                <TBG
-                  items={FILE_SORT_OPTIONS}
-                  value={sortField}
-                  onChange={(_, value) => setSortField(value)}
-                  showOrder
-                />
-              </ScrollBox>
-            </StyledFileToolRow>
+            {SortToolRow}
 
             <StyledFileToolRow>
               {ResetFilterBtn}
-              <TBG
+              <ToolGroupBtn
                 exclusive
                 items={FILE_FILTER_OPTIONS}
                 value={filterFileType}
@@ -222,7 +138,7 @@ const FileItemList = ({ files }: FileItemListProps) => {
               />
 
               <ScrollBox>
-                <TBG
+                <ToolGroupBtn
                   rawLabel
                   items={fileTypeExts}
                   value={filterFileExts}

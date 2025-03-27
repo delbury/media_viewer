@@ -1,4 +1,10 @@
+import ScrollBox from '@/components/ScrollBox';
+import { usePersistentConfig } from '@/hooks/usePersistentConfig';
 import { useMemo } from 'react';
+import ToolGroupBtn from '../components/ToolGroupBtn';
+import { FileSortField } from '../constant';
+import { StyledFileToolRow } from '../style/file-item-list';
+import { useResetBtn } from './useResetBtn';
 
 export type SortMode = 'desc' | 'asc';
 
@@ -32,15 +38,69 @@ const sortItems = function <T, F extends string>({
   return newList;
 };
 
-export const useSortList: typeof sortItems = function ({
+const DEFAULT_VALUES = {
+  sortMode: null satisfies SortMode | null,
+  sortField: [] satisfies FileSortField[],
+};
+
+interface SortItemParams<T, F extends string> {
+  items: T[];
+  apiFieldMap: Record<F, keyof T>;
+  persistentKeyPrefix?: string;
+  fileSortOptions: { label: string; value: F }[];
+}
+
+export const useSortList = function <T, F extends string>({
   items,
-  sortMode,
-  sortField,
   apiFieldMap,
-}) {
+  fileSortOptions,
+  persistentKeyPrefix,
+}: SortItemParams<T, F>) {
+  const [sortMode, setSortMode] = usePersistentConfig<SortMode | null>(
+    DEFAULT_VALUES.sortMode,
+    persistentKeyPrefix ? `${persistentKeyPrefix}SortMode` : void 0
+  );
+  const [sortField, setSortField] = usePersistentConfig<F[]>(
+    DEFAULT_VALUES.sortField,
+    persistentKeyPrefix ? `${persistentKeyPrefix}SortField` : void 0
+  );
+
+  const { ResetBtn: ResetSortBtn } = useResetBtn(() => {
+    setSortMode(DEFAULT_VALUES.sortMode);
+    setSortField(DEFAULT_VALUES.sortField);
+  });
+
   const sortedItems = useMemo(() => {
     return sortItems({ items, sortMode, sortField, apiFieldMap });
   }, [items, sortMode, sortField, apiFieldMap]);
 
-  return sortedItems;
+  const SortToolRow = useMemo(() => {
+    return (
+      <StyledFileToolRow>
+        {ResetSortBtn}
+        <ToolGroupBtn
+          exclusive
+          value={sortMode}
+          onChange={(_, value) => setSortMode(value)}
+          items={[
+            { value: 'desc', label: 'Common.Desc' },
+            { value: 'asc', label: 'Common.Asc' },
+          ]}
+        />
+        <ScrollBox>
+          <ToolGroupBtn
+            items={fileSortOptions}
+            value={sortField}
+            onChange={(_, value) => setSortField(value)}
+            showOrder
+          />
+        </ScrollBox>
+      </StyledFileToolRow>
+    );
+  }, [ResetSortBtn, fileSortOptions, sortMode, sortField, setSortField, setSortMode]);
+
+  return {
+    sortedItems,
+    SortToolRow,
+  };
 };

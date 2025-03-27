@@ -1,4 +1,4 @@
-import { Box, styled, Typography } from '@mui/material';
+import { Box, styled } from '@mui/material';
 
 export const StyledEmptyWrapper = styled(Box)`
   margin: auto 0;
@@ -10,7 +10,7 @@ export const StyledEmptyWrapper = styled(Box)`
   justify-content: center;
 `;
 
-export const StyledEmptyTip = styled(Typography)`
+export const StyledEmptyTip = styled(Box)`
   color: ${({ theme }) => theme.palette.text.secondary};
   display: flex;
   flex-direction: column;
