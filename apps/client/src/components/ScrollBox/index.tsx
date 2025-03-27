@@ -40,7 +40,7 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
     } = scrollStatus;
 
     // 虚拟列表
-    const { renderIndexes, enableVirtualList } = useVirtualList(
+    const { renderIndexes, enableVirtualList, childHeight } = useVirtualList(
       contentRef,
       scrollStatus,
       virtualListConfig
@@ -76,13 +76,15 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
 
       const items = Array.from({ length: renderIndexes[1] - renderIndexes[0] + 1 }, (_, index) => {
         const realIndex = index + renderIndexes[0];
-        return virtualListConfig.renderRow(realIndex, {
-          transform: `translateY(${renderIndexes[0] * virtualListConfig.childHeight}px)`,
+        return virtualListConfig.renderItem(realIndex, {
+          renderStartIndex: renderIndexes[0],
+          renderEndIndex: renderIndexes[1],
+          childHeight,
         });
       });
 
       return items;
-    }, [children, renderIndexes, virtualListConfig]);
+    }, [children, renderIndexes, virtualListConfig, childHeight]);
 
     return (
       <StyledScrollBoxWrapper sx={sx}>

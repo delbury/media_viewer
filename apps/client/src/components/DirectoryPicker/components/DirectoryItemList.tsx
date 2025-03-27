@@ -35,7 +35,7 @@ const DirectoryItemList = ({ dirs, onClick }: DirectoryItemListProps) => {
         virtualListConfig: {
           childCount: sortedItems.length,
           childHeight: DIRECTORY_ITEM_HEIGHT,
-          renderRow: (index, sx) => {
+          renderItem: (index, { renderStartIndex, childHeight }) => {
             const dir = sortedItems[index];
             return (
               !!dir && (
@@ -43,7 +43,9 @@ const DirectoryItemList = ({ dirs, onClick }: DirectoryItemListProps) => {
                   key={dir.fullPath}
                   dir={dir}
                   onClick={() => onClick?.(dir)}
-                  sx={sx}
+                  sx={{
+                    transform: `translateY(${renderStartIndex * childHeight}px)`,
+                  }}
                 />
               )
             );
