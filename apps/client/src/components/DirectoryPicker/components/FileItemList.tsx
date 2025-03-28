@@ -27,7 +27,7 @@ import FileDetailDialog from './FileDetailDialog';
 import FileItem from './FileItem';
 import ToolGroupBtn from './ToolGroupBtn';
 
-const calcGridLayout = (isH5: boolean, childCount: number, contentWidth: number) => {
+const calcGridLayout = (isH5: boolean, childCount: number, contentWidth: number): GridLayout => {
   // padding 4px
   // gap 8px
   // grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
@@ -61,7 +61,8 @@ const calcGridLayout = (isH5: boolean, childCount: number, contentWidth: number)
     colWidth,
     rowGap: currentGap,
     colGap: currentGap,
-  } as GridLayout;
+    paddingTopBottom: padding * 2,
+  };
 };
 
 // 计算文件数量
@@ -158,7 +159,7 @@ const FileItemList = ({ files }: FileItemListProps) => {
   const [currentFile, setCurrentFile] = useState<FileInfo | null>(null);
 
   const renderItem: VirtualListConfig['renderItem'] = useCallback(
-    index => {
+    (index, { rowHeight, renderStartRowIndex }) => {
       const file = filteredSortedFiles[index];
       return (
         !!file && (
@@ -166,6 +167,9 @@ const FileItemList = ({ files }: FileItemListProps) => {
             key={file.fullPath}
             file={file}
             onTitleClick={setCurrentFile}
+            sx={{
+              transform: `translateY(${renderStartRowIndex * rowHeight}px)`,
+            }}
           />
         )
       );

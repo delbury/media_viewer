@@ -40,7 +40,7 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
     } = scrollStatus;
 
     // 虚拟列表
-    const { renderIndexes, enableVirtualList, childHeight } = useVirtualList(
+    const { renderRange, enableVirtualList, childHeight, gridLayout } = useVirtualList(
       contentRef,
       scrollStatus,
       virtualListConfig
@@ -72,19 +72,13 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
     );
 
     const virtualChildren = useMemo(() => {
-      if (!virtualListConfig || !renderIndexes) return children;
+      if (!virtualListConfig || !renderRange) return children;
 
-      const items = Array.from({ length: renderIndexes[1] - renderIndexes[0] + 1 }, (_, index) => {
-        const realIndex = index + renderIndexes[0];
-        return virtualListConfig.renderItem(realIndex, {
-          renderStartIndex: renderIndexes[0],
-          renderEndIndex: renderIndexes[1],
-          childHeight,
-        });
+      return Array.from({ length: renderRange.count }, (_, index) => {
+        const realIndex = index + renderRange.startIndex;
+        return virtualListConfig.renderItem(realIndex, renderRange);
       });
-
-      return items;
-    }, [children, renderIndexes, virtualListConfig, childHeight]);
+    }, [children, virtualListConfig, renderRange]);
 
     return (
       <StyledScrollBoxWrapper sx={sx}>

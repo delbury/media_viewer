@@ -33,7 +33,7 @@ const DirectoryItemList = ({ dirs, onClick }: DirectoryItemListProps) => {
   });
 
   const renderItem: VirtualListConfig['renderItem'] = useCallback(
-    (index, { renderStartIndex, childHeight }) => {
+    (index, { renderStartRowIndex, rowHeight }) => {
       const dir = sortedItems[index];
       return (
         !!dir && (
@@ -42,7 +42,7 @@ const DirectoryItemList = ({ dirs, onClick }: DirectoryItemListProps) => {
             dir={dir}
             onClick={() => onClick?.(dir)}
             sx={{
-              transform: `translateY(${renderStartIndex * childHeight}px)`,
+              transform: `translateY(${renderStartRowIndex * rowHeight}px)`,
             }}
           />
         )
