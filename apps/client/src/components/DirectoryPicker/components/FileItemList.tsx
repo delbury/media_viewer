@@ -1,8 +1,10 @@
 import ResizeContainer from '@/components/ResizeContainer';
 import ScrollBox from '@/components/ScrollBox';
-import { VirtualListConfig } from '@/components/ScrollBox/hooks/useVirtualList';
+import { GridLayout, VirtualListConfig } from '@/components/ScrollBox/hooks/useVirtualList';
 import { usePersistentConfig } from '@/hooks/usePersistentConfig';
+import { h5Max } from '@/style/device';
 import { TFunction } from '@/types';
+import { useMediaQuery } from '@mui/material';
 import { FileInfo, FullFileType } from '@shared';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
@@ -15,10 +17,52 @@ import {
 } from '../constant';
 import { useResetBtn } from '../hooks/useResetBtn';
 import { useSortList } from '../hooks/useSortList';
-import { StyledFileAllCountInfo, StyledFileGrid, StyledFileToolRow } from '../style/file-item-list';
+import {
+  FILE_GRID_SIZE,
+  StyledFileAllCountInfo,
+  StyledFileGrid,
+  StyledFileToolRow,
+} from '../style/file-item-list';
 import FileDetailDialog from './FileDetailDialog';
 import FileItem from './FileItem';
 import ToolGroupBtn from './ToolGroupBtn';
+
+const calcGridLayout = (isH5: boolean, childCount: number, contentWidth: number) => {
+  // padding 4px
+  // gap 8px
+  // grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+
+  const { gap, gapH5, padding, minWidth } = FILE_GRID_SIZE;
+  const currentGap = isH5 ? gapH5 : gap;
+  // 去除 padding 的实际可用宽度
+  const pureWidth = contentWidth - padding * 2;
+  let colWidth = pureWidth;
+  let cols = 1;
+  // 如果「实际可用宽度」>= 2 * minWidth + gap，则一行不止一个元素
+  if (pureWidth >= minWidth * 2 + currentGap) {
+    cols++;
+    // 计算每行的元素数量，以及行元素宽度
+    while (true) {
+      cols++;
+      if ((cols - 1) * currentGap + cols * minWidth > pureWidth) {
+        // 最小宽度的情况下都放不下
+        cols--;
+        colWidth = (pureWidth - currentGap * (cols - 1)) / cols;
+        break;
+      }
+    }
+  }
+  const rows = Math.ceil(childCount / cols);
+
+  return {
+    rows,
+    cols,
+    rowHeight: colWidth,
+    colWidth,
+    rowGap: currentGap,
+    colGap: currentGap,
+  } as GridLayout;
+};
 
 // 计算文件数量
 const countFileType = (files: FileInfo[], t: TFunction) => {
@@ -70,6 +114,7 @@ const DEFAULT_VALUES = {
 
 const FileItemList = ({ files }: FileItemListProps) => {
   const t = useTranslations();
+  const isH5 = useMediaQuery(h5Max);
 
   const [filterFileType, setFilterFileType] = usePersistentConfig<FileFilterField | null>(
     DEFAULT_VALUES.filterFileType,
@@ -174,15 +219,10 @@ const FileItemList = ({ files }: FileItemListProps) => {
         scrollBoxProps={{
           virtualListConfig: {
             childCount: filteredSortedFiles.length,
-            childHeight: 100,
             renderItem,
+            childHeight: 100,
             RowWrapperComponent: StyledFileGrid,
-            // calcGridLayout: contentWidth => {
-            //   const cols = Math.floor(contentWidth / 100);
-            //   return {
-            //     rows: Math.ceil(filteredSortedFiles.length / cols),
-            //   };
-            // },
+            calcGridLayout: (...args) => calcGridLayout(isH5, ...args),
           },
         }}
       >

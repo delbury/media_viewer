@@ -20,17 +20,23 @@ export const StyledFileAllCountInfo = styled(Typography)`
   }
 `;
 
+export const FILE_GRID_SIZE = {
+  gap: 8,
+  gapH5: 4,
+  padding: 4,
+  minWidth: 90,
+};
 export const StyledFileGrid = styled(Box)`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 8px;
-  padding: 4px;
+  grid-template-columns: repeat(auto-fill, minmax(${FILE_GRID_SIZE.minWidth}px, 1fr));
+  gap: ${FILE_GRID_SIZE.gap}px;
+  padding: ${FILE_GRID_SIZE.padding}px;
   & > * {
     aspect-ratio: 1;
   }
 
   @media ${h5Max} {
-    gap: 4px;
+    gap: ${FILE_GRID_SIZE.gapH5}px;
   }
 `;
 

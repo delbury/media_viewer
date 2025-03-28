@@ -6,26 +6,28 @@ interface RenderItemParams {
   renderEndIndex: number;
   childHeight: number;
 }
+
+export interface GridLayout {
+  // 行数
+  rows: number;
+  // 列数
+  cols: number;
+  // 行高
+  rowHeight: number;
+  // 列宽
+  colWidth: number;
+  // 行间距
+  rowGap?: number;
+  // 列间距
+  colGap?: number;
+}
 export interface VirtualListConfig {
   // 子元素数量
   childCount: number;
   // 子元素高度
   childHeight?: number;
   // 计算 grid 布局时的行高和列数等信息
-  calcGridLayout?: (contentWidth: number) => {
-    // 行数
-    rows: number;
-    // 列数
-    cols: number;
-    // 行高
-    rowHeight: number;
-    // 列宽
-    colWidth: number;
-    // 行间距
-    rowGap?: number;
-    // 列间距
-    colGap?: number;
-  };
+  calcGridLayout?: (childCount: number, contentWidth: number) => GridLayout;
   // 在渲染视窗前、后渲各渲染的最大元素个数
   overCount?: number | 'auto';
   // 渲染子元素
@@ -48,30 +50,28 @@ export const useVirtualList = (
 ) => {
   const [renderIndexes, setRenderIndexes] = useState<[number, number] | null>(null);
 
-  const enable = !!config;
-
   const gridLayout = useMemo(() => {
-    if (!enable) return null;
-    return config?.calcGridLayout?.(status.clientWidth);
-  }, [enable, config, status.clientWidth]);
+    if (!config) return null;
+    return config?.calcGridLayout?.(config.childCount, status.clientWidth) ?? null;
+  }, [config, status.clientWidth]);
 
   const childHeight = useMemo(() => {
-    if (!enable) return 0;
+    if (!config) return 0;
     return config.childHeight ?? 0;
-  }, [enable, config]);
+  }, [config]);
 
   const totalHeight = useMemo(() => {
-    if (!enable) return 0;
-
+    if (!config) return 0;
     if (gridLayout) {
-      return gridLayout.rows * gridLayout.rowHeight;
+      return (
+        gridLayout.rows * gridLayout.rowHeight + (gridLayout.rowGap ?? 0) * (gridLayout.rows - 1)
+      );
     }
-
     return config.childCount * childHeight;
-  }, [config?.childCount, childHeight, enable, gridLayout]);
+  }, [childHeight, gridLayout, config]);
 
   useLayoutEffect(() => {
-    if (!enable) return;
+    if (!config) return;
     // 计算当前窗口内的元素 index
     const visibleIndexStart = Math.floor(status.scrollTop / childHeight);
     const visibleCount = Math.ceil(status.clientHeight / childHeight);
@@ -85,7 +85,7 @@ export const useVirtualList = (
 
     setRenderIndexes([startIndex, endIndex]);
   }, [
-    enable,
+    config,
     status.scrollTop,
     status.clientHeight,
     status.scrollHeight,
@@ -99,17 +99,17 @@ export const useVirtualList = (
     if (!contentRef.current) return;
     const contentElm = contentRef.current;
 
-    if (enable) {
+    if (config) {
       contentElm.style.setProperty('height', `${totalHeight}px`, 'important');
       contentElm.style.setProperty('overflow-y', 'hidden', 'important');
     } else {
       contentElm.style.removeProperty('height');
       contentElm.style.removeProperty('overflow-y');
     }
-  }, [enable, totalHeight, contentRef]);
+  }, [config, totalHeight, contentRef]);
 
   return {
-    enableVirtualList: enable,
+    enableVirtualList: !!config,
     renderIndexes,
     childHeight,
   };
