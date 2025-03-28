@@ -1,4 +1,5 @@
-import { RefObject, useEffect, useMemo, useState } from 'react';
+import { useThrottle } from '@/hooks/useThrottle';
+import { RefObject, useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { ScrollStatus } from './useScrollStatus';
 
 export interface RenderRange {
@@ -53,6 +54,7 @@ export const useVirtualList = (
   status: ScrollStatus,
   config?: VirtualListConfig
 ) => {
+  const [, startTransition] = useTransition();
   const [renderRange, setRenderRange] = useState<RenderRange | null>(null);
 
   const gridLayout = useMemo(() => {
@@ -77,8 +79,10 @@ export const useVirtualList = (
     return config.childCount * childHeight;
   }, [childHeight, gridLayout, config]);
 
-  useEffect(() => {
+  const reLayout = useCallback(() => {
     if (!config) return;
+
+    let currentRenderRange: RenderRange;
 
     if (gridLayout) {
       // grid 布局
@@ -101,13 +105,13 @@ export const useVirtualList = (
       const startIndex = startRowIndex * cols;
       const endIndex = endRowIndex * cols + cols - 1;
 
-      setRenderRange({
+      currentRenderRange = {
         startIndex,
         endIndex,
         renderStartRowIndex: startRowIndex,
         count: (endIndex - startIndex + 1) * cols,
         rowHeight: height,
-      });
+      };
     } else {
       // 计算当前窗口内的元素 index
       const visibleIndexStart = Math.floor(status.scrollTop / childHeight);
@@ -120,24 +124,20 @@ export const useVirtualList = (
       const startIndex = Math.max(0, visibleIndexStart - overRowCount);
       const endIndex = Math.min(config.childCount - 1, visibleIndexEnd + overRowCount);
 
-      setRenderRange({
+      currentRenderRange = {
         startIndex,
         endIndex,
         renderStartRowIndex: startIndex,
         count: endIndex - startIndex + 1,
         rowHeight: childHeight,
-      });
+      };
     }
-  }, [
-    config,
-    status.scrollTop,
-    status.clientHeight,
-    status.scrollHeight,
-    config?.overRowCount,
-    config?.childCount,
-    childHeight,
-    gridLayout,
-  ]);
+    setRenderRange(currentRenderRange);
+  }, [config, status.scrollTop, status.clientHeight, childHeight, gridLayout]);
+  const reLayoutThrottle = useThrottle(reLayout, 100);
+  useEffect(() => {
+    reLayoutThrottle();
+  }, [status]);
 
   // 限制子元素的尺寸
   useEffect(() => {
@@ -156,7 +156,5 @@ export const useVirtualList = (
   return {
     enableVirtualList: !!config,
     renderRange,
-    childHeight,
-    gridLayout,
   };
 };

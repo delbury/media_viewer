@@ -11,6 +11,7 @@ export type ScrollStatus = Pick<
   isScrollAtBottom: boolean;
   isScrollAtLeft: boolean;
   isScrollAtRight: boolean;
+  type?: 'resize' | 'scroll' | 'childChange';
 };
 
 const SCROLL_THRESHOLD = 20;
@@ -32,7 +33,7 @@ export const useScrollStatus = () => {
   const [scrollStatus, setScrollStatus] = useState<ScrollStatus>(DEFAULT_SCROLL_STATUS);
   // 检测滚动状态
   const detectScrollExist = useCallback(
-    (elm: HTMLElement) => {
+    (elm: HTMLElement, type: ScrollStatus['type']) => {
       const { clientHeight, scrollHeight, scrollTop, clientWidth, scrollWidth, scrollLeft } = elm;
       const isy = clientHeight < scrollHeight;
       const ist = scrollTop <= SCROLL_THRESHOLD;
@@ -43,6 +44,7 @@ export const useScrollStatus = () => {
       const isr = Math.ceil(scrollLeft + clientWidth) >= scrollWidth - SCROLL_THRESHOLD;
 
       setScrollStatus({
+        type,
         clientHeight,
         scrollHeight,
         scrollTop,

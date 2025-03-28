@@ -40,7 +40,7 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
     } = scrollStatus;
 
     // 虚拟列表
-    const { renderRange, enableVirtualList, childHeight, gridLayout } = useVirtualList(
+    const { renderRange, enableVirtualList } = useVirtualList(
       contentRef,
       scrollStatus,
       virtualListConfig
@@ -53,13 +53,13 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
       // 虚拟列表和浮动条同时不启用时，禁用事件
       disabled: !!floatBarDisabled && !virtualListConfig,
       resizeCallback: elm => {
-        detectScrollExistIdle(elm);
+        detectScrollExistIdle(elm, 'resize');
       },
       scrollCallback: elm => {
-        detectScrollExistIdle(elm);
+        detectScrollExistIdle(elm, 'scroll');
       },
       childChangeCallback: elm => {
-        detectScrollExistIdle(elm);
+        detectScrollExistIdle(elm, 'childChange');
       },
     });
 
