@@ -8,6 +8,8 @@ export interface RenderRange {
   renderStartRowIndex: number;
   count: number;
   rowHeight: number;
+  // 保存计算出当前 range 时的 scrollTop
+  scrollTop: number;
 }
 
 export interface GridLayout {
@@ -61,11 +63,19 @@ export const useVirtualList = (
     return config?.calcGridLayout?.(config.childCount, status.clientWidth) ?? null;
   }, [config, status.clientWidth]);
 
+  // 子元素高度
   const childHeight = useMemo(() => {
     if (!config) return 0;
     return config.childHeight ?? 0;
   }, [config]);
 
+  // 子元素行的实际高度 = 子元素高度 + 行 gap
+  const childRowHeight = useMemo(() => {
+    if (gridLayout) return gridLayout.rowHeight + (gridLayout.rowGap ?? 0);
+    return childHeight;
+  }, [childHeight, gridLayout]);
+
+  // 总高度
   const totalHeight = useMemo(() => {
     if (!config) return 0;
     if (gridLayout) {
@@ -75,23 +85,20 @@ export const useVirtualList = (
         (gridLayout.paddingTopBottom ?? 0)
       );
     }
-    return config.childCount * childHeight;
-  }, [childHeight, gridLayout, config]);
+    return config.childCount * childRowHeight;
+  }, [childRowHeight, gridLayout, config]);
 
   const reLayout = useCallback(() => {
     if (!config) return;
-
-    // 做一下滚动距离的阈值处理
 
     let currentRenderRange: RenderRange;
 
     if (gridLayout) {
       // grid 布局
       // 计算当前窗口内的元素的行 index
-      const { cols, rows, rowHeight, rowGap = 0 } = gridLayout;
-      const height = rowHeight + rowGap;
-      const visibleRowIndexStart = Math.floor(status.scrollTop / height);
-      const visibleRowCount = Math.ceil(status.clientHeight / height);
+      const { cols, rows } = gridLayout;
+      const visibleRowIndexStart = Math.floor(status.scrollTop / childRowHeight);
+      const visibleRowCount = Math.ceil(status.clientHeight / childRowHeight);
       const visibleRowIndexEnd = visibleRowIndexStart + visibleRowCount - 1;
 
       // 渲染视窗中元素的行数
@@ -110,13 +117,14 @@ export const useVirtualList = (
         startIndex,
         endIndex,
         renderStartRowIndex: startRowIndex,
-        count: (endIndex - startIndex + 1) * cols,
-        rowHeight: height,
+        count: endIndex - startIndex + 1,
+        rowHeight: childRowHeight,
+        scrollTop: status.scrollTop,
       };
     } else {
       // 计算当前窗口内的元素 index
-      const visibleIndexStart = Math.floor(status.scrollTop / childHeight);
-      const visibleCount = Math.ceil(status.clientHeight / childHeight);
+      const visibleIndexStart = Math.floor(status.scrollTop / childRowHeight);
+      const visibleCount = Math.ceil(status.clientHeight / childRowHeight);
       const visibleIndexEnd = visibleIndexStart + visibleCount - 1;
 
       // 渲染视窗中元素个数两倍的元素，前后各一半
@@ -130,13 +138,27 @@ export const useVirtualList = (
         endIndex,
         renderStartRowIndex: startIndex,
         count: endIndex - startIndex + 1,
-        rowHeight: childHeight,
+        rowHeight: childRowHeight,
+        scrollTop: status.scrollTop,
       };
     }
     setRenderRange(currentRenderRange);
-  }, [config, status.scrollTop, status.clientHeight, childHeight, gridLayout]);
+  }, [config, status.scrollTop, status.clientHeight, childRowHeight, gridLayout]);
   const reLayoutThrottle = useThrottle(reLayout, 100);
   useEffect(() => {
+    if (status.type === 'resize') {
+      // 当滚动高度不变时，不重新计算
+      if (status.scrollTop === renderRange?.scrollTop) return;
+    }
+
+    if (status.type === 'scroll') {
+      // 给滚动距离加一点阈值
+      const threshold =
+        ((typeof config?.overRowCount === 'number' ? config.overRowCount : 0) / 2) * childRowHeight;
+      const needUpdate = Math.abs(status.scrollTop - (renderRange?.scrollTop ?? 0)) > threshold;
+      if (!needUpdate && renderRange) return;
+    }
+
     reLayoutThrottle();
   }, [status]);
 

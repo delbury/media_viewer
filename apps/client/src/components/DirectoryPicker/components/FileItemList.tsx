@@ -227,20 +227,10 @@ const FileItemList = ({ files }: FileItemListProps) => {
             childHeight: 100,
             RowWrapperComponent: StyledFileGrid,
             calcGridLayout: (...args) => calcGridLayout(isH5, ...args),
-            overRowCount: 8,
+            overRowCount: 4,
           },
         }}
-      >
-        {/* <StyledFileGrid>
-          {filteredSortedFiles.map(file => (
-            <FileItem
-              key={file.fullPath}
-              file={file}
-              onTitleClick={setCurrentFile}
-            />
-          ))}
-        </StyledFileGrid> */}
-      </ResizeContainer>
+      />
       {!!currentFile && (
         <FileDetailDialog
           file={currentFile}
