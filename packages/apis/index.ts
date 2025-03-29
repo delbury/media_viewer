@@ -1,3 +1,5 @@
+import { DirectoryInfo, DirUpdateData } from '../shared';
+
 type Method =
   | 'link'
   | 'head'
@@ -27,3 +29,9 @@ export const API_CONFIGS = {
 } satisfies Record<string, ApiConfig>;
 
 export type ApiKeys = keyof typeof API_CONFIGS;
+
+export type ApiResponseType<T extends ApiKeys> = T extends 'dirUpdate'
+  ? Pick<DirUpdateData, 'treeNode'>
+  : T extends 'dirTree'
+    ? DirectoryInfo
+    : never;

@@ -1,7 +1,7 @@
 'use client';
 
-import { API_CONFIGS, ApiKeys, instance, TIMEOUT } from '#/request';
-import { ApiResponseBase, DirectoryInfo, DirUpdateData } from '#pkgs/shared';
+import { API_CONFIGS, ApiKeys, ApiResponseType, instance, TIMEOUT } from '#/request';
+import { ApiResponseBase } from '#pkgs/shared';
 import { useNotifications } from '@toolpad/core';
 import { AxiosError } from 'axios';
 import { useCallback } from 'react';
@@ -21,18 +21,8 @@ interface UseSwrReturnValue<T> {
   refresh: () => void;
 }
 
-// 类型重载
-function useSwr<T = DirUpdateData>(
-  key: 'dirUpdate',
-  options?: UseSwrOptions<T>
-): UseSwrReturnValue<Pick<DirUpdateData, 'treeNode'>>;
-function useSwr<T = DirectoryInfo>(
-  key: 'dirTree',
-  options?: UseSwrOptions<T>
-): UseSwrReturnValue<DirectoryInfo>;
-
-function useSwr<D extends Record<string, unknown> = Record<string, unknown>>(
-  apiKey: ApiKeys,
+function useSwr<T extends ApiKeys, D = ApiResponseType<T>>(
+  apiKey: T,
   options?: UseSwrOptions<D>
 ): UseSwrReturnValue<D> {
   const { lazy = false, onSuccess } = options ?? {};
