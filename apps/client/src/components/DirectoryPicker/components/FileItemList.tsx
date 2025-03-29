@@ -222,6 +222,7 @@ const FileItemList = ({ files }: FileItemListProps) => {
           </StyledFileAllCountInfo>
         }
         scrollBoxProps={{
+          lazyLoadEnabled: true,
           virtualListConfig: {
             childCount: filteredSortedFiles.length,
             renderItem,

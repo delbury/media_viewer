@@ -1,6 +1,6 @@
 'use client';
 
-import { API_CONFIGS, ApiKeys, ApiResponseType, instance, TIMEOUT } from '#/request';
+import { API_CONFIGS, ApiKeys, ApiResponseDataTypes, instance, TIMEOUT } from '#/request';
 import { ApiResponseBase } from '#pkgs/shared';
 import { useNotifications } from '@toolpad/core';
 import { AxiosError } from 'axios';
@@ -21,7 +21,7 @@ interface UseSwrReturnValue<T> {
   refresh: () => void;
 }
 
-function useSwr<T extends ApiKeys, D = ApiResponseType<T>>(
+function useSwr<T extends ApiKeys, D = ApiResponseDataTypes<T>>(
   apiKey: T,
   options?: UseSwrOptions<D>
 ): UseSwrReturnValue<D> {

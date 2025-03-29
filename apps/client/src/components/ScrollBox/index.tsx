@@ -21,10 +21,12 @@ export interface ScrollBoxProps {
   floatBarDisabled?: boolean;
   // 使用虚拟列表
   virtualListConfig?: VirtualListConfig;
+  // 是否启用懒加载
+  lazyLoadEnabled?: boolean;
 }
 
 const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
-  ({ children, sx, floatBarDisabled, virtualListConfig }, ref) => {
+  ({ children, sx, floatBarDisabled, virtualListConfig, lazyLoadEnabled }, ref) => {
     const wrapperRef = useRef<HTMLElement>(null);
     const contentRef = useRef<HTMLElement>(null);
 
@@ -68,6 +70,7 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
 
     // 懒加载
     const { observe } = useLazyLoad({
+      enabled: lazyLoadEnabled,
       root: wrapperRef.current,
     });
 

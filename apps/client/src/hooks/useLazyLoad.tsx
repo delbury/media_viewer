@@ -3,11 +3,11 @@ import { useCallback, useEffect, useRef } from 'react';
 export type LazyLoadObserve = (el: HTMLElement | null, cb: () => void) => (() => void) | void;
 
 export const useLazyLoad = ({
-  disabled,
+  enabled,
   root,
 }: {
   root?: HTMLElement | null;
-  disabled?: boolean;
+  enabled?: boolean;
 } = {}) => {
   const observer = useRef<IntersectionObserver>(null);
   const callbackMap = useRef<WeakMap<Element, () => void>>(new WeakMap());
@@ -20,7 +20,7 @@ export const useLazyLoad = ({
   // 开始监听
   const observe = useCallback<LazyLoadObserve>(
     (elm, cb) => {
-      if (disabled || !elm) return;
+      if (!enabled || !elm) return;
       observer.current?.observe(elm);
       callbackMap.current.set(elm, cb);
       return () => {
@@ -28,11 +28,11 @@ export const useLazyLoad = ({
         callbackMap.current.delete(elm);
       };
     },
-    [disabled]
+    [enabled]
   );
 
   useEffect(() => {
-    if (disabled) return;
+    if (!enabled) return;
     resetObserver();
     // 创建新的观察
     observer.current = new IntersectionObserver(
@@ -55,7 +55,7 @@ export const useLazyLoad = ({
     return () => {
       resetObserver();
     };
-  }, [disabled, root]);
+  }, [enabled, root]);
 
   return {
     observer,

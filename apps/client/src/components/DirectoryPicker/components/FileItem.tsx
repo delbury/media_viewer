@@ -1,8 +1,10 @@
 import { LazyLoadObserve } from '#/hooks/useLazyLoad';
 import { formatFileSize } from '#/utils';
+import { joinUrlWithQueryString } from '#pkgs/apis';
 import { FileInfo } from '#pkgs/shared';
 import { detectFileType } from '#pkgs/tools/utils';
 import {
+  BrowserNotSupportedOutlined,
   FeaturedPlayListOutlined,
   MusicVideoOutlined,
   NoteOutlined,
@@ -12,7 +14,7 @@ import {
 import { SvgIconOwnProps, SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   StyledFileCardWrapper,
   StyledFileMoreInfo,
@@ -23,7 +25,27 @@ import {
 } from '../style/file-item';
 import { StyledFilePosterWrapper } from '../style/file-item-list';
 
-export const FileIcon = ({ ext, iconProps }: { ext: string; iconProps?: SvgIconOwnProps }) => {
+export const FileIcon = ({
+  ext,
+  iconProps,
+  isError,
+}: {
+  ext: string;
+  iconProps?: SvgIconOwnProps;
+  isError: boolean;
+}) => {
+  if (isError) {
+    return (
+      <BrowserNotSupportedOutlined
+        {...iconProps}
+        sx={{
+          ...iconProps?.sx,
+          color: 'error.dark',
+        }}
+      />
+    );
+  }
+
   const fileType = detectFileType(ext);
 
   if (fileType === 'video') {
@@ -60,12 +82,19 @@ interface FileItemProps {
 
 const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) => {
   const t = useTranslations();
-  const [poster, setPoster] = useState<string>('');
+  const [posterUrl, setPosterUrl] = useState<string>('');
+  const [isError, setIsError] = useState(false);
 
-  // 懒加载触发加载
-  const doLoad = () => {
-    console.log('doLoad', file.name);
-  };
+  const doLoad = useCallback(() => {
+    if (file.fileType !== 'image') return;
+
+    const url = joinUrlWithQueryString('filePoster', {
+      basePathIndex: file.basePathIndex,
+      fullPath: file.fullPath,
+    });
+
+    setPosterUrl(url);
+  }, [file.basePathIndex, file.fullPath, file.fileType]);
 
   return (
     <StyledFileCardWrapper
@@ -84,15 +113,18 @@ const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) =>
       </StyledFileTitle>
 
       <StyledFilePosterWrapper>
-        {poster ? (
+        {posterUrl && !isError ? (
           <Image
-            src={poster}
+            src={posterUrl}
             alt={file.name}
             fill
             sizes="100%"
+            objectFit="contain"
+            onError={() => setIsError(true)}
           />
         ) : (
           <FileIcon
+            isError={isError}
             ext={file.nameExt}
             iconProps={{ sx: { height: '100%', width: '100%', color: 'text.secondary' } }}
           />
