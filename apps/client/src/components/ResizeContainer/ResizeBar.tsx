@@ -1,21 +1,21 @@
-import { useDrag } from '@/hooks/useDrag';
+import { useDrag, UseDragParams } from '@/hooks/useDrag';
 import { MoreHorizOutlined } from '@mui/icons-material';
 import { BoxProps } from '@mui/material';
 import { useMemo, useRef } from 'react';
 import { RESIZE_BAR_SIZE } from './constant';
 import { StyledBarWrapper } from './style';
 
-export interface ResizeBarProps {
+export type ResizeBarProps = {
   position: 'top' | 'bottom';
   onSizeChange: (pos: ResizeBarProps['position'], offset: [number, number]) => void;
-  // 默认初始偏移
-  defaultOffset?: [number, number];
-}
+} & Pick<UseDragParams, 'onStart' | 'onEnd' | 'defaultOffset'>;
 
-const ResizeBar = ({ position, onSizeChange, defaultOffset }: ResizeBarProps) => {
+const ResizeBar = ({ position, onSizeChange, defaultOffset, onStart, onEnd }: ResizeBarProps) => {
   const barRef = useRef<HTMLElement>(null);
   const barPositionY = useRef<number[]>([]);
   const { events } = useDrag({
+    onStart,
+    onEnd,
     defaultOffset,
     watchAxis: 'y',
     callback: offset => {
@@ -49,6 +49,7 @@ const ResizeBar = ({ position, onSizeChange, defaultOffset }: ResizeBarProps) =>
       ref={barRef}
       sx={{ ...barStyle }}
       {...events}
+      onContextMenu={e => e.preventDefault()}
     >
       <MoreHorizOutlined fontSize="small" />
     </StyledBarWrapper>

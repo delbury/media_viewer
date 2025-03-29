@@ -38,6 +38,7 @@ const ResizeContainer = ({
 }: ResizeContainerProps) => {
   const t = useTranslations();
   const resizable = !!resizePosition;
+
   const resizableStyle = useMemo<BoxProps['sx']>(() => {
     if (!resizePosition) return { ...sx };
     const padding = RESIZE_BAR_SIZE + 8;

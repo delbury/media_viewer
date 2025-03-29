@@ -28,7 +28,9 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
     },
   });
   // 二次确认是否刷新
-  const { dialog: confirmDialog, handleOpen: confirmOpen } = useConfirmDialog(updateRequest.refresh);
+  const { dialog: confirmDialog, handleOpen: confirmOpen } = useConfirmDialog(
+    updateRequest.refresh
+  );
 
   // 请求文件夹树
   const dirRequest = useSwr('dirTree', {
@@ -36,7 +38,9 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
       setPathList(res.data ? [res.data] : []);
     },
   });
-  const [pathList, setPathList] = useState<DirectoryInfo[]>(dirRequest.data ? [dirRequest.data] : []);
+  const [pathList, setPathList] = useState<DirectoryInfo[]>(
+    dirRequest.data ? [dirRequest.data] : []
+  );
   // 当前目录下的子文件夹
   const currentPathNode = useMemo(() => pathList[pathList.length - 1], [pathList]);
   const currentDirs = useMemo(() => currentPathNode?.children ?? [], [currentPathNode]);
@@ -62,47 +66,49 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
   }, [onClose, onOk, pathList]);
 
   return (
-    <Dialog
-      open={visible}
-      onClose={onClose}
-      onOk={handleOk}
-      title={t('Tools.SelectDirectory')}
-      dialogProps={{
-        maxWidth: 'md',
-      }}
-      titleRightSlot={
-        <CurrentFilesInfo
-          totalFiles={currentTotalFileCount}
-          selfFiles={currentSelfFileCount}
-          selfDirectories={currentSelfDirectoryCount}
+    visible && (
+      <Dialog
+        open={visible}
+        onClose={onClose}
+        onOk={handleOk}
+        title={t('Tools.SelectDirectory')}
+        dialogProps={{
+          maxWidth: 'md',
+        }}
+        titleRightSlot={
+          <CurrentFilesInfo
+            totalFiles={currentTotalFileCount}
+            selfFiles={currentSelfFileCount}
+            selfDirectories={currentSelfDirectoryCount}
+          />
+        }
+        leftFooterSlot={
+          <IconButton
+            loading={updateRequest.isLoading}
+            onClick={confirmOpen}
+          >
+            <LoopOutlined />
+          </IconButton>
+        }
+      >
+        {/* 已选文件夹 */}
+        <SelectingPathInfo
+          pathList={pathList}
+          onItemClick={setTarget}
         />
-      }
-      leftFooterSlot={
-        <IconButton
-          loading={updateRequest.isLoading}
-          onClick={confirmOpen}
-        >
-          <LoopOutlined />
-        </IconButton>
-      }
-    >
-      {/* 已选文件夹 */}
-      <SelectingPathInfo
-        pathList={pathList}
-        onItemClick={setTarget}
-      />
-      <ResizeContainer.Wrapper height="60vh">
-        {/* 当前文件夹的子文件夹 */}
-        <DirectoryItemList
-          dirs={currentDirs}
-          onClick={handleSelectChild}
-        />
-        {/* 当前文件夹的文件 */}
-        <FileItemList files={currentFiles} />
-      </ResizeContainer.Wrapper>
+        <ResizeContainer.Wrapper height="60vh">
+          {/* 当前文件夹的子文件夹 */}
+          <DirectoryItemList
+            dirs={currentDirs}
+            onClick={handleSelectChild}
+          />
+          {/* 当前文件夹的文件 */}
+          <FileItemList files={currentFiles} />
+        </ResizeContainer.Wrapper>
 
-      {confirmDialog}
-    </Dialog>
+        {confirmDialog}
+      </Dialog>
+    )
   );
 };
 

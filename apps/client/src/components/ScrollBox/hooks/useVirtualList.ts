@@ -1,5 +1,5 @@
 import { useThrottle } from '@/hooks/useThrottle';
-import { RefObject, useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollStatus } from './useScrollStatus';
 
 export interface RenderRange {
@@ -54,7 +54,6 @@ export const useVirtualList = (
   status: ScrollStatus,
   config?: VirtualListConfig
 ) => {
-  const [, startTransition] = useTransition();
   const [renderRange, setRenderRange] = useState<RenderRange | null>(null);
 
   const gridLayout = useMemo(() => {
@@ -81,6 +80,8 @@ export const useVirtualList = (
 
   const reLayout = useCallback(() => {
     if (!config) return;
+
+    // 做一下滚动距离的阈值处理
 
     let currentRenderRange: RenderRange;
 

@@ -3,17 +3,27 @@
 import { DOMAttributes, MouseEventHandler, useCallback, useEffect, useRef } from 'react';
 import { useThrottle } from './useThrottle';
 
-interface UseDragParams {
+export interface UseDragParams {
   callback: (offset: [number, number]) => void | false;
   watchAxis?: 'both' | 'x' | 'y';
   // 外部传入的初始累积偏移值
   defaultOffset?: [number, number];
+  // 开始拖拽
+  onStart?: () => void;
+  // 结束拖拽
+  onEnd?: () => void;
 }
 
 const MOVE_EVENT_NAME = 'pointermove';
 const UP_EVENT_NAME = 'pointerup';
 
-export const useDrag = ({ callback, watchAxis = 'both', defaultOffset }: UseDragParams) => {
+export const useDrag = ({
+  callback,
+  watchAxis = 'both',
+  defaultOffset,
+  onStart,
+  onEnd,
+}: UseDragParams) => {
   // 鼠标点击的原点
   const startPosition = useRef<[number, number]>(null);
   // 累积的偏移，用于多次拖拽的累积计算
@@ -41,6 +51,7 @@ export const useDrag = ({ callback, watchAxis = 'both', defaultOffset }: UseDrag
   // 点击事件，开始
   const fnMouseDown: MouseEventHandler<HTMLElement> = ev => {
     ev.preventDefault();
+    onStart?.();
 
     startPosition.current = [ev.clientX, ev.clientY];
 
@@ -53,15 +64,22 @@ export const useDrag = ({ callback, watchAxis = 'both', defaultOffset }: UseDrag
       ev => {
         ev.preventDefault();
 
-        const dx = watchAxis === 'y' ? 0 : ev.clientX - (startPosition.current?.[0] ?? 0) + lastOffset.current[0];
-        const dy = watchAxis === 'x' ? 0 : ev.clientY - (startPosition.current?.[1] ?? 0) + lastOffset.current[1];
+        const dx =
+          watchAxis === 'y'
+            ? 0
+            : ev.clientX - (startPosition.current?.[0] ?? 0) + lastOffset.current[0];
+        const dy =
+          watchAxis === 'x'
+            ? 0
+            : ev.clientY - (startPosition.current?.[1] ?? 0) + lastOffset.current[1];
 
         if (watchAxis === 'x') {
           if (dx === currentOffsetOnTime.current[0]) return;
         } else if (watchAxis === 'y') {
           if (dy === currentOffsetOnTime.current[1]) return;
         } else {
-          if (dx === currentOffsetOnTime.current[0] && dy === currentOffsetOnTime.current[1]) return;
+          if (dx === currentOffsetOnTime.current[0] && dy === currentOffsetOnTime.current[1])
+            return;
         }
 
         // 节流
@@ -74,6 +92,7 @@ export const useDrag = ({ callback, watchAxis = 'both', defaultOffset }: UseDrag
     document.addEventListener(
       UP_EVENT_NAME,
       () => {
+        onEnd?.();
         startPosition.current = null;
         lastOffset.current = [...currentOffsetOnTime.current];
         clearEvents();

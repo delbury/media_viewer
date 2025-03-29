@@ -32,10 +32,15 @@ const saveLocalConfig = () => {
   localStorage.setItem(LOCAL_STORAGE_CONFIG_KEY, JSON.stringify(localConfig));
 };
 
-export function usePersistentConfig<T = unknown>(defaultValue: T, key?: string): [T, (val: T) => void] {
-  const [value, setValue] = useState(key ? ((getLocalConfig(key) as T) ?? defaultValue) : defaultValue);
+export function usePersistentConfig<T = unknown>(
+  defaultValue: T,
+  key?: string
+): [T, (val: T) => void] {
+  const [value, setValue] = useState(
+    key ? ((getLocalConfig(key) as T) ?? defaultValue) : defaultValue
+  );
 
-  const saveLocalConfigIdle = useIdleCallback(saveLocalConfig, 100);
+  const saveLocalConfigIdle = useIdleCallback(saveLocalConfig, 1000);
 
   const setValueWithLocal = useCallback(
     (val: T) => {

@@ -227,6 +227,7 @@ const FileItemList = ({ files }: FileItemListProps) => {
             childHeight: 100,
             RowWrapperComponent: StyledFileGrid,
             calcGridLayout: (...args) => calcGridLayout(isH5, ...args),
+            overRowCount: 8,
           },
         }}
       >

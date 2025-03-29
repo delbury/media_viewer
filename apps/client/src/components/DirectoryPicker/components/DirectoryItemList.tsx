@@ -62,6 +62,7 @@ const DirectoryItemList = ({ dirs, onClick }: DirectoryItemListProps) => {
           childHeight: DIRECTORY_ITEM_HEIGHT,
           renderItem,
           RowWrapperComponent,
+          overRowCount: 8,
         },
       }}
     />

@@ -64,6 +64,7 @@ const CompDialog = (props: DialogProps) => {
           width: 'calc(100% - 32px)',
         },
       }}
+      aria-modal={false}
     >
       <StyledDialogTitleRow>
         <DialogTitle
