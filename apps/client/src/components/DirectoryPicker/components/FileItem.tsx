@@ -1,3 +1,4 @@
+import { LazyLoadObserve } from '@/hooks/useLazyLoad';
 import { formatFileSize } from '@/utils';
 import {
   FeaturedPlayListOutlined,
@@ -10,6 +11,8 @@ import { SvgIconOwnProps, SxProps, Theme } from '@mui/material';
 import { FileInfo } from '@shared';
 import { detectFileType } from '@tools/utils';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import { useState } from 'react';
 import {
   StyledFileCardWrapper,
   StyledFileMoreInfo,
@@ -52,13 +55,23 @@ interface FileItemProps {
   file: FileInfo;
   onTitleClick?: (file: FileInfo) => void;
   sx?: SxProps<Theme>;
+  refBindCallback?: LazyLoadObserve;
 }
 
-const FileItem = ({ file, onTitleClick, sx }: FileItemProps) => {
+const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) => {
   const t = useTranslations();
+  const [poster, setPoster] = useState<string>('');
+
+  // 懒加载触发加载
+  const doLoad = () => {
+    console.log('doLoad', file.name);
+  };
 
   return (
-    <StyledFileCardWrapper sx={sx}>
+    <StyledFileCardWrapper
+      sx={sx}
+      ref={elm => refBindCallback?.(elm, doLoad)}
+    >
       <StyledFileTitle onClick={() => onTitleClick?.(file)}>
         <StyledFileName>{file.name}</StyledFileName>
 
@@ -71,13 +84,24 @@ const FileItem = ({ file, onTitleClick, sx }: FileItemProps) => {
       </StyledFileTitle>
 
       <StyledFilePosterWrapper>
-        <FileIcon
-          ext={file.nameExt}
-          iconProps={{ sx: { height: '100%', width: '100%', color: 'text.secondary' } }}
-        />
+        {poster ? (
+          <Image
+            src={poster}
+            alt={file.name}
+            fill
+            sizes="100%"
+          />
+        ) : (
+          <FileIcon
+            ext={file.nameExt}
+            iconProps={{ sx: { height: '100%', width: '100%', color: 'text.secondary' } }}
+          />
+        )}
       </StyledFilePosterWrapper>
     </StyledFileCardWrapper>
   );
 };
+
+FileItem.displayName = 'FileItem';
 
 export default FileItem;

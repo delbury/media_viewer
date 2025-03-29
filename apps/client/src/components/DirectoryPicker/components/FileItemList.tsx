@@ -159,7 +159,7 @@ const FileItemList = ({ files }: FileItemListProps) => {
   const [currentFile, setCurrentFile] = useState<FileInfo | null>(null);
 
   const renderItem: VirtualListConfig['renderItem'] = useCallback(
-    (index, { rowHeight, renderStartRowIndex }) => {
+    (index, { rowHeight, renderStartRowIndex }, observe) => {
       const file = filteredSortedFiles[index];
       return (
         !!file && (
@@ -170,6 +170,7 @@ const FileItemList = ({ files }: FileItemListProps) => {
             sx={{
               transform: `translateY(${renderStartRowIndex * rowHeight}px)`,
             }}
+            refBindCallback={observe}
           />
         )
       );

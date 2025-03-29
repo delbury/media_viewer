@@ -1,38 +1,55 @@
-import { RefObject, useEffect, useRef } from 'react';
+import { RefObject, useCallback, useEffect, useRef } from 'react';
 
 export const useEvents = ({
   wrapperRef,
   contentRef,
   disabled,
-  resizeCallback,
+  selfResizeCallback,
   scrollCallback,
-  childChangeCallback,
+  childResizeCallback,
 }: {
   wrapperRef: RefObject<HTMLElement | null>;
   contentRef: RefObject<HTMLElement | null>;
-  disabled?: boolean;
-  childChangeCallback: (elm: HTMLElement) => void;
-  resizeCallback: (elm: HTMLElement) => void;
-  scrollCallback: (elm: HTMLElement) => void;
+  disabled?:
+    | boolean
+    | {
+        childResizeDisabled?: boolean;
+        selfResizeDisabled?: boolean;
+        scrollDisabled?: boolean;
+      };
+  childResizeCallback?: (elm: HTMLElement) => void;
+  selfResizeCallback?: (elm: HTMLElement) => void;
+  scrollCallback?: (elm: HTMLElement) => void;
 }) => {
   const contentSizeCache = useRef({
     width: 0,
     height: 0,
   });
+  const wrapperObserver = useRef<ResizeObserver>(null);
+  const contentObserver = useRef<ResizeObserver>(null);
+  const scrollController = useRef<AbortController>(null);
+
+  const resetEvents = useCallback(() => {
+    scrollController.current?.abort();
+    wrapperObserver.current?.disconnect();
+    contentObserver.current?.disconnect();
+    wrapperObserver.current = null;
+    contentObserver.current = null;
+    scrollController.current = null;
+  }, []);
 
   useEffect(() => {
-    if (disabled) {
+    resetEvents();
+    if (typeof disabled === 'boolean' && disabled) {
       return;
     }
+    const { childResizeDisabled, selfResizeDisabled, scrollDisabled } =
+      typeof disabled === 'object' ? disabled : {};
     // 监听 wrapperRef
     if (wrapperRef.current) {
       const wrapperElm = wrapperRef.current;
-      let wrapperObserver: ResizeObserver | null = null;
-      let contentObserver: ResizeObserver | null = null;
-      let scrollController: AbortController | null = null;
 
       // 监听判断是否出现滚动条
-      // 子元素的改变
       // const mutationObserver = new MutationObserver(() => {
       //   childChangeCallback(elm);
       // });
@@ -40,10 +57,12 @@ export const useEvents = ({
       //   subtree: true,
       //   childList: true,
       // });
-      if (contentRef.current) {
+
+      // 子元素的改变
+      if (contentRef.current && !childResizeDisabled) {
         const contentElm = contentRef.current;
 
-        contentObserver = new ResizeObserver(ev => {
+        contentObserver.current = new ResizeObserver(ev => {
           const { width, height } = ev[0].contentRect;
           if (
             width !== contentSizeCache.current.width ||
@@ -51,31 +70,32 @@ export const useEvents = ({
           ) {
             contentSizeCache.current.width = width;
             contentSizeCache.current.height = height;
-            childChangeCallback(wrapperElm);
+            childResizeCallback?.(wrapperElm);
           }
         });
-        contentObserver.observe(contentElm);
+        contentObserver.current.observe(contentElm);
       }
 
       // 自身 size 的改变
-      wrapperObserver = new ResizeObserver(() => {
-        resizeCallback(wrapperElm);
-      });
-      wrapperObserver.observe(wrapperElm);
+      if (!selfResizeDisabled) {
+        wrapperObserver.current = new ResizeObserver(() => {
+          selfResizeCallback?.(wrapperElm);
+        });
+        wrapperObserver.current.observe(wrapperElm);
+      }
 
       // 滚动事件
-      scrollController = new AbortController();
-      wrapperElm.addEventListener('scroll', () => scrollCallback(wrapperElm), {
-        signal: scrollController.signal,
-      });
+      if (!scrollDisabled) {
+        scrollController.current = new AbortController();
+        wrapperElm.addEventListener('scroll', () => scrollCallback?.(wrapperElm), {
+          signal: scrollController.current.signal,
+        });
+      }
 
       // 解绑事件
       return () => {
-        scrollController?.abort();
-        // mutationObserver.disconnect();
-        wrapperObserver?.disconnect();
-        contentObserver?.disconnect();
+        resetEvents();
       };
     }
-  }, []);
+  }, [disabled]);
 };

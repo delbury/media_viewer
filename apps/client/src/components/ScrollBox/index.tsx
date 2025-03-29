@@ -1,3 +1,4 @@
+import { useLazyLoad } from '@/hooks/useLazyLoad';
 import {
   KeyboardArrowDownOutlined,
   KeyboardArrowLeftOutlined,
@@ -7,13 +8,12 @@ import {
 import { Box, SxProps, Theme } from '@mui/material';
 import { forwardRef, useMemo, useRef } from 'react';
 import { useEvents } from './hooks/useEvents';
-import { useExportHandlers } from './hooks/useExportHandlers';
+import { ScrollBoxInstance, useExportHandlers } from './hooks/useExportHandlers';
 import { useScrollStatus } from './hooks/useScrollStatus';
 import { useVirtualList, VirtualListConfig } from './hooks/useVirtualList';
 import { StyledScrollBoxContent, StyledScrollBoxWrapper, StyledScrollFloatTipBar } from './style';
-
-import { ScrollBoxInstance } from './hooks/useExportHandlers';
 export type { ScrollBoxInstance };
+
 export interface ScrollBoxProps {
   children?: React.ReactNode;
   sx?: SxProps<Theme>;
@@ -52,13 +52,13 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
       contentRef,
       // 虚拟列表和浮动条同时不启用时，禁用事件
       disabled: !!floatBarDisabled && !virtualListConfig,
-      resizeCallback: elm => {
+      selfResizeCallback: elm => {
         detectScrollExistIdle(elm, 'resize');
       },
       scrollCallback: elm => {
         detectScrollExistIdle(elm, 'scroll');
       },
-      childChangeCallback: elm => {
+      childResizeCallback: elm => {
         detectScrollExistIdle(elm, 'childChange');
       },
     });
@@ -66,19 +66,26 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
     // 暴露给实例方法
     useExportHandlers(ref, wrapperRef);
 
+    // 懒加载
+    const { observe } = useLazyLoad({
+      root: wrapperRef.current,
+    });
+
+    // 自定义虚拟列表的包裹元素
     const CustomVirtualListWrapper = useMemo(
       () => virtualListConfig?.RowWrapperComponent,
       [virtualListConfig?.RowWrapperComponent]
     );
 
+    // 开启虚拟列表时的子元素
     const virtualChildren = useMemo(() => {
       if (!virtualListConfig || !renderRange) return children;
 
       return Array.from({ length: renderRange.count }, (_, index) => {
         const realIndex = index + renderRange.startIndex;
-        return virtualListConfig.renderItem(realIndex, renderRange);
+        return virtualListConfig.renderItem(realIndex, renderRange, observe);
       });
-    }, [children, virtualListConfig, renderRange]);
+    }, [children, virtualListConfig, renderRange, observe]);
 
     return (
       <StyledScrollBoxWrapper sx={sx}>

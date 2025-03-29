@@ -46,6 +46,8 @@ export const StyledToggleButtonGroup = styled(ToggleButtonGroup)`
 `;
 
 export const StyledFilePosterWrapper = styled(Box)`
+  position: relative;
   flex: 1;
   min-height: 0;
+  word-break: break-all;
 `;

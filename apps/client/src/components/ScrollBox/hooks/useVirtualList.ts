@@ -1,3 +1,4 @@
+import { LazyLoadObserve } from '@/hooks/useLazyLoad';
 import { useThrottle } from '@/hooks/useThrottle';
 import { RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollStatus } from './useScrollStatus';
@@ -39,7 +40,7 @@ export interface VirtualListConfig {
   // grid 布局时，为行数
   overRowCount?: number | 'auto';
   // 渲染子元素
-  renderItem: (index: number, params: RenderRange) => React.ReactNode;
+  renderItem: (index: number, params: RenderRange, observe: LazyLoadObserve) => React.ReactNode;
   // 行包裹组件
   RowWrapperComponent?: React.FC<{ children: React.ReactNode }>;
 }
