@@ -1,4 +1,14 @@
-import { Method } from 'axios';
+type Method =
+  | 'link'
+  | 'head'
+  | 'get'
+  | 'delete'
+  | 'options'
+  | 'post'
+  | 'put'
+  | 'patch'
+  | 'purge'
+  | 'unlink';
 
 export interface ApiConfig {
   url: string;

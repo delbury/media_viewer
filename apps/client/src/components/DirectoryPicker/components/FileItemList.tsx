@@ -1,11 +1,11 @@
-import ResizeContainer from '@/components/ResizeContainer';
-import ScrollBox from '@/components/ScrollBox';
-import { GridLayout, VirtualListConfig } from '@/components/ScrollBox/hooks/useVirtualList';
-import { usePersistentConfig } from '@/hooks/usePersistentConfig';
-import { h5Max } from '@/style/device';
-import { TFunction } from '@/types';
+import ResizeContainer from '#/components/ResizeContainer';
+import ScrollBox from '#/components/ScrollBox';
+import { GridLayout, VirtualListConfig } from '#/components/ScrollBox/hooks/useVirtualList';
+import { usePersistentConfig } from '#/hooks/usePersistentConfig';
+import { h5Max } from '#/style/device';
+import { TFunction } from '#/types';
+import { FileInfo, FullFileType } from '#pkgs/shared';
 import { useMediaQuery } from '@mui/material';
-import { FileInfo, FullFileType } from '@shared';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import {

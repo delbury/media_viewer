@@ -1,6 +1,6 @@
-import Dialog from '@/components/Dialog';
-import { useConfirmDialog } from '@/hooks/useConfirmDialog';
-import { DirectoryInfo, useSwr } from '@/hooks/useSwr';
+import Dialog from '#/components/Dialog';
+import { useConfirmDialog } from '#/hooks/useConfirmDialog';
+import { DirectoryInfo, useSwr } from '#/hooks/useSwr';
 import { LoopOutlined } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';

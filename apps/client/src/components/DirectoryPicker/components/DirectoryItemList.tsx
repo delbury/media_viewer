@@ -1,7 +1,7 @@
-import ResizeContainer from '@/components/ResizeContainer';
-import { VirtualListConfig } from '@/components/ScrollBox/hooks/useVirtualList';
+import ResizeContainer from '#/components/ResizeContainer';
+import { VirtualListConfig } from '#/components/ScrollBox/hooks/useVirtualList';
+import { DirectoryInfo } from '#pkgs/shared';
 import { List } from '@mui/material';
-import { DirectoryInfo } from '@shared';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import {

@@ -1,4 +1,4 @@
-import { h5Max } from '@/style/device';
+import { h5Max } from '#/style/device';
 import { Box, Card, styled, Typography } from '@mui/material';
 
 export const StyledFileCardWrapper = styled(Card)`

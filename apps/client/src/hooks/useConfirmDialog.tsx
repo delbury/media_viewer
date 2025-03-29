@@ -1,5 +1,5 @@
-import Dialog from '@/components/Dialog';
-import { useDialogState } from '@/hooks/useDialogState';
+import Dialog from '#/components/Dialog';
+import { useDialogState } from '#/hooks/useDialogState';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 

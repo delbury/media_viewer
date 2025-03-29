@@ -1,5 +1,7 @@
-import { LazyLoadObserve } from '@/hooks/useLazyLoad';
-import { formatFileSize } from '@/utils';
+import { LazyLoadObserve } from '#/hooks/useLazyLoad';
+import { formatFileSize } from '#/utils';
+import { FileInfo } from '#pkgs/shared';
+import { detectFileType } from '#pkgs/tools/utils';
 import {
   FeaturedPlayListOutlined,
   MusicVideoOutlined,
@@ -8,8 +10,6 @@ import {
   SmartDisplayOutlined,
 } from '@mui/icons-material';
 import { SvgIconOwnProps, SxProps, Theme } from '@mui/material';
-import { FileInfo } from '@shared';
-import { detectFileType } from '@tools/utils';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useState } from 'react';

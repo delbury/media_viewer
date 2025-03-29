@@ -1,4 +1,4 @@
-import { usePersistentConfig } from '@/hooks/usePersistentConfig';
+import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { BoxProps, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';

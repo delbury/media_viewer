@@ -1,4 +1,4 @@
-import theme from '@/style/theme';
+import theme from '#/style/theme';
 import { useCallback, useRef } from 'react';
 
 // 预设的动画
@@ -21,7 +21,11 @@ type PresetAnimations = keyof typeof PRESET_ANIMATIONS;
 
 type AnimateParamsKeys = Parameters<Animatable['animate']>[0];
 
-const createAnimation = (elm: HTMLElement, keys: AnimateParamsKeys, opts?: KeyframeAnimationOptions) => {
+const createAnimation = (
+  elm: HTMLElement,
+  keys: AnimateParamsKeys,
+  opts?: KeyframeAnimationOptions
+) => {
   return elm.animate(keys, {
     duration: theme.transitions.duration.shorter,
     iterations: 1,

@@ -1,4 +1,4 @@
-import { h5Max } from '@/style/device';
+import { h5Max } from '#/style/device';
 import { Box, styled, ToggleButtonGroup, Typography } from '@mui/material';
 
 export const StyledFileToolRow = styled(Box)`

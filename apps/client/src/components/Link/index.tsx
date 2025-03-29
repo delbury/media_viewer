@@ -1,4 +1,4 @@
-import { Link as RouterLink } from '@/i18n/routing';
+import { Link as RouterLink } from '#/i18n/routing';
 import { LinkProps, Link as UiLink } from '@mui/material';
 
 const Link = (props: LinkProps) => {

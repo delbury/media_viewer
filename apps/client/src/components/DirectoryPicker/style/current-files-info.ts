@@ -1,4 +1,4 @@
-import { h5Max } from '@/style/device';
+import { h5Max } from '#/style/device';
 import { Box, styled } from '@mui/material';
 
 export const StyledHighlightText = styled('span')(({ theme }) => ({

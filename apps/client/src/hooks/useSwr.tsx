@@ -1,13 +1,13 @@
 'use client';
 
-import { API_CONFIGS, ApiKeys, instance, TIMEOUT } from '@/request';
-import { ApiResponseBase, DirectoryInfo, DirUpdateData } from '@shared';
+import { API_CONFIGS, ApiKeys, instance, TIMEOUT } from '#/request';
+import { ApiResponseBase, DirectoryInfo, DirUpdateData } from '#pkgs/shared';
 import { useNotifications } from '@toolpad/core';
 import { AxiosError } from 'axios';
 import { useCallback } from 'react';
 import useSWR, { KeyedMutator } from 'swr';
 
-export type * from '@shared';
+export type * from '#pkgs/shared';
 
 interface UseSwrOptions<T> {
   lazy?: boolean;
@@ -22,8 +22,14 @@ interface UseSwrReturnValue<T> {
 }
 
 // 类型重载
-function useSwr<T = DirUpdateData>(key: 'dirUpdate', options?: UseSwrOptions<T>): UseSwrReturnValue<DirUpdateData>;
-function useSwr<T = DirectoryInfo>(key: 'dirTree', options?: UseSwrOptions<T>): UseSwrReturnValue<DirectoryInfo>;
+function useSwr<T = DirUpdateData>(
+  key: 'dirUpdate',
+  options?: UseSwrOptions<T>
+): UseSwrReturnValue<Pick<DirUpdateData, 'treeNode'>>;
+function useSwr<T = DirectoryInfo>(
+  key: 'dirTree',
+  options?: UseSwrOptions<T>
+): UseSwrReturnValue<DirectoryInfo>;
 
 function useSwr<D extends Record<string, unknown> = Record<string, unknown>>(
   apiKey: ApiKeys,
@@ -32,7 +38,10 @@ function useSwr<D extends Record<string, unknown> = Record<string, unknown>>(
   const { lazy = false, onSuccess } = options ?? {};
   const notifications = useNotifications();
   const { url, method } = API_CONFIGS[apiKey];
-  const { data, isLoading, isValidating, mutate } = useSWR<ApiResponseBase<D>, AxiosError<ApiResponseBase>>(
+  const { data, isLoading, isValidating, mutate } = useSWR<
+    ApiResponseBase<D>,
+    AxiosError<ApiResponseBase>
+  >(
     url,
     async () => {
       const res = await instance.request({

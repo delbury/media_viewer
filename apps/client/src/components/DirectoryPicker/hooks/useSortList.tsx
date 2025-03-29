@@ -1,5 +1,5 @@
-import ScrollBox from '@/components/ScrollBox';
-import { usePersistentConfig } from '@/hooks/usePersistentConfig';
+import ScrollBox from '#/components/ScrollBox';
+import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { useMemo } from 'react';
 import ToolGroupBtn from '../components/ToolGroupBtn';
 import { FileSortField } from '../constant';

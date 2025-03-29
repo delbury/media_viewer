@@ -19,9 +19,8 @@
       }
     ],
     "paths": {
-      "@shared": ["../../packages/shared"],
-      "@tools/*": ["../../packages/tools/*"],
-      "@/*": ["./src/*"]
+      "#/*": ["./src/*"],
+      "#pkgs/*": ["../../packages/*"]
     }
   },
   "include": ["*.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

@@ -1,4 +1,4 @@
-import Link from '@/components/Link';
+import Link from '#/components/Link';
 import { HandymanOutlined, HomeWorkOutlined } from '@mui/icons-material';
 import { StyledHeaderWrapper } from './style';
 

@@ -1,13 +1,17 @@
 import { returnBody, returnError } from '#/util';
+import { API_CONFIGS } from '#pkgs/apis';
 import { readDataFromFile, writeDataToFile } from '#pkgs/tools/fileOperation';
-import { traverseDirectories, TraverseDirectoriesReturnValue } from '#pkgs/tools/traverseDirectories';
+import {
+  traverseDirectories,
+  TraverseDirectoriesReturnValue,
+} from '#pkgs/tools/traverseDirectories';
 import Router from '@koa/router';
 import path from 'node:path';
 
 const DIRECTORY_ROOT = process.env.API_DIRECTORY_ROOT;
 const CACHE_DATA_PATH = path.resolve(__dirname, process.env.CACHE_DATA_PATH || './');
 
-const directoryRouter = new Router({ prefix: '/dir' });
+const directoryRouter = new Router();
 
 // 更新任务
 const updateTask: {
@@ -21,7 +25,7 @@ const updateTask: {
 };
 
 // 强制更新，返回文件夹 tree 和 文件 list
-directoryRouter.get('/update', async ctx => {
+directoryRouter[API_CONFIGS.dirUpdate.method](API_CONFIGS.dirUpdate.url, async ctx => {
   if (updateTask.loading) {
     ctx.body = returnError('still updating');
     return;
@@ -35,7 +39,9 @@ directoryRouter.get('/update', async ctx => {
   try {
     updateTask.loading = true;
     const res = await traverseDirectories(DIRECTORY_ROOT);
-    ctx.body = returnBody(res);
+    ctx.body = returnBody({
+      treeNode: res.treeNode,
+    });
     // 更新内存缓存
     updateTask.cache = res;
     // 更新本地缓存
@@ -45,7 +51,8 @@ directoryRouter.get('/update', async ctx => {
   }
 });
 
-directoryRouter.get('/tree', async ctx => {
+// 返回文件树
+directoryRouter[API_CONFIGS.dirTree.method](API_CONFIGS.dirTree.url, async ctx => {
   // 优先取内存缓存
   if (updateTask.cache) {
     ctx.body = returnBody(updateTask.cache.treeNode);

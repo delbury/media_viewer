@@ -1,8 +1,8 @@
-import Header from '@/components/Header';
-import Layout from '@/components/Layout';
-import { routing } from '@/i18n/routing';
-import '@/style/globals.scss';
-import theme from '@/style/theme';
+import Header from '#/components/Header';
+import Layout from '#/components/Layout';
+import { routing } from '#/i18n/routing';
+import '#/style/globals.scss';
+import theme from '#/style/theme';
 import { Box } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { ThemeProvider } from '@mui/material/styles';

@@ -1,7 +1,7 @@
-import ScrollBox, { ScrollBoxInstance } from '@/components/ScrollBox';
+import ScrollBox, { ScrollBoxInstance } from '#/components/ScrollBox';
+import { DirectoryInfo } from '#pkgs/shared';
 import { CatchingPokemonOutlined } from '@mui/icons-material';
 import { Box, Chip, Typography } from '@mui/material';
-import { DirectoryInfo } from '@shared';
 import React, { useEffect, useRef } from 'react';
 import { PATH_SEPARATOR } from '../constant';
 import { useSwitchWrapBtn } from '../hooks/useSwitchBtn';

@@ -1,5 +1,5 @@
-import Link from '@/components/Link';
-import { TFunction } from '@/types';
+import Link from '#/components/Link';
+import { TFunction } from '#/types';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import { Box, Card, CardActionArea, CardActions, CardHeader } from '@mui/material';
 import { useTranslations } from 'next-intl';

@@ -1,4 +1,8 @@
-import { DirectoryInfo, FileInfo, TraverseDirectoriesReturnValue } from '../tools/traverseDirectories';
+import {
+  DirectoryInfo,
+  FileInfo,
+  TraverseDirectoriesReturnValue,
+} from '../tools/traverseDirectories';
 
 export interface ApiResponseBase<T = unknown> {
   msg?: string;

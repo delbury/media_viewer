@@ -1,6 +1,6 @@
-import Dialog from '@/components/Dialog';
-import { formatDate, formatFileSize } from '@/utils';
-import { FileInfo } from '@tools/traverseDirectories';
+import Dialog from '#/components/Dialog';
+import { formatDate, formatFileSize } from '#/utils';
+import { FileInfo } from '#pkgs/tools/traverseDirectories';
 import { useTranslations } from 'next-intl';
 import React, { useMemo } from 'react';
 import {

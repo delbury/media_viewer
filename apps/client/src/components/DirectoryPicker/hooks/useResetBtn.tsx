@@ -1,4 +1,4 @@
-import { useElementAnimation } from '@/hooks/useElementAnimation';
+import { useElementAnimation } from '#/hooks/useElementAnimation';
 import { RestartAltOutlined } from '@mui/icons-material';
 import { useMemo } from 'react';
 import { StyledFileResetBtn } from '../style/use-reset-btn';

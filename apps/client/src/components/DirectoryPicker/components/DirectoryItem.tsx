@@ -1,7 +1,7 @@
-import { formatDate } from '@/utils';
+import { formatDate } from '#/utils';
+import { DirectoryInfo } from '#pkgs/shared';
 import { FolderOutlined, SourceOutlined } from '@mui/icons-material';
 import { ListItemIcon, ListItemText, SxProps, Theme } from '@mui/material';
-import { DirectoryInfo } from '@shared';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { DIRECTORY_ITEM_HEIGHT } from '../constant';

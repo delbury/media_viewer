@@ -1,4 +1,4 @@
-import { useThrottle } from '@/hooks/useThrottle';
+import { useThrottle } from '#/hooks/useThrottle';
 import { useCallback, useState } from 'react';
 
 export type ScrollStatus = Pick<

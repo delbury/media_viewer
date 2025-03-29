@@ -1,2 +1,2 @@
-export * from './apis';
+export * from '#pkgs/apis';
 export * from './instance';

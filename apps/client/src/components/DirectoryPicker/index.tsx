@@ -1,8 +1,8 @@
 'use client';
 
-import { useDialogState } from '@/hooks/useDialogState';
+import { useDialogState } from '#/hooks/useDialogState';
+import { DirectoryInfo } from '#pkgs/shared';
 import { Button } from '@mui/material';
-import { DirectoryInfo } from '@shared';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import ErrorBoundary from '../ErrorBoundary';

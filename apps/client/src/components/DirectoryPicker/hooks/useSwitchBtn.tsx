@@ -1,4 +1,4 @@
-import { usePersistentConfig } from '@/hooks/usePersistentConfig';
+import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { UnfoldMoreOutlined } from '@mui/icons-material';
 import { useMemo } from 'react';
 import { StyledSwitchBtn, StyledSwitchBtnWrapper } from '../style/use-switch-btn';

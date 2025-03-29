@@ -1,5 +1,5 @@
-import { LazyLoadObserve } from '@/hooks/useLazyLoad';
-import { useThrottle } from '@/hooks/useThrottle';
+import { LazyLoadObserve } from '#/hooks/useLazyLoad';
+import { useThrottle } from '#/hooks/useThrottle';
 import { RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollStatus } from './useScrollStatus';
 

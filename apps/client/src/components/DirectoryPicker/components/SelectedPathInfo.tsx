@@ -1,6 +1,6 @@
-import ScrollBox, { ScrollBoxInstance } from '@/components/ScrollBox';
+import ScrollBox, { ScrollBoxInstance } from '#/components/ScrollBox';
+import { DirectoryInfo } from '#pkgs/shared';
 import { Typography } from '@mui/material';
-import { DirectoryInfo } from '@shared';
 import { useTranslations } from 'next-intl';
 import React, { useEffect, useRef } from 'react';
 import { PATH_SEPARATOR } from '../constant';
@@ -32,7 +32,9 @@ const SelectedPathInfo = ({ selectedPathList }: SelectedPathInfoProps) => {
             >
               {PATH_SEPARATOR}
             </Typography>
-            <StyledSelectedInfoName variant="body2">{t('Tools.RootDirectory')}</StyledSelectedInfoName>
+            <StyledSelectedInfoName variant="body2">
+              {t('Tools.RootDirectory')}
+            </StyledSelectedInfoName>
           </>
         )}
         {selectedPathList.map((node, index) => {

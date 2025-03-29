@@ -1,4 +1,4 @@
-import { useLazyLoad } from '@/hooks/useLazyLoad';
+import { useLazyLoad } from '#/hooks/useLazyLoad';
 import {
   KeyboardArrowDownOutlined,
   KeyboardArrowLeftOutlined,
