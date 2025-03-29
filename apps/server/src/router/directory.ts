@@ -1,4 +1,5 @@
-import { returnBody, returnError } from '#/util';
+import { CACHE_DATA_PATH, DIRECTORY_ROOTS } from '#/config';
+import { returnBody } from '#/util';
 import { API_CONFIGS } from '#pkgs/apis';
 import { readDataFromFile, writeDataToFile } from '#pkgs/tools/fileOperation';
 import {
@@ -6,10 +7,6 @@ import {
   TraverseDirectoriesReturnValue,
 } from '#pkgs/tools/traverseDirectories';
 import Router from '@koa/router';
-import path from 'node:path';
-
-const DIRECTORY_ROOT = process.env.API_DIRECTORY_ROOT;
-const CACHE_DATA_PATH = path.resolve(__dirname, process.env.CACHE_DATA_PATH || './');
 
 const directoryRouter = new Router();
 
@@ -26,19 +23,13 @@ const updateTask: {
 
 // 强制更新，返回文件夹 tree 和 文件 list
 directoryRouter[API_CONFIGS.dirUpdate.method](API_CONFIGS.dirUpdate.url, async ctx => {
-  if (updateTask.loading) {
-    ctx.body = returnError('still updating');
-    return;
-  }
+  if (updateTask.loading) throw new Error('still updating');
 
-  if (!DIRECTORY_ROOT) {
-    ctx.body = returnError('no root dir');
-    return;
-  }
+  if (!DIRECTORY_ROOTS) throw new Error('no root dir');
 
   try {
     updateTask.loading = true;
-    const res = await traverseDirectories(DIRECTORY_ROOT);
+    const res = await traverseDirectories(DIRECTORY_ROOTS);
     ctx.body = returnBody({
       treeNode: res.treeNode,
     });
