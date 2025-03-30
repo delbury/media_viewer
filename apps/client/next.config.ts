@@ -20,9 +20,7 @@ const nextConfig: NextConfig = {
   },
   // 严格模式下，在开发环境下，组件会挂载两次
   reactStrictMode: false,
-  images: {
-    unoptimized: true,
-  },
+  images: {},
 };
 
 export default withNextIntl(nextConfig);

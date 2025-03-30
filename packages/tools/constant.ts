@@ -1,6 +1,30 @@
-export const IMAGE_EXTS = ['jpg', 'png', 'jepg', 'webp', 'bmp', 'gif', 'svg', 'raw', 'tiff', 'tif', 'ico'];
+export const IMAGE_EXTS = [
+  'gif',
+  'jpg',
+  'png',
+  'jepg',
+  'webp',
+  'bmp',
+  'svg',
+  'raw',
+  'tiff',
+  'tif',
+  'ico',
+];
 export const AUDIO_EXTS = ['mp3', 'wav', 'aac', 'flac', 'm4a', 'wma', 'ogg'];
-export const VIDEO_EXTS = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'mpg', 'mpeg', 'webm', '3gp', 'ts'];
+export const VIDEO_EXTS = [
+  'mp4',
+  'mkv',
+  'mov',
+  'avi',
+  'wmv',
+  'flv',
+  'mpg',
+  'mpeg',
+  'webm',
+  '3gp',
+  'ts',
+];
 export const TEXT_EXTS = ['pdf', 'txt'];
 
 export const IMAGE_REG = new RegExp(`\\.(${IMAGE_EXTS.join('|')})$`, 'i');

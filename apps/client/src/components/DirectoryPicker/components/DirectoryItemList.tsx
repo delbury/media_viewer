@@ -1,9 +1,8 @@
 import ResizeContainer from '#/components/ResizeContainer';
-import { VirtualListConfig } from '#/components/ScrollBox/hooks/useVirtualList';
+import { VirtualListChildItemProps } from '#/components/ScrollBox/hooks/useVirtualList';
 import { DirectoryInfo } from '#pkgs/shared';
 import { List } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { useCallback } from 'react';
 import {
   DIRECTORY_ITEM_HEIGHT,
   DIRECTORY_SORT_API_FIELD_MAP,
@@ -22,6 +21,33 @@ const RowWrapperComponent = ({ children }: { children: React.ReactNode }) => (
   <List sx={{ padding: 0 }}>{children}</List>
 );
 
+const ChildItem = (
+  props: VirtualListChildItemProps & {
+    sortedItems?: DirectoryInfo[];
+    onClick?: (dir: DirectoryInfo) => void;
+  }
+) => {
+  const {
+    index,
+    params: { offsetY },
+    sortedItems,
+    onClick,
+  } = props;
+
+  const dir = sortedItems?.[index];
+  return (
+    !!dir && (
+      <DirectoryItem
+        dir={dir}
+        onClick={() => onClick?.(dir)}
+        sx={{
+          transform: `translateY(${offsetY}px)`,
+        }}
+      />
+    )
+  );
+};
+
 const DirectoryItemList = ({ dirs, onClick }: DirectoryItemListProps) => {
   const t = useTranslations();
 
@@ -32,24 +58,6 @@ const DirectoryItemList = ({ dirs, onClick }: DirectoryItemListProps) => {
     fileSortOptions: DIRECTORY_SORT_OPTIONS,
   });
 
-  const renderItem: VirtualListConfig['renderItem'] = useCallback(
-    (index, { renderStartRowIndex, rowHeight }) => {
-      const dir = sortedItems[index];
-      return (
-        !!dir && (
-          <DirectoryItem
-            key={dir.fullPath}
-            dir={dir}
-            onClick={() => onClick?.(dir)}
-            sx={{
-              transform: `translateY(${renderStartRowIndex * rowHeight}px)`,
-            }}
-          />
-        )
-      );
-    },
-    [sortedItems, onClick]
-  );
   return (
     <ResizeContainer
       // title={t('Tools.CurrentDirectories')}
@@ -60,7 +68,12 @@ const DirectoryItemList = ({ dirs, onClick }: DirectoryItemListProps) => {
         virtualListConfig: {
           childCount: sortedItems.length,
           childHeight: DIRECTORY_ITEM_HEIGHT,
-          renderItem,
+          ChildItem,
+          getChildProps: (index: number) => ({
+            key: sortedItems[index]?.fullPath,
+            sortedItems,
+            onClick,
+          }),
           RowWrapperComponent,
           overRowCount: 5,
         },

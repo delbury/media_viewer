@@ -11,6 +11,8 @@ export interface RenderRange {
   rowHeight: number;
   // 保存计算出当前 range 时的 scrollTop
   scrollTop: number;
+  // 当前渲染元素的 y 轴偏移距离
+  offsetY: number;
 }
 
 export interface GridLayout {
@@ -29,6 +31,11 @@ export interface GridLayout {
   // 上下间距和
   paddingTopBottom?: number;
 }
+export interface VirtualListChildItemProps {
+  index: number;
+  params: RenderRange;
+  observe: LazyLoadObserve;
+}
 export interface VirtualListConfig {
   // 子元素数量
   childCount: number;
@@ -40,7 +47,9 @@ export interface VirtualListConfig {
   // grid 布局时，为行数
   overRowCount?: number | 'auto';
   // 渲染子元素
-  renderItem: (index: number, params: RenderRange, observe: LazyLoadObserve) => React.ReactNode;
+  ChildItem: React.FC<VirtualListChildItemProps>;
+  // 子元素的 key
+  getChildProps: (index: number) => { key: string; [key: string]: unknown };
   // 行包裹组件
   RowWrapperComponent?: React.FC<{ children: React.ReactNode }>;
 }
@@ -112,7 +121,7 @@ export const useVirtualList = (
       const endRowIndex = Math.min(rows - 1, visibleRowIndexEnd + overRowCount);
 
       const startIndex = startRowIndex * cols;
-      const endIndex = endRowIndex * cols + cols - 1;
+      const endIndex = Math.min(config.childCount - 1, endRowIndex * cols + cols - 1);
 
       currentRenderRange = {
         startIndex,
@@ -121,6 +130,7 @@ export const useVirtualList = (
         count: endIndex - startIndex + 1,
         rowHeight: childRowHeight,
         scrollTop: status.scrollTop,
+        offsetY: startRowIndex * childRowHeight,
       };
     } else {
       // 计算当前窗口内的元素 index
@@ -141,11 +151,14 @@ export const useVirtualList = (
         count: endIndex - startIndex + 1,
         rowHeight: childRowHeight,
         scrollTop: status.scrollTop,
+        offsetY: startIndex * childRowHeight,
       };
     }
     setRenderRange(currentRenderRange);
   }, [config, status.scrollTop, status.clientHeight, childRowHeight, gridLayout]);
   const reLayoutThrottle = useThrottle(reLayout, 100);
+
+  // 重新计算渲染范围
   useEffect(() => {
     if (status.type === 'resize') {
       // 当滚动高度不变时，不重新计算

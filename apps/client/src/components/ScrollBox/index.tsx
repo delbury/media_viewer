@@ -41,13 +41,6 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
       isScrollAtRight,
     } = scrollStatus;
 
-    // 虚拟列表
-    const { renderRange, enableVirtualList } = useVirtualList(
-      contentRef,
-      scrollStatus,
-      virtualListConfig
-    );
-
     // 绑定事件
     useEvents({
       wrapperRef,
@@ -74,6 +67,13 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
       root: wrapperRef.current,
     });
 
+    // 虚拟列表
+    const { renderRange, enableVirtualList } = useVirtualList(
+      contentRef,
+      scrollStatus,
+      virtualListConfig
+    );
+
     // 自定义虚拟列表的包裹元素
     const CustomVirtualListWrapper = useMemo(
       () => virtualListConfig?.RowWrapperComponent,
@@ -86,7 +86,19 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
 
       return Array.from({ length: renderRange.count }, (_, index) => {
         const realIndex = index + renderRange.startIndex;
-        return virtualListConfig.renderItem(realIndex, renderRange, observe);
+        const ChildItem = virtualListConfig.ChildItem;
+        const props = virtualListConfig.getChildProps(realIndex);
+        return (
+          !!props.key && (
+            <ChildItem
+              {...props}
+              key={props.key}
+              index={realIndex}
+              params={renderRange}
+              observe={observe}
+            />
+          )
+        );
       });
     }, [children, virtualListConfig, renderRange, observe]);
 

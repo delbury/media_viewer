@@ -50,6 +50,8 @@ export default [
           allow: ['info'],
         },
       ],
+      'react/prop-types': 'off',
+      '@next/next/no-img-element': 'off',
     },
   },
 ];

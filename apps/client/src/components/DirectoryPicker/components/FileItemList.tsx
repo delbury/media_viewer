@@ -1,13 +1,13 @@
 import ResizeContainer from '#/components/ResizeContainer';
 import ScrollBox from '#/components/ScrollBox';
-import { GridLayout, VirtualListConfig } from '#/components/ScrollBox/hooks/useVirtualList';
+import { GridLayout, VirtualListChildItemProps } from '#/components/ScrollBox/hooks/useVirtualList';
 import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { h5Max } from '#/style/device';
 import { TFunction } from '#/types';
 import { FileInfo, FullFileType } from '#pkgs/shared';
 import { useMediaQuery } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   FILE_FILTER_OPTIONS,
   FILE_SORT_API_FIELD_MAP,
@@ -104,6 +104,36 @@ const filterFiles = ({
   return newList;
 };
 
+const ChildItem = (
+  props: VirtualListChildItemProps & {
+    filteredSortedFiles?: FileInfo[];
+    setCurrentFile?: (file: FileInfo) => void;
+  }
+) => {
+  const {
+    index,
+    params: { offsetY },
+    observe,
+    filteredSortedFiles,
+    setCurrentFile,
+  } = props;
+
+  const file = filteredSortedFiles?.[index];
+
+  return (
+    !!file && (
+      <FileItem
+        file={file}
+        onTitleClick={setCurrentFile}
+        sx={{
+          transform: `translateY(${offsetY}px)`,
+        }}
+        refBindCallback={observe}
+      />
+    )
+  );
+};
+
 interface FileItemListProps {
   files: FileInfo[];
 }
@@ -158,26 +188,6 @@ const FileItemList = ({ files }: FileItemListProps) => {
 
   const [currentFile, setCurrentFile] = useState<FileInfo | null>(null);
 
-  const renderItem: VirtualListConfig['renderItem'] = useCallback(
-    (index, { rowHeight, renderStartRowIndex }, observe) => {
-      const file = filteredSortedFiles[index];
-      return (
-        !!file && (
-          <FileItem
-            key={file.fullPath}
-            file={file}
-            onTitleClick={setCurrentFile}
-            sx={{
-              transform: `translateY(${renderStartRowIndex * rowHeight}px)`,
-            }}
-            refBindCallback={observe}
-          />
-        )
-      );
-    },
-    [filteredSortedFiles]
-  );
-
   return (
     <>
       <ResizeContainer
@@ -225,8 +235,12 @@ const FileItemList = ({ files }: FileItemListProps) => {
           lazyLoadEnabled: true,
           virtualListConfig: {
             childCount: filteredSortedFiles.length,
-            renderItem,
-            childHeight: 100,
+            ChildItem,
+            getChildProps: (index: number) => ({
+              key: filteredSortedFiles[index]?.fullPath,
+              filteredSortedFiles,
+              setCurrentFile,
+            }),
             RowWrapperComponent: StyledFileGrid,
             calcGridLayout: (...args) => calcGridLayout(isH5, ...args),
             overRowCount: 4,

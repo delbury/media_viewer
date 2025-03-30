@@ -14,7 +14,6 @@ import {
 } from '@mui/icons-material';
 import { Box, CircularProgress, SvgIconOwnProps, SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import {
   StyledFileCardWrapper,
@@ -138,12 +137,13 @@ const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) =>
         )}
 
         {showImage ? (
-          <Image
+          // 在这里使用 next/image 会发送两次请求，很奇怪，回退到原生 img 就正常请求一次
+          <img
             src={posterUrl}
             alt={file.name}
-            fill
-            sizes="100%"
             style={{
+              width: '100%',
+              height: '100%',
               objectFit: 'contain',
               visibility: isLoading ? 'hidden' : 'visible',
             }}
@@ -154,7 +154,7 @@ const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) =>
             onLoad={() => {
               setIsLoading(false);
             }}
-            loading="eager"
+            loading="lazy"
           />
         ) : (
           <Box
