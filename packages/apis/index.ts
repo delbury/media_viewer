@@ -44,7 +44,7 @@ export type ApiResponseDataTypes<T extends ApiKeys> = T extends 'dirUpdate'
 type ApiParamsBase = Record<string, unknown>;
 interface ApiFilePosterParams extends ApiParamsBase {
   basePathIndex: number;
-  fullPath: string;
+  relativePath: string;
 }
 // 接口请求参数类型
 export type ApiRequestParamsTypes<T extends ApiKeys> = T extends 'filePoster'

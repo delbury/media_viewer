@@ -1,4 +1,4 @@
-import { CACHE_DATA_PATH, DIRECTORY_ROOTS } from '#/config';
+import { CACHE_DATA_PATH, CACHE_DATE_FILE_NAME, DIRECTORY_ROOTS } from '#/config';
 import { returnBody } from '#/util';
 import { API_CONFIGS } from '#pkgs/apis';
 import { readDataFromFile, writeDataToFile } from '#pkgs/tools/fileOperation';
@@ -14,11 +14,9 @@ const directoryRouter = new Router();
 const updateTask: {
   loading: boolean;
   cache?: TraverseDirectoriesReturnValue;
-  localCacheFileName: string;
 } = {
   loading: false,
   cache: null,
-  localCacheFileName: 'full_dir_info.local.json',
 };
 
 // 强制更新，返回文件夹 tree 和 文件 list
@@ -36,7 +34,7 @@ directoryRouter[API_CONFIGS.dirUpdate.method](API_CONFIGS.dirUpdate.url, async c
     // 更新内存缓存
     updateTask.cache = res;
     // 更新本地缓存
-    await writeDataToFile(CACHE_DATA_PATH, updateTask.localCacheFileName, res);
+    await writeDataToFile(CACHE_DATA_PATH, CACHE_DATE_FILE_NAME, res);
   } finally {
     updateTask.loading = false;
   }
@@ -50,7 +48,7 @@ directoryRouter[API_CONFIGS.dirTree.method](API_CONFIGS.dirTree.url, async ctx =
     return;
   }
   // 取本地缓存
-  const json = await readDataFromFile(CACHE_DATA_PATH, updateTask.localCacheFileName);
+  const json = await readDataFromFile(CACHE_DATA_PATH, CACHE_DATE_FILE_NAME);
   // 缓存到内存
   updateTask.cache = json;
   ctx.body = returnBody(updateTask.cache?.treeNode ?? null);

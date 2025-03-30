@@ -237,7 +237,7 @@ const FileItemList = ({ files }: FileItemListProps) => {
             childCount: filteredSortedFiles.length,
             ChildItem,
             getChildProps: (index: number) => ({
-              key: filteredSortedFiles[index]?.fullPath,
+              key: filteredSortedFiles[index]?.relativePath,
               filteredSortedFiles,
               setCurrentFile,
             }),

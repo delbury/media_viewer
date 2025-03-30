@@ -95,13 +95,13 @@ const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) =>
       'filePoster',
       {
         basePathIndex: file.basePathIndex,
-        fullPath: file.fullPath,
+        relativePath: file.relativePath,
       },
       API_BASE_URL
     );
 
     setPosterUrl(url);
-  }, [file.basePathIndex, file.fullPath, file.fileType]);
+  }, [file.basePathIndex, file.relativePath, file.fileType]);
 
   const handleIconClick = () => {
     if (file.fileType !== 'image') return;

@@ -10,7 +10,7 @@ interface CommonInfo {
   // 文件根路径在根目录中的索引
   basePathIndex: number;
   // 文件全路径
-  fullPath: string;
+  relativePath: string;
   // 文件名
   name: string;
   // 文件创建时间
@@ -44,35 +44,36 @@ export interface DirectoryInfo extends CommonInfo {
   totalFilesCount: number;
 }
 interface NewInfoParams {
-  // 文件路径
+  // 文件根路径
   bp?: string;
-  // 文件全路径
-  fp?: string;
+  // 文件相对路径
+  rp?: string;
   // 文件信息
   info?: Stats;
+  // 文件根路径在根目录中的索引
   bpi?: number;
 }
 const formatPath = (p: string) => p.replaceAll('\\', '/');
-const newCommonInfo = ({ bp, fp, info, bpi }: NewInfoParams = {}): CommonInfo => {
+const newCommonInfo = ({ bp, rp, info, bpi }: NewInfoParams = {}): CommonInfo => {
   let basePath = formatPath(bp ?? '');
   if (basePath.endsWith('/')) basePath = basePath.slice(0, basePath.length - 1);
 
-  let fullPath = formatPath(fp ?? '');
-  if (fullPath) {
-    fullPath = fullPath.replace(basePath, '') || '/';
+  let relativePath = formatPath(rp ?? '');
+  if (relativePath) {
+    relativePath = relativePath.replace(basePath, '') || '/';
   }
 
   return {
     basePath,
     basePathIndex: bpi,
-    fullPath,
-    name: fp ? path.basename(fp) : '',
+    relativePath,
+    name: rp ? path.basename(rp) : '',
     created: info?.birthtimeMs ?? 0,
     updated: info?.mtimeMs ?? 0,
   };
 };
 const newFileInfo = (params?: NewInfoParams): FileInfo => {
-  const { ext, name } = path.parse(params.fp);
+  const { ext, name } = path.parse(params.rp);
   const nameExt = ext.toLowerCase();
   return {
     ...newCommonInfo(params),
@@ -124,26 +125,26 @@ export const traverseDirectories = async (dir: string | string[]) => {
     // 如果当前文件夹没有 basePath，则为根目录，否则使用父目录的 basePath
     const bp = currentDir.basePath || d;
     const bpi = currentDir.basePathIndex ?? rootDir.indexOf(bp);
-    // full path
-    const fp = path.resolve(__dirname, d);
+    // relative path
+    const rp = path.resolve(__dirname, d);
 
-    const info = await stat(fp);
+    const info = await stat(rp);
     if (info.isDirectory()) {
       // 是文件夹，创建并保存当前文件夹信息对象
-      const dirInfo = newDirectoryInfo({ bp, fp, info, bpi });
+      const dirInfo = newDirectoryInfo({ bp, rp, info, bpi });
       currentDir.children.push(dirInfo);
 
       // 将文件夹的子文件压入队列
       dirs.push(dirInfo);
-      const childFiles = await readdir(fp);
+      const childFiles = await readdir(rp);
       childFiles.forEach(cf => {
-        dirs.push(path.resolve(fp, cf));
+        dirs.push(path.resolve(rp, cf));
       });
       // 所有文件夹信息放入数组
       dirList.push(dirInfo);
     } else if (info.isFile()) {
       // 是文件，创建并保存当前文件信息对象
-      const fileInfo = newFileInfo({ bp, fp, info, bpi });
+      const fileInfo = newFileInfo({ bp, rp, info, bpi });
       currentDir.files.push(fileInfo);
       // 所有文件信息放入数组
       fileList.push(fileInfo);

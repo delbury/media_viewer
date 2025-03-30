@@ -21,7 +21,7 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
   const fileInfos: { label: string; value: string | undefined }[] = useMemo(() => {
     return [
       { label: t('File.Name'), value: file.name },
-      { label: t('File.Path'), value: file.fullPath },
+      { label: t('File.Path'), value: file.relativePath },
       { label: t('File.Size'), value: formatFileSize(file.size) },
       { label: t('File.Created'), value: formatDate(file.created) },
       { label: t('File.Updated'), value: formatDate(file.updated) },

@@ -41,7 +41,7 @@ const SelectedPathInfo = ({ selectedPathList }: SelectedPathInfoProps) => {
           if (!index) return null;
           const isLast = index === selectedPathList.length - 1;
           return (
-            <React.Fragment key={node.fullPath}>
+            <React.Fragment key={node.relativePath}>
               <Typography
                 variant="body2"
                 sx={{ color: 'text.secondary' }}
