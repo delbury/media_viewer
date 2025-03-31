@@ -14,6 +14,7 @@ app.use(async (ctx, next) => {
   try {
     await next();
   } catch (err) {
+    ctx.status = 400;
     ctx.body = returnError(err.message);
   }
 });

@@ -47,7 +47,7 @@ export default [
       'no-console': [
         'warn',
         {
-          allow: ['info'],
+          allow: ['info', 'error'],
         },
       ],
       'react/prop-types': 'off',

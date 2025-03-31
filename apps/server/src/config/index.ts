@@ -1,3 +1,4 @@
+import { IGNORE_FILE_NAME_PREFIX } from '#pkgs/tools/constant.js';
 import packageJson from '#root/package.json';
 import path from 'node:path';
 
@@ -15,4 +16,13 @@ export const CACHE_DATA_PATH = path.resolve(__dirname, process.env.CACHE_DATA_PA
 export const CACHE_DATE_FILE_NAME = 'full_dir_info.local.json';
 
 // 原始图片可以直接用于 poster 的最大大小，单位：字节 B
-export const RAW_IMAGE_FOR_POSTER_MAX_SIZE = 1024 * 1024;
+export const RAW_IMAGE_FOR_POSTER_MAX_SIZE = 1024 * 512;
+
+// 缩略图浏览器缓存时间
+export const POSTER_CACHE_MAX_AGE = 1000 * 60 * 10;
+
+// 缩略图封面文件名前缀
+export const POSTER_FILE_NAME_PREFIX = `${IGNORE_FILE_NAME_PREFIX}poster__`;
+
+// 缩略图长或宽最大尺寸
+export const POSTER_MAX_SIZE = 400;
