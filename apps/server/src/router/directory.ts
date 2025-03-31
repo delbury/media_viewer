@@ -1,11 +1,9 @@
-import { CACHE_DATA_PATH, CACHE_DATE_FILE_NAME, DIRECTORY_ROOTS } from '#/config';
+import { CACHE_DATA_PATH, CACHE_DATE_FILE_NAME, DIRECTORY_ROOTS, SERVER_VERSION } from '#/config';
 import { returnBody } from '#/util';
-import { API_CONFIGS } from '#pkgs/apis';
+import { API_CONFIGS, ApiResponseDataTypes } from '#pkgs/apis';
+import { DirUpdateData } from '#pkgs/shared';
 import { readDataFromFile, writeDataToFile } from '#pkgs/tools/fileOperation';
-import {
-  traverseDirectories,
-  TraverseDirectoriesReturnValue,
-} from '#pkgs/tools/traverseDirectories';
+import { traverseDirectories } from '#pkgs/tools/traverseDirectories';
 import Router from '@koa/router';
 
 const directoryRouter = new Router();
@@ -13,7 +11,7 @@ const directoryRouter = new Router();
 // 更新任务
 const updateTask: {
   loading: boolean;
-  cache?: TraverseDirectoriesReturnValue;
+  cache?: DirUpdateData;
 } = {
   loading: false,
   cache: null,
@@ -27,9 +25,11 @@ directoryRouter[API_CONFIGS.dirUpdate.method](API_CONFIGS.dirUpdate.url, async c
 
   try {
     updateTask.loading = true;
-    const res = await traverseDirectories(DIRECTORY_ROOTS);
-    ctx.body = returnBody({
+    const res = await traverseDirectories(DIRECTORY_ROOTS, { version: SERVER_VERSION });
+    ctx.body = returnBody<ApiResponseDataTypes<'dirUpdate'>>({
       treeNode: res.treeNode,
+      version: res.version,
+      timestamp: res.timestamp,
     });
     // 更新内存缓存
     updateTask.cache = res;
@@ -44,7 +44,7 @@ directoryRouter[API_CONFIGS.dirUpdate.method](API_CONFIGS.dirUpdate.url, async c
 directoryRouter[API_CONFIGS.dirTree.method](API_CONFIGS.dirTree.url, async ctx => {
   // 优先取内存缓存
   if (updateTask.cache) {
-    ctx.body = returnBody(updateTask.cache.treeNode);
+    ctx.body = returnBody<ApiResponseDataTypes<'dirTree'>>(updateTask.cache.treeNode);
     return;
   }
   // 取本地缓存

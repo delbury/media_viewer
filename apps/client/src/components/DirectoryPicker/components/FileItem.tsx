@@ -3,7 +3,7 @@ import { API_BASE_URL } from '#/request';
 import { formatFileSize } from '#/utils';
 import { joinUrlWithQueryString } from '#pkgs/apis';
 import { FileInfo } from '#pkgs/shared';
-import { detectFileType } from '#pkgs/tools/utils';
+import { detectFileType } from '#pkgs/tools/common';
 import {
   BrowserNotSupportedOutlined,
   FeaturedPlayListOutlined,

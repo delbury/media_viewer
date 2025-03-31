@@ -12,9 +12,11 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "types": ["node"],
+    "resolveJsonModule": true,
     "paths": {
       "#/*": ["./src/*"],
-      "#pkgs/*": ["../../packages/*"]
+      "#pkgs/*": ["../../packages/*"],
+      "#root/*": ["../../*"]
     }
   },
   "exclude": ["node_modules", "dist", "**/*.mjs", "**/*.js"]

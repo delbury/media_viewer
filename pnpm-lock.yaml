@@ -144,6 +144,9 @@ importers:
       '@koa/router':
         specifier: ^13.1.0
         version: 13.1.0
+      command-exists:
+        specifier: ^1.2.9
+        version: 1.2.9
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
@@ -154,6 +157,9 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
     devDependencies:
+      '@types/command-exists':
+        specifier: ^1.2.3
+        version: 1.2.3
       '@types/koa':
         specifier: ^2.15.0
         version: 2.15.0
@@ -1348,6 +1354,9 @@ packages:
   '@types/body-parser@1.19.5':
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
 
+  '@types/command-exists@1.2.3':
+    resolution: {integrity: sha512-PpbaE2XWLaWYboXD6k70TcXO/OdOyyRFq5TVpmlUELNxdkkmXU9fkImNosmXU1DtsNrqdUgWd/nJQYXgwmtdXQ==}
+
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
 
@@ -1690,6 +1699,9 @@ packages:
   combined-stream@1.0.8:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
     engines: {node: '>= 0.8'}
+
+  command-exists@1.2.9:
+    resolution: {integrity: sha512-LTQ/SGc+s0Xc0Fu5WaKnR0YiygZkm9eKFvyS+fRsU7/ZWFF8ykFM6Pc9aCVf1+xasOOZpO3BAVgVrKvsqKHV7w==}
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
@@ -4358,6 +4370,8 @@ snapshots:
       '@types/connect': 3.4.38
       '@types/node': 22.13.1
 
+  '@types/command-exists@1.2.3': {}
+
   '@types/connect@3.4.38':
     dependencies:
       '@types/node': 22.13.1
@@ -4796,6 +4810,8 @@ snapshots:
   combined-stream@1.0.8:
     dependencies:
       delayed-stream: 1.0.0
+
+  command-exists@1.2.9: {}
 
   concat-map@0.0.1: {}
 

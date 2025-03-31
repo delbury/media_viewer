@@ -1,3 +1,5 @@
+// client 和 server 通用的工具函数
+
 import { FullFileType } from '../shared';
 import { AUDIO_REG, IMAGE_REG, TEXT_REG, VIDEO_REG } from './constant';
 

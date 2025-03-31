@@ -1,6 +1,6 @@
 import { DirectoryInfo, DirUpdateData } from '../shared';
 
-type Method =
+export type Method =
   | 'link'
   | 'head'
   | 'get'
@@ -36,7 +36,7 @@ export type ApiKeys = keyof typeof API_CONFIGS;
 
 // 接口返回数据类型
 export type ApiResponseDataTypes<T extends ApiKeys> = T extends 'dirUpdate'
-  ? Pick<DirUpdateData, 'treeNode'>
+  ? Omit<DirUpdateData, 'fileList'>
   : T extends 'dirTree'
     ? DirectoryInfo
     : never;

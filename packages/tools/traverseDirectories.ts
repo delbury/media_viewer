@@ -2,7 +2,7 @@ import { Stats } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { FullFileType } from '../shared';
-import { detectFileType } from './utils';
+import { detectFileType } from './common';
 
 interface CommonInfo {
   // 文件根路径
@@ -53,6 +53,9 @@ interface NewInfoParams {
   // 文件根路径在根目录中的索引
   bpi?: number;
 }
+
+export type TraverseDirectoriesReturnValue = Awaited<ReturnType<typeof traverseDirectories>>;
+
 const formatPath = (p: string) => p.replaceAll('\\', '/');
 const newCommonInfo = ({ bp, rp, info, bpi }: NewInfoParams = {}): CommonInfo => {
   let basePath = formatPath(bp ?? '');
@@ -99,7 +102,10 @@ const newDirectoryInfo = (params?: NewInfoParams): DirectoryInfo => {
  * @param dir
  * @returns
  */
-export const traverseDirectories = async (dir: string | string[]) => {
+export const traverseDirectories = async (
+  dir: string | string[],
+  options?: { version?: string }
+) => {
   // [path1, path2, dirArr, ...]
   // 根目录，去重
   const rootDir = [...new Set(Array.isArray(dir) ? [...dir] : [dir])];
@@ -159,6 +165,8 @@ export const traverseDirectories = async (dir: string | string[]) => {
   return {
     treeNode,
     fileList,
+    version: options?.version,
+    timestamp: Date.now(),
   };
 };
 
@@ -172,5 +180,3 @@ const calcFileCount = (dirInfo: DirectoryInfo) => {
   dirInfo.totalFilesCount = total;
   return total;
 };
-
-export type TraverseDirectoriesReturnValue = Awaited<ReturnType<typeof traverseDirectories>>;

@@ -1,4 +1,4 @@
-import { logInfo } from '#pkgs/tools/utils.js';
+import { logInfo } from '#pkgs/tools/common';
 import Koa from 'koa';
 import { directoryRouter } from './router/directory';
 import { fileRouter } from './router/file';

@@ -1,6 +1,6 @@
 import { access, constants, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { logInfo } from './utils';
+import { logInfo } from './common';
 
 // 读文件
 export const readDataFromFile = async (dir: string, fileName: string) => {
@@ -20,7 +20,11 @@ export const readDataFromFile = async (dir: string, fileName: string) => {
 };
 
 // 写文件
-export const writeDataToFile = async (dir: string, fileName: string, data: Record<string, unknown>) => {
+export const writeDataToFile = async (
+  dir: string,
+  fileName: string,
+  data: Record<string, unknown>
+) => {
   logInfo('start writing file');
 
   const dirInfo = await stat(dir);

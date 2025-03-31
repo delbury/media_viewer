@@ -31,3 +31,10 @@ export const IMAGE_REG = new RegExp(`\\.(${IMAGE_EXTS.join('|')})$`, 'i');
 export const AUDIO_REG = new RegExp(`\\.(${AUDIO_EXTS.join('|')})$`, 'i');
 export const VIDEO_REG = new RegExp(`\\.(${VIDEO_EXTS.join('|')})$`, 'i');
 export const TEXT_REG = new RegExp(`\\.(${TEXT_EXTS.join('|')})$`, 'i');
+
+// 需要忽略的文件夹或文件名前缀
+const IGNORE_FILE_NAME_PREFIX = '.__ignore__';
+export const IGNORE_FILE_NAME_REG = new RegExp(`^${IGNORE_FILE_NAME_PREFIX}.*`, 'i');
+
+// 缩略图封面文件名前缀
+export const POSTER_FILE_NAME_PREFIX = `${IGNORE_FILE_NAME_PREFIX}poster__`;
