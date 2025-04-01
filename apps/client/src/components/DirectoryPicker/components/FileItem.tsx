@@ -1,7 +1,6 @@
+import PosterImage from '#/components/PosterImage';
 import { LazyLoadObserve } from '#/hooks/useLazyLoad';
-import { API_BASE_URL } from '#/request';
 import { formatFileSize } from '#/utils';
-import { joinUrlWithQueryString } from '#pkgs/apis';
 import { FileInfo } from '#pkgs/shared';
 import { detectFileType } from '#pkgs/tools/common';
 import {
@@ -83,25 +82,16 @@ interface FileItemProps {
 
 const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) => {
   const t = useTranslations();
-  const [posterUrl, setPosterUrl] = useState<string>('');
+  const [posterUrlEnabled, setPosterUrlEnabled] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const showImage = posterUrl && (!isError || isLoading);
+  const showImage = posterUrlEnabled && (!isError || isLoading);
 
   const doLoad = useCallback(() => {
     if (file.fileType !== 'image') return;
 
-    const url = joinUrlWithQueryString(
-      'filePoster',
-      {
-        basePathIndex: file.basePathIndex,
-        relativePath: file.relativePath,
-      },
-      API_BASE_URL
-    );
-
-    setPosterUrl(url);
-  }, [file.basePathIndex, file.relativePath, file.fileType]);
+    setPosterUrlEnabled(true);
+  }, [file.fileType, setPosterUrlEnabled]);
 
   const handleIconClick = () => {
     if (file.fileType !== 'image') return;
@@ -127,7 +117,7 @@ const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) =>
       </StyledFileTitle>
 
       <StyledFilePosterWrapper>
-        {isLoading && !!posterUrl && (
+        {isLoading && !!posterUrlEnabled && (
           <StyledFilePosterLoading>
             <CircularProgress
               sx={{ width: '100%', height: '100%', color: 'text.secondary' }}
@@ -138,23 +128,12 @@ const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) =>
 
         {showImage ? (
           // 在这里使用 next/image 会发送两次请求，很奇怪，回退到原生 img 就正常请求一次
-          <img
-            src={posterUrl}
-            alt={file.name}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              visibility: isLoading ? 'hidden' : 'visible',
-            }}
-            onError={() => {
-              setIsError(true);
-              setIsLoading(false);
-            }}
-            onLoad={() => {
-              setIsLoading(false);
-            }}
-            loading="lazy"
+          <PosterImage
+            disabled={!posterUrlEnabled}
+            file={file}
+            isLoading={isLoading}
+            onError={() => setIsError(true)}
+            onLoad={() => setIsLoading(false)}
           />
         ) : (
           <Box
