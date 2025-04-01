@@ -5,6 +5,7 @@ import { DirUpdateData } from '#pkgs/shared';
 import { readDataFromFile, writeDataToFile } from '#pkgs/tools/fileOperation';
 import { traverseDirectories } from '#pkgs/tools/traverseDirectories';
 import Router from '@koa/router';
+import { omit } from 'lodash-es';
 
 const directoryRouter = new Router();
 
@@ -26,11 +27,7 @@ directoryRouter[API_CONFIGS.dirUpdate.method](API_CONFIGS.dirUpdate.url, async c
   try {
     updateTask.loading = true;
     const res = await traverseDirectories(DIRECTORY_ROOTS, { version: SERVER_VERSION });
-    ctx.body = returnBody<ApiResponseDataTypes<'dirUpdate'>>({
-      treeNode: res.treeNode,
-      version: res.version,
-      timestamp: res.timestamp,
-    });
+    ctx.body = returnBody<ApiResponseDataTypes<'dirUpdate'>>(omit(res, ['fileList']));
     // 更新内存缓存
     updateTask.cache = res;
     // 更新本地缓存

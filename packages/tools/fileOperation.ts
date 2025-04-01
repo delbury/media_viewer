@@ -1,6 +1,6 @@
 import { access, constants, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { logInfo } from './common';
+import { logInfo } from './common.js';
 
 // 读文件
 export const readDataFromFile = async (dir: string, fileName: string) => {

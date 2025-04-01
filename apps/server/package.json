@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cross-env NODE_ENV=dev nodemon --watch ./src --watch ./.env --watch ./.env.dev --watch ../../packages/tools --ext js,ts,json,mjs --exec \"node --import tsx ./main.ts\""
+    "dev": "cross-env NODE_ENV=dev nodemon --watch ./src --watch ./.env --watch ./.env.dev --watch ../../packages --ext js,ts,json,mjs --exec \"node --import tsx ./main.ts\""
   },
   "keywords": [],
   "author": "",

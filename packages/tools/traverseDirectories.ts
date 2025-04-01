@@ -2,7 +2,7 @@ import { Stats } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { FullFileType } from '../shared';
-import { detectFileType } from './common';
+import { detectFileType } from './common.js';
 
 interface CommonInfo {
   // 文件根路径

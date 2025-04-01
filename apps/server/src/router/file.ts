@@ -9,6 +9,7 @@ import { generatePoster, getPosterFilePath } from '../util';
 
 const fileRouter = new Router();
 
+// 返回缩略图
 fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx => {
   const { basePathIndex, relativePath, force } = ctx.query as ApiRequestParamsTypes<'filePoster'>;
 

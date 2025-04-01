@@ -17,10 +17,11 @@ export interface ApiConfig {
   method: Method;
 }
 
+// 所有接口配置
 export const API_CONFIGS = {
   dirUpdate: {
     url: '/dir/update',
-    method: 'get',
+    method: 'post',
   },
   dirTree: {
     url: '/dir/tree',
@@ -29,6 +30,10 @@ export const API_CONFIGS = {
   filePoster: {
     url: '/file/poster',
     method: 'get',
+  },
+  filePosterClean: {
+    url: '/file/poster/clean',
+    method: 'post',
   },
 } satisfies Record<string, ApiConfig>;
 
