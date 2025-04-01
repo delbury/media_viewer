@@ -4,14 +4,13 @@ import { formatFileSize } from '#/utils';
 import { FileInfo } from '#pkgs/shared';
 import { detectFileType } from '#pkgs/tools/common';
 import {
-  BrowserNotSupportedOutlined,
   FeaturedPlayListOutlined,
   MusicVideoOutlined,
   NoteOutlined,
   PanoramaOutlined,
   SmartDisplayOutlined,
 } from '@mui/icons-material';
-import { Box, CircularProgress, SvgIconOwnProps, SxProps, Theme } from '@mui/material';
+import { Box, SvgIconOwnProps, SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
 import {
@@ -22,29 +21,29 @@ import {
   StyledFileName,
   StyledFileTitle,
 } from '../style/file-item';
-import { StyledFilePosterLoading, StyledFilePosterWrapper } from '../style/file-item-list';
+import { StyledFileCoverWrapper } from '../style/file-item-list';
 
 export const FileIcon = ({
   ext,
   iconProps,
-  isError,
+  // isError,
 }: {
   ext: string;
   iconProps?: SvgIconOwnProps;
-  isError: boolean;
+  // isError: boolean;
 }) => {
-  if (isError) {
-    return (
-      <BrowserNotSupportedOutlined
-        {...iconProps}
-        sx={{
-          ...iconProps?.sx,
-          color: 'error.dark',
-          cursor: 'pointer',
-        }}
-      />
-    );
-  }
+  // if (isError) {
+  //   return (
+  //     <BrowserNotSupportedOutlined
+  //       {...iconProps}
+  //       sx={{
+  //         ...iconProps?.sx,
+  //         color: 'error.dark',
+  //         cursor: 'pointer',
+  //       }}
+  //     />
+  //   );
+  // }
 
   const fileType = detectFileType(ext);
 
@@ -83,22 +82,13 @@ interface FileItemProps {
 const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) => {
   const t = useTranslations();
   const [posterUrlEnabled, setPosterUrlEnabled] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const showImage = posterUrlEnabled && (!isError || isLoading);
+  const showImage = !!posterUrlEnabled;
 
   const doLoad = useCallback(() => {
     if (file.fileType !== 'image') return;
 
     setPosterUrlEnabled(true);
   }, [file.fileType, setPosterUrlEnabled]);
-
-  const handleIconClick = () => {
-    if (file.fileType !== 'image') return;
-
-    setIsError(false);
-    setIsLoading(true);
-  };
 
   return (
     <StyledFileCardWrapper
@@ -116,38 +106,22 @@ const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) =>
         </StyledFileMoreInfo>
       </StyledFileTitle>
 
-      <StyledFilePosterWrapper>
-        {isLoading && !!posterUrlEnabled && (
-          <StyledFilePosterLoading>
-            <CircularProgress
-              sx={{ width: '100%', height: '100%', color: 'text.secondary' }}
-              thickness={6}
-            />
-          </StyledFilePosterLoading>
-        )}
-
+      <StyledFileCoverWrapper>
         {showImage ? (
-          // 在这里使用 next/image 会发送两次请求，很奇怪，回退到原生 img 就正常请求一次
           <PosterImage
             disabled={!posterUrlEnabled}
             file={file}
-            isLoading={isLoading}
-            onError={() => setIsError(true)}
-            onLoad={() => setIsLoading(false)}
           />
         ) : (
-          <Box
-            sx={{ height: '100%', width: '100%' }}
-            onClick={handleIconClick}
-          >
+          <Box sx={{ height: '100%', width: '100%' }}>
             <FileIcon
-              isError={isError}
+              // isError={isError}
               ext={file.nameExt}
               iconProps={{ sx: { height: '100%', width: '100%', color: 'text.secondary' } }}
             />
           </Box>
         )}
-      </StyledFilePosterWrapper>
+      </StyledFileCoverWrapper>
     </StyledFileCardWrapper>
   );
 };

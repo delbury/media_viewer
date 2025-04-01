@@ -45,20 +45,9 @@ export const StyledToggleButtonGroup = styled(ToggleButtonGroup)`
   display: flex;
 `;
 
-export const StyledFilePosterWrapper = styled(Box)`
+export const StyledFileCoverWrapper = styled(Box)`
   position: relative;
   flex: 1;
   min-height: 0;
   word-break: break-all;
-`;
-
-export const StyledFilePosterLoading = styled(Box)`
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;

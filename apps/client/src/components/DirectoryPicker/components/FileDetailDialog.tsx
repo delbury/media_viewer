@@ -1,6 +1,8 @@
 import Dialog from '#/components/Dialog';
+import PosterImage from '#/components/PosterImage';
 import { formatDate, formatFileSize } from '#/utils';
 import { FileInfo } from '#pkgs/tools/traverseDirectories';
+import { Box } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import React, { useMemo } from 'react';
 import {
@@ -49,6 +51,9 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
           </React.Fragment>
         ))}
       </StyledFileDetailWrapper>
+      <Box sx={{ mt: '8px', height: '30vh' }}>
+        <PosterImage file={file} />
+      </Box>
     </Dialog>
   );
 };
