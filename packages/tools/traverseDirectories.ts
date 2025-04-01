@@ -3,13 +3,14 @@ import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { FullFileType } from '../shared';
 import { detectFileType } from './common.js';
+import { IGNORE_FILE_NAME_REG } from './constant';
 
 interface CommonInfo {
   // 文件根路径
   basePath?: string;
   // 文件根路径在根目录中的索引
   basePathIndex: number;
-  // 文件全路径
+  // 文件相对路径
   relativePath: string;
   // 文件名
   name: string;
@@ -46,8 +47,8 @@ export interface DirectoryInfo extends CommonInfo {
 interface NewInfoParams {
   // 文件根路径
   bp?: string;
-  // 文件相对路径
-  rp?: string;
+  // 文件绝对路径
+  fp?: string;
   // 文件信息
   info?: Stats;
   // 文件根路径在根目录中的索引
@@ -57,11 +58,12 @@ interface NewInfoParams {
 export type TraverseDirectoriesReturnValue = Awaited<ReturnType<typeof traverseDirectories>>;
 
 const formatPath = (p: string) => p.replaceAll('\\', '/');
-const newCommonInfo = ({ bp, rp, info, bpi }: NewInfoParams = {}): CommonInfo => {
+const newCommonInfo = ({ bp, fp, info, bpi }: NewInfoParams = {}): CommonInfo => {
   let basePath = formatPath(bp ?? '');
   if (basePath.endsWith('/')) basePath = basePath.slice(0, basePath.length - 1);
 
-  let relativePath = formatPath(rp ?? '');
+  // 文件相对路径
+  let relativePath = formatPath(fp ?? '');
   if (relativePath) {
     relativePath = relativePath.replace(basePath, '') || '/';
   }
@@ -70,13 +72,13 @@ const newCommonInfo = ({ bp, rp, info, bpi }: NewInfoParams = {}): CommonInfo =>
     basePath,
     basePathIndex: bpi,
     relativePath,
-    name: rp ? path.basename(rp) : '',
+    name: fp ? path.basename(fp) : '',
     created: info?.birthtimeMs ?? 0,
     updated: info?.mtimeMs ?? 0,
   };
 };
 const newFileInfo = (params?: NewInfoParams): FileInfo => {
-  const { ext, name } = path.parse(params.rp);
+  const { ext, name } = path.parse(params.fp);
   const nameExt = ext.toLowerCase();
   return {
     ...newCommonInfo(params),
@@ -98,7 +100,7 @@ const newDirectoryInfo = (params?: NewInfoParams): DirectoryInfo => {
 };
 
 /**
- * 遍历文件夹
+ * 遍历文件夹，生成目录树和文件列表
  * @param dir
  * @returns
  */
@@ -127,30 +129,33 @@ export const traverseDirectories = async (
       continue;
     }
 
+    // 忽略隐藏文件夹或文件
+    if (IGNORE_FILE_NAME_REG.test(path.basename(d))) continue;
+
     // base path
     // 如果当前文件夹没有 basePath，则为根目录，否则使用父目录的 basePath
     const bp = currentDir.basePath || d;
     const bpi = currentDir.basePathIndex ?? rootDir.indexOf(bp);
-    // relative path
-    const rp = path.resolve(__dirname, d);
+    // full path
+    const fp = path.resolve(__dirname, d);
 
-    const info = await stat(rp);
+    const info = await stat(fp);
     if (info.isDirectory()) {
       // 是文件夹，创建并保存当前文件夹信息对象
-      const dirInfo = newDirectoryInfo({ bp, rp, info, bpi });
+      const dirInfo = newDirectoryInfo({ bp, fp, info, bpi });
       currentDir.children.push(dirInfo);
 
       // 将文件夹的子文件压入队列
       dirs.push(dirInfo);
-      const childFiles = await readdir(rp);
-      childFiles.forEach(cf => {
-        dirs.push(path.resolve(rp, cf));
+      const childDirs = await readdir(fp);
+      childDirs.forEach(cd => {
+        dirs.push(path.resolve(fp, cd));
       });
       // 所有文件夹信息放入数组
       dirList.push(dirInfo);
     } else if (info.isFile()) {
       // 是文件，创建并保存当前文件信息对象
-      const fileInfo = newFileInfo({ bp, rp, info, bpi });
+      const fileInfo = newFileInfo({ bp, fp, info, bpi });
       currentDir.files.push(fileInfo);
       // 所有文件信息放入数组
       fileList.push(fileInfo);

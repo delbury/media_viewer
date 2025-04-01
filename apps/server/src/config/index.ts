@@ -26,3 +26,6 @@ export const POSTER_FILE_NAME_PREFIX = `${IGNORE_FILE_NAME_PREFIX}poster__`;
 
 // 缩略图长或宽最大尺寸
 export const POSTER_MAX_SIZE = 400;
+
+// 保存缩略图的文件夹名
+export const POSTER_DIR_NAME = `${IGNORE_FILE_NAME_PREFIX}poster_dir`;

@@ -1,28 +1,22 @@
 import { CACHE_DATA_PATH, CACHE_DATE_FILE_NAME, DIRECTORY_ROOTS, SERVER_VERSION } from '#/config';
 import { returnBody } from '#/util';
 import { API_CONFIGS, ApiResponseDataTypes } from '#pkgs/apis';
-import { DirUpdateData } from '#pkgs/shared';
 import { readDataFromFile, writeDataToFile } from '#pkgs/tools/fileOperation';
 import { traverseDirectories } from '#pkgs/tools/traverseDirectories';
 import Router from '@koa/router';
 import { omit } from 'lodash-es';
+import { ERROR_MSG } from '../i18n/errorMsg';
+import { GLOBAL_TASK } from '../util/task';
 
 const directoryRouter = new Router();
 
-// 更新任务
-const updateTask: {
-  loading: boolean;
-  cache?: DirUpdateData;
-} = {
-  loading: false,
-  cache: null,
-};
+const updateTask = GLOBAL_TASK.update;
 
 // 强制更新，返回文件夹 tree 和 文件 list
 directoryRouter[API_CONFIGS.dirUpdate.method](API_CONFIGS.dirUpdate.url, async ctx => {
-  if (updateTask.loading) throw new Error('still updating');
+  if (updateTask.loading) throw new Error(ERROR_MSG.taskInProgress);
 
-  if (!DIRECTORY_ROOTS) throw new Error('no root dir');
+  if (!DIRECTORY_ROOTS) throw new Error(ERROR_MSG.noRootDir);
 
   try {
     updateTask.loading = true;

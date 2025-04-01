@@ -53,15 +53,6 @@ export const hideFile = async (filePath: string) => {
 // 缩略图文件名
 export const getPosterFileName = (fileName: string) => `${POSTER_FILE_NAME_PREFIX}${fileName}`;
 
-// 缩略图文件路径
-export const getPosterFilePath = (filePath: string) => {
-  const fileDir = path.dirname(filePath);
-  const fileName = path.basename(filePath);
-  const posterFileName = getPosterFileName(fileName);
-  const posterFilePath = path.join(fileDir, posterFileName);
-  return posterFilePath;
-};
-
 // 生成缩略图封面
 export const generatePoster = async (rawFilePath: string, posterFilePath: string) => {
   const fileType = detectFileType(path.extname(rawFilePath));

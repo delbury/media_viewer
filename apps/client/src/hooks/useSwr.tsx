@@ -1,17 +1,21 @@
 'use client';
 
 import { API_CONFIGS, ApiKeys, ApiResponseDataTypes, instance, TIMEOUT } from '#/request';
-import { ApiResponseBase } from '#pkgs/shared';
+import { ApiRequestDataTypes, ApiRequestParamsTypes, ApiResponseBase } from '#pkgs/shared';
 import { useNotifications } from '@toolpad/core';
 import { AxiosError } from 'axios';
+import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import useSWR, { KeyedMutator } from 'swr';
 
 export type * from '#pkgs/shared';
 
-interface UseSwrOptions<T> {
+interface UseSwrOptions<T, P extends ApiKeys> {
   lazy?: boolean;
   onSuccess?: (data: ApiResponseBase<T>) => void;
+  params?: ApiRequestParamsTypes<P>;
+  data?: ApiRequestDataTypes<P>;
+  noticeWhenSuccess?: boolean;
 }
 interface UseSwrReturnValue<T> {
   data?: T;
@@ -23,9 +27,16 @@ interface UseSwrReturnValue<T> {
 
 function useSwr<T extends ApiKeys, D = ApiResponseDataTypes<T>>(
   apiKey: T,
-  options?: UseSwrOptions<D>
+  options?: UseSwrOptions<D, T>
 ): UseSwrReturnValue<D> {
-  const { lazy = false, onSuccess } = options ?? {};
+  const {
+    lazy = false,
+    onSuccess,
+    noticeWhenSuccess = lazy,
+    params: requestParams,
+    data: requestData,
+  } = options ?? {};
+  const t = useTranslations();
   const notifications = useNotifications();
   const { url, method } = API_CONFIGS[apiKey];
   const { data, isLoading, isValidating, mutate } = useSWR<
@@ -37,6 +48,8 @@ function useSwr<T extends ApiKeys, D = ApiResponseDataTypes<T>>(
       const res = await instance.request({
         url,
         method,
+        params: requestParams,
+        data: requestData,
       });
       return res?.data;
     },
@@ -51,7 +64,15 @@ function useSwr<T extends ApiKeys, D = ApiResponseDataTypes<T>>(
           severity: 'error',
         });
       },
-      ...(onSuccess ? { onSuccess } : {}),
+      onSuccess: data => {
+        onSuccess?.(data);
+        if (noticeWhenSuccess) {
+          notifications.show(t('Common.RequestSuccess'), {
+            autoHideDuration: 1000,
+            severity: 'success',
+          });
+        }
+      },
     }
   );
 

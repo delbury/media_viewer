@@ -6,7 +6,6 @@
     "lib": ["ESNext"],
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "resolvePackageJsonImports": true,
     "noImplicitAny": true,
     "removeComments": false,
     "preserveConstEnums": true,

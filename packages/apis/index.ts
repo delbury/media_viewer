@@ -1,4 +1,7 @@
+import { ParsedUrlQuery } from 'querystring';
 import { DirectoryInfo, DirUpdateData } from '../shared';
+
+export * from './tools';
 
 export type Method =
   | 'link'
@@ -17,54 +20,67 @@ export interface ApiConfig {
   method: Method;
 }
 
-// 所有接口配置
+/**
+ * 所有接口配置
+ */
 export const API_CONFIGS = {
+  // 更新目录树
   dirUpdate: {
     url: '/dir/update',
     method: 'post',
   },
+  // 获取目录树
   dirTree: {
     url: '/dir/tree',
     method: 'get',
   },
+  // 获取缩略图
   filePoster: {
     url: '/file/poster',
     method: 'get',
   },
-  filePosterClean: {
-    url: '/file/poster/clean',
+  // 清除缩略图
+  filePosterClear: {
+    url: '/file/poster/clear',
     method: 'post',
   },
 } satisfies Record<string, ApiConfig>;
 
 export type ApiKeys = keyof typeof API_CONFIGS;
 
-// 接口返回数据类型
+/**
+ * 接口返回数据类型
+ */
 export type ApiResponseDataTypes<T extends ApiKeys> = T extends 'dirUpdate'
   ? Omit<DirUpdateData, 'fileList'>
   : T extends 'dirTree'
     ? DirectoryInfo
     : never;
 
-type ApiParamsBase = Record<string, unknown>;
-interface ApiFilePosterParams extends ApiParamsBase {
-  basePathIndex: number;
-  relativePath: string;
-}
-// 接口请求参数类型
+/**
+ * 接口请求参数类型，query 上的参数
+ */
 export type ApiRequestParamsTypes<T extends ApiKeys> = T extends 'filePoster'
   ? ApiFilePosterParams
+  : T extends 'filePosterClear'
+    ? ApiFilePosterClearParams
+    : never;
+
+type ApiRequestParamsBase = ParsedUrlQuery;
+interface ApiFilePosterParams extends ApiRequestParamsBase {
+  basePathIndex: string;
+  relativePath: string;
+  force?: 'true';
+}
+
+/**
+ * 接口请求参数类型，body 上的参数
+ */
+
+export type ApiRequestDataTypes<T extends ApiKeys> = T extends 'filePosterClear'
+  ? ApiFilePosterClearParams
   : never;
 
-// 获取带参数的url，用于直接使用 url 的场景，如图片的 src
-export const joinUrlWithQueryString = function <T extends ApiKeys>(
-  apiKey: T,
-  query: ApiRequestParamsTypes<T>,
-  baseUrl?: string
-) {
-  const stringifiedQueryObj = Object.fromEntries(
-    Object.entries(query).map(([key, value]) => [key, `${value}`] as const)
-  );
-  const queryString = new URLSearchParams(stringifiedQueryObj).toString().replace(/\+/g, '%20');
-  return `${baseUrl ?? ''}${API_CONFIGS[apiKey].url}?${queryString}`;
-};
+interface ApiFilePosterClearParams {
+  clearAll?: boolean;
+}

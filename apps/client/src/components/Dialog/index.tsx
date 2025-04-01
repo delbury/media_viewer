@@ -88,7 +88,7 @@ const CompDialog = (props: DialogProps) => {
       <Divider />
 
       <DialogActions sx={{ display: 'flex', justifyContent: 'space-between' }}>
-        <Box>{leftFooter}</Box>
+        <Box sx={{ display: 'flex', gap: '4px' }}>{leftFooter}</Box>
         <Stack
           direction="row"
           spacing={2}

@@ -1,11 +1,14 @@
 // client 和 server 通用的工具函数
 
 import chalk from 'chalk';
-import { FullFileType } from '../shared/index';
+import { FullFileType } from '../shared';
 import { AUDIO_REG, IMAGE_REG, TEXT_REG, VIDEO_REG } from './constant';
 
 // 控制台打印日志
 export const logInfo = (str: string) => console.info(chalk.blue(str));
+export const logSuccess = (str: string) => console.info(chalk.green(str));
+export const logWarn = (str: string) => console.info(chalk.yellow(str));
+export const logError = (str: string) => console.info(chalk.red(str));
 
 // 判断文件类型
 export const detectFileType = (ext: string): FullFileType => {

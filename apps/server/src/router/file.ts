@@ -1,11 +1,20 @@
-import { DIRECTORY_ROOTS, POSTER_CACHE_MAX_AGE, RAW_IMAGE_FOR_POSTER_MAX_SIZE } from '#/config';
+import {
+  DIRECTORY_ROOTS,
+  POSTER_CACHE_MAX_AGE,
+  POSTER_DIR_NAME,
+  POSTER_FILE_NAME_PREFIX,
+  RAW_IMAGE_FOR_POSTER_MAX_SIZE,
+} from '#/config';
 import { API_CONFIGS, ApiRequestParamsTypes } from '#pkgs/apis';
-import { detectFileType } from '#pkgs/tools/common';
+import { detectFileType, logSuccess } from '#pkgs/tools/common';
+import { walkFromRootDirs } from '#pkgs/tools/fileOperation';
 import Router from '@koa/router';
 import send from 'koa-send';
-import { access, stat } from 'node:fs/promises';
+import { access, mkdir, readdir, rm, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
-import { generatePoster, getPosterFilePath } from '../util';
+import { ERROR_MSG } from '../i18n/errorMsg';
+import { generatePoster, getPosterFileName, returnBody } from '../util';
+import { GLOBAL_TASK } from '../util/task';
 
 const fileRouter = new Router();
 
@@ -16,23 +25,40 @@ fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx 
   // 强制更新
   const forceUpdate = force === 'true';
 
-  // 参数校验
-  const basePath = DIRECTORY_ROOTS[basePathIndex];
-  if (!basePath) throw new Error('no root dir');
+  // 校验根目录
+  const basePath = DIRECTORY_ROOTS[+basePathIndex];
+  if (!basePath) throw new Error(ERROR_MSG.noRootDir);
 
+  // 校验文件类型
   const fileType = detectFileType(relativePath);
-  if (fileType !== 'image') throw new Error('not an image file');
+  if (fileType !== 'image') throw new Error(ERROR_MSG.notAnImageFile);
 
+  // 校验文件路径的合法性
   const fullPath = path.join(basePath, relativePath);
-  if (!fullPath.startsWith(basePath)) throw new Error('error path');
+  if (!fullPath.startsWith(basePath)) throw new Error(ERROR_MSG.errorPath);
 
+  // send 方法的相对路径
   let sendFileRelativePath = relativePath;
 
-  // 文件大小校验
   const fileStat = await stat(fullPath);
-  if (fileStat.size > RAW_IMAGE_FOR_POSTER_MAX_SIZE) {
+  // base: /a/b/c
+  // relative: ./d/e/f.jpg
+  // currentDir: ./d/e
+  // posterDir: ./d/e/poster_dir
+  // posterFile: ./d/e/poster_dir/poster_f.jpg
+  // 图片类型的文件，根据文件大小来判断是否生成缩略图
+  if (fileType === 'image' && fileStat.size > RAW_IMAGE_FOR_POSTER_MAX_SIZE) {
     let hasPoster = false;
-    const relativePosterFilePath = getPosterFilePath(relativePath);
+    // 当前文件夹相对路径
+    const currentDir = path.dirname(relativePath);
+    // 缩略图文件夹相对路径
+    const posterDir = path.join(currentDir, POSTER_DIR_NAME);
+    // 缩略图相对路径
+    const relativePosterFilePath = path.join(
+      posterDir,
+      getPosterFileName(path.basename(relativePath))
+    );
+    // 缩略图绝对路径
     const fullPosterFilePath = path.join(basePath, relativePosterFilePath);
 
     if (!forceUpdate) {
@@ -50,6 +76,12 @@ fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx 
       sendFileRelativePath = relativePosterFilePath;
     } else {
       // 无缩略图，则创建
+      const posterDirFullPath = path.join(basePath, posterDir);
+      try {
+        await access(posterDirFullPath);
+      } catch {
+        await mkdir(posterDirFullPath);
+      }
       await generatePoster(fullPath, fullPosterFilePath);
       sendFileRelativePath = relativePosterFilePath;
     }
@@ -60,6 +92,64 @@ fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx 
     maxAge: POSTER_CACHE_MAX_AGE,
     hidden: true,
   });
+});
+
+// 清除缩略图，默认只清除无用的缩略图
+fileRouter[API_CONFIGS.filePosterClear.method](API_CONFIGS.filePosterClear.url, async ctx => {
+  const { clearAll } = ctx.request.body as ApiRequestParamsTypes<'filePosterClear'>;
+
+  if (GLOBAL_TASK.clearPoster.loading) throw new Error('task in progress');
+
+  // 任务队列
+  // const tasks: Promise<void>[] = [];
+  await walkFromRootDirs(
+    DIRECTORY_ROOTS,
+    async (self, { childFiles, ignoreChildDirs, ignoreChildFiles }) => {
+      // 处理文件，删除直接在当前目录的下的缩略图
+      // （旧版是放在当前目录下，新版是放在当前目录的专门的文件夹下）
+      ignoreChildFiles.forEach(async file => {
+        const fileName = path.basename(file);
+        // 删除专用文件夹外的缩略图文件
+        if (fileName.startsWith(POSTER_FILE_NAME_PREFIX)) {
+          logSuccess(`removed: ${file}`);
+          await unlink(file);
+        }
+      });
+
+      // 处理文件夹
+      if (clearAll) {
+        // 处理文件夹，强制删除时，直接整个删除
+        ignoreChildDirs.forEach(async dir => {
+          if (path.basename(dir) === POSTER_DIR_NAME) {
+            logSuccess(`removed: ${dir}`);
+            await rm(dir, { recursive: true });
+          }
+        });
+        return;
+      }
+
+      // 非强制删除时，只删除没有对应文件的缩略图
+      try {
+        const posterDir = path.join(self, POSTER_DIR_NAME);
+        await access(posterDir);
+        const posterFiles = await readdir(posterDir);
+        const childFilesSet = new Set(childFiles.map(file => path.basename(file)));
+
+        posterFiles.forEach(async posterName => {
+          if (!childFilesSet.has(posterName.replace(POSTER_FILE_NAME_PREFIX, ''))) {
+            const fp = path.join(posterDir, posterName);
+            logSuccess(`removed: ${fp}`);
+            await rm(fp);
+          }
+        });
+      } catch {
+        // 没有缩略图文件夹，无操作
+      }
+    }
+  );
+  // await Promise.allSettled(tasks);
+
+  ctx.body = returnBody();
 });
 
 export { fileRouter };

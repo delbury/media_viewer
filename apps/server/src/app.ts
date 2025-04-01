@@ -1,5 +1,6 @@
 import { logInfo } from '#pkgs/tools/common';
 import Koa from 'koa';
+import bodyParser from 'koa-bodyparser';
 import { directoryRouter } from './router/directory';
 import { fileRouter } from './router/file';
 import { returnError } from './util';
@@ -9,6 +10,8 @@ const routers = [directoryRouter, fileRouter];
 const PORT = 4002;
 
 const app = new Koa();
+
+app.use(bodyParser());
 
 app.use(async (ctx, next) => {
   try {

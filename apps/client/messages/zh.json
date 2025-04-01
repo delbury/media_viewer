@@ -12,7 +12,9 @@
     "CurrentDirectories": "当前文件夹下子文件夹",
     "CurrentFiles": "当前文件夹下文件",
     "CurrentPath": "当前文件夹",
-    "RootDirectory": "根目录"
+    "RootDirectory": "根目录",
+    "AreYouSureReGenerateDirectoryInfo": "确定重新生成文件目录数据？",
+    "AreYouSureClearUselessPoster": "确定删除无用的封面缩略图？"
   },
   "Common": {
     "AreYouSure": "确定？",
@@ -35,7 +37,9 @@
     "Audio": "音频",
     "Video": "视频",
     "Text": "文本",
-    "Other": "其他"
+    "Other": "其他",
+
+    "RequestSuccess": "操作成功"
   },
   "File": {
     "Size": "大小",

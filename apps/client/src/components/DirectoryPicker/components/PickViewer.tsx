@@ -1,7 +1,7 @@
 import Dialog from '#/components/Dialog';
-import { useConfirmDialog } from '#/hooks/useConfirmDialog';
+import { useConfirmDialogByKeys } from '#/hooks/useConfirmDialog';
 import { DirectoryInfo, useSwr } from '#/hooks/useSwr';
-import { LoopOutlined } from '@mui/icons-material';
+import { CleaningServicesOutlined, LoopOutlined } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
@@ -27,10 +27,26 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
       setPathList(res.data?.treeNode ? [res.data.treeNode] : []);
     },
   });
+
+  // 删除缩略图
+  const clearPosterRequest = useSwr('filePosterClear', {
+    lazy: true,
+    data: {
+      // clearAll: true,
+    },
+  });
+
   // 二次确认是否刷新
-  const { dialog: confirmDialog, handleOpen: confirmOpen } = useConfirmDialog(
-    updateRequest.refresh
-  );
+  const { ConfirmDialog, handleOpen: confirmOpen } = useConfirmDialogByKeys({
+    dirUpdate: {
+      onOk: updateRequest.refresh,
+      description: t('Tools.AreYouSureReGenerateDirectoryInfo'),
+    },
+    filePosterClear: {
+      onOk: clearPosterRequest.refresh,
+      description: t('Tools.AreYouSureClearUselessPoster'),
+    },
+  });
 
   // 请求文件夹树
   const dirRequest = useSwr('dirTree', {
@@ -83,12 +99,20 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
           />
         }
         leftFooterSlot={
-          <IconButton
-            loading={updateRequest.isLoading}
-            onClick={confirmOpen}
-          >
-            <LoopOutlined />
-          </IconButton>
+          <>
+            <IconButton
+              loading={updateRequest.isLoading}
+              onClick={() => confirmOpen('dirUpdate')}
+            >
+              <LoopOutlined />
+            </IconButton>
+            <IconButton
+              loading={updateRequest.isLoading}
+              onClick={() => confirmOpen('filePosterClear')}
+            >
+              <CleaningServicesOutlined />
+            </IconButton>
+          </>
         }
       >
         {/* 已选文件夹 */}
@@ -106,7 +130,7 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
           <FileItemList files={currentFiles} />
         </ResizeContainer.Wrapper>
 
-        {confirmDialog}
+        {ConfirmDialog}
       </Dialog>
     )
   );
