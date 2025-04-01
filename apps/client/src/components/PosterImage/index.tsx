@@ -11,12 +11,16 @@ interface PosterImageProps {
 }
 
 const PosterImage = ({ disabled, file }: PosterImageProps) => {
-  const [isError, setIsError] = useState(false);
+  // const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [imgKey, setImgKey] = useState(0);
+
+  const showImage = useMemo(() => {
+    if (!disabled && file.fileType === 'image') return true;
+    return false;
+  }, [disabled, file.fileType]);
 
   const url = useMemo(() => {
-    if (disabled || file.fileType !== 'image') return '';
+    if (!showImage) return '';
 
     const str = joinUrlWithQueryString(
       'filePoster',
@@ -27,15 +31,10 @@ const PosterImage = ({ disabled, file }: PosterImageProps) => {
       API_BASE_URL
     );
     return str;
-  }, [disabled, file.basePathIndex, file.relativePath, file.fileType]);
+  }, [file.basePathIndex, file.relativePath, showImage]);
 
   const handleClick = () => {
-    if (isError && url) {
-      // 重试
-      setImgKey(v => v + 1);
-      setIsError(false);
-      setIsLoading(true);
-    }
+    // 打开图片浏览器
   };
 
   return (
@@ -50,7 +49,6 @@ const PosterImage = ({ disabled, file }: PosterImageProps) => {
       )}
       {/* 在这里使用 next/image 会发送两次请求，很奇怪，回退到原生 img 就正常请求一次 */}
       <img
-        key={imgKey}
         src={url}
         alt={file.name}
         style={{
@@ -61,7 +59,7 @@ const PosterImage = ({ disabled, file }: PosterImageProps) => {
         }}
         loading="lazy"
         onError={() => {
-          setIsError(true);
+          // setIsError(true);
           setIsLoading(false);
         }}
         onLoad={() => {

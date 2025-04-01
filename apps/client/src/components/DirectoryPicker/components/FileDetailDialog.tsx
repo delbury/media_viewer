@@ -2,9 +2,10 @@ import Dialog from '#/components/Dialog';
 import PosterImage from '#/components/PosterImage';
 import { formatDate, formatFileSize } from '#/utils';
 import { FileInfo } from '#pkgs/tools/traverseDirectories';
-import { Box } from '@mui/material';
+import { LoopOutlined } from '@mui/icons-material';
+import { Box, IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   StyledFileDetailLabel,
   StyledFileDetailValue,
@@ -19,6 +20,7 @@ interface FileDetailDialogProps {
 
 const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => {
   const t = useTranslations();
+  const [imgKey, setImgKey] = useState(false);
 
   const fileInfos: { label: string; value: string | undefined }[] = useMemo(() => {
     return [
@@ -30,6 +32,10 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
     ];
   }, [file, t]);
 
+  const showImage = useMemo(() => {
+    return file.fileType === 'image';
+  }, [file.fileType]);
+
   return (
     <Dialog
       open={visible}
@@ -39,6 +45,18 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
       dialogProps={{
         maxWidth: 'xs',
       }}
+      leftFooterSlot={
+        showImage && (
+          <IconButton
+            onClick={() => {
+              // 刷新图片
+              setImgKey(v => !v);
+            }}
+          >
+            <LoopOutlined />
+          </IconButton>
+        )
+      }
     >
       <StyledFileDetailWrapper>
         {fileInfos.map(info => (
@@ -51,9 +69,14 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
           </React.Fragment>
         ))}
       </StyledFileDetailWrapper>
-      <Box sx={{ mt: '8px', height: '30vh' }}>
-        <PosterImage file={file} />
-      </Box>
+      {showImage && (
+        <Box sx={{ mt: '8px', height: '30vh' }}>
+          <PosterImage
+            file={file}
+            key={imgKey.toString()}
+          />
+        </Box>
+      )}
     </Dialog>
   );
 };
