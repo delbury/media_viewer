@@ -9,7 +9,7 @@ import { useResetBtn } from './useResetBtn';
 export type SortMode = 'desc' | 'asc';
 
 // 排序
-const sortItems = function <T, F extends string>({
+const sortItems = <T, F extends string>({
   items,
   sortMode,
   sortField,
@@ -19,7 +19,7 @@ const sortItems = function <T, F extends string>({
   sortMode: SortMode | null;
   sortField: F[];
   apiFieldMap: Record<F, keyof T>;
-}) {
+}) => {
   if (!sortMode || !sortField.length) return items;
 
   const biggerNum = sortMode === 'asc' ? 1 : -1;
@@ -50,12 +50,12 @@ interface SortItemParams<T, F extends string> {
   fileSortOptions: { label: string; value: F }[];
 }
 
-export const useSortList = function <T, F extends string>({
+export const useSortList = <T, F extends string>({
   items,
   apiFieldMap,
   fileSortOptions,
   persistentKeyPrefix,
-}: SortItemParams<T, F>) {
+}: SortItemParams<T, F>) => {
   const [sortMode, setSortMode] = usePersistentConfig<SortMode | null>(
     DEFAULT_VALUES.sortMode,
     persistentKeyPrefix ? `${persistentKeyPrefix}SortMode` : void 0

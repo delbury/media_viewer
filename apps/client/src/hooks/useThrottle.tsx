@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 
-export const useThrottle = function <T extends unknown[], R>(cb: (...args: T) => R, timeout?: number) {
+export const useThrottle = <T extends unknown[], R>(cb: (...args: T) => R, timeout?: number) => {
   const timer = useRef<number>(null);
 
   const callbackCache = useRef<() => void>(null);

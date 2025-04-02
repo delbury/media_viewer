@@ -19,6 +19,6 @@ export const formatFileSize = (size: number) => {
 };
 
 // 将对象转换为选项数组
-export const mapToOptions = function <T extends string>(map: Record<T, string>) {
+export const mapToOptions = <T extends string>(map: Record<T, string>) => {
   return Object.entries(map).map(([key, value]) => ({ label: value as string, value: key as T }));
 };

@@ -54,10 +54,10 @@ export const useConfirmDialog = function ({
 };
 
 // 可以配置多个确认弹窗，通过 key 区分
-export const useConfirmDialogByKeys = function <T extends string = string>(
+export const useConfirmDialogByKeys = <T extends string = string>(
   params: Record<T, UseConfirmDialogParams>,
   defaultKey?: T
-) {
+) => {
   const [currentKey, setCurrentKey] = useState<T | null>(null);
   const currentParams = useMemo(() => {
     if (currentKey) return params[currentKey];

@@ -5,14 +5,14 @@ import { exec, ExecOptions } from 'node:child_process';
 import path from 'node:path';
 import { POSTER_FILE_NAME_PREFIX, POSTER_MAX_SIZE } from '../config';
 
-export const returnBody = function <T>(data?: T) {
+export const returnBody = <T>(data?: T) => {
   return {
     code: 0,
     data,
   } satisfies ApiResponseBase<T>;
 };
 
-export const returnError = function <T>(msg: string, code?: number) {
+export const returnError = <T>(msg: string, code?: number) => {
   return {
     code: code ?? 1,
     msg,

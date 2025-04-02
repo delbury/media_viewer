@@ -1,7 +1,10 @@
 import { useCallback, useRef } from 'react';
 import { useThrottle } from './useThrottle';
 
-export const useIdleCallback = function <T extends unknown[], R>(cb: (...args: T) => R, timeout?: number) {
+export const useIdleCallback = <T extends unknown[], R>(
+  cb: (...args: T) => R,
+  timeout?: number
+) => {
   const cbId = useRef<number>(null);
 
   const idleCallback = useCallback(

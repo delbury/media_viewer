@@ -6,12 +6,13 @@ import {
   RAW_IMAGE_FOR_POSTER_MAX_SIZE,
 } from '#/config';
 import { API_CONFIGS, ApiRequestParamsTypes } from '#pkgs/apis';
-import { detectFileType, logSuccess } from '#pkgs/tools/common';
+import { createAsyncTaskQueue, detectFileType, logSuccess } from '#pkgs/tools/common';
 import { walkFromRootDirs } from '#pkgs/tools/fileOperation';
 import Router from '@koa/router';
 import send from 'koa-send';
 import { access, mkdir, readdir, rm, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
+import os from 'os';
 import { ERROR_MSG } from '../i18n/errorMsg';
 import { generatePoster, getPosterFileName, returnBody } from '../util';
 import { getTask } from '../util/task';
@@ -122,7 +123,7 @@ fileRouter[API_CONFIGS.filePosterClear.method](API_CONFIGS.filePosterClear.url, 
   if (clearPosterTask.loading) throw new Error('task in progress');
   clearPosterTask.loading = true;
   // 任务队列
-  // const tasks: Promise<void>[] = [];
+  const tasks = createAsyncTaskQueue(os.cpus().length);
   await walkFromRootDirs(
     DIRECTORY_ROOTS,
     async (self, { childFiles, ignoreChildDirs, ignoreChildFiles }) => {
@@ -132,8 +133,10 @@ fileRouter[API_CONFIGS.filePosterClear.method](API_CONFIGS.filePosterClear.url, 
         const fileName = path.basename(file);
         // 删除专用文件夹外的缩略图文件
         if (fileName.startsWith(POSTER_FILE_NAME_PREFIX)) {
-          logSuccess(`removed: ${file}`);
-          await unlink(file);
+          tasks.add(async () => {
+            await unlink(file);
+            logSuccess(`removed: ${file}`);
+          });
         }
       });
 
@@ -142,8 +145,10 @@ fileRouter[API_CONFIGS.filePosterClear.method](API_CONFIGS.filePosterClear.url, 
         // 处理文件夹，强制删除时，直接整个删除
         ignoreChildDirs.forEach(async dir => {
           if (path.basename(dir) === POSTER_DIR_NAME) {
-            logSuccess(`removed: ${dir}`);
-            await rm(dir, { recursive: true });
+            tasks.add(async () => {
+              await rm(dir, { recursive: true });
+              logSuccess(`removed: ${dir}`);
+            });
           }
         });
         return;
@@ -159,8 +164,10 @@ fileRouter[API_CONFIGS.filePosterClear.method](API_CONFIGS.filePosterClear.url, 
         posterFiles.forEach(async posterName => {
           if (!childFilesSet.has(posterName.replace(POSTER_FILE_NAME_PREFIX, ''))) {
             const fp = path.join(posterDir, posterName);
-            logSuccess(`removed: ${fp}`);
-            await rm(fp);
+            tasks.add(async () => {
+              await rm(fp);
+              logSuccess(`removed: ${fp}`);
+            });
           }
         });
       } catch {
@@ -168,7 +175,8 @@ fileRouter[API_CONFIGS.filePosterClear.method](API_CONFIGS.filePosterClear.url, 
       }
     }
   );
-  // await Promise.allSettled(tasks);
+  tasks.start();
+  await tasks.result;
   clearPosterTask.loading = false;
 
   ctx.body = returnBody();
