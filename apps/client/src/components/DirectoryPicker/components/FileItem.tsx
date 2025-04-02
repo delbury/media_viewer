@@ -1,7 +1,7 @@
 import PosterImage from '#/components/PosterImage';
 import { LazyLoadObserve } from '#/hooks/useLazyLoad';
 import { formatFileSize } from '#/utils';
-import { FileInfo } from '#pkgs/shared';
+import { FileInfo } from '#pkgs/apis';
 import { detectFileType } from '#pkgs/tools/common';
 import {
   FeaturedPlayListOutlined,

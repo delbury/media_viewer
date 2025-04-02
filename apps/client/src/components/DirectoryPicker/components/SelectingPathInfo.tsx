@@ -1,5 +1,5 @@
 import ScrollBox, { ScrollBoxInstance } from '#/components/ScrollBox';
-import { DirectoryInfo } from '#pkgs/shared';
+import { DirectoryInfo } from '#pkgs/apis';
 import { CatchingPokemonOutlined } from '@mui/icons-material';
 import { Box, Chip, Typography } from '@mui/material';
 import React, { useEffect, useRef } from 'react';

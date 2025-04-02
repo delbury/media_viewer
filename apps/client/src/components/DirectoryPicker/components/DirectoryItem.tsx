@@ -1,5 +1,5 @@
 import { formatDate } from '#/utils';
-import { DirectoryInfo } from '#pkgs/shared';
+import { DirectoryInfo } from '#pkgs/apis';
 import { FolderOutlined, SourceOutlined } from '@mui/icons-material';
 import { ListItemIcon, ListItemText, SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';

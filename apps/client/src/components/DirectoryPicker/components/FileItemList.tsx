@@ -4,7 +4,8 @@ import { GridLayout, VirtualListChildItemProps } from '#/components/ScrollBox/ho
 import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { h5Max } from '#/style/device';
 import { TFunction } from '#/types';
-import { FileInfo, FullFileType } from '#pkgs/shared';
+import { FileInfo } from '#pkgs/apis';
+import { FullFileType } from '#pkgs/shared';
 import { useMediaQuery } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';

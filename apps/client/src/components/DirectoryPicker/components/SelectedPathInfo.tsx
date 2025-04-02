@@ -1,5 +1,5 @@
 import ScrollBox, { ScrollBoxInstance } from '#/components/ScrollBox';
-import { DirectoryInfo } from '#pkgs/shared';
+import { DirectoryInfo } from '#pkgs/apis';
 import { Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import React, { useEffect, useRef } from 'react';

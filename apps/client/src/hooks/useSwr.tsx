@@ -1,14 +1,14 @@
 'use client';
 
 import { API_CONFIGS, ApiKeys, ApiResponseDataTypes, instance, TIMEOUT } from '#/request';
-import { ApiRequestDataTypes, ApiRequestParamsTypes, ApiResponseBase } from '#pkgs/shared';
+import { ApiRequestDataTypes, ApiRequestParamsTypes, ApiResponseBase } from '#pkgs/apis';
 import { useNotifications } from '@toolpad/core';
 import { AxiosError } from 'axios';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import useSWR, { KeyedMutator } from 'swr';
 
-export type * from '#pkgs/shared';
+// export type * from '#pkgs/apis';
 
 interface UseSwrOptions<T, P extends ApiKeys> {
   lazy?: boolean;

@@ -14,9 +14,30 @@ import { access, mkdir, readdir, rm, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { ERROR_MSG } from '../i18n/errorMsg';
 import { generatePoster, getPosterFileName, returnBody } from '../util';
-import { GLOBAL_TASK } from '../util/task';
+import { getTask } from '../util/task';
 
 const fileRouter = new Router();
+
+const clearPosterTask = getTask('clearPoster');
+
+// 返回文件
+fileRouter[API_CONFIGS.fileGet.method](API_CONFIGS.fileGet.url, async ctx => {
+  const { basePathIndex, relativePath } = ctx.query as ApiRequestParamsTypes<'fileGet'>;
+
+  // 校验根目录
+  const basePath = DIRECTORY_ROOTS[+basePathIndex];
+  if (!basePath) throw new Error(ERROR_MSG.noRootDir);
+
+  // 校验文件路径的合法性
+  const fullPath = path.join(basePath, relativePath);
+  if (!fullPath.startsWith(basePath)) throw new Error(ERROR_MSG.errorPath);
+
+  await send(ctx, relativePath, {
+    root: basePath,
+    maxAge: POSTER_CACHE_MAX_AGE,
+    hidden: false,
+  });
+});
 
 // 返回缩略图
 fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx => {
@@ -98,8 +119,8 @@ fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx 
 fileRouter[API_CONFIGS.filePosterClear.method](API_CONFIGS.filePosterClear.url, async ctx => {
   const { clearAll } = ctx.request.body as ApiRequestParamsTypes<'filePosterClear'>;
 
-  if (GLOBAL_TASK.clearPoster.loading) throw new Error('task in progress');
-
+  if (clearPosterTask.loading) throw new Error('task in progress');
+  clearPosterTask.loading = true;
   // 任务队列
   // const tasks: Promise<void>[] = [];
   await walkFromRootDirs(
@@ -148,6 +169,7 @@ fileRouter[API_CONFIGS.filePosterClear.method](API_CONFIGS.filePosterClear.url, 
     }
   );
   // await Promise.allSettled(tasks);
+  clearPosterTask.loading = false;
 
   ctx.body = returnBody();
 });

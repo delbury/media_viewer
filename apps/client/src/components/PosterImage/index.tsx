@@ -1,6 +1,5 @@
 import { API_BASE_URL } from '#/request';
-import { joinUrlWithQueryString } from '#pkgs/apis';
-import { FileInfo } from '#pkgs/shared';
+import { FileInfo, joinUrlWithQueryString } from '#pkgs/apis';
 import { CircularProgress } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { StyledFilePosterLoading, StyledFilePosterWrapper } from './style';

@@ -1,5 +1,6 @@
 import { mapToOptions } from '#/utils';
-import { DirectoryInfo, FileInfo, FullFileType } from '#pkgs/shared';
+import { DirectoryInfo, FileInfo } from '#pkgs/apis';
+import { FullFileType } from '#pkgs/shared';
 import { AUDIO_EXTS, IMAGE_EXTS, VIDEO_EXTS } from '#pkgs/tools/constant';
 
 export const PATH_SEPARATOR = '/';

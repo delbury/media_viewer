@@ -6,11 +6,11 @@ import { traverseDirectories } from '#pkgs/tools/traverseDirectories';
 import Router from '@koa/router';
 import { omit } from 'lodash-es';
 import { ERROR_MSG } from '../i18n/errorMsg';
-import { GLOBAL_TASK } from '../util/task';
+import { getTask } from '../util/task';
 
 const directoryRouter = new Router();
 
-const updateTask = GLOBAL_TASK.update;
+const updateTask = getTask('dirUpdate');
 
 // 强制更新，返回文件夹 tree 和 文件 list
 directoryRouter[API_CONFIGS.dirUpdate.method](API_CONFIGS.dirUpdate.url, async ctx => {
@@ -21,9 +21,10 @@ directoryRouter[API_CONFIGS.dirUpdate.method](API_CONFIGS.dirUpdate.url, async c
   try {
     updateTask.loading = true;
     const res = await traverseDirectories(DIRECTORY_ROOTS, { version: SERVER_VERSION });
-    ctx.body = returnBody<ApiResponseDataTypes<'dirUpdate'>>(omit(res, ['fileList']));
+    const resultData = omit(res, ['fileList']);
+    ctx.body = returnBody(resultData);
     // 更新内存缓存
-    updateTask.cache = res;
+    updateTask.cache = resultData;
     // 更新本地缓存
     await writeDataToFile(CACHE_DATA_PATH, CACHE_DATE_FILE_NAME, res);
   } finally {

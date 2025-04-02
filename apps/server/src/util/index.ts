@@ -1,4 +1,4 @@
-import { ApiResponseBase } from '#pkgs/shared';
+import { ApiResponseBase } from '#pkgs/apis';
 import { detectFileType } from '#pkgs/tools/common';
 import { IGNORE_FILE_NAME_REG } from '#pkgs/tools/constant';
 import { exec, ExecOptions } from 'node:child_process';

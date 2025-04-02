@@ -1,6 +1,6 @@
 import ResizeContainer from '#/components/ResizeContainer';
 import { VirtualListChildItemProps } from '#/components/ScrollBox/hooks/useVirtualList';
-import { DirectoryInfo } from '#pkgs/shared';
+import { DirectoryInfo } from '#pkgs/apis';
 import { List } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import {

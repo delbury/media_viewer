@@ -1,7 +1,15 @@
 import { ParsedUrlQuery } from 'querystring';
-import { DirectoryInfo, DirUpdateData } from '../shared';
+import {
+  DirectoryInfo,
+  FileInfo,
+  TraverseDirectoriesReturnValue,
+} from '../tools/traverseDirectories';
 
 export * from './tools';
+
+type DirUpdateData = TraverseDirectoriesReturnValue;
+
+export type { DirectoryInfo, DirUpdateData, FileInfo };
 
 export type Method =
   | 'link'
@@ -34,6 +42,11 @@ export const API_CONFIGS = {
     url: '/dir/tree',
     method: 'get',
   },
+  // 获取文件
+  fileGet: {
+    url: '/file/get',
+    method: 'get',
+  },
   // 获取缩略图
   filePoster: {
     url: '/file/poster',
@@ -62,14 +75,18 @@ export type ApiResponseDataTypes<T extends ApiKeys> = T extends 'dirUpdate'
  */
 export type ApiRequestParamsTypes<T extends ApiKeys> = T extends 'filePoster'
   ? ApiFilePosterParams
-  : T extends 'filePosterClear'
-    ? ApiFilePosterClearParams
-    : never;
+  : T extends 'fileGet'
+    ? ApiFileGetParams
+    : T extends 'filePosterClear'
+      ? ApiFilePosterClearParams
+      : never;
 
 type ApiRequestParamsBase = ParsedUrlQuery;
-interface ApiFilePosterParams extends ApiRequestParamsBase {
+interface ApiFileGetParams extends ApiRequestParamsBase {
   basePathIndex: string;
   relativePath: string;
+}
+interface ApiFilePosterParams extends ApiFileGetParams {
   force?: 'true';
 }
 
@@ -83,4 +100,13 @@ export type ApiRequestDataTypes<T extends ApiKeys> = T extends 'filePosterClear'
 
 interface ApiFilePosterClearParams {
   clearAll?: boolean;
+}
+
+/**
+ * 基础接口返回类型
+ */
+export interface ApiResponseBase<T = unknown> {
+  msg?: string;
+  code: number;
+  data?: T;
 }

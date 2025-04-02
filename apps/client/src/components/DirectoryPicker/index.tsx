@@ -1,7 +1,7 @@
 'use client';
 
 import { useDialogState } from '#/hooks/useDialogState';
-import { DirectoryInfo } from '#pkgs/shared';
+import { DirectoryInfo } from '#pkgs/apis';
 import { Button } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';

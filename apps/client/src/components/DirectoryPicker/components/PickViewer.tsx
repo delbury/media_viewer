@@ -1,6 +1,7 @@
 import Dialog from '#/components/Dialog';
 import { useConfirmDialogByKeys } from '#/hooks/useConfirmDialog';
-import { DirectoryInfo, useSwr } from '#/hooks/useSwr';
+import { useSwr } from '#/hooks/useSwr';
+import { DirectoryInfo } from '#pkgs/apis';
 import { CleaningServicesOutlined, LoopOutlined } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
