@@ -111,6 +111,9 @@ importers:
       swr:
         specifier: ^2.3.2
         version: 2.3.2(react@19.0.0)
+      viewerjs:
+        specifier: ^1.11.7
+        version: 1.11.7
     devDependencies:
       '@types/node':
         specifier: ^20
@@ -3331,6 +3334,9 @@ packages:
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
+
+  viewerjs@1.11.7:
+    resolution: {integrity: sha512-0JuVqOmL5v1jmEAlG5EBDR3XquxY8DWFQbFMprOXgaBB0F7Q/X9xWdEaQc59D8xzwkdUgXEMSSknTpriq95igg==}
 
   vite@6.1.0:
     resolution: {integrity: sha512-RjjMipCKVoR4hVfPY6GQTgveinjNuyLw+qruksLDvA5ktI1150VmcMBKmQaEWJhg/j6Uaf6dNCNA0AfdzUb/hQ==}
@@ -6768,6 +6774,8 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   vary@1.1.2: {}
+
+  viewerjs@1.11.7: {}
 
   vite@6.1.0(@types/node@20.17.17)(sass@1.84.0)(tsx@4.19.2)(yaml@2.5.1):
     dependencies:

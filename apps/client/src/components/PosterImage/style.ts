@@ -4,7 +4,7 @@ export const StyledFilePosterWrapper = styled(Box)`
   position: relative;
   height: 100%;
   width: 100%;
-  cursor: pointer;
+  /* cursor: pointer; */
 `;
 
 export const StyledFilePosterLoading = styled(Box)`

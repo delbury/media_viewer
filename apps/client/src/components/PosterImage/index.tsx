@@ -1,15 +1,17 @@
+import useImageViewer from '#/hooks/useImageViewer';
 import { API_BASE_URL } from '#/request';
 import { FileInfo, joinUrlWithQueryString } from '#pkgs/apis';
 import { CircularProgress } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { StyledFilePosterLoading, StyledFilePosterWrapper } from './style';
 
 interface PosterImageProps {
   file: FileInfo;
   disabled?: boolean;
+  singleViewerEnabled?: boolean;
 }
 
-const PosterImage = ({ disabled, file }: PosterImageProps) => {
+const PosterImage = ({ disabled, file, singleViewerEnabled }: PosterImageProps) => {
   // const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -18,10 +20,10 @@ const PosterImage = ({ disabled, file }: PosterImageProps) => {
     return false;
   }, [disabled, file.fileType]);
 
-  const url = useMemo(() => {
-    if (!showImage) return '';
+  const urls = useMemo(() => {
+    if (!showImage) return null;
 
-    const str = joinUrlWithQueryString(
+    const posterUrl = joinUrlWithQueryString(
       'filePoster',
       {
         basePathIndex: file.basePathIndex.toString(),
@@ -29,15 +31,30 @@ const PosterImage = ({ disabled, file }: PosterImageProps) => {
       },
       API_BASE_URL
     );
-    return str;
+
+    const realUrl = joinUrlWithQueryString(
+      'fileGet',
+      {
+        basePathIndex: file.basePathIndex.toString(),
+        relativePath: file.relativePath,
+      },
+      API_BASE_URL
+    );
+
+    return {
+      realUrl,
+      posterUrl,
+    };
   }, [file.basePathIndex, file.relativePath, showImage]);
 
-  const handleClick = () => {
-    // 打开图片浏览器
-  };
+  const imageRef = useRef<HTMLImageElement>(null);
+  useImageViewer({
+    enabled: singleViewerEnabled,
+    imageRef,
+  });
 
   return (
-    <StyledFilePosterWrapper onClick={handleClick}>
+    <StyledFilePosterWrapper sx={{ cursor: singleViewerEnabled ? 'pointer' : 'default' }}>
       {isLoading && (
         <StyledFilePosterLoading>
           <CircularProgress
@@ -47,8 +64,11 @@ const PosterImage = ({ disabled, file }: PosterImageProps) => {
         </StyledFilePosterLoading>
       )}
       {/* 在这里使用 next/image 会发送两次请求，很奇怪，回退到原生 img 就正常请求一次 */}
+
       <img
-        src={url}
+        ref={imageRef}
+        src={urls?.posterUrl}
+        data-src={urls?.realUrl}
         alt={file.name}
         style={{
           width: '100%',
