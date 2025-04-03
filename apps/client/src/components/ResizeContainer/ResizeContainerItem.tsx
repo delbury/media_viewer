@@ -96,4 +96,6 @@ const ResizeContainer = ({
   );
 };
 
+ResizeContainer.displayName = 'ResizeContainer';
+
 export default ResizeContainer;

@@ -23,10 +23,15 @@ export interface ScrollBoxProps {
   virtualListConfig?: VirtualListConfig;
   // 是否启用懒加载
   lazyLoadEnabled?: boolean;
+  // 子元素变化
+  onChildrenChange?: () => void;
 }
 
 const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
-  ({ children, sx, floatBarDisabled, virtualListConfig, lazyLoadEnabled }, ref) => {
+  (
+    { children, sx, floatBarDisabled, virtualListConfig, lazyLoadEnabled, onChildrenChange },
+    ref
+  ) => {
     const wrapperRef = useRef<HTMLElement>(null);
     const contentRef = useRef<HTMLElement>(null);
 
@@ -81,9 +86,8 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
     );
 
     // 开启虚拟列表时的子元素
-    const virtualChildren = useMemo(() => {
+    const VirtualChildren = useMemo(() => {
       if (!virtualListConfig || !renderRange) return children;
-
       return Array.from({ length: renderRange.count }, (_, index) => {
         const realIndex = index + renderRange.startIndex;
         const ChildItem = virtualListConfig.ChildItem;
@@ -108,9 +112,9 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
           <Box ref={contentRef}>
             {enableVirtualList ? (
               CustomVirtualListWrapper ? (
-                <CustomVirtualListWrapper>{virtualChildren}</CustomVirtualListWrapper>
+                <CustomVirtualListWrapper>{VirtualChildren}</CustomVirtualListWrapper>
               ) : (
-                virtualChildren
+                VirtualChildren
               )
             ) : (
               children

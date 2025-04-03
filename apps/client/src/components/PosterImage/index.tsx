@@ -2,16 +2,16 @@ import useImageViewer from '#/hooks/useImageViewer';
 import { API_BASE_URL } from '#/request';
 import { FileInfo, joinUrlWithQueryString } from '#pkgs/apis';
 import { CircularProgress } from '@mui/material';
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { StyledFilePosterLoading, StyledFilePosterWrapper } from './style';
 
 interface PosterImageProps {
   file: FileInfo;
   disabled?: boolean;
-  singleViewerEnabled?: boolean;
+  viewerAutoMount?: boolean;
 }
 
-const PosterImage = ({ disabled, file, singleViewerEnabled }: PosterImageProps) => {
+const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
   // const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -48,13 +48,21 @@ const PosterImage = ({ disabled, file, singleViewerEnabled }: PosterImageProps) 
   }, [file.basePathIndex, file.relativePath, showImage]);
 
   const imageRef = useRef<HTMLImageElement>(null);
-  useImageViewer({
-    enabled: singleViewerEnabled,
+  const { viewer, createViewer } = useImageViewer({
+    enabled: true,
+    viewerAutoMount,
     imageRef,
   });
 
+  const handleClick = useCallback(() => {
+    if (!viewerAutoMount) {
+      const v = viewer ?? createViewer();
+      v?.show(true);
+    }
+  }, [createViewer, viewerAutoMount, viewer]);
+
   return (
-    <StyledFilePosterWrapper sx={{ cursor: singleViewerEnabled ? 'pointer' : 'default' }}>
+    <StyledFilePosterWrapper onClick={handleClick}>
       {isLoading && (
         <StyledFilePosterLoading>
           <CircularProgress
@@ -75,6 +83,7 @@ const PosterImage = ({ disabled, file, singleViewerEnabled }: PosterImageProps) 
           height: '100%',
           objectFit: 'contain',
           visibility: isLoading ? 'hidden' : 'visible',
+          cursor: 'pointer',
         }}
         loading="lazy"
         onError={() => {

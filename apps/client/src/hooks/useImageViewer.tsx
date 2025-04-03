@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useRef } from 'react';
+import { RefObject, useCallback, useEffect, useState } from 'react';
 import Viewer from 'viewerjs';
 import 'viewerjs/dist/viewer.css';
 
@@ -20,19 +20,35 @@ interface ImageData {
 type RealViewer = Viewer & {
   initialImageData: ImageData;
   imageData: ImageData;
+  element: HTMLElement;
+  images: HTMLImageElement[];
 };
 
 interface UseImageViewerParams {
   enabled?: boolean;
+  isGallery?: boolean;
   imageRef: RefObject<HTMLElement | null>;
+  // 自动挂载
+  viewerAutoMount?: boolean;
 }
-const useImageViewer = ({ enabled, imageRef }: UseImageViewerParams) => {
-  const viewer = useRef<RealViewer>(null);
 
-  useEffect(() => {
+const useImageViewer = ({
+  enabled,
+  isGallery,
+  imageRef,
+  viewerAutoMount = false,
+}: UseImageViewerParams) => {
+  const [viewer, setViewer] = useState<RealViewer | null>(null);
+
+  isGallery = !!isGallery;
+
+  const createViewer = useCallback(() => {
     if (enabled && imageRef.current) {
+      // 先移除旧的实例
+      viewer?.destroy();
+
       const v = new Viewer(imageRef.current, {
-        navbar: false,
+        navbar: isGallery,
         title: false,
         initialCoverage: 1,
         scalable: false,
@@ -43,19 +59,18 @@ const useImageViewer = ({ enabled, imageRef }: UseImageViewerParams) => {
           zoomOut: true,
           zoomIn: true,
           oneToOne: true,
+          prev: isGallery,
+          play: false,
+          next: isGallery,
           reset: {
             show: true,
             size: 'large',
           },
-          prev: false,
-          play: false,
-          next: false,
           rotateLeft: true,
           rotateRight: true,
           flipHorizontal: false,
           flipVertical: false,
         },
-
         url: (image: HTMLImageElement) => {
           return image.dataset.src || image.src;
         },
@@ -85,15 +100,31 @@ const useImageViewer = ({ enabled, imageRef }: UseImageViewerParams) => {
             v.moveTo(v.initialImageData.x - dw, v.initialImageData.y - dh);
           }
         },
+        hidden: () => {
+          if (viewerAutoMount) {
+            viewer?.destroy();
+            setViewer(null);
+          }
+        },
       }) as RealViewer;
-      viewer.current = v;
+      setViewer(v);
+      return v;
+    }
+  }, [enabled, imageRef, isGallery, viewer, viewerAutoMount]);
 
+  useEffect(() => {
+    if (viewerAutoMount) {
+      createViewer();
       return () => {
-        viewer.current?.destroy();
-        viewer.current = null;
+        viewer?.destroy();
       };
     }
-  }, [enabled, imageRef]);
+  }, [enabled, isGallery]);
+
+  return {
+    viewer,
+    createViewer,
+  };
 };
 
 export default useImageViewer;

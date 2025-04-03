@@ -2,7 +2,7 @@ import { useCallback, useRef } from 'react';
 import { useThrottle } from './useThrottle';
 
 export const useIdleCallback = <T extends unknown[], R>(
-  cb: (...args: T) => R,
+  cb?: (...args: T) => R,
   timeout?: number
 ) => {
   const cbId = useRef<number>(null);
@@ -14,7 +14,7 @@ export const useIdleCallback = <T extends unknown[], R>(
         window.cancelIdleCallback(cbId.current);
       }
       cbId.current = window.requestIdleCallback(async () => {
-        cb(...args);
+        cb?.(...args);
         cbId.current = null;
       });
     },

@@ -81,8 +81,13 @@ export const useVirtualList = (
 
   // 子元素行的实际高度 = 子元素高度 + 行 gap
   const childRowHeight = useMemo(() => {
-    if (gridLayout) return gridLayout.rowHeight + (gridLayout.rowGap ?? 0);
-    return childHeight;
+    let height = 1;
+    if (gridLayout) {
+      height = gridLayout.rowHeight + (gridLayout.rowGap ?? 0);
+    } else {
+      height = childHeight;
+    }
+    return Math.max(1, height);
   }, [childHeight, gridLayout]);
 
   // 总高度

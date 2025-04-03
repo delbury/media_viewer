@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 
-export const useThrottle = <T extends unknown[], R>(cb: (...args: T) => R, timeout?: number) => {
+export const useThrottle = <T extends unknown[], R>(cb?: (...args: T) => R, timeout?: number) => {
   const timer = useRef<number>(null);
 
   const callbackCache = useRef<() => void>(null);
@@ -11,7 +11,7 @@ export const useThrottle = <T extends unknown[], R>(cb: (...args: T) => R, timeo
         // 当前无任务
 
         // 先执行，再节流
-        cb(...args);
+        cb?.(...args);
         timer.current = window.setTimeout(() => {
           timer.current = null;
 
@@ -25,7 +25,7 @@ export const useThrottle = <T extends unknown[], R>(cb: (...args: T) => R, timeo
         // 确保最后一次 callback 能够执行
         callbackCache.current = () => {
           callbackCache.current = null;
-          cb(...args);
+          cb?.(...args);
           timer.current = window.setTimeout(() => {
             timer.current = null;
             callbackCache.current?.();
