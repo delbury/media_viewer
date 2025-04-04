@@ -1,7 +1,7 @@
 import useImageViewer from '#/hooks/useImageViewer';
 import { API_BASE_URL } from '#/request';
 import { FileInfo, joinUrlWithQueryString } from '#pkgs/apis';
-import { PlayCircleRounded } from '@mui/icons-material';
+import { ImageRounded, PlayCircleRounded } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { StyledFilePosterHover, StyledFilePosterIcon, StyledFilePosterWrapper } from './style';
@@ -86,9 +86,13 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
       )}
 
       {/* hover 图标 */}
-      {file.fileType === 'video' && (
+      {(file.fileType === 'video' || file.fileType === 'image') && (
         <StyledFilePosterHover>
-          <PlayCircleRounded sx={{ height: '60%', width: '60%', color: 'common.white' }} />
+          {file.fileType === 'video' ? (
+            <PlayCircleRounded sx={{ height: '60%', width: '60%', color: 'common.white' }} />
+          ) : (
+            <ImageRounded sx={{ height: '60%', width: '60%', color: 'common.white' }} />
+          )}
         </StyledFilePosterHover>
       )}
 

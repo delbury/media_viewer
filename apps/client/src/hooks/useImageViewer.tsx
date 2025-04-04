@@ -22,6 +22,7 @@ type RealViewer = Viewer & {
   imageData: ImageData;
   element: HTMLElement;
   images: HTMLImageElement[];
+  image: HTMLImageElement;
 };
 
 interface UseImageViewerParams {
