@@ -12,16 +12,13 @@ interface PosterImageProps {
 }
 
 const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
-  // const [isError, setIsError] = useState(false);
+  const isError = useRef(false);
   const [isLoading, setIsLoading] = useState(true);
-
-  const showImage = useMemo(() => {
-    if (!disabled && file.fileType === 'image') return true;
-    return false;
-  }, [disabled, file.fileType]);
+  const [refreshKey, setRefreshKey] = useState(false);
 
   const urls = useMemo(() => {
-    if (!showImage) return null;
+    if (disabled) return null;
+    if (file.fileType !== 'image' && file.fileType !== 'video') return null;
 
     const posterUrl = joinUrlWithQueryString(
       'filePoster',
@@ -45,7 +42,7 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
       realUrl,
       posterUrl,
     };
-  }, [file.basePathIndex, file.relativePath, showImage]);
+  }, [file.basePathIndex, file.relativePath, disabled, file.fileType]);
 
   const imageRef = useRef<HTMLImageElement>(null);
   const { viewer, createViewer } = useImageViewer({
@@ -54,12 +51,27 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
     imageRef,
   });
 
+  // 点击事件
   const handleClick = useCallback(() => {
-    if (!viewerAutoMount) {
-      const v = viewer ?? createViewer();
-      v?.show(true);
+    if (!urls) return;
+    if (urls && isError.current) {
+      // 重试
+      setIsLoading(true);
+      isError.current = false;
+      setRefreshKey(prev => !prev);
     }
-  }, [createViewer, viewerAutoMount, viewer]);
+    if (file.fileType === 'image') {
+      // 图片文件，打开图片浏览器
+      if (!viewerAutoMount) {
+        const v = viewer ?? createViewer();
+        v?.show(true);
+      }
+    } else if (file.fileType === 'video') {
+      // 视频文件，打开视频浏览器
+    } else if (file.fileType === 'audio') {
+      // 音频文件，打开音频浏览器
+    }
+  }, [createViewer, viewerAutoMount, viewer, urls, file.fileType]);
 
   return (
     <StyledFilePosterWrapper onClick={handleClick}>
@@ -74,9 +86,11 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
       {/* 在这里使用 next/image 会发送两次请求，很奇怪，回退到原生 img 就正常请求一次 */}
 
       <img
+        key={refreshKey.toString()}
         ref={imageRef}
         src={urls?.posterUrl}
         data-src={urls?.realUrl}
+        data-type={file.fileType}
         alt={file.name}
         style={{
           width: '100%',
@@ -87,10 +101,11 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
         }}
         loading="lazy"
         onError={() => {
-          // setIsError(true);
+          isError.current = true;
           setIsLoading(false);
         }}
         onLoad={() => {
+          isError.current = false;
           setIsLoading(false);
         }}
       />

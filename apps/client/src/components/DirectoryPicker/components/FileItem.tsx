@@ -81,14 +81,13 @@ interface FileItemProps {
 
 const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) => {
   const t = useTranslations();
-  const [posterUrlEnabled, setPosterUrlEnabled] = useState(false);
-  const showImage = !!posterUrlEnabled;
+  const [showImage, setShowImage] = useState(false);
 
   const doLoad = useCallback(() => {
-    if (file.fileType !== 'image') return;
+    if (file.fileType !== 'image' && file.fileType !== 'video') return;
 
-    setPosterUrlEnabled(true);
-  }, [file.fileType, setPosterUrlEnabled]);
+    setShowImage(true);
+  }, [file.fileType, setShowImage]);
 
   return (
     <StyledFileCardWrapper
@@ -109,7 +108,7 @@ const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) =>
       <StyledFileCoverWrapper>
         {showImage ? (
           <PosterImage
-            disabled={!posterUrlEnabled}
+            disabled={!showImage}
             file={file}
           />
         ) : (

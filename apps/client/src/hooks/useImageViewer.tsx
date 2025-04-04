@@ -30,6 +30,7 @@ interface UseImageViewerParams {
   imageRef: RefObject<HTMLElement | null>;
   // 自动挂载
   viewerAutoMount?: boolean;
+  filter?: (image: HTMLImageElement) => boolean;
 }
 
 const useImageViewer = ({
@@ -37,6 +38,7 @@ const useImageViewer = ({
   isGallery,
   imageRef,
   viewerAutoMount = false,
+  filter,
 }: UseImageViewerParams) => {
   const [viewer, setViewer] = useState<RealViewer | null>(null);
 
@@ -71,6 +73,7 @@ const useImageViewer = ({
           flipHorizontal: false,
           flipVertical: false,
         },
+        filter,
         url: (image: HTMLImageElement) => {
           return image.dataset.src || image.src;
         },
@@ -110,7 +113,7 @@ const useImageViewer = ({
       setViewer(v);
       return v;
     }
-  }, [enabled, imageRef, isGallery, viewer, viewerAutoMount]);
+  }, [enabled, imageRef, isGallery, viewer, viewerAutoMount, filter]);
 
   useEffect(() => {
     if (viewerAutoMount) {

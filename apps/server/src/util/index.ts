@@ -1,9 +1,17 @@
 import { ApiResponseBase } from '#pkgs/apis';
-import { detectFileType } from '#pkgs/tools/common';
+import { detectFileType, logError } from '#pkgs/tools/common';
 import { IGNORE_FILE_NAME_REG } from '#pkgs/tools/constant';
 import { exec, ExecOptions } from 'node:child_process';
 import path from 'node:path';
-import { POSTER_FILE_NAME_PREFIX, POSTER_MAX_SIZE } from '../config';
+import {
+  LONG_VIDEO_DURATION_THRESHOLD,
+  LONG_VIDEO_POSTER_FRAME_TIME,
+  POSTER_FILE_EXT,
+  POSTER_FILE_NAME_PREFIX,
+  POSTER_MAX_SIZE,
+  SHORT_VIDEO_POSTER_FRAME_TIME,
+} from '../config';
+import { ERROR_MSG } from '../i18n/errorMsg';
 
 export const returnBody = <T>(data?: T) => {
   return {
@@ -19,17 +27,15 @@ export const returnError = <T>(msg: string, code?: number) => {
   } satisfies ApiResponseBase<T>;
 };
 
-// 打印错误
-export const loggerError = (error: Error) => {
-  console.error(error);
-};
-
 // 执行命令
-export const execCommand = async (command: string, options?: ExecOptions) => {
-  return new Promise((resolve, reject) => {
+export const execCommand = (command: string, options?: ExecOptions) => {
+  return new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
     exec(command, options, (error, stdout, stderr) => {
       // 错误处理
-      if (error) reject(error);
+      if (error) {
+        logError(error);
+        reject(new Error(ERROR_MSG.commandError));
+      }
       resolve({ stdout, stderr });
     });
   });
@@ -51,24 +57,67 @@ export const hideFile = async (filePath: string) => {
 };
 
 // 缩略图文件名
-export const getPosterFileName = (fileName: string) => `${POSTER_FILE_NAME_PREFIX}${fileName}`;
+export const getPosterFileName = (pureFileName: string) =>
+  `${POSTER_FILE_NAME_PREFIX}${pureFileName}${POSTER_FILE_EXT}`;
+
+// 生成 poster 的 ffmpeg 的基础命令
+const basePosterCommandParam = 'ffmpeg -y -hide_banner -loglevel error';
+const scalePosterCommandParam = `-vf "scale='min(${POSTER_MAX_SIZE},iw)':'min(${POSTER_MAX_SIZE},ih)':force_original_aspect_ratio=decrease"`;
+
+// 截取视频帧，生成缩略图
+const generateVideoPoster = async (rawFilePath: string, posterFilePath: string) => {
+  // 获取视频时长命令
+  const durationCommand = [
+    'ffprobe -v error',
+    '-show_entries format=duration',
+    '-of default=noprint_wrappers=1:nokey=1',
+    rawFilePath,
+  ].join(' ');
+  const { stdout } = await execCommand(durationCommand);
+  // 视频时长，单位为秒
+  const duration = parseFloat(stdout);
+  const frameTime =
+    duration < LONG_VIDEO_DURATION_THRESHOLD
+      ? SHORT_VIDEO_POSTER_FRAME_TIME
+      : LONG_VIDEO_POSTER_FRAME_TIME;
+
+  // 生成缩略图命令
+  return [
+    basePosterCommandParam,
+    `-i "${rawFilePath}"`,
+    `-ss ${frameTime}`,
+    scalePosterCommandParam,
+    '-vframes 1 -q:v 5',
+    `"${posterFilePath}"`,
+  ];
+};
 
 // 生成缩略图封面
 export const generatePoster = async (rawFilePath: string, posterFilePath: string) => {
   const fileType = detectFileType(path.extname(rawFilePath));
-  if (fileType !== 'image') throw new Error('not an image file');
 
-  // 生成缩略图
-  const command = [
-    'ffmpeg -y -hide_banner -loglevel error',
-    `-i "${rawFilePath}"`,
-    `-vf "scale='min(${POSTER_MAX_SIZE},iw)':'min(${POSTER_MAX_SIZE},ih)':force_original_aspect_ratio=decrease"`,
-    `-q:v 5 "${posterFilePath}"`,
-  ].join(' ');
+  let command: string[] = [];
+
+  if (fileType === 'image') {
+    // 图片类型，生成缩略图命令
+    command = [
+      basePosterCommandParam,
+      `-i "${rawFilePath}"`,
+      scalePosterCommandParam,
+      '-q:v 5',
+      `"${posterFilePath}"`,
+    ];
+  } else if (fileType === 'video') {
+    // 视频类型，生成缩略图命令
+    command = await generateVideoPoster(rawFilePath, posterFilePath);
+  } else {
+    throw new Error(ERROR_MSG.notAnImageOrVideoFile);
+  }
+
   try {
-    await execCommand(command);
+    await execCommand(command.join(' '));
   } catch (error) {
-    loggerError(error);
+    logError(error);
     throw error;
   }
 };

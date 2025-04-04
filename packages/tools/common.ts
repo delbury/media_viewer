@@ -8,7 +8,7 @@ import { AUDIO_REG, IMAGE_REG, TEXT_REG, VIDEO_REG } from './constant';
 export const logInfo = (str: string) => console.info(chalk.blue(str));
 export const logSuccess = (str: string) => console.info(chalk.green(str));
 export const logWarn = (str: string) => console.info(chalk.yellow(str));
-export const logError = (str: string) => console.info(chalk.red(str));
+export const logError = console.error;
 
 // 判断文件类型
 export const detectFileType = (ext: string): FullFileType => {

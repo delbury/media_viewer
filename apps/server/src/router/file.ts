@@ -10,6 +10,7 @@ import { createAsyncTaskQueue, detectFileType, logSuccess } from '#pkgs/tools/co
 import { walkFromRootDirs } from '#pkgs/tools/fileOperation';
 import Router from '@koa/router';
 import send from 'koa-send';
+import { noop } from 'lodash-es';
 import { access, mkdir, readdir, rm, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'os';
@@ -53,7 +54,8 @@ fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx 
 
   // 校验文件类型
   const fileType = detectFileType(relativePath);
-  if (fileType !== 'image') throw new Error(ERROR_MSG.notAnImageFile);
+  if (fileType !== 'image' && fileType !== 'video')
+    throw new Error(ERROR_MSG.notAnImageOrVideoFile);
 
   // 校验文件路径的合法性
   const fullPath = path.join(basePath, relativePath);
@@ -69,7 +71,11 @@ fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx 
   // posterDir: ./d/e/poster_dir
   // posterFile: ./d/e/poster_dir/poster_f.jpg
   // 图片类型的文件，根据文件大小来判断是否生成缩略图
-  if (fileType === 'image' && fileStat.size > RAW_IMAGE_FOR_POSTER_MAX_SIZE) {
+  // 视频类型的文件，需要生成缩略图
+  if (
+    (fileType === 'image' && fileStat.size > RAW_IMAGE_FOR_POSTER_MAX_SIZE) ||
+    fileType === 'video'
+  ) {
     let hasPoster = false;
     // 当前文件夹相对路径
     const currentDir = path.dirname(relativePath);
@@ -78,7 +84,7 @@ fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx 
     // 缩略图相对路径
     const relativePosterFilePath = path.join(
       posterDir,
-      getPosterFileName(path.basename(relativePath))
+      getPosterFileName(path.parse(relativePath).name)
     );
     // 缩略图绝对路径
     const fullPosterFilePath = path.join(basePath, relativePosterFilePath);
@@ -99,11 +105,11 @@ fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx 
     } else {
       // 无缩略图，则创建
       const posterDirFullPath = path.join(basePath, posterDir);
-      try {
-        await access(posterDirFullPath);
-      } catch {
-        await mkdir(posterDirFullPath);
-      }
+      // 创建文件夹
+      await access(posterDirFullPath)
+        .catch(() => mkdir(posterDirFullPath))
+        .catch(noop);
+
       await generatePoster(fullPath, fullPosterFilePath);
       sendFileRelativePath = relativePosterFilePath;
     }
