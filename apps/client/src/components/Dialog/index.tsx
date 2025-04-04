@@ -74,6 +74,8 @@ const CompDialog = (props: DialogProps) => {
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
             maxWidth: '100%',
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
           {title}

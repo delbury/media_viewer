@@ -14,6 +14,11 @@ const FILE_FILTER_MAP: Record<FileFilterField, string> = {
   // text: 'Common.Text',
   // other: 'Common.Other',
 };
+export const FULL_FILE_FILTER_MAP: Record<FullFileType, string> = {
+  ...FILE_FILTER_MAP,
+  text: 'Common.Text',
+  other: 'Common.Other',
+};
 export const FILE_FILTER_OPTIONS = mapToOptions(FILE_FILTER_MAP);
 const stringToMap = (str: string) => ({ label: str.toUpperCase(), value: str });
 export const FILE_TYPE_EXTS: Record<FileFilterField, { label: string; value: string }[]> = {

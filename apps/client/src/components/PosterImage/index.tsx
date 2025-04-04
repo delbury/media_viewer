@@ -1,9 +1,10 @@
 import useImageViewer from '#/hooks/useImageViewer';
 import { API_BASE_URL } from '#/request';
 import { FileInfo, joinUrlWithQueryString } from '#pkgs/apis';
+import { PlayCircleRounded } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { StyledFilePosterLoading, StyledFilePosterWrapper } from './style';
+import { StyledFilePosterHover, StyledFilePosterIcon, StyledFilePosterWrapper } from './style';
 
 interface PosterImageProps {
   file: FileInfo;
@@ -47,7 +48,7 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
   const imageRef = useRef<HTMLImageElement>(null);
   const { viewer, createViewer } = useImageViewer({
     enabled: true,
-    viewerAutoMount,
+    viewerAutoMount: viewerAutoMount && file.fileType === 'image',
     imageRef,
   });
 
@@ -76,15 +77,22 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
   return (
     <StyledFilePosterWrapper onClick={handleClick}>
       {isLoading && (
-        <StyledFilePosterLoading>
+        <StyledFilePosterIcon>
           <CircularProgress
             sx={{ width: '100%', height: '100%', color: 'text.secondary' }}
             thickness={6}
           />
-        </StyledFilePosterLoading>
+        </StyledFilePosterIcon>
       )}
-      {/* 在这里使用 next/image 会发送两次请求，很奇怪，回退到原生 img 就正常请求一次 */}
 
+      {/* hover 图标 */}
+      {file.fileType === 'video' && (
+        <StyledFilePosterHover>
+          <PlayCircleRounded sx={{ height: '60%', width: '60%', color: 'common.white' }} />
+        </StyledFilePosterHover>
+      )}
+
+      {/* 在这里使用 next/image 会发送两次请求，很奇怪，回退到原生 img 就正常请求一次 */}
       <img
         key={refreshKey.toString()}
         ref={imageRef}

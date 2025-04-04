@@ -22,3 +22,18 @@ export const StyledFileDetailValue = styled(Box)`
   justify-content: flex-start;
   word-break: break-all;
 `;
+
+export const StyledFilePosterWrapper = styled(Box)`
+  position: relative;
+  margin-top: 8px;
+  width: 100%;
+  padding-top: 56.25%;
+`;
+
+export const StyledFilePosterInner = styled(Box)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+`;

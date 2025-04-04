@@ -5,7 +5,7 @@ import { FileInfo } from '#pkgs/apis';
 import { detectFileType } from '#pkgs/tools/common';
 import {
   FeaturedPlayListOutlined,
-  MusicVideoOutlined,
+  MusicVideoRounded,
   NoteOutlined,
   PanoramaOutlined,
   SmartDisplayOutlined,
@@ -52,8 +52,8 @@ export const FileIcon = ({
   }
   if (fileType === 'audio') {
     return (
-      <MusicVideoOutlined
-        viewBox="0 -1.5 24 27"
+      <MusicVideoRounded
+        // viewBox="0 -1.5 24 27"
         {...iconProps}
       />
     );
