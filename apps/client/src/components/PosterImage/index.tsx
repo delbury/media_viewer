@@ -74,6 +74,12 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
     }
   }, [createViewer, viewerAutoMount, viewer, urls, file.fileType]);
 
+  const HoverIcon = useMemo(() => {
+    if (file.fileType === 'image') return ImageRounded;
+    if (file.fileType === 'video') return PlayCircleRounded;
+    return null;
+  }, [file.fileType]);
+
   return (
     <StyledFilePosterWrapper onClick={handleClick}>
       {isLoading && (
@@ -86,13 +92,9 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
       )}
 
       {/* hover 图标 */}
-      {(file.fileType === 'video' || file.fileType === 'image') && (
+      {!!HoverIcon && (
         <StyledFilePosterHover>
-          {file.fileType === 'video' ? (
-            <PlayCircleRounded sx={{ height: '60%', width: '60%', color: 'common.white' }} />
-          ) : (
-            <ImageRounded sx={{ height: '60%', width: '60%', color: 'common.white' }} />
-          )}
+          <HoverIcon sx={{ height: '60%', width: '60%', color: 'common.white' }} />
         </StyledFilePosterHover>
       )}
 

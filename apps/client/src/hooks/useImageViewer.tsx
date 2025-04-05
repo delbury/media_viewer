@@ -58,6 +58,7 @@ const useImageViewer = ({
         rotatable: true,
         transition: true,
         toggleOnDblclick: false,
+        movable: false,
         toolbar: {
           zoomOut: true,
           zoomIn: true,
