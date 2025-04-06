@@ -15,7 +15,7 @@ import { access, mkdir, readdir, rm, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'os';
 import { ERROR_MSG } from '../i18n/errorMsg';
-import { generatePoster, getPosterFileName, returnBody } from '../util';
+import { generatePoster, getPosterFileName, hideFile, returnBody } from '../util';
 import { getTask } from '../util/task';
 
 const fileRouter = new Router();
@@ -108,7 +108,7 @@ fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx 
       const posterDirFullPath = path.join(basePath, posterDir);
       // 创建文件夹
       await access(posterDirFullPath)
-        .catch(() => mkdir(posterDirFullPath))
+        .catch(() => mkdir(posterDirFullPath).then(() => hideFile(posterDirFullPath)))
         .catch(noop);
 
       await generatePoster(fullPath, fullPosterFilePath);

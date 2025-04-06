@@ -45,7 +45,7 @@ export const execCommand = (command: string, options?: ExecOptions) => {
 export const hideFile = async (filePath: string) => {
   // windows 下隐藏文件
   if (process.platform === 'win32') {
-    await execCommand(`attrib +h ${filePath}`);
+    await execCommand(`attrib +h "${filePath}"`);
   }
 
   // linux 下隐藏文件，默认传入的文件名已经以 . 开头

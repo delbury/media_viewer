@@ -52,7 +52,7 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
     imageRef,
   });
 
-  // 点击事件
+  // 点击事件;
   const handleClick = useCallback(() => {
     if (!urls) return;
     if (urls && isError) {
@@ -99,6 +99,7 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
       )}
 
       {/* 在这里使用 next/image 会发送两次请求，很奇怪，回退到原生 img 就正常请求一次 */}
+
       <img
         key={refreshKey.toString()}
         ref={imageRef}
@@ -107,10 +108,10 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
         data-type={file.fileType}
         alt={file.name}
         style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'contain',
           visibility: isLoading ? 'hidden' : 'visible',
+          width: '100%',
+          height: ' 100%',
+          objectFit: 'contain',
           cursor: 'pointer',
         }}
         loading="lazy"
