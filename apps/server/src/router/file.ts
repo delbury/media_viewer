@@ -31,7 +31,7 @@ fileRouter[API_CONFIGS.fileGet.method](API_CONFIGS.fileGet.url, async ctx => {
   if (!basePath) throw new Error(ERROR_MSG.noRootDir);
 
   // 校验文件路径的合法性
-  const fullPath = path.join(basePath, relativePath);
+  const fullPath = path.posix.join(basePath, relativePath);
   if (!fullPath.startsWith(basePath)) throw new Error(ERROR_MSG.errorPath);
 
   await send(ctx, relativePath, {
@@ -58,7 +58,8 @@ fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx 
     throw new Error(ERROR_MSG.notAnImageOrVideoFile);
 
   // 校验文件路径的合法性
-  const fullPath = path.join(basePath, relativePath);
+
+  const fullPath = path.posix.join(basePath, relativePath);
   if (!fullPath.startsWith(basePath)) throw new Error(ERROR_MSG.errorPath);
 
   // send 方法的相对路径

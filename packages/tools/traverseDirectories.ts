@@ -2,7 +2,7 @@ import { Stats } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { FullFileType } from '../shared';
-import { detectFileType } from './common.js';
+import { detectFileType, formatPath } from './common';
 import { IGNORE_FILE_NAME_REG } from './constant';
 
 interface CommonInfo {
@@ -57,7 +57,6 @@ interface NewInfoParams {
 
 export type TraverseDirectoriesReturnValue = Awaited<ReturnType<typeof traverseDirectories>>;
 
-const formatPath = (p: string) => p.replaceAll('\\', '/');
 const newCommonInfo = ({ bp, fp, info, bpi }: NewInfoParams = {}): CommonInfo => {
   let basePath = formatPath(bp ?? '');
   if (basePath.endsWith('/')) basePath = basePath.slice(0, basePath.length - 1);

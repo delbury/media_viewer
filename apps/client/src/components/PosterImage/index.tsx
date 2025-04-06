@@ -13,7 +13,7 @@ interface PosterImageProps {
 }
 
 const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
-  const isError = useRef(false);
+  const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(false);
 
@@ -55,10 +55,10 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
   // 点击事件
   const handleClick = useCallback(() => {
     if (!urls) return;
-    if (urls && isError.current) {
+    if (urls && isError) {
       // 重试
       setIsLoading(true);
-      isError.current = false;
+      setIsError(false);
       setRefreshKey(prev => !prev);
     }
     if (file.fileType === 'image') {
@@ -72,7 +72,7 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
     } else if (file.fileType === 'audio') {
       // 音频文件，打开音频浏览器
     }
-  }, [createViewer, viewerAutoMount, viewer, urls, file.fileType]);
+  }, [createViewer, viewerAutoMount, viewer, urls, file.fileType, isError, setIsError]);
 
   const HoverIcon = useMemo(() => {
     if (file.fileType === 'image') return ImageRounded;
@@ -92,7 +92,7 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
       )}
 
       {/* hover 图标 */}
-      {!!HoverIcon && (
+      {!!HoverIcon && !isError && !isLoading && (
         <StyledFilePosterHover>
           <HoverIcon sx={{ height: '60%', width: '60%', color: 'common.white' }} />
         </StyledFilePosterHover>
@@ -115,11 +115,11 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
         }}
         loading="lazy"
         onError={() => {
-          isError.current = true;
+          setIsError(true);
           setIsLoading(false);
         }}
         onLoad={() => {
-          isError.current = false;
+          setIsError(false);
           setIsLoading(false);
         }}
       />

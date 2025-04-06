@@ -17,6 +17,7 @@ app.use(async (ctx, next) => {
   try {
     await next();
   } catch (err) {
+    // logError(err);
     ctx.status = 400;
     ctx.body = returnError(err.message);
   }

@@ -4,6 +4,9 @@ import chalk from 'chalk';
 import { FullFileType } from '../shared';
 import { AUDIO_REG, IMAGE_REG, TEXT_REG, VIDEO_REG } from './constant';
 
+// 格式化 path 为 linux 风格
+export const formatPath = (p: string) => p.replaceAll('\\', '/');
+
 // 控制台打印日志
 export const logInfo = (str: string) => console.info(chalk.blue(str));
 export const logSuccess = (str: string) => console.info(chalk.green(str));
