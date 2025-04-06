@@ -46,10 +46,9 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
     ];
   }, [file, t]);
 
-  const isVideo = file.fileType === 'video';
   const showImage = useMemo(() => {
-    return file.fileType === 'image' || isVideo;
-  }, [file.fileType, isVideo]);
+    return file.fileType === 'image' || file.fileType === 'video' || file.fileType === 'audio';
+  }, [file.fileType]);
 
   return (
     <Dialog

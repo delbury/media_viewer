@@ -1,3 +1,4 @@
+import { DEFAULT_RATIO } from '#pkgs/tools/common';
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
@@ -27,7 +28,7 @@ export const StyledFilePosterWrapper = styled(Box)`
   position: relative;
   margin-top: 8px;
   width: 100%;
-  padding-top: 56.25%;
+  padding-top: ${DEFAULT_RATIO * 100}%;
 `;
 
 export const StyledFilePosterInner = styled(Box)`

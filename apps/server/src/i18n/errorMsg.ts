@@ -5,6 +5,6 @@ export const ERROR_MSG = {
   notAnImageFile: 'not an image file',
   notAnVideoFile: 'not an video file',
   notAnAudioFile: 'not an audio file',
-  notAnImageOrVideoFile: 'not an image or video file',
+  notAnCorrectFile: 'not an currect file',
   errorPath: 'error path',
 } satisfies Record<string, string | ((...args: string[]) => string)>;

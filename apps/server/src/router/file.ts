@@ -6,7 +6,12 @@ import {
   RAW_IMAGE_FOR_POSTER_MAX_SIZE,
 } from '#/config';
 import { API_CONFIGS, ApiRequestParamsTypes } from '#pkgs/apis';
-import { createAsyncTaskQueue, detectFileType, logSuccess } from '#pkgs/tools/common';
+import {
+  ALLOWED_POSTER_FILE_TYPES,
+  createAsyncTaskQueue,
+  detectFileType,
+  logSuccess,
+} from '#pkgs/tools/common';
 import { walkFromRootDirs } from '#pkgs/tools/fileOperation';
 import Router from '@koa/router';
 import send from 'koa-send';
@@ -54,8 +59,7 @@ fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx 
 
   // 校验文件类型
   const fileType = detectFileType(relativePath);
-  if (fileType !== 'image' && fileType !== 'video')
-    throw new Error(ERROR_MSG.notAnImageOrVideoFile);
+  if (!ALLOWED_POSTER_FILE_TYPES.includes(fileType)) throw new Error(ERROR_MSG.notAnCorrectFile);
 
   // 校验文件路径的合法性
 
@@ -75,7 +79,8 @@ fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx 
   // 视频类型的文件，需要生成缩略图
   if (
     (fileType === 'image' && fileStat.size > RAW_IMAGE_FOR_POSTER_MAX_SIZE) ||
-    fileType === 'video'
+    fileType === 'video' ||
+    fileType === 'audio'
   ) {
     let hasPoster = false;
     // 当前文件夹相对路径

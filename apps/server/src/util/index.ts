@@ -1,5 +1,5 @@
 import { ApiResponseBase } from '#pkgs/apis';
-import { detectFileType, logError } from '#pkgs/tools/common';
+import { DEFAULT_RATIO, detectFileType, logError } from '#pkgs/tools/common';
 import { IGNORE_FILE_NAME_REG } from '#pkgs/tools/constant';
 import { exec, ExecOptions } from 'node:child_process';
 import path from 'node:path';
@@ -65,13 +65,13 @@ const basePosterCommandParam = 'ffmpeg -y -hide_banner -loglevel error';
 const scalePosterCommandParam = `-vf "scale='min(${POSTER_MAX_SIZE},iw)':'min(${POSTER_MAX_SIZE},ih)':force_original_aspect_ratio=decrease"`;
 
 // 截取视频帧，生成缩略图
-const generateVideoPoster = async (rawFilePath: string, posterFilePath: string) => {
+const getGenerateVideoPosterCommand = async (rawFilePath: string, posterFilePath: string) => {
   // 获取视频时长命令
   const durationCommand = [
     'ffprobe -v error',
     '-show_entries format=duration',
     '-of default=noprint_wrappers=1:nokey=1',
-    rawFilePath,
+    `"${rawFilePath}"`,
   ].join(' ');
   const { stdout } = await execCommand(durationCommand);
   // 视频时长，单位为秒
@@ -92,6 +92,38 @@ const generateVideoPoster = async (rawFilePath: string, posterFilePath: string) 
   ];
 };
 
+// 获取音频文件的封面，如果文件内包含，则取其封面；否则，创建黑色封面
+const getGenerateAudioPosterCommand = async (rawFilePath: string, posterFilePath: string) => {
+  // 先判断是否存在封面
+  const checkCommand = [
+    'ffprobe -v error',
+    `-i "${rawFilePath}"`,
+    '-select_streams v -show_entries stream=codec_type -of csv=p=0',
+  ].join(' ');
+
+  const { stdout } = await execCommand(checkCommand);
+  const hasPoster = stdout.includes('video');
+  if (hasPoster) {
+    // 有封面
+    return [
+      basePosterCommandParam,
+      `-i "${rawFilePath}"`,
+      '-map 0:v',
+      scalePosterCommandParam,
+      `"${posterFilePath}"`,
+    ];
+  } else {
+    // 无封面，生成黑色图片
+    return [
+      basePosterCommandParam,
+      '-f lavfi',
+      `-i "color=c=black:s=${POSTER_MAX_SIZE}x${DEFAULT_RATIO * POSTER_MAX_SIZE}"`,
+      '-vframes 1',
+      `"${posterFilePath}"`,
+    ];
+  }
+};
+
 // 生成缩略图封面
 export const generatePoster = async (rawFilePath: string, posterFilePath: string) => {
   const fileType = detectFileType(path.extname(rawFilePath));
@@ -109,9 +141,12 @@ export const generatePoster = async (rawFilePath: string, posterFilePath: string
     ];
   } else if (fileType === 'video') {
     // 视频类型，生成缩略图命令
-    command = await generateVideoPoster(rawFilePath, posterFilePath);
+    command = await getGenerateVideoPosterCommand(rawFilePath, posterFilePath);
+  } else if (fileType === 'audio') {
+    // 音频类型，生成缩略图命令
+    command = await getGenerateAudioPosterCommand(rawFilePath, posterFilePath);
   } else {
-    throw new Error(ERROR_MSG.notAnImageOrVideoFile);
+    throw new Error(ERROR_MSG.notAnCorrectFile);
   }
 
   try {

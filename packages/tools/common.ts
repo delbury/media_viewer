@@ -4,6 +4,12 @@ import chalk from 'chalk';
 import { FullFileType } from '../shared';
 import { AUDIO_REG, IMAGE_REG, TEXT_REG, VIDEO_REG } from './constant';
 
+// 有缩略图的文件类型
+export const ALLOWED_POSTER_FILE_TYPES: FullFileType[] = ['image', 'audio', 'video'];
+
+// 默认的高/宽比
+export const DEFAULT_RATIO = 0.5625;
+
 // 格式化 path 为 linux 风格
 export const formatPath = (p: string) => p.replaceAll('\\', '/');
 

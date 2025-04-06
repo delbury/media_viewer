@@ -15,16 +15,17 @@ export const StyledFilePosterIcon = styled(Box)`
 export const StyledFilePosterHover = styled(StyledFilePosterIcon)`
   display: none;
   cursor: pointer;
-  /* opacity: 0.6; */
+  opacity: 0.6;
   pointer-events: none;
-  mix-blend-mode: difference;
+  background-color: black;
+  /* mix-blend-mode: difference; */
 `;
 
 export const StyledFilePosterWrapper = styled(Box)`
   position: relative;
   height: 100%;
   width: 100%;
-  /* cursor: pointer; */
+  cursor: pointer;
 
   :hover ${StyledFilePosterHover} {
     display: flex;
