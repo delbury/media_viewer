@@ -5,11 +5,11 @@ import { ALLOWED_POSTER_FILE_TYPES, detectFileType } from '#pkgs/tools/common';
 import {
   FeaturedPlayListOutlined,
   ImageRounded,
+  MusicNoteRounded,
   MusicVideoRounded,
   NoteOutlined,
   PanoramaOutlined,
   PlayCircleRounded,
-  RadioRounded,
   SmartDisplayOutlined,
 } from '@mui/icons-material';
 import { CircularProgress, SvgIconOwnProps } from '@mui/material';
@@ -120,7 +120,7 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
   const HoverIcon = useMemo(() => {
     switch (file.fileType) {
       case 'audio':
-        return RadioRounded;
+        return MusicNoteRounded;
       case 'image':
         return ImageRounded;
       case 'video':

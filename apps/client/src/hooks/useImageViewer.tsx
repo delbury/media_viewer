@@ -106,12 +106,13 @@ const useImageViewer = ({
           }
         },
         hidden: () => {
-          if (viewerAutoMount) {
-            viewer?.destroy();
+          if (!viewerAutoMount) {
+            v?.destroy();
             setViewer(null);
           }
         },
       }) as RealViewer;
+      viewer?.destroy();
       setViewer(v);
       return v;
     }
@@ -119,9 +120,9 @@ const useImageViewer = ({
 
   useEffect(() => {
     if (viewerAutoMount) {
-      createViewer();
+      const v = createViewer();
       return () => {
-        viewer?.destroy();
+        v?.destroy();
       };
     }
   }, [enabled, isGallery]);
