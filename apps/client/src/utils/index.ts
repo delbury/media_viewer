@@ -22,3 +22,6 @@ export const formatFileSize = (size: number) => {
 export const mapToOptions = <T extends string>(map: Record<T, string>) => {
   return Object.entries(map).map(([key, value]) => ({ label: value as string, value: key as T }));
 };
+
+// 阻止冒泡
+export const stopPropagation = (ev: Pick<Event, 'stopPropagation'>) => ev.stopPropagation();

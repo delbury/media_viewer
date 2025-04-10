@@ -1,6 +1,7 @@
 import useImageViewer from '#/hooks/useImageViewer';
 import { API_BASE_URL } from '#/request';
 import { FileInfo, joinUrlWithQueryString } from '#pkgs/apis';
+import { FullFileType } from '#pkgs/shared';
 import { ALLOWED_POSTER_FILE_TYPES, detectFileType } from '#pkgs/tools/common';
 import {
   FeaturedPlayListOutlined,
@@ -15,6 +16,7 @@ import {
 import { CircularProgress, SvgIconOwnProps } from '@mui/material';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import 'viewerjs/dist/viewer.css';
+import AudioViewer from '../AudioViewer';
 import { StyledFilePosterHover, StyledFilePosterIcon, StyledFilePosterWrapper } from './style';
 
 const FileIcon = ({ ext, iconProps }: { ext: string; iconProps?: SvgIconOwnProps }) => {
@@ -54,6 +56,9 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(false);
+  const [openViewer, setOpenViewer] = useState<Extract<FullFileType, 'audio' | 'video'> | null>(
+    null
+  );
 
   const urls = useMemo(() => {
     if (disabled) return null;
@@ -112,10 +117,18 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
       console.log(file.fileType);
     } else if (file.fileType === 'audio') {
       // 音频文件，打开音频浏览器
-      // TODO
-      console.log(file.fileType);
+      setOpenViewer('audio');
     }
-  }, [createViewer, viewerAutoMount, viewer, urls, file.fileType, isError, setIsError]);
+  }, [
+    createViewer,
+    viewerAutoMount,
+    viewer,
+    urls,
+    file.fileType,
+    isError,
+    setIsError,
+    setOpenViewer,
+  ]);
 
   const HoverIcon = useMemo(() => {
     switch (file.fileType) {
@@ -132,58 +145,68 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
   const allowed = useMemo(() => ALLOWED_POSTER_FILE_TYPES.includes(file.fileType), [file.fileType]);
 
   return (
-    <StyledFilePosterWrapper onClick={handleClick}>
-      {disabled || !allowed ? (
-        <FileIcon
-          ext={file.nameExt}
-          iconProps={{ sx: { height: '100%', width: '100%' } }}
-        />
-      ) : (
-        <>
-          {isLoading && (
-            <StyledFilePosterIcon>
-              <CircularProgress
-                sx={{ width: '100%', height: '100%', color: 'text.secondary' }}
-                thickness={6}
-              />
-            </StyledFilePosterIcon>
-          )}
-
-          {/* hover 图标 */}
-          {!!HoverIcon && !isError && !isLoading && (
-            <StyledFilePosterHover>
-              <HoverIcon sx={{ height: '75%', width: '75%', color: 'common.white' }} />
-            </StyledFilePosterHover>
-          )}
-
-          {/* 在这里使用 next/image 会发送两次请求，很奇怪，回退到原生 img 就正常请求一次 */}
-
-          <img
-            key={refreshKey.toString()}
-            ref={imageRef}
-            src={urls?.posterUrl}
-            data-src={urls?.realUrl}
-            data-type={file.fileType}
-            alt={file.name}
-            style={{
-              visibility: isLoading ? 'hidden' : 'visible',
-              width: '100%',
-              height: ' 100%',
-              objectFit: 'contain',
-            }}
-            loading="lazy"
-            onError={() => {
-              setIsError(true);
-              setIsLoading(false);
-            }}
-            onLoad={() => {
-              setIsError(false);
-              setIsLoading(false);
-            }}
+    <>
+      <StyledFilePosterWrapper onClick={handleClick}>
+        {disabled || !allowed ? (
+          <FileIcon
+            ext={file.nameExt}
+            iconProps={{ sx: { height: '100%', width: '100%' } }}
           />
-        </>
+        ) : (
+          <>
+            {isLoading && (
+              <StyledFilePosterIcon>
+                <CircularProgress
+                  sx={{ width: '100%', height: '100%', color: 'text.secondary' }}
+                  thickness={6}
+                />
+              </StyledFilePosterIcon>
+            )}
+
+            {/* hover 图标 */}
+            {!!HoverIcon && !isError && !isLoading && (
+              <StyledFilePosterHover>
+                <HoverIcon sx={{ height: '75%', width: '75%', color: 'common.white' }} />
+              </StyledFilePosterHover>
+            )}
+
+            {/* 在这里使用 next/image 会发送两次请求，很奇怪，回退到原生 img 就正常请求一次 */}
+
+            <img
+              key={refreshKey.toString()}
+              ref={imageRef}
+              src={urls?.posterUrl}
+              data-src={urls?.realUrl}
+              data-type={file.fileType}
+              alt={file.name}
+              style={{
+                visibility: isLoading ? 'hidden' : 'visible',
+                width: '100%',
+                height: ' 100%',
+                objectFit: 'contain',
+              }}
+              loading="lazy"
+              onError={() => {
+                setIsError(true);
+                setIsLoading(false);
+              }}
+              onLoad={() => {
+                setIsError(false);
+                setIsLoading(false);
+              }}
+            />
+          </>
+        )}
+      </StyledFilePosterWrapper>
+
+      {openViewer === 'audio' && (
+        <AudioViewer
+          visible
+          file={file}
+          onClose={() => setOpenViewer(null)}
+        />
       )}
-    </StyledFilePosterWrapper>
+    </>
   );
 };
 
