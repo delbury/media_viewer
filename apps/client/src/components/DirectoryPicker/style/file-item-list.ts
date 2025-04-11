@@ -43,6 +43,7 @@ export const StyledFileGrid = styled(Box)`
 export const StyledToggleButtonGroup = styled(ToggleButtonGroup)`
   height: 20px;
   display: flex;
+  /* align-self: flex-start; */
 `;
 
 export const StyledFileCoverWrapper = styled(Box)`

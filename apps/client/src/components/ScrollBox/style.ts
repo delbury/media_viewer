@@ -9,6 +9,7 @@ export const StyledScrollBoxContent = styled(Box)`
   height: 100%;
   overflow: auto;
   overscroll-behavior: contain;
+  scrollbar-width: none;
 `;
 
 const BAR_SIZE = 12;
