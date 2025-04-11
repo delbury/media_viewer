@@ -1,7 +1,6 @@
 import Header from '#/components/Header';
 import Layout from '#/components/Layout';
 import { routing } from '#/i18n/routing';
-import '#/style/globals.scss';
 import theme from '#/style/theme';
 import { Box } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
@@ -13,6 +12,9 @@ import { getLocale, getMessages } from 'next-intl/server';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { ErrorBoundary } from 'react-error-boundary';
+
+import '#/style/globals.scss';
+import '#/style/override.scss';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

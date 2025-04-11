@@ -9,9 +9,11 @@ export interface FixedModalProps {
   visible?: boolean;
   onClose?: () => void;
   children?: React.ReactNode;
+  // 点击空白处关闭
+  closeWhenClickBlank?: boolean;
 }
 
-const FixedModal = ({ children, visible, onClose }: FixedModalProps) => {
+const FixedModal = ({ children, visible, onClose, closeWhenClickBlank }: FixedModalProps) => {
   useShortcut({
     onEscPressed: onClose,
   });
@@ -19,12 +21,20 @@ const FixedModal = ({ children, visible, onClose }: FixedModalProps) => {
   return (
     !!visible &&
     createPortal(
-      <StyledFixedModalWrapper onClick={stopPropagation}>
+      <StyledFixedModalWrapper
+        onClick={ev => {
+          stopPropagation(ev);
+          if (closeWhenClickBlank) onClose?.();
+        }}
+      >
         <StyledFixedModalToolbar>
           <IconButton
             color="inherit"
             size="large"
-            onClick={onClose}
+            onClick={ev => {
+              stopPropagation(ev);
+              onClose?.();
+            }}
           >
             <CloseRounded fontSize="large" />
           </IconButton>
