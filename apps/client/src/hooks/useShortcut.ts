@@ -1,5 +1,5 @@
 import { stopPropagation } from '#/utils';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 enum KEY {
   Escape = 'Escape',
@@ -9,15 +9,27 @@ interface UseShortcutParams {
   // 当命中快捷键时，阻止冒泡
   stopPropagationWhenHit?: boolean;
   onEscPressed?: (ev: KeyboardEvent) => void;
+  // 在组件挂载时不绑定事件
+  lazyMount?: boolean;
 }
 
 export const useShortcut = ({
   stopPropagationWhenHit = true,
   onEscPressed,
+  lazyMount,
 }: UseShortcutParams = {}) => {
   const keydownController = useRef<AbortController>(null);
 
-  useEffect(() => {
+  // 解绑
+  const unbind = useCallback(() => {
+    keydownController.current?.abort();
+    keydownController.current = null;
+  }, []);
+
+  // 绑定
+  const bind = useCallback(() => {
+    unbind();
+
     const controller = new AbortController();
     keydownController.current = controller;
 
@@ -29,12 +41,21 @@ export const useShortcut = ({
           if (stopPropagationWhenHit) stopPropagation(ev);
         }
       },
+      // 防止触发 dialog 的关闭事件
       { signal: controller.signal, capture: true }
     );
 
-    return () => {
-      keydownController.current?.abort();
-      keydownController.current = null;
-    };
+    return unbind;
+  }, [onEscPressed, stopPropagationWhenHit, unbind]);
+
+  useEffect(() => {
+    if (!lazyMount) {
+      return bind();
+    }
   }, []);
+
+  return {
+    bind,
+    unbind,
+  };
 };

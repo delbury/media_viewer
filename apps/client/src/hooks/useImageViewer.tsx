@@ -1,6 +1,7 @@
-import { RefObject, useCallback, useEffect, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef } from 'react';
 import Viewer from 'viewerjs';
 import 'viewerjs/dist/viewer.css';
+import { useShortcut } from './useShortcut';
 
 interface ImageData {
   aspectRatio: number;
@@ -41,14 +42,20 @@ const useImageViewer = ({
   viewerAutoMount = false,
   filter,
 }: UseImageViewerParams) => {
-  const [viewer, setViewer] = useState<RealViewer | null>(null);
-
+  const viewerRef = useRef<RealViewer>(null);
   isGallery = !!isGallery;
+
+  const { bind, unbind } = useShortcut({
+    lazyMount: true,
+    onEscPressed: () => {
+      viewerRef.current?.hide();
+    },
+  });
 
   const createViewer = useCallback(() => {
     if (enabled && imageRef.current) {
       // 先移除旧的实例
-      viewer?.destroy();
+      viewerRef.current?.destroy();
 
       const v = new Viewer(imageRef.current, {
         navbar: isGallery,
@@ -59,6 +66,7 @@ const useImageViewer = ({
         transition: true,
         toggleOnDblclick: false,
         movable: true,
+        keyboard: false,
         toolbar: {
           zoomOut: true,
           zoomIn: true,
@@ -108,15 +116,19 @@ const useImageViewer = ({
         hidden: () => {
           if (!viewerAutoMount) {
             v?.destroy();
-            setViewer(null);
+            viewerRef.current = null;
           }
+          unbind();
+        },
+        show: () => {
+          bind();
         },
       }) as RealViewer;
-      viewer?.destroy();
-      setViewer(v);
+      viewerRef.current?.destroy();
+      viewerRef.current = v;
       return v;
     }
-  }, [enabled, imageRef, isGallery, viewer, viewerAutoMount, filter]);
+  }, [enabled, imageRef, isGallery, filter, viewerAutoMount, unbind, bind]);
 
   useEffect(() => {
     if (viewerAutoMount) {
@@ -127,9 +139,14 @@ const useImageViewer = ({
     }
   }, [enabled, isGallery]);
 
+  useEffect(() => {
+    unbind();
+  }, []);
+
   return {
-    viewer,
     createViewer,
+    show: () => viewerRef.current?.show(),
+    isCreated: () => !!viewerRef.current,
   };
 };
 

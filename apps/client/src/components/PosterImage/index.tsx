@@ -1,6 +1,6 @@
 import useImageViewer from '#/hooks/useImageViewer';
-import { API_BASE_URL } from '#/request';
-import { FileInfo, joinUrlWithQueryString } from '#pkgs/apis';
+import { getFileUrls } from '#/utils';
+import { FileInfo } from '#pkgs/apis';
 import { FullFileType } from '#pkgs/shared';
 import { ALLOWED_POSTER_FILE_TYPES, detectFileType } from '#pkgs/tools/common';
 import {
@@ -65,32 +65,11 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
     if (file.fileType !== 'image' && file.fileType !== 'video' && file.fileType !== 'audio')
       return null;
 
-    const posterUrl = joinUrlWithQueryString(
-      'filePoster',
-      {
-        basePathIndex: file.basePathIndex.toString(),
-        relativePath: file.relativePath,
-      },
-      API_BASE_URL
-    );
-
-    const realUrl = joinUrlWithQueryString(
-      'fileGet',
-      {
-        basePathIndex: file.basePathIndex.toString(),
-        relativePath: file.relativePath,
-      },
-      API_BASE_URL
-    );
-
-    return {
-      realUrl,
-      posterUrl,
-    };
-  }, [file.basePathIndex, file.relativePath, disabled, file.fileType]);
+    return getFileUrls(file);
+  }, [disabled, file]);
 
   const imageRef = useRef<HTMLImageElement>(null);
-  const { viewer, createViewer } = useImageViewer({
+  const { show, isCreated, createViewer } = useImageViewer({
     enabled: true,
     viewerAutoMount: viewerAutoMount && file.fileType === 'image',
     imageRef,
@@ -108,8 +87,10 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
     if (file.fileType === 'image') {
       // 图片文件，打开图片浏览器
       if (!viewerAutoMount) {
-        const v = viewer ?? createViewer();
-        v?.show(true);
+        if (!isCreated()) {
+          createViewer();
+        }
+        show();
       }
     } else if (file.fileType === 'video') {
       // 视频文件，打开视频浏览器
@@ -119,16 +100,7 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
       // 音频文件，打开音频浏览器
       setOpenViewer('audio');
     }
-  }, [
-    createViewer,
-    viewerAutoMount,
-    viewer,
-    urls,
-    file.fileType,
-    isError,
-    setIsError,
-    setOpenViewer,
-  ]);
+  }, [urls, isError, file.fileType, viewerAutoMount, isCreated, show, createViewer]);
 
   const HoverIcon = useMemo(() => {
     switch (file.fileType) {
@@ -175,8 +147,8 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
             <img
               key={refreshKey.toString()}
               ref={imageRef}
-              src={urls?.posterUrl}
-              data-src={urls?.realUrl}
+              src={urls?.poster}
+              data-src={urls?.source}
               data-type={file.fileType}
               alt={file.name}
               style={{

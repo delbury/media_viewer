@@ -1,3 +1,6 @@
+import { API_BASE_URL } from '#/request';
+import { FileInfo, joinUrlWithQueryString } from '#pkgs/apis';
+
 // 格式化日期
 export const formatDate = (v: number) => {
   const date = new Date(v);
@@ -25,3 +28,29 @@ export const mapToOptions = <T extends string>(map: Record<T, string>) => {
 
 // 阻止冒泡
 export const stopPropagation = (ev: Pick<Event, 'stopPropagation'>) => ev.stopPropagation();
+
+// 生成文件资源 url
+export const getFileUrls = (file: FileInfo) => {
+  const poster = joinUrlWithQueryString(
+    'filePoster',
+    {
+      basePathIndex: file.basePathIndex.toString(),
+      relativePath: file.relativePath,
+    },
+    API_BASE_URL
+  );
+
+  const source = joinUrlWithQueryString(
+    'fileGet',
+    {
+      basePathIndex: file.basePathIndex.toString(),
+      relativePath: file.relativePath,
+    },
+    API_BASE_URL
+  );
+
+  return {
+    source,
+    poster,
+  };
+};
