@@ -7,4 +7,5 @@ export const ERROR_MSG = {
   notAnAudioFile: 'not an audio file',
   notAnCorrectFile: 'not an currect file',
   errorPath: 'error path',
+  noFile: 'no file',
 } satisfies Record<string, string | ((...args: string[]) => string)>;

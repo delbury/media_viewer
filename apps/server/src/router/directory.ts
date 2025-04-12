@@ -1,5 +1,5 @@
 import { CACHE_DATA_PATH, CACHE_DATE_FILE_NAME, DIRECTORY_ROOTS, SERVER_VERSION } from '#/config';
-import { returnBody } from '#/util';
+import { returnBody } from '#/util/common';
 import { API_CONFIGS, ApiResponseDataTypes } from '#pkgs/apis';
 import { readDataFromFile, writeDataToFile } from '#pkgs/tools/fileOperation';
 import { traverseDirectories } from '#pkgs/tools/traverseDirectories';

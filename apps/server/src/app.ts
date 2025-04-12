@@ -3,7 +3,7 @@ import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import { directoryRouter } from './router/directory';
 import { fileRouter } from './router/file';
-import { returnError } from './util';
+import { returnError } from './util/common';
 
 const routers = [directoryRouter, fileRouter];
 

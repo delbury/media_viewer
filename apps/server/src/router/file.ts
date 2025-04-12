@@ -20,7 +20,9 @@ import { access, mkdir, readdir, rm, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'os';
 import { ERROR_MSG } from '../i18n/errorMsg';
-import { generatePoster, getPosterFileName, hideFile, returnBody } from '../util';
+import { hideFile, returnBody } from '../util/common';
+import { generatePoster, getPosterFileName } from '../util/poster';
+import { sendFileWithRange } from '../util/range';
 import { getTask } from '../util/task';
 
 const fileRouter = new Router();
@@ -39,11 +41,17 @@ fileRouter[API_CONFIGS.fileGet.method](API_CONFIGS.fileGet.url, async ctx => {
   const fullPath = path.posix.join(basePath, relativePath);
   if (!fullPath.startsWith(basePath)) throw new Error(ERROR_MSG.errorPath);
 
-  await send(ctx, relativePath, {
-    root: basePath,
-    maxAge: POSTER_CACHE_MAX_AGE,
-    hidden: false,
-  });
+  // 处理带 Range 头的请求
+  const useRange = await sendFileWithRange(ctx, fullPath);
+
+  // 没有 Range
+  if (useRange === false) {
+    await send(ctx, relativePath, {
+      root: basePath,
+      maxAge: POSTER_CACHE_MAX_AGE,
+      hidden: false,
+    });
+  }
 });
 
 // 返回缩略图
