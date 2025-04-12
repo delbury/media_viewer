@@ -51,7 +51,7 @@ export const StyledLyricArea = styled(Box)`
 `;
 
 export const StyledLyricContent = styled(Box)`
-  padding: 24px 0;
+  padding: 10vh 0;
   overflow: auto;
   scrollbar-width: none;
 `;

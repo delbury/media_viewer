@@ -1,7 +1,8 @@
 import { useSwr } from '#/hooks/useSwr';
+import { useThrottle } from '#/hooks/useThrottle';
 import { getFileUrls } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
-import { useMemo, useRef, useState } from 'react';
+import { SyntheticEvent, useCallback, useMemo, useRef, useState } from 'react';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
 import {
@@ -60,6 +61,24 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
   const { lyrics } = useLyric(lyricRequest.data?.content);
   const lyricsRef = useRef<HTMLElement>(null);
 
+  // 播放回调
+  const handleTimeUpdate = useCallback(
+    (ev: SyntheticEvent<HTMLAudioElement, Event>) => {
+      const elm = ev.target as HTMLAudioElement;
+      const index = findLyricIndex(elm.currentTime, lyrics, currentLyricIndex);
+      if (index !== currentLyricIndex) {
+        setCurrentLyricIndex(index);
+        const rowElm = lyricsRef.current?.querySelector(`[data-index="${index}"]`);
+        rowElm?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }
+    },
+    [currentLyricIndex, lyrics]
+  );
+  const handleTimeUpdateThrottle = useThrottle(handleTimeUpdate, 100);
+
   return (
     <FixedModal
       visible={visible}
@@ -99,16 +118,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
           <audio
             src={urls.source}
             controls
-            onTimeUpdate={ev => {
-              const elm = ev.target as HTMLAudioElement;
-              const index = findLyricIndex(elm.currentTime, lyrics, currentLyricIndex);
-              setCurrentLyricIndex(index);
-              const rowElm = lyricsRef.current?.querySelector(`[data-index="${index}"]`);
-              rowElm?.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center',
-              });
-            }}
+            onTimeUpdate={handleTimeUpdateThrottle}
           />
         )}
       </StyledContentWrapper>
