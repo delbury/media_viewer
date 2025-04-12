@@ -18,8 +18,8 @@ export const StyledContentWrapper = styled(Box)`
 
 export const StyledImgContainer = styled(Box)`
   width: 100%;
-  max-width: 400px;
-  max-height: 400px;
+  max-width: 250px;
+  max-height: 250px;
 
   > img {
     height: 100%;
@@ -36,4 +36,38 @@ export const StyledFileName = styled(Box)`
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.125rem;
+`;
+
+export const StyledLyricArea = styled(Box)`
+  height: 20vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  overflow: hidden;
+`;
+
+export const StyledLyricContent = styled(Box)`
+  padding: 24px 0;
+  overflow: auto;
+  scrollbar-width: none;
+`;
+
+export const StyledLyricRow = styled(Box, {
+  shouldForwardProp: prop => prop !== 'isActived',
+})<{ isActived?: boolean }>`
+  margin-bottom: 2em;
+  padding: 0 24px;
+  text-align: center;
+
+  ${({ isActived }) =>
+    isActived
+      ? `
+        transform: scale(1.1);
+        font-weight: 700;
+      `
+      : ''}
 `;

@@ -3,6 +3,7 @@ import { ApiResponseDataTypes } from '#pkgs/apis';
 interface BaseTask<T = unknown> {
   loading: boolean;
   cache?: T | null;
+  cacheFilePath?: string;
 }
 
 export const GLOBAL_TASK = {
@@ -20,22 +21,22 @@ export const GLOBAL_TASK = {
 type GlobalTask = typeof GLOBAL_TASK;
 type TaskName = keyof GlobalTask;
 
-export const setTaskLoading = <T extends TaskName>(name: T, loading: boolean) => {
-  GLOBAL_TASK[name].loading = loading;
-};
-
-export const getTaskLoading = <T extends TaskName>(name: T) => {
-  return GLOBAL_TASK[name].loading;
-};
-
-export const setTaskCache = <T extends TaskName>(name: T, cache: GlobalTask[T]['cache']) => {
-  GLOBAL_TASK[name].cache = cache;
-};
-
-export const getTaskCache = <T extends TaskName>(name: T) => {
-  return GLOBAL_TASK[name].cache;
-};
-
 export const getTask = <T extends TaskName>(name: T) => {
-  return GLOBAL_TASK[name];
+  const task = GLOBAL_TASK[name];
+  return {
+    task,
+    start: () => {
+      if (task.loading) throw new Error('task in progress');
+      task.loading = true;
+    },
+    end: () => {
+      task.loading = false;
+    },
+    setCache: (cache: GlobalTask[T]['cache']) => {
+      task.cache = cache;
+    },
+    getCache: () => {
+      return task.cache as GlobalTask[T]['cache'];
+    },
+  };
 };

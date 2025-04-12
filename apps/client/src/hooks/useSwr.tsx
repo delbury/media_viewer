@@ -16,6 +16,7 @@ interface UseSwrOptions<T, P extends ApiKeys> {
   params?: ApiRequestParamsTypes<P>;
   data?: ApiRequestDataTypes<P>;
   noticeWhenSuccess?: boolean;
+  disabled?: boolean;
 }
 interface UseSwrReturnValue<T> {
   data?: T;
@@ -35,6 +36,7 @@ function useSwr<T extends ApiKeys, D = ApiResponseDataTypes<T>>(
     noticeWhenSuccess = lazy,
     params: requestParams,
     data: requestData,
+    disabled,
   } = options ?? {};
   const t = useTranslations();
   const notifications = useNotifications();
@@ -45,6 +47,7 @@ function useSwr<T extends ApiKeys, D = ApiResponseDataTypes<T>>(
   >(
     url,
     async () => {
+      if (disabled) return null;
       const res = await instance.request({
         url,
         method,
@@ -57,7 +60,7 @@ function useSwr<T extends ApiKeys, D = ApiResponseDataTypes<T>>(
       loadingTimeout: TIMEOUT,
       shouldRetryOnError: false,
       revalidateOnFocus: false,
-      revalidateOnMount: !lazy,
+      revalidateOnMount: !lazy && !disabled,
       onError: error => {
         notifications.show(error.response?.data?.msg || error.message, {
           autoHideDuration: 2000,

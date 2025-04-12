@@ -4,11 +4,7 @@ import { logInfo } from './common.js';
 import { IGNORE_FILE_NAME_PREFIX, IGNORE_FILE_NAME_REG } from './constant.js';
 
 // 读文件
-export const readDataFromFile = async (dir: string, fileName: string) => {
-  const dirInfo = await stat(dir);
-  if (!dirInfo || !dirInfo.isDirectory()) throw new Error('dir not exists');
-
-  const fullFilePath = path.resolve(dir, fileName);
+export const readDataFromFile = async (fullFilePath: string) => {
   try {
     await access(fullFilePath, constants.F_OK);
   } catch {
@@ -16,23 +12,14 @@ export const readDataFromFile = async (dir: string, fileName: string) => {
   }
 
   const fileContent = await readFile(fullFilePath, { encoding: 'utf8' });
-  const jsonData = JSON.parse(fileContent);
-  return jsonData;
+  return fileContent;
 };
 
 // 写文件
-export const writeDataToFile = async (
-  dir: string,
-  fileName: string,
-  data: Record<string, unknown>
-) => {
+export const writeDataToFile = async (fullFilePath: string, data: Record<string, unknown>) => {
   logInfo('start writing file');
 
-  const dirInfo = await stat(dir);
-  if (!dirInfo || !dirInfo.isDirectory()) throw new Error('dir not exists');
-
   const jsonString = JSON.stringify(data ?? {});
-  const fullFilePath = path.resolve(dir, fileName);
   await writeFile(fullFilePath, jsonString);
 
   logInfo('successfully written file');

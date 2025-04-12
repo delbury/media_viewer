@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
-import { Box } from '@mui/material';
+import { Box, styled as muiStyled } from '@mui/material';
 
-export const StyledFilePosterIcon = styled(Box)`
+export const StyledFilePosterIcon = muiStyled(Box)`
   position: absolute;
   top: 0;
   left: 0;
@@ -10,6 +10,7 @@ export const StyledFilePosterIcon = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: center;
+  color: ${({ theme }) => theme.palette.text.secondary};
 `;
 
 export const StyledFilePosterHover = styled(StyledFilePosterIcon)`

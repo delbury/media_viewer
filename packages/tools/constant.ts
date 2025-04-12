@@ -27,6 +27,9 @@ export const VIDEO_EXTS = [
 ];
 export const TEXT_EXTS = ['pdf', 'txt'];
 
+// 歌词文件后缀
+export const LYRIC_EXT = 'lrc';
+
 export const IMAGE_REG = new RegExp(`\\.(${IMAGE_EXTS.join('|')})$`, 'i');
 export const AUDIO_REG = new RegExp(`\\.(${AUDIO_EXTS.join('|')})$`, 'i');
 export const VIDEO_REG = new RegExp(`\\.(${VIDEO_EXTS.join('|')})$`, 'i');

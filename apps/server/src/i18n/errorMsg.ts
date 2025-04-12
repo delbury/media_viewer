@@ -8,4 +8,5 @@ export const ERROR_MSG = {
   notAnCorrectFile: 'not an currect file',
   errorPath: 'error path',
   noFile: 'no file',
+  sizeLimited: 'the requested file size is limited',
 } satisfies Record<string, string | ((...args: string[]) => string)>;

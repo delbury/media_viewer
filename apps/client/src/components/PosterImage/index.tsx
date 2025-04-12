@@ -13,10 +13,11 @@ import {
   PlayCircleRounded,
   SmartDisplayOutlined,
 } from '@mui/icons-material';
-import { CircularProgress, SvgIconOwnProps } from '@mui/material';
+import { SvgIconOwnProps } from '@mui/material';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import 'viewerjs/dist/viewer.css';
 import AudioViewer from '../AudioViewer';
+import Loading from '../Loading';
 import { StyledFilePosterHover, StyledFilePosterIcon, StyledFilePosterWrapper } from './style';
 
 const FileIcon = ({ ext, iconProps }: { ext: string; iconProps?: SvgIconOwnProps }) => {
@@ -128,10 +129,7 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
           <>
             {isLoading && (
               <StyledFilePosterIcon>
-                <CircularProgress
-                  sx={{ width: '100%', height: '100%', color: 'text.secondary' }}
-                  thickness={6}
-                />
+                <Loading />
               </StyledFilePosterIcon>
             )}
 

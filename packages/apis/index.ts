@@ -47,6 +47,11 @@ export const API_CONFIGS = {
     url: '/file/get',
     method: 'get',
   },
+  // 获取文本文件的内容
+  fileText: {
+    url: '/file/text',
+    method: 'get',
+  },
   // 获取缩略图
   filePoster: {
     url: '/file/poster',
@@ -68,25 +73,31 @@ export type ApiResponseDataTypes<T extends ApiKeys> = T extends 'dirUpdate'
   ? Omit<DirUpdateData, 'fileList'>
   : T extends 'dirTree'
     ? DirectoryInfo
-    : never;
+    : T extends 'fileText'
+      ? FileTextResponseData
+      : never;
+
+interface FileTextResponseData {
+  content: string;
+}
 
 /**
  * 接口请求参数类型，query 上的参数
  */
 export type ApiRequestParamsTypes<T extends ApiKeys> = T extends 'filePoster'
   ? ApiFilePosterParams
-  : T extends 'fileGet'
-    ? ApiFileGetParams
+  : T extends 'fileGet' | 'fileText'
+    ? ApiFileFetchParams
     : T extends 'filePosterClear'
       ? ApiFilePosterClearParams
       : never;
 
 type ApiRequestParamsBase = ParsedUrlQuery;
-interface ApiFileGetParams extends ApiRequestParamsBase {
+interface ApiFileFetchParams extends ApiRequestParamsBase {
   basePathIndex: string;
   relativePath: string;
 }
-interface ApiFilePosterParams extends ApiFileGetParams {
+interface ApiFilePosterParams extends ApiFileFetchParams {
   force?: 'true';
 }
 

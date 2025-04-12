@@ -1,9 +1,9 @@
 import { Stats } from 'node:fs';
-import { readdir, stat } from 'node:fs/promises';
+import { access, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { FullFileType } from '../shared';
 import { detectFileType, formatPath } from './common';
-import { IGNORE_FILE_NAME_REG } from './constant';
+import { IGNORE_FILE_NAME_REG, LYRIC_EXT } from './constant';
 
 interface CommonInfo {
   // 文件根路径
@@ -34,7 +34,8 @@ export interface FileInfo extends CommonInfo {
   fileType: FullFileType;
   // 视频时长
   duration?: number;
-  // [key: string]: unknown;
+  // 歌词文件
+  lrcPath?: string;
 }
 export interface DirectoryInfo extends CommonInfo {
   // 文件列表
@@ -59,6 +60,7 @@ interface NewInfoParams {
 
 export type TraverseDirectoriesReturnValue = Awaited<ReturnType<typeof traverseDirectories>>;
 
+// 文件和文件夹通用基础信息
 const newCommonInfo = ({ bp, fp, info, bpi }: NewInfoParams = {}): CommonInfo => {
   let basePath = formatPath(bp ?? '');
   if (basePath.endsWith('/')) basePath = basePath.slice(0, basePath.length - 1);
@@ -79,17 +81,35 @@ const newCommonInfo = ({ bp, fp, info, bpi }: NewInfoParams = {}): CommonInfo =>
     updated: info?.mtimeMs ?? 0,
   };
 };
-const newFileInfo = (params?: NewInfoParams): FileInfo => {
-  const { ext, name } = path.parse(params.fp);
+
+// 文件信息
+const newFileInfo = async (params?: NewInfoParams): Promise<FileInfo> => {
+  const { ext, name, dir } = path.parse(params.fp);
   const nameExt = ext.toLowerCase();
-  return {
+  const fileType = detectFileType(ext);
+
+  const fileInfo: FileInfo = {
     ...newCommonInfo(params),
     size: params?.info?.size ?? 0,
     namePure: name,
     nameExt,
     nameExtPure: nameExt.replace('.', ''),
-    fileType: detectFileType(ext),
+    fileType,
   };
+
+  // 音频文件，则查找是否有歌词文件
+  if (fileType === 'audio') {
+    const targetFileName = `${name}.${LYRIC_EXT}`;
+    const targeFilePath = path.join(dir, targetFileName);
+    try {
+      await access(targeFilePath);
+      fileInfo.lrcPath = formatPath(path.join(path.dirname(fileInfo.relativePath), targetFileName));
+    } catch {
+      //
+    }
+  }
+
+  return fileInfo;
 };
 const newDirectoryInfo = (params?: NewInfoParams): DirectoryInfo => {
   return {
@@ -157,7 +177,7 @@ export const traverseDirectories = async (
       dirList.push(dirInfo);
     } else if (info.isFile()) {
       // 是文件，创建并保存当前文件信息对象
-      const fileInfo = newFileInfo({ bp, fp, info, bpi });
+      const fileInfo = await newFileInfo({ bp, fp, info, bpi });
       currentDir.files.push(fileInfo);
       // 所有文件信息放入数组
       fileList.push(fileInfo);
@@ -179,7 +199,7 @@ export const traverseDirectories = async (
 };
 
 // 处理敏感的文件路径
-const dealFilePath = (info: CommonInfo) => {
+const dealFilePath = (info: FileInfo | DirectoryInfo) => {
   info.showPath = `/${path.basename(info.basePath)}${info.relativePath}`;
   info.basePath = null;
 };
