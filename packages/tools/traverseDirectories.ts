@@ -12,6 +12,8 @@ interface CommonInfo {
   basePathIndex: number;
   // 文件相对路径
   relativePath: string;
+  // 展示的文件路径
+  showPath: string;
   // 文件名
   name: string;
   // 文件创建时间
@@ -71,6 +73,7 @@ const newCommonInfo = ({ bp, fp, info, bpi }: NewInfoParams = {}): CommonInfo =>
     basePath,
     basePathIndex: bpi,
     relativePath,
+    showPath: '',
     name: fp ? path.basename(fp) : '',
     created: info?.birthtimeMs ?? 0,
     updated: info?.mtimeMs ?? 0,
@@ -163,15 +166,22 @@ export const traverseDirectories = async (
 
   calcFileCount(treeNode);
 
-  // 移除 basePath
-  fileList.forEach(info => (info.basePath = null));
-  dirList.forEach(info => (info.basePath = null));
+  // 额外处理不需要返回的 path 信息
+  fileList.forEach(dealFilePath);
+  dirList.forEach(dealFilePath);
+
   return {
     treeNode,
     fileList,
     version: options?.version,
     timestamp: Date.now(),
   };
+};
+
+// 处理敏感的文件路径
+const dealFilePath = (info: CommonInfo) => {
+  info.showPath = `/${path.basename(info.basePath)}${info.relativePath}`;
+  info.basePath = null;
 };
 
 // 递归计算文件数
