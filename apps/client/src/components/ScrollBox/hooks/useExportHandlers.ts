@@ -5,7 +5,10 @@ export interface ScrollBoxInstance {
   scrollToEnd: () => void;
 }
 
-export const useExportHandlers = (ref: ForwardedRef<ScrollBoxInstance>, wrapperRef: RefObject<HTMLElement | null>) => {
+export const useExportHandlers = (
+  ref: ForwardedRef<ScrollBoxInstance>,
+  wrapperRef: RefObject<HTMLElement | null>
+) => {
   // 滚动
   const scrollTo: ScrollBoxInstance['scrollTo'] = useCallback(
     ({ top, left }) => {

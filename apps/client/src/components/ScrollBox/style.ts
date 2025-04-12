@@ -14,9 +14,10 @@ export const StyledScrollBoxContent = styled(Box)`
 
 const BAR_SIZE = 12;
 const SHADOW_OFFSET = 4;
+export type BarPosition = 'top' | 'bottom' | 'left' | 'right';
 export const StyledScrollFloatTipBar = styled(Box, {
   shouldForwardProp: prop => prop !== 'barPosition',
-})<{ barPosition: 'top' | 'bottom' | 'left' | 'right' }>(({ theme: { palette }, barPosition }) => {
+})<{ barPosition: BarPosition }>(({ theme: { palette }, barPosition }) => {
   const isTop = barPosition === 'top';
   const isBottom = barPosition === 'bottom';
   const isLeft = barPosition === 'left';
@@ -46,7 +47,8 @@ export const StyledScrollFloatTipBar = styled(Box, {
     justifyContent: 'center',
     alignItems: 'center',
     color: palette.text.secondary,
-    pointerEvents: 'none',
+    cursor: 'pointer',
+    // pointerEvents: 'none',
 
     '::before': {
       position: 'absolute',
@@ -58,6 +60,10 @@ export const StyledScrollFloatTipBar = styled(Box, {
       // backgroundColor: palette.grey[100],
       backgroundImage: `linear-gradient(to ${gradientDir}, ${palette.grey[200]}, ${palette.grey[100]}aa)`,
       boxShadow: `${boxShadowX}px ${boxShadowY}px 16px ${palette.grey[200]}`,
+    },
+
+    '&:hover::before': {
+      backgroundImage: `linear-gradient(to ${gradientDir}, ${palette.grey[400]}, ${palette.grey[200]}aa)`,
     },
   };
 });

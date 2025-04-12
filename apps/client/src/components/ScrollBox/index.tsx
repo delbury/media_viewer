@@ -6,12 +6,17 @@ import {
   KeyboardArrowUpOutlined,
 } from '@mui/icons-material';
 import { Box, SxProps, Theme } from '@mui/material';
-import { forwardRef, useMemo, useRef } from 'react';
+import { forwardRef, useCallback, useMemo, useRef } from 'react';
 import { useEvents } from './hooks/useEvents';
 import { ScrollBoxInstance, useExportHandlers } from './hooks/useExportHandlers';
 import { useScrollStatus } from './hooks/useScrollStatus';
 import { useVirtualList, VirtualListConfig } from './hooks/useVirtualList';
-import { StyledScrollBoxContent, StyledScrollBoxWrapper, StyledScrollFloatTipBar } from './style';
+import {
+  BarPosition,
+  StyledScrollBoxContent,
+  StyledScrollBoxWrapper,
+  StyledScrollFloatTipBar,
+} from './style';
 export type { ScrollBoxInstance };
 
 export interface ScrollBoxProps {
@@ -106,6 +111,32 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
       });
     }, [children, virtualListConfig, renderRange, observe]);
 
+    // 滚动一定距离
+    const scrollDirection = useCallback((pos: BarPosition) => {
+      const STEP = 80;
+      let x = 0;
+      let y = 0;
+      switch (pos) {
+        case 'bottom':
+          y = STEP;
+          break;
+        case 'top':
+          y = -STEP;
+          break;
+        case 'left':
+          x = -STEP;
+          break;
+        case 'right':
+          x = STEP;
+          break;
+      }
+      wrapperRef.current?.scrollBy({
+        left: x,
+        top: y,
+        behavior: 'smooth',
+      });
+    }, []);
+
     return (
       <StyledScrollBoxWrapper sx={sx}>
         <StyledScrollBoxContent ref={wrapperRef}>
@@ -124,7 +155,10 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
 
         {/* 上 */}
         {!floatBarDisabled && isScrollableY && !isScrollAtTop && (
-          <StyledScrollFloatTipBar barPosition="top">
+          <StyledScrollFloatTipBar
+            barPosition="top"
+            onClick={() => scrollDirection('top')}
+          >
             <KeyboardArrowUpOutlined
               fontSize="small"
               sx={{ marginBottom: '-2px' }}
@@ -133,7 +167,10 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
         )}
         {/* 下 */}
         {!floatBarDisabled && isScrollableY && !isScrollAtBottom && (
-          <StyledScrollFloatTipBar barPosition="bottom">
+          <StyledScrollFloatTipBar
+            barPosition="bottom"
+            onClick={() => scrollDirection('bottom')}
+          >
             <KeyboardArrowDownOutlined
               fontSize="small"
               sx={{ marginTop: '-2px' }}
@@ -142,7 +179,10 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
         )}
         {/* 左 */}
         {!floatBarDisabled && isScrollableX && !isScrollAtLeft && (
-          <StyledScrollFloatTipBar barPosition="left">
+          <StyledScrollFloatTipBar
+            barPosition="left"
+            onClick={() => scrollDirection('left')}
+          >
             <KeyboardArrowLeftOutlined
               fontSize="small"
               sx={{ marginRight: '-2px' }}
@@ -151,7 +191,10 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
         )}
         {/* 右 */}
         {!floatBarDisabled && isScrollableX && !isScrollAtRight && (
-          <StyledScrollFloatTipBar barPosition="right">
+          <StyledScrollFloatTipBar
+            barPosition="right"
+            onClick={() => scrollDirection('right')}
+          >
             <KeyboardArrowRightOutlined
               fontSize="small"
               sx={{ marginLeft: '-2px' }}
