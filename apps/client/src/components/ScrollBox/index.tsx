@@ -28,15 +28,12 @@ export interface ScrollBoxProps {
   virtualListConfig?: VirtualListConfig;
   // 是否启用懒加载
   lazyLoadEnabled?: boolean;
-  // 子元素变化
-  onChildrenChange?: () => void;
+  // 隐藏滚动条，仍可以滚动
+  hideScrollbar?: boolean;
 }
 
 const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
-  (
-    { children, sx, floatBarDisabled, virtualListConfig, lazyLoadEnabled, onChildrenChange },
-    ref
-  ) => {
+  ({ children, sx, floatBarDisabled, virtualListConfig, lazyLoadEnabled, hideScrollbar }, ref) => {
     const wrapperRef = useRef<HTMLElement>(null);
     const contentRef = useRef<HTMLElement>(null);
 
@@ -139,7 +136,10 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
 
     return (
       <StyledScrollBoxWrapper sx={sx}>
-        <StyledScrollBoxContent ref={wrapperRef}>
+        <StyledScrollBoxContent
+          ref={wrapperRef}
+          hideScrollbar={hideScrollbar}
+        >
           <Box ref={contentRef}>
             {enableVirtualList ? (
               CustomVirtualListWrapper ? (

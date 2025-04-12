@@ -87,7 +87,7 @@ export const useSortList = <T, F extends string>({
             { value: 'asc', label: 'Common.Asc' },
           ]}
         />
-        <ScrollBox>
+        <ScrollBox hideScrollbar>
           <ToolGroupBtn
             items={fileSortOptions}
             value={sortField}

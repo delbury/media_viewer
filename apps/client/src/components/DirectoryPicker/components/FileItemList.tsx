@@ -213,7 +213,7 @@ const FileItemList = ({ files }: FileItemListProps) => {
                   setFilterFileExts([]);
                 }}
               />
-              <ScrollBox>
+              <ScrollBox hideScrollbar>
                 <ToolGroupBtn
                   rawLabel
                   items={fileTypeExts}

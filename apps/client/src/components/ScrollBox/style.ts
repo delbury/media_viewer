@@ -1,3 +1,4 @@
+import { h5Max } from '#/style/device';
 import { Box, styled } from '@mui/material';
 
 export const StyledScrollBoxWrapper = styled(Box)`
@@ -5,11 +6,18 @@ export const StyledScrollBoxWrapper = styled(Box)`
   overflow: hidden;
 `;
 
-export const StyledScrollBoxContent = styled(Box)`
+export const StyledScrollBoxContent = styled(Box, {
+  shouldForwardProp: prop => prop !== 'hideScrollbar',
+})<{ hideScrollbar?: boolean }>`
   height: 100%;
   overflow: auto;
   overscroll-behavior: contain;
-  scrollbar-width: none;
+  scrollbar-gutter: stable;
+  scrollbar-width: ${({ hideScrollbar }) => (hideScrollbar ? 'none' : 'thin')};
+
+  @media ${h5Max} {
+    scrollbar-width: ${({ hideScrollbar }) => (hideScrollbar ? 'none' : 'auto')};
+  }
 `;
 
 const BAR_SIZE = 12;
