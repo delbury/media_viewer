@@ -28,19 +28,6 @@ export const StyledImgContainer = styled(Box)`
   }
 `;
 
-export const StyledFileName = styled(Box)`
-  width: 100%;
-  /* white-space: nowrap; */
-  text-overflow: ellipsis;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  text-align: center;
-  font-weight: 700;
-  font-size: 1.125rem;
-`;
-
 export const StyledLyricArea = styled(Box)`
   position: relative;
   height: 20vh;

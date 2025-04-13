@@ -7,9 +7,9 @@ import { useTranslations } from 'next-intl';
 import { SyntheticEvent, useCallback, useMemo, useRef, useState } from 'react';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
+import RollingText from '../RollingText';
 import {
   StyledContentWrapper,
-  StyledFileName,
   StyledImgContainer,
   StyledLyricArea,
   StyledLyricContent,
@@ -122,7 +122,14 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
           )}
         </StyledImgContainer>
 
-        <StyledFileName>{file.name}</StyledFileName>
+        <RollingText
+          text={file.name}
+          sx={{
+            textAlign: 'center',
+            fontWeight: 700,
+            fontSize: '1.125rem',
+          }}
+        />
 
         <StyledLyricArea>
           {lyricRequest.isLoading ? (
