@@ -1,3 +1,4 @@
+import { useMediaPlayBtn } from '#/hooks/useMediaPlayBtn';
 import { useSwr } from '#/hooks/useSwr';
 import { useThrottle } from '#/hooks/useThrottle';
 import { getFileUrls } from '#/utils';
@@ -51,6 +52,11 @@ type AudioViewerProps = {
 
 const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
   const t = useTranslations();
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const lyricsRef = useRef<HTMLElement>(null);
+  const [currentLyricIndex, setCurrentLyricIndex] = useState(0);
+  // 用户滚动中
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
 
   const urls = useMemo(() => getFileUrls(file), [file]);
   const lyricRequest = useSwr('fileText', {
@@ -60,12 +66,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
       relativePath: file.lrcPath as string,
     },
   });
-
-  const [currentLyricIndex, setCurrentLyricIndex] = useState(0);
   const { lyrics } = useLyric(lyricRequest.data?.content);
-  const lyricsRef = useRef<HTMLElement>(null);
-  // 用户滚动中
-  const [isUserScrolling, setIsUserScrolling] = useState(false);
 
   // 播放回调
   const handleTimeUpdate = useCallback(
@@ -107,6 +108,8 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
     });
   }, [currentLyricIndex]);
 
+  const { MediaBtn } = useMediaPlayBtn({ mediaRef: audioRef });
+
   return (
     <FixedModal
       visible={visible}
@@ -120,6 +123,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
               alt={file.name}
             />
           )}
+          {MediaBtn}
         </StyledImgContainer>
 
         <RollingText
@@ -169,6 +173,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
 
         {!!urls.source && (
           <audio
+            ref={audioRef}
             src={urls.source}
             controls
             onTimeUpdate={handleTimeUpdateThrottle}

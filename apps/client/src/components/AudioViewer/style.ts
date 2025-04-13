@@ -17,6 +17,7 @@ export const StyledContentWrapper = styled(Box)`
 `;
 
 export const StyledImgContainer = styled(Box)`
+  position: relative;
   width: 100%;
   max-width: 250px;
   max-height: 250px;
