@@ -1,11 +1,11 @@
 import { useMediaPlayBtn } from '#/hooks/useMediaPlayBtn';
-import { useSwr } from '#/hooks/useSwr';
 import { useThrottle } from '#/hooks/useThrottle';
 import { getFileUrls } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { Button } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { SyntheticEvent, useCallback, useMemo, useRef, useState } from 'react';
+import Empty from '../Empty';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
 import RollingText from '../RollingText';
@@ -17,34 +17,7 @@ import {
   StyledLyricRow,
   StyledScrollRecover,
 } from './style';
-import { LyricRow, useLyric } from './useLyric';
-
-// 查找当前播放时刻应该属于第 n 句歌词
-// n <= currentTime < n + 1
-const findLyricIndex = (currentTime: number, lyrics: LyricRow[], currentIndex: number) => {
-  // 现根据之前的 index 来查找，优化连续播放时的性能
-  if (currentTime >= lyrics[currentIndex].timeNumber) {
-    if (currentTime < lyrics[currentIndex + 1]?.timeNumber) return currentIndex;
-    if (currentTime < lyrics[currentIndex + 2]?.timeNumber) return currentIndex + 1;
-  }
-
-  // 二分查找
-  let l = 0;
-  let r = lyrics.length - 1;
-  while (l < r) {
-    if (currentTime >= lyrics[r].timeNumber) return r;
-
-    const m = Math.floor((l + r) / 2);
-    if (currentTime >= lyrics[m].timeNumber && currentTime < lyrics[m + 1].timeNumber) {
-      return m;
-    } else if (currentTime < lyrics[m].timeNumber) {
-      r = m - 1;
-    } else {
-      l = m + 1;
-    }
-  }
-  return l;
-};
+import { findLyricIndex, useLyric } from './useLyric';
 
 type AudioViewerProps = {
   file: FileInfo;
@@ -53,24 +26,23 @@ type AudioViewerProps = {
 const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
   const t = useTranslations();
   const audioRef = useRef<HTMLAudioElement>(null);
-  const lyricsRef = useRef<HTMLElement>(null);
-  const [currentLyricIndex, setCurrentLyricIndex] = useState(0);
+
   // 用户滚动中
   const [isUserScrolling, setIsUserScrolling] = useState(false);
 
+  // 链接
   const urls = useMemo(() => getFileUrls(file), [file]);
-  const lyricRequest = useSwr('fileText', {
-    disabled: !file.lrcPath,
-    params: {
-      basePathIndex: file.basePathIndex.toString(),
-      relativePath: file.lrcPath as string,
-    },
-  });
-  const { lyrics } = useLyric(lyricRequest.data?.content);
+
+  // 歌词相关
+  const lyricsRef = useRef<HTMLElement>(null);
+  const [currentLyricIndex, setCurrentLyricIndex] = useState(0);
+  const { lyrics, isLoading, hasLyric } = useLyric(file);
 
   // 播放回调
   const handleTimeUpdate = useCallback(
     (ev: SyntheticEvent<HTMLAudioElement, Event>) => {
+      if (!hasLyric) return;
+
       const elm = ev.target as HTMLAudioElement;
       const index = findLyricIndex(elm.currentTime, lyrics, currentLyricIndex);
       if (index !== currentLyricIndex) {
@@ -87,7 +59,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
         }
       }
     },
-    [currentLyricIndex, lyrics, isUserScrolling]
+    [hasLyric, lyrics, currentLyricIndex, isUserScrolling]
   );
   const handleTimeUpdateThrottle = useThrottle(handleTimeUpdate, 100);
 
@@ -136,9 +108,9 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
         />
 
         <StyledLyricArea>
-          {lyricRequest.isLoading ? (
+          {isLoading ? (
             <Loading />
-          ) : (
+          ) : lyrics.length ? (
             <>
               <StyledLyricContent
                 ref={lyricsRef}
@@ -168,6 +140,8 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
                 </StyledScrollRecover>
               )}
             </>
+          ) : (
+            <Empty sx={{ color: 'common.white' }} />
           )}
         </StyledLyricArea>
 

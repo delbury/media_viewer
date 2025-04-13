@@ -1,3 +1,5 @@
+import { useSwr } from '#/hooks/useSwr';
+import { FileInfo } from '#pkgs/apis';
 import { useEffect, useState } from 'react';
 
 export interface LyricRow {
@@ -54,10 +56,48 @@ const parseLyric = (text: string) => {
   };
 };
 
+// 查找当前播放时刻应该属于第 n 句歌词
+// n <= currentTime < n + 1
+export const findLyricIndex = (currentTime: number, lyrics: LyricRow[], currentIndex: number) => {
+  // 现根据之前的 index 来查找，优化连续播放时的性能
+  if (currentTime >= lyrics[currentIndex].timeNumber) {
+    if (currentTime < lyrics[currentIndex + 1]?.timeNumber) return currentIndex;
+    if (currentTime < lyrics[currentIndex + 2]?.timeNumber) return currentIndex + 1;
+  }
+
+  // 二分查找
+  let l = 0;
+  let r = lyrics.length - 1;
+  while (l < r) {
+    if (currentTime >= lyrics[r].timeNumber) return r;
+
+    const m = Math.floor((l + r) / 2);
+    if (currentTime >= lyrics[m].timeNumber && currentTime < lyrics[m + 1].timeNumber) {
+      return m;
+    } else if (currentTime < lyrics[m].timeNumber) {
+      r = m - 1;
+    } else {
+      l = m + 1;
+    }
+  }
+  return l;
+};
+
 // 解析歌词文件
-export const useLyric = (text?: string) => {
+export const useLyric = (file: FileInfo) => {
   const [lyrics, setLyrics] = useState<LyricRow[]>([]);
   const [meta, setMeta] = useState<LydicMeta>({});
+
+  const lyricRequest = useSwr('fileText', {
+    disabled: !file.lrcPath,
+    params: {
+      basePathIndex: file.basePathIndex.toString(),
+      relativePath: file.lrcPath as string,
+    },
+  });
+
+  // 歌词文本字符串
+  const text = lyricRequest.data?.content;
 
   useEffect(() => {
     if (text) {
@@ -73,5 +113,7 @@ export const useLyric = (text?: string) => {
   return {
     lyrics,
     meta,
+    isLoading: lyricRequest.isLoading,
+    hasLyric: !!lyrics.length,
   };
 };

@@ -123,7 +123,7 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
         {disabled || !allowed ? (
           <FileIcon
             ext={file.nameExt}
-            iconProps={{ sx: { height: '100%', width: '100%' } }}
+            iconProps={{ sx: { height: '100%', width: '100%', cursor: 'default' } }}
           />
         ) : (
           <>

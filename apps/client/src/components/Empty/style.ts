@@ -8,10 +8,11 @@ export const StyledEmptyWrapper = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: center;
+  color: ${({ theme }) => theme.palette.text.secondary};
 `;
 
 export const StyledEmptyTip = styled(Box)`
-  color: ${({ theme }) => theme.palette.text.secondary};
+  color: inherit;
   display: flex;
   flex-direction: column;
   align-items: center;

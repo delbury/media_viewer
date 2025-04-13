@@ -45,7 +45,7 @@ function useSwr<T extends ApiKeys, D = ApiResponseDataTypes<T>>(
     ApiResponseBase<D>,
     AxiosError<ApiResponseBase>
   >(
-    url,
+    disabled ? null : [url, requestParams, requestData],
     async () => {
       if (disabled) return null;
       const res = await instance.request({

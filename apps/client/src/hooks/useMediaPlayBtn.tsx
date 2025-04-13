@@ -13,10 +13,14 @@ const StyledWrapper = styled(Box)`
   justify-content: center;
 
   > * {
-    display: none;
+    color: ${({ theme }) => theme.palette.common.white} !important;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity ${({ theme }) => theme.transitions.duration.shorter}ms;
   }
   :hover > * {
-    display: unset;
+    opacity: 1;
+    pointer-events: all;
   }
 `;
 
@@ -72,7 +76,10 @@ export const useMediaPlayBtn = ({ mediaRef }: UseMediaPlayBtn) => {
   const MediaBtn = useMemo(() => {
     return (
       <StyledWrapper>
-        <IconButton onClick={handleToggle}>
+        <IconButton
+          onClick={handleToggle}
+          sx={{ width: '100%', height: '100%' }}
+        >
           {isPlaying ? <PlayCircleRounded sx={iconSx} /> : <PauseCircleRounded sx={iconSx} />}
         </IconButton>
       </StyledWrapper>

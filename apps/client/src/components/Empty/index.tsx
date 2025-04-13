@@ -1,15 +1,14 @@
 import { FolderOffOutlined } from '@mui/icons-material';
-import { Box } from '@mui/material';
+import { Box, SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { StyledEmptyTip, StyledEmptyWrapper } from './style';
 
-const Empty = ({ label }: { label?: string }) => {
+const Empty = ({ label, sx }: { label?: string; sx?: SxProps<Theme> }) => {
   const t = useTranslations();
-
   const text = label ?? t('Common.Empty');
 
   return (
-    <StyledEmptyWrapper>
+    <StyledEmptyWrapper sx={sx}>
       <StyledEmptyTip>
         <FolderOffOutlined fontSize="large" />
         <Box>{text}</Box>

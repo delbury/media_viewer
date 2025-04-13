@@ -21,6 +21,7 @@ export const StyledImgContainer = styled(Box)`
   width: 100%;
   max-width: 250px;
   max-height: 250px;
+  aspect-ratio: 1;
 
   > img {
     height: 100%;
