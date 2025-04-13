@@ -24,7 +24,7 @@ export const FILE_GRID_SIZE = {
   gap: 8,
   gapH5: 4,
   padding: 4,
-  minWidth: 90,
+  minWidth: 100,
 };
 export const StyledFileGrid = styled(Box)`
   display: grid;

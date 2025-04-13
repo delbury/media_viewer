@@ -2,6 +2,8 @@ import { useSwr } from '#/hooks/useSwr';
 import { useThrottle } from '#/hooks/useThrottle';
 import { getFileUrls } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
+import { Button } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { SyntheticEvent, useCallback, useMemo, useRef, useState } from 'react';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
@@ -12,6 +14,7 @@ import {
   StyledLyricArea,
   StyledLyricContent,
   StyledLyricRow,
+  StyledScrollRecover,
 } from './style';
 import { LyricRow, useLyric } from './useLyric';
 
@@ -47,8 +50,9 @@ type AudioViewerProps = {
 } & Omit<FixedModalProps, 'children'>;
 
 const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
-  const urls = useMemo(() => getFileUrls(file), [file]);
+  const t = useTranslations();
 
+  const urls = useMemo(() => getFileUrls(file), [file]);
   const lyricRequest = useSwr('fileText', {
     disabled: !file.lrcPath,
     params: {
@@ -60,6 +64,8 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
   const [currentLyricIndex, setCurrentLyricIndex] = useState(0);
   const { lyrics } = useLyric(lyricRequest.data?.content);
   const lyricsRef = useRef<HTMLElement>(null);
+  // 用户滚动中
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
 
   // 播放回调
   const handleTimeUpdate = useCallback(
@@ -68,16 +74,38 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
       const index = findLyricIndex(elm.currentTime, lyrics, currentLyricIndex);
       if (index !== currentLyricIndex) {
         setCurrentLyricIndex(index);
-        const rowElm = lyricsRef.current?.querySelector(`[data-index="${index}"]`);
-        rowElm?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-        });
+
+        // 用户滚动时，停止脚本滚动
+        if (!isUserScrolling) {
+          const rowElm = lyricsRef.current?.querySelector(`[data-index="${index}"]`);
+          // 标记脚本滚动
+          rowElm?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+        }
       }
     },
-    [currentLyricIndex, lyrics]
+    [currentLyricIndex, lyrics, isUserScrolling]
   );
   const handleTimeUpdateThrottle = useThrottle(handleTimeUpdate, 100);
+
+  // 用户拖拽
+  const handleScrollByUser = useCallback(() => {
+    setIsUserScrolling(true);
+  }, [setIsUserScrolling]);
+  const handleScrollByUserThrottle = useThrottle(handleScrollByUser, 200);
+
+  // 恢复自动滚动
+  const handleRecoverAutoScroll = useCallback(() => {
+    setIsUserScrolling(false);
+    const rowElm = lyricsRef.current?.querySelector(`[data-index="${currentLyricIndex}"]`);
+    // 标记脚本滚动
+    rowElm?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    });
+  }, [currentLyricIndex]);
 
   return (
     <FixedModal
@@ -100,17 +128,35 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
           {lyricRequest.isLoading ? (
             <Loading />
           ) : (
-            <StyledLyricContent ref={lyricsRef}>
-              {lyrics.map((row, index) => (
-                <StyledLyricRow
-                  key={row.timeString}
-                  isActived={index === currentLyricIndex}
-                  data-index={index}
-                >
-                  {row.words}
-                </StyledLyricRow>
-              ))}
-            </StyledLyricContent>
+            <>
+              <StyledLyricContent
+                ref={lyricsRef}
+                // 为了区分人为拖拽事件
+                onWheel={handleScrollByUserThrottle}
+                onTouchMove={handleScrollByUserThrottle}
+              >
+                {lyrics.map((row, index) => (
+                  <StyledLyricRow
+                    key={row.timeString}
+                    isActived={index === currentLyricIndex}
+                    data-index={index}
+                  >
+                    {row.words}
+                  </StyledLyricRow>
+                ))}
+              </StyledLyricContent>
+              {isUserScrolling && (
+                <StyledScrollRecover>
+                  <Button
+                    variant="text"
+                    color="inherit"
+                    onClick={handleRecoverAutoScroll}
+                  >
+                    {t('Btn.AutoScroll')}
+                  </Button>
+                </StyledScrollRecover>
+              )}
+            </>
           )}
         </StyledLyricArea>
 

@@ -29,17 +29,17 @@
     "SomethingWentWrong": "发生了一些错误",
     "Default": "默认",
     "Name": "名称",
-
     "Asc": "升序",
     "Desc": "降序",
-
     "Image": "图片",
     "Audio": "音频",
     "Video": "视频",
     "Text": "文本",
     "Other": "其他",
-
     "RequestSuccess": "操作成功"
+  },
+  "Btn": {
+    "AutoScroll": "自动滚动"
   },
   "File": {
     "Size": "大小",

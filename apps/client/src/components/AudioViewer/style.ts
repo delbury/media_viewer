@@ -42,6 +42,7 @@ export const StyledFileName = styled(Box)`
 `;
 
 export const StyledLyricArea = styled(Box)`
+  position: relative;
   height: 20vh;
   display: flex;
   align-items: center;
@@ -54,6 +55,21 @@ export const StyledLyricContent = styled(Box)`
   padding: 10vh 0;
   overflow: auto;
   scrollbar-width: none;
+`;
+
+export const StyledScrollRecover = styled(Box)`
+  position: absolute;
+  bottom: 0;
+  left: 24px;
+  right: 24px;
+  text-align: center;
+
+  > button {
+    color: ${({ theme }) => theme.palette.common.black};
+    background-color: ${({ theme }) => theme.palette.grey[200]};
+    padding: 8px 16px;
+    border-radius: 12px;
+  }
 `;
 
 export const StyledLyricRow = styled(Box, {
