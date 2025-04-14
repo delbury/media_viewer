@@ -1,7 +1,7 @@
 import useImageViewer from '#/hooks/useImageViewer';
+import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { getFileUrls } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
-import { FullFileType } from '#pkgs/shared';
 import { ALLOWED_POSTER_FILE_TYPES, detectFileType } from '#pkgs/tools/common';
 import {
   FeaturedPlayListOutlined,
@@ -16,9 +16,7 @@ import {
 import { SvgIconOwnProps } from '@mui/material';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import 'viewerjs/dist/viewer.css';
-import AudioViewer from '../AudioViewer';
 import Loading from '../Loading';
-import VideoViewer from '../VideoViewer';
 import { StyledFilePosterHover, StyledFilePosterIcon, StyledFilePosterWrapper } from './style';
 
 const FileIcon = ({ ext, iconProps }: { ext: string; iconProps?: SvgIconOwnProps }) => {
@@ -58,9 +56,7 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(false);
-  const [openViewer, setOpenViewer] = useState<Extract<FullFileType, 'audio' | 'video'> | null>(
-    null
-  );
+  const { openMediaViewer } = useMediaViewerContext();
 
   const urls = useMemo(() => {
     if (disabled) return null;
@@ -96,12 +92,12 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
       }
     } else if (file.fileType === 'video') {
       // 视频文件，打开视频浏览器
-      setOpenViewer('video');
+      openMediaViewer({ mediaType: 'video', file });
     } else if (file.fileType === 'audio') {
       // 音频文件，打开音频浏览器
-      setOpenViewer('audio');
+      openMediaViewer({ mediaType: 'audio', file });
     }
-  }, [urls, isError, file.fileType, viewerAutoMount, isCreated, show, createViewer]);
+  }, [urls, isError, file, viewerAutoMount, isCreated, show, createViewer, openMediaViewer]);
 
   const HoverIcon = useMemo(() => {
     switch (file.fileType) {
@@ -168,22 +164,6 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
           </>
         )}
       </StyledFilePosterWrapper>
-
-      {openViewer === 'audio' && (
-        <AudioViewer
-          visible
-          file={file}
-          onClose={() => setOpenViewer(null)}
-        />
-      )}
-
-      {openViewer === 'video' && (
-        <VideoViewer
-          visible
-          file={file}
-          onClose={() => setOpenViewer(null)}
-        />
-      )}
     </>
   );
 };
