@@ -18,6 +18,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import 'viewerjs/dist/viewer.css';
 import AudioViewer from '../AudioViewer';
 import Loading from '../Loading';
+import VideoViewer from '../VideoViewer';
 import { StyledFilePosterHover, StyledFilePosterIcon, StyledFilePosterWrapper } from './style';
 
 const FileIcon = ({ ext, iconProps }: { ext: string; iconProps?: SvgIconOwnProps }) => {
@@ -95,8 +96,7 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
       }
     } else if (file.fileType === 'video') {
       // 视频文件，打开视频浏览器
-      // TODO
-      console.log(file.fileType);
+      setOpenViewer('video');
     } else if (file.fileType === 'audio') {
       // 音频文件，打开音频浏览器
       setOpenViewer('audio');
@@ -171,6 +171,14 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
 
       {openViewer === 'audio' && (
         <AudioViewer
+          visible
+          file={file}
+          onClose={() => setOpenViewer(null)}
+        />
+      )}
+
+      {openViewer === 'video' && (
+        <VideoViewer
           visible
           file={file}
           onClose={() => setOpenViewer(null)}
