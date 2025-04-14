@@ -4,7 +4,7 @@ import { useCallback, useRef } from 'react';
 // 预设的动画
 const PRESET_ANIMATIONS = {
   rotate360: {
-    frames: [{ transform: 'rotateZ(0deg)' }, { transform: 'rotateZ(-360deg)' }],
+    frames: [{ transform: 'rotateZ(0deg)' }, { transform: 'rotateZ(360deg)' }],
     options: {
       easing: 'ease-in-out',
       duration: theme.transitions.duration.standard,

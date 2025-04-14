@@ -1,6 +1,5 @@
-import useImageViewer from '#/hooks/useImageViewer';
 import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
-import { getFileUrls } from '#/utils';
+import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { ALLOWED_POSTER_FILE_TYPES, detectFileType } from '#pkgs/tools/common';
 import {
@@ -49,34 +48,34 @@ const FileIcon = ({ ext, iconProps }: { ext: string; iconProps?: SvgIconOwnProps
 interface PosterImageProps {
   file: FileInfo;
   disabled?: boolean;
-  viewerAutoMount?: boolean;
+  // viewerAutoMount?: boolean;
 }
 
-const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
+const PosterImage = ({ disabled, file }: PosterImageProps) => {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(false);
   const { openMediaViewer } = useMediaViewerContext();
 
-  const urls = useMemo(() => {
+  const posterUrl = useMemo(() => {
     if (disabled) return null;
     if (file.fileType !== 'image' && file.fileType !== 'video' && file.fileType !== 'audio')
       return null;
 
-    return getFileUrls(file);
+    return getFilePosterUrl(file);
   }, [disabled, file]);
 
   const imageRef = useRef<HTMLImageElement>(null);
-  const { show, isCreated, createViewer } = useImageViewer({
-    enabled: true,
-    viewerAutoMount: viewerAutoMount && file.fileType === 'image',
-    imageRef,
-  });
+  // const { show, isCreated, createViewer } = useImageViewer({
+  //   enabled: true,
+  //   viewerAutoMount: viewerAutoMount && file.fileType === 'image',
+  //   imageRef,
+  // });
 
   // 点击事件;
   const handleClick = useCallback(() => {
-    if (!urls) return;
-    if (urls && isError) {
+    if (!posterUrl) return;
+    if (posterUrl && isError) {
       // 重试
       setIsLoading(true);
       setIsError(false);
@@ -84,12 +83,13 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
     }
     if (file.fileType === 'image') {
       // 图片文件，打开图片浏览器
-      if (!viewerAutoMount) {
-        if (!isCreated()) {
-          createViewer();
-        }
-        show();
-      }
+      // if (!viewerAutoMount) {
+      //   if (!isCreated()) {
+      //     createViewer();
+      //   }
+      //   show();
+      // }
+      openMediaViewer({ mediaType: 'image', file });
     } else if (file.fileType === 'video') {
       // 视频文件，打开视频浏览器
       openMediaViewer({ mediaType: 'video', file });
@@ -97,7 +97,7 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
       // 音频文件，打开音频浏览器
       openMediaViewer({ mediaType: 'audio', file });
     }
-  }, [urls, isError, file, viewerAutoMount, isCreated, show, createViewer, openMediaViewer]);
+  }, [posterUrl, isError, file, openMediaViewer]);
 
   const HoverIcon = useMemo(() => {
     switch (file.fileType) {
@@ -141,8 +141,7 @@ const PosterImage = ({ disabled, file, viewerAutoMount }: PosterImageProps) => {
             <img
               key={refreshKey.toString()}
               ref={imageRef}
-              src={urls?.poster}
-              data-src={urls?.source}
+              src={posterUrl ?? ''}
               data-type={file.fileType}
               alt={file.name}
               style={{

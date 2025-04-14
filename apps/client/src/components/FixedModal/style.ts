@@ -9,12 +9,18 @@ export const StyledFixedModalWrapper = styled(Box)`
   z-index: 3000;
   background-color: rgba(0, 0, 0, 0.85);
   color: ${({ theme }) => theme.palette.common.white};
+  display: flex;
+  flex-direction: column;
 `;
 
 export const StyledFixedModalToolbar = styled(Box)`
-  position: absolute;
-  right: 0;
-  top: 0;
+  /* position: absolute; */
+  /* right: 0; */
+  /* top: 0; */
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 
   & > * {
     color: ${({ theme }) => theme.palette.grey[600]};
@@ -22,4 +28,10 @@ export const StyledFixedModalToolbar = styled(Box)`
       color: ${({ theme }) => theme.palette.common.white};
     }
   }
+`;
+
+export const StyledFixedContent = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 `;

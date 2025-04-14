@@ -3,7 +3,7 @@ import { stopPropagation } from '#/utils';
 import { CloseRounded } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { createPortal } from 'react-dom';
-import { StyledFixedModalToolbar, StyledFixedModalWrapper } from './style';
+import { StyledFixedContent, StyledFixedModalToolbar, StyledFixedModalWrapper } from './style';
 
 export interface FixedModalProps {
   visible?: boolean;
@@ -40,7 +40,7 @@ const FixedModal = ({ children, visible, onClose, closeWhenClickBlank }: FixedMo
           </IconButton>
         </StyledFixedModalToolbar>
 
-        {children}
+        <StyledFixedContent>{children}</StyledFixedContent>
       </StyledFixedModalWrapper>,
       document.body
     )

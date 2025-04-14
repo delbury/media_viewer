@@ -1,7 +1,7 @@
 import { FileInfo } from '#pkgs/apis';
-import { FullFileType } from '#pkgs/shared';
 import React, { useMemo, useState } from 'react';
 import AudioViewer from '../AudioViewer';
+import ImageViewer from '../ImageViewer';
 import VideoViewer from '../VideoViewer';
 import { MediaContext, MediaContextState } from './Context';
 
@@ -22,25 +22,24 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
   );
 
   const show = useMemo(() => {
-    const flags: Record<Extract<FullFileType, 'audio' | 'video'>, boolean> = {
-      audio: false,
-      video: false,
-    };
+    const flags: Partial<Record<NonNullable<MediaContextState['mediaType']>, boolean>> = {};
     if (!state.file) return flags;
-    switch (state.mediaType) {
-      case 'audio':
-        flags.audio = true;
-        break;
-      case 'video':
-        flags.video = true;
-        break;
-    }
+    if (state.mediaType) flags[state.mediaType] = true;
     return flags;
   }, [state.file, state.mediaType]);
 
   return (
     <MediaContext.Provider value={value}>
       {children}
+
+      {show.image && (
+        <ImageViewer
+          visible
+          file={state.file as FileInfo}
+          onClose={() => setState(INIT_VALUE)}
+        />
+      )}
+
       {show.audio && (
         <AudioViewer
           visible

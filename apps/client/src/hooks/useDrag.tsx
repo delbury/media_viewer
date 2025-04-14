@@ -35,11 +35,17 @@ export const useDrag = ({
   const abortMouseMove = useRef<AbortController>(null);
   const abortMouseUp = useRef<AbortController>(null);
 
-  const mouseMoveThrottle = useThrottle((dx: number, dy: number) => {
-    const flag = callback([dx, dy]);
-    if (flag === false) return;
-    currentOffsetOnTime.current = [dx, dy];
-  }, 10);
+  const mouseMoveThrottle = useThrottle(
+    (dx: number, dy: number) => {
+      const flag = callback([dx, dy]);
+      if (flag === false) return;
+      currentOffsetOnTime.current = [dx, dy];
+    },
+    {
+      timeout: 10,
+      notCacheLastCall: true,
+    }
+  );
 
   const clearEvents = useCallback(() => {
     abortMouseMove.current?.abort();
@@ -92,14 +98,19 @@ export const useDrag = ({
     document.addEventListener(
       UP_EVENT_NAME,
       () => {
-        onEnd?.();
         startPosition.current = null;
         lastOffset.current = [...currentOffsetOnTime.current];
+        onEnd?.();
         clearEvents();
       },
       { signal: abortMouseUp.current.signal }
     );
   };
+
+  // 重置拖拽
+  const reset = useCallback(() => {
+    lastOffset.current = defaultOffset ?? [0, 0];
+  }, [defaultOffset]);
 
   // 移除事件
   useEffect(() => {
@@ -112,5 +123,6 @@ export const useDrag = ({
     events: {
       onPointerDown: fnMouseDown,
     } satisfies DOMAttributes<HTMLElement>,
+    reset,
   };
 };

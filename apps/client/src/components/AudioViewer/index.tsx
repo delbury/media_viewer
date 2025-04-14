@@ -1,6 +1,6 @@
 import { useMediaPlayBtn } from '#/hooks/useMediaPlayBtn';
 import { useThrottle } from '#/hooks/useThrottle';
-import { getFileUrls } from '#/utils';
+import { getFilePosterUrl, getFileSourceUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { Button } from '@mui/material';
 import { useTranslations } from 'next-intl';
@@ -31,7 +31,8 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
   const [isUserScrolling, setIsUserScrolling] = useState(false);
 
   // 链接
-  const urls = useMemo(() => getFileUrls(file), [file]);
+  const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
+  const sourceUrl = useMemo(() => getFileSourceUrl(file), [file]);
 
   // 歌词相关
   const lyricsRef = useRef<HTMLElement>(null);
@@ -89,9 +90,9 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
     >
       <StyledContentWrapper>
         <StyledImgContainer>
-          {!!urls.poster && (
+          {!!posterUrl && (
             <img
-              src={urls.poster}
+              src={posterUrl}
               alt={file.name}
             />
           )}
@@ -145,10 +146,10 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
           )}
         </StyledLyricArea>
 
-        {!!urls.source && (
+        {!!sourceUrl && (
           <audio
             ref={audioRef}
-            src={urls.source}
+            src={sourceUrl}
             controls
             onTimeUpdate={handleTimeUpdateThrottle}
           />

@@ -94,7 +94,6 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
             <PosterImage
               file={file}
               key={imgKey.toString()}
-              viewerAutoMount
             />
           </StyledFilePosterInner>
         </StyledFilePosterWrapper>

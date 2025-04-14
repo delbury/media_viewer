@@ -29,8 +29,9 @@ export const mapToOptions = <T extends string>(map: Record<T, string>) => {
 // 阻止冒泡
 export const stopPropagation = (ev: Pick<Event, 'stopPropagation'>) => ev.stopPropagation();
 
-// 生成文件资源 url
-export const getFileUrls = (file: FileInfo) => {
+// 生成文件缩略图 url
+export const getFilePosterUrl = (file?: FileInfo) => {
+  if (!file) return '';
   const poster = joinUrlWithQueryString(
     'filePoster',
     {
@@ -39,7 +40,12 @@ export const getFileUrls = (file: FileInfo) => {
     },
     API_BASE_URL
   );
+  return poster;
+};
 
+// 生成文件资源 url
+export const getFileSourceUrl = (file?: FileInfo) => {
+  if (!file) return '';
   const source = joinUrlWithQueryString(
     'fileGet',
     {
@@ -49,8 +55,5 @@ export const getFileUrls = (file: FileInfo) => {
     API_BASE_URL
   );
 
-  return {
-    source,
-    poster,
-  };
+  return source;
 };

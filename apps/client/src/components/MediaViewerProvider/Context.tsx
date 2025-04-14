@@ -4,7 +4,7 @@ import { noop } from 'lodash-es';
 import { createContext } from 'react';
 
 export interface MediaContextState {
-  mediaType: Extract<FullFileType, 'audio' | 'video'> | null;
+  mediaType: Extract<FullFileType, 'audio' | 'video' | 'image'> | null;
   file: FileInfo | null;
 }
 
