@@ -9,7 +9,17 @@ const Layout = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <NotificationsProvider>
+    <NotificationsProvider
+      slotProps={{
+        snackbar: {
+          sx: {
+            zIndex: 4000,
+            top: '8px',
+            bottom: 'unset',
+          },
+        },
+      }}
+    >
       <MediaViewerProvider>{children}</MediaViewerProvider>
     </NotificationsProvider>
   );

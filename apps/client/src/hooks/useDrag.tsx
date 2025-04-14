@@ -1,7 +1,7 @@
 'use client';
 
 import { preventDefault } from '#/utils';
-import { DOMAttributes, MouseEventHandler, useCallback, useEffect, useRef } from 'react';
+import { DOMAttributes, PointerEventHandler, useCallback, useEffect, useRef } from 'react';
 import { useThrottle } from './useThrottle';
 
 export interface UseDragParams {
@@ -34,6 +34,8 @@ export const useDrag = ({
   const lastOffset = useRef<[number, number]>(defaultOffset ?? [0, 0]);
   // 当次拖拽时，鼠标相对于点击原点的实时偏移值
   const currentOffsetOnTime = useRef<[number, number]>([0, 0]);
+  // 当前按下的指针 id
+  const currentActivedPointerId = useRef<number>(null);
 
   // 中断信号
   const abortMouseMove = useRef<AbortController>(null);
@@ -59,7 +61,11 @@ export const useDrag = ({
   }, [abortMouseMove, abortMouseUp]);
 
   // 点击事件，开始
-  const fnMouseDown: MouseEventHandler<HTMLElement> = ev => {
+  const fnMouseDown: PointerEventHandler<HTMLElement> = ev => {
+    // 如果已经按下了，则跳过
+    if (currentActivedPointerId.current !== null) return;
+    currentActivedPointerId.current = ev.pointerId;
+
     preventDefault(ev);
     onStart?.();
 
@@ -72,6 +78,7 @@ export const useDrag = ({
     document.addEventListener(
       MOVE_EVENT_NAME,
       ev => {
+        if (currentActivedPointerId.current !== ev.pointerId) return;
         preventDefault(ev);
 
         const dx =
@@ -101,7 +108,10 @@ export const useDrag = ({
     // 拖动结束
     document.addEventListener(
       UP_EVENT_NAME,
-      () => {
+      ev => {
+        if (currentActivedPointerId.current !== ev.pointerId) return;
+
+        currentActivedPointerId.current = null;
         startPosition.current = null;
         lastOffset.current = [...currentOffsetOnTime.current];
         onEnd?.();
