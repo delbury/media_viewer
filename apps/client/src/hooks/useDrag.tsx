@@ -1,5 +1,6 @@
 'use client';
 
+import { preventDefault } from '#/utils';
 import { DOMAttributes, MouseEventHandler, useCallback, useEffect, useRef } from 'react';
 import { useThrottle } from './useThrottle';
 
@@ -12,6 +13,8 @@ export interface UseDragParams {
   onStart?: () => void;
   // 结束拖拽
   onEnd?: () => void;
+  // 使用节流时间
+  throttleTime?: number;
 }
 
 const MOVE_EVENT_NAME = 'pointermove';
@@ -23,6 +26,7 @@ export const useDrag = ({
   defaultOffset,
   onStart,
   onEnd,
+  throttleTime,
 }: UseDragParams) => {
   // 鼠标点击的原点
   const startPosition = useRef<[number, number]>(null);
@@ -42,7 +46,7 @@ export const useDrag = ({
       currentOffsetOnTime.current = [dx, dy];
     },
     {
-      timeout: 10,
+      timeout: throttleTime,
       notCacheLastCall: true,
     }
   );
@@ -56,7 +60,7 @@ export const useDrag = ({
 
   // 点击事件，开始
   const fnMouseDown: MouseEventHandler<HTMLElement> = ev => {
-    ev.preventDefault();
+    preventDefault(ev);
     onStart?.();
 
     startPosition.current = [ev.clientX, ev.clientY];
@@ -68,7 +72,7 @@ export const useDrag = ({
     document.addEventListener(
       MOVE_EVENT_NAME,
       ev => {
-        ev.preventDefault();
+        preventDefault(ev);
 
         const dx =
           watchAxis === 'y'
@@ -122,6 +126,7 @@ export const useDrag = ({
   return {
     events: {
       onPointerDown: fnMouseDown,
+      // onContextMenu: preventDefault,
     } satisfies DOMAttributes<HTMLElement>,
     reset,
   };

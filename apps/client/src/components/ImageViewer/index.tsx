@@ -1,15 +1,23 @@
 import { useDrag } from '#/hooks/useDrag';
-import { getFileSourceUrl } from '#/utils';
+import { getFileSourceUrl, preventDefault } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { AutorenewRounded, ZoomInRounded, ZoomOutRounded } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
-import { CSSProperties, useCallback, useMemo, useRef, useState } from 'react';
+import { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
 import { StyledImageToolbar, StyledImageWrapper, StyledLoadingWrapper } from './style';
 
+// 初始化值
 const INIT_STATE = {
   offset: [0, 0] as [number, number],
+  scale: 1,
+};
+// 缩放限制
+const SCALE_LIMIT = {
+  max: 3,
+  min: 0.2,
+  step: 0.2,
 };
 
 type ImageViewerProps = {
@@ -19,33 +27,85 @@ type ImageViewerProps = {
 const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const sourceUrl = useMemo(() => getFileSourceUrl(file), [file]);
-  const [offset, setOffset] = useState(INIT_STATE.offset);
   const imageRef = useRef<HTMLImageElement>(null);
+  // 偏移值，用于拖拽
+  const [offset, setOffset] = useState(INIT_STATE.offset);
+  // 缩放值，用于缩放
+  const [scale, setScale] = useState(INIT_STATE.scale);
 
   // 图片位置、缩放、旋转样式
   const imageStyle = useMemo<CSSProperties>(() => {
+    const dx = offset[0] / scale;
+    const dy = offset[1] / scale;
     return {
-      transform: `translate(${offset[0]}px, ${offset[1]}px)`,
+      transform: `scale(${scale}) translate(${dx}px, ${dy}px)`,
     };
-  }, [offset]);
+  }, [offset, scale]);
 
+  // 拖拽开始
   const handleDragStart = useCallback(() => {
     imageRef.current?.style.setProperty('transition', 'none', 'important');
   }, [imageRef]);
 
+  // 拖拽结束
   const handleDragEnd = useCallback(() => {
-    imageRef.current?.style.removeProperty('transition');
+    window.setTimeout(() => {
+      imageRef.current?.style.removeProperty('transition');
+    });
   }, [imageRef]);
 
+  // 拖拽 hook
   const { events, reset } = useDrag({
     callback: setOffset,
     onStart: handleDragStart,
     onEnd: handleDragEnd,
   });
 
+  // 放大
+  const handleZoomIn = useCallback(() => {
+    setScale(v => {
+      const nv = v + SCALE_LIMIT.step;
+      if (nv > SCALE_LIMIT.max) return SCALE_LIMIT.max;
+      return nv;
+    });
+  }, [setScale]);
+
+  // 缩小
+  const handleZoomOut = useCallback(() => {
+    setScale(v => {
+      const nv = v - SCALE_LIMIT.step;
+      if (nv < SCALE_LIMIT.min) return SCALE_LIMIT.min;
+      return nv;
+    });
+  }, [setScale]);
+
+  useEffect(() => {
+    if (imageRef.current) {
+      const controller = new AbortController();
+      imageRef.current.addEventListener(
+        'wheel',
+        ev => {
+          if (!visible) return;
+          if (ev.deltaY > 0) {
+            // 向下
+            handleZoomOut();
+          } else if (ev.deltaY < 0) {
+            // 向上
+            handleZoomIn();
+          }
+        },
+        { signal: controller.signal }
+      );
+      return () => {
+        controller.abort();
+      };
+    }
+  }, []);
+
   // 重置
   const handleReset = useCallback(() => {
     setOffset(INIT_STATE.offset);
+    setScale(INIT_STATE.scale);
     reset();
   }, [setOffset, reset]);
 
@@ -54,7 +114,7 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
       visible={visible}
       onClose={onClose}
     >
-      <StyledImageWrapper>
+      <StyledImageWrapper onContextMenu={preventDefault}>
         {sourceUrl && (
           <img
             ref={imageRef}
@@ -81,11 +141,11 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
       {/* 工具栏 */}
       <StyledImageToolbar>
         {/* 缩小 */}
-        <IconButton>
+        <IconButton onClick={handleZoomOut}>
           <ZoomOutRounded />
         </IconButton>
         {/* 放大 */}
-        <IconButton>
+        <IconButton onClick={handleZoomIn}>
           <ZoomInRounded />
         </IconButton>
         {/* 重置 */}

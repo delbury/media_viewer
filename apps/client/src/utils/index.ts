@@ -29,6 +29,9 @@ export const mapToOptions = <T extends string>(map: Record<T, string>) => {
 // 阻止冒泡
 export const stopPropagation = (ev: Pick<Event, 'stopPropagation'>) => ev.stopPropagation();
 
+// 阻止浏览器默认行为
+export const preventDefault = (ev: Pick<Event, 'preventDefault'>) => ev.preventDefault();
+
 // 生成文件缩略图 url
 export const getFilePosterUrl = (file?: FileInfo) => {
   if (!file) return '';

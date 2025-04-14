@@ -14,6 +14,7 @@ const ResizeBar = ({ position, onSizeChange, defaultOffset, onStart, onEnd }: Re
   const barRef = useRef<HTMLElement>(null);
   const barPositionY = useRef<number[]>([]);
   const { events } = useDrag({
+    throttleTime: 10,
     onStart,
     onEnd,
     defaultOffset,
@@ -49,7 +50,6 @@ const ResizeBar = ({ position, onSizeChange, defaultOffset, onStart, onEnd }: Re
       ref={barRef}
       sx={{ ...barStyle }}
       {...events}
-      onContextMenu={e => e.preventDefault()}
     >
       <MoreHorizOutlined fontSize="small" />
     </StyledBarWrapper>

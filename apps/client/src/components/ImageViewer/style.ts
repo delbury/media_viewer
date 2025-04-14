@@ -11,6 +11,7 @@ export const StyledImageWrapper = styled(Box)`
     height: 100%;
     object-fit: contain;
     transition: transform ${({ theme }) => theme.transitions.duration.shorter}ms;
+    touch-action: none;
   }
 `;
 
