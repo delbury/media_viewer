@@ -26,7 +26,7 @@ export const useAnimationFrame = (cb: CustomCallback, { minGapTime }: Options = 
       prevTime.current = time;
       callback();
     });
-  }, []);
+  }, [cb, minGapTime]);
 
   const start = useCallback((delay?: number) => setTimeout(callback, delay), [callback]);
 

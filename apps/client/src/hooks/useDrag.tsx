@@ -1,7 +1,7 @@
 'use client';
 
 import { preventDefault } from '#/utils';
-import { DOMAttributes, PointerEventHandler, useCallback, useEffect, useRef } from 'react';
+import { PointerEventHandler, useCallback, useEffect, useRef } from 'react';
 import { useThrottle } from './useThrottle';
 
 export interface UseDragParams {
@@ -13,8 +13,6 @@ export interface UseDragParams {
   onStart?: () => void;
   // 结束拖拽
   onEnd?: () => void;
-  // 使用节流时间
-  throttleTime?: number;
 }
 
 const MOVE_EVENT_NAME = 'pointermove';
@@ -26,7 +24,6 @@ export const useDrag = ({
   defaultOffset,
   onStart,
   onEnd,
-  throttleTime,
 }: UseDragParams) => {
   // 鼠标点击的原点
   const startPosition = useRef<[number, number]>(null);
@@ -38,8 +35,8 @@ export const useDrag = ({
   const currentActivedPointerId = useRef<number>(null);
 
   // 中断信号
-  const abortMouseMove = useRef<AbortController>(null);
-  const abortMouseUp = useRef<AbortController>(null);
+  const moveController = useRef<AbortController>(null);
+  const upController = useRef<AbortController>(null);
 
   const mouseMoveThrottle = useThrottle(
     (dx: number, dy: number) => {
@@ -48,20 +45,20 @@ export const useDrag = ({
       currentOffsetOnTime.current = [dx, dy];
     },
     {
-      timeout: throttleTime,
       notCacheLastCall: true,
+      byAnimationFrame: true,
     }
   );
 
   const clearEvents = useCallback(() => {
-    abortMouseMove.current?.abort();
-    abortMouseMove.current = null;
-    abortMouseUp.current?.abort();
-    abortMouseUp.current = null;
-  }, [abortMouseMove, abortMouseUp]);
+    moveController.current?.abort();
+    moveController.current = null;
+    upController.current?.abort();
+    upController.current = null;
+  }, [moveController, upController]);
 
   // 点击事件，开始
-  const fnMouseDown: PointerEventHandler<HTMLElement> = useCallback(
+  const fnPointerDown: PointerEventHandler<HTMLElement> = useCallback(
     ev => {
       // 如果已经按下了，则跳过
       if (currentActivedPointerId.current !== null) return;
@@ -72,8 +69,8 @@ export const useDrag = ({
 
       startPosition.current = [ev.clientX, ev.clientY];
 
-      abortMouseMove.current = new AbortController();
-      abortMouseUp.current = new AbortController();
+      moveController.current = new AbortController();
+      upController.current = new AbortController();
 
       // 拖动中
       document.addEventListener(
@@ -103,7 +100,7 @@ export const useDrag = ({
           // 节流
           mouseMoveThrottle(dx, dy);
         },
-        { signal: abortMouseMove.current.signal }
+        { signal: moveController.current.signal }
       );
 
       // 拖动结束
@@ -118,7 +115,7 @@ export const useDrag = ({
           onEnd?.();
           clearEvents();
         },
-        { signal: abortMouseUp.current.signal }
+        { signal: upController.current.signal }
       );
     },
     [clearEvents, mouseMoveThrottle, onEnd, onStart, watchAxis]
@@ -137,10 +134,7 @@ export const useDrag = ({
   }, []);
 
   return {
-    events: {
-      onPointerDown: fnMouseDown,
-      // onContextMenu: preventDefault,
-    } satisfies DOMAttributes<HTMLElement>,
+    dragEventHandler: fnPointerDown,
     reset,
   };
 };

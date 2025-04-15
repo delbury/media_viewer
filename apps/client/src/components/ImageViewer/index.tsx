@@ -1,5 +1,6 @@
 import { useDrag } from '#/hooks/useDrag';
 import { useGesture } from '#/hooks/useGesture';
+import { UserZoomParams, useZoom } from '#/hooks/useZoom';
 import { getFileSourceUrl, preventDefault } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { AutorenewRounded, ZoomInRounded, ZoomOutRounded } from '@mui/icons-material';
@@ -24,8 +25,8 @@ const INIT_STATE = {
 };
 // 缩放限制
 const SCALE_LIMIT = {
-  max: 3,
-  min: 0.2,
+  max: 5,
+  min: 0.75,
   step: 0.2,
 };
 
@@ -51,45 +52,76 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
     };
   }, [offset, scale]);
 
-  // 判断手势
-  const { detectGesture } = useGesture();
-
-  // 拖拽开始
-  const handleDragStart = useCallback(() => {
+  // 禁用图片过渡动画
+  const disableTrisition = useCallback(() => {
     imageRef.current?.style.setProperty('transition', 'none', 'important');
   }, [imageRef]);
 
-  // 拖拽结束
-  const handleDragEnd = useCallback(() => {
+  // 启用图片过渡动画
+  const enableTrisition = useCallback(() => {
     window.setTimeout(() => {
       imageRef.current?.style.removeProperty('transition');
-    });
+    }, 100);
   }, [imageRef]);
 
+  // 判断手势
+  const { detectGesture } = useGesture();
+
   // 拖拽 hook
-  const { events, reset } = useDrag({
+  const { dragEventHandler, reset } = useDrag({
     callback: setOffset,
-    onStart: handleDragStart,
-    onEnd: handleDragEnd,
+    onStart: disableTrisition,
+    onEnd: enableTrisition,
   });
+
+  // 缩放至
+  const zoomTo = useCallback(
+    (nv: number) => {
+      if (nv > SCALE_LIMIT.max) nv = SCALE_LIMIT.max;
+      else if (nv < SCALE_LIMIT.min) nv = SCALE_LIMIT.min;
+
+      setScale(nv);
+    },
+    [setScale]
+  );
+
+  // 缩放间隔
+  const zoomBy = useCallback(
+    (diff: number) => {
+      setScale(v => {
+        const nv = v + diff;
+        if (nv > SCALE_LIMIT.max) return SCALE_LIMIT.max;
+        if (nv < SCALE_LIMIT.min) return SCALE_LIMIT.min;
+        return nv;
+      });
+    },
+    [setScale]
+  );
 
   // 放大
   const handleZoomIn = useCallback(() => {
-    setScale(v => {
-      const nv = v + SCALE_LIMIT.step;
-      if (nv > SCALE_LIMIT.max) return SCALE_LIMIT.max;
-      return nv;
-    });
-  }, [setScale]);
+    zoomBy(+SCALE_LIMIT.step);
+  }, [zoomBy]);
 
   // 缩小
   const handleZoomOut = useCallback(() => {
-    setScale(v => {
-      const nv = v - SCALE_LIMIT.step;
-      if (nv < SCALE_LIMIT.min) return SCALE_LIMIT.min;
-      return nv;
-    });
-  }, [setScale]);
+    zoomBy(-SCALE_LIMIT.step);
+  }, [zoomBy]);
+
+  // 手势缩放
+  const handleZoomCallback = useCallback<UserZoomParams['callback']>(
+    (startPos, diffScale) => {
+      zoomTo(diffScale * scale);
+    },
+    [scale, zoomTo]
+  );
+
+  // zoom 手势
+  const { zoomEventHandler } = useZoom({
+    onStart: disableTrisition,
+    onEnd: enableTrisition,
+    callback: handleZoomCallback,
+  });
 
   useEffect(() => {
     if (imageRef.current) {
@@ -118,13 +150,15 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
   const handlePointerDown = useCallback<PointerEventHandler<HTMLElement>>(
     async ev => {
       // 当触摸开始时一段时间内命中了某个手势操作后，则不进入 drag 操作
-      const pointerIds = await detectGesture(ev);
+      const pointers = await detectGesture(ev);
       // 未完成手势，跳过
-      if (!pointerIds) return;
-      // 单指操作，进入拖拽
-      if (pointerIds.length === 1) events.onPointerDown(ev);
+      if (!pointers) return;
+      // 单指操作，进入 drag 操作
+      if (pointers.length === 1) dragEventHandler(ev);
+      // 双指操作，进入 zoom 操作
+      if (pointers.length === 2) zoomEventHandler(pointers);
     },
-    [events, detectGesture]
+    [detectGesture, dragEventHandler, zoomEventHandler]
   );
 
   // 重置

@@ -13,8 +13,7 @@ export type ResizeBarProps = {
 const ResizeBar = ({ position, onSizeChange, defaultOffset, onStart, onEnd }: ResizeBarProps) => {
   const barRef = useRef<HTMLElement>(null);
   const barPositionY = useRef<number[]>([]);
-  const { events } = useDrag({
-    throttleTime: 10,
+  const { dragEventHandler } = useDrag({
     onStart,
     onEnd,
     defaultOffset,
@@ -49,7 +48,7 @@ const ResizeBar = ({ position, onSizeChange, defaultOffset, onStart, onEnd }: Re
     <StyledBarWrapper
       ref={barRef}
       sx={{ ...barStyle }}
-      {...events}
+      onPointerDown={dragEventHandler}
     >
       <MoreHorizOutlined fontSize="small" />
     </StyledBarWrapper>
