@@ -1,9 +1,18 @@
 import { useDrag } from '#/hooks/useDrag';
+import { useGesture } from '#/hooks/useGesture';
 import { getFileSourceUrl, preventDefault } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { AutorenewRounded, ZoomInRounded, ZoomOutRounded } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
-import { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  CSSProperties,
+  PointerEventHandler,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
 import { StyledImageToolbar, StyledImageWrapper, StyledLoadingWrapper } from './style';
@@ -41,6 +50,9 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
       transform: `scale(${scale}) translate(${dx}px, ${dy}px)`,
     };
   }, [offset, scale]);
+
+  // 判断手势
+  const { detectGesture } = useGesture();
 
   // 拖拽开始
   const handleDragStart = useCallback(() => {
@@ -102,6 +114,19 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
     }
   }, []);
 
+  // 点击操作
+  const handlePointerDown = useCallback<PointerEventHandler<HTMLElement>>(
+    async ev => {
+      // 当触摸开始时一段时间内命中了某个手势操作后，则不进入 drag 操作
+      const pointerIds = await detectGesture(ev);
+      // 未完成手势，跳过
+      if (!pointerIds) return;
+      // 单指操作，进入拖拽
+      if (pointerIds.length === 1) events.onPointerDown(ev);
+    },
+    [events, detectGesture]
+  );
+
   // 重置
   const handleReset = useCallback(() => {
     setOffset(INIT_STATE.offset);
@@ -127,7 +152,7 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
               setIsLoading(false);
             }}
             style={imageStyle}
-            {...events}
+            onPointerDown={handlePointerDown}
           />
         )}
 

@@ -61,65 +61,68 @@ export const useDrag = ({
   }, [abortMouseMove, abortMouseUp]);
 
   // 点击事件，开始
-  const fnMouseDown: PointerEventHandler<HTMLElement> = ev => {
-    // 如果已经按下了，则跳过
-    if (currentActivedPointerId.current !== null) return;
-    currentActivedPointerId.current = ev.pointerId;
+  const fnMouseDown: PointerEventHandler<HTMLElement> = useCallback(
+    ev => {
+      // 如果已经按下了，则跳过
+      if (currentActivedPointerId.current !== null) return;
+      currentActivedPointerId.current = ev.pointerId;
 
-    preventDefault(ev);
-    onStart?.();
+      preventDefault(ev);
+      onStart?.();
 
-    startPosition.current = [ev.clientX, ev.clientY];
+      startPosition.current = [ev.clientX, ev.clientY];
 
-    abortMouseMove.current = new AbortController();
-    abortMouseUp.current = new AbortController();
+      abortMouseMove.current = new AbortController();
+      abortMouseUp.current = new AbortController();
 
-    // 拖动中
-    document.addEventListener(
-      MOVE_EVENT_NAME,
-      ev => {
-        if (currentActivedPointerId.current !== ev.pointerId) return;
-        preventDefault(ev);
+      // 拖动中
+      document.addEventListener(
+        MOVE_EVENT_NAME,
+        ev => {
+          if (currentActivedPointerId.current !== ev.pointerId) return;
+          preventDefault(ev);
 
-        const dx =
-          watchAxis === 'y'
-            ? 0
-            : ev.clientX - (startPosition.current?.[0] ?? 0) + lastOffset.current[0];
-        const dy =
-          watchAxis === 'x'
-            ? 0
-            : ev.clientY - (startPosition.current?.[1] ?? 0) + lastOffset.current[1];
+          const dx =
+            watchAxis === 'y'
+              ? 0
+              : ev.clientX - (startPosition.current?.[0] ?? 0) + lastOffset.current[0];
+          const dy =
+            watchAxis === 'x'
+              ? 0
+              : ev.clientY - (startPosition.current?.[1] ?? 0) + lastOffset.current[1];
 
-        if (watchAxis === 'x') {
-          if (dx === currentOffsetOnTime.current[0]) return;
-        } else if (watchAxis === 'y') {
-          if (dy === currentOffsetOnTime.current[1]) return;
-        } else {
-          if (dx === currentOffsetOnTime.current[0] && dy === currentOffsetOnTime.current[1])
-            return;
-        }
+          if (watchAxis === 'x') {
+            if (dx === currentOffsetOnTime.current[0]) return;
+          } else if (watchAxis === 'y') {
+            if (dy === currentOffsetOnTime.current[1]) return;
+          } else {
+            if (dx === currentOffsetOnTime.current[0] && dy === currentOffsetOnTime.current[1])
+              return;
+          }
 
-        // 节流
-        mouseMoveThrottle(dx, dy);
-      },
-      { signal: abortMouseMove.current.signal }
-    );
+          // 节流
+          mouseMoveThrottle(dx, dy);
+        },
+        { signal: abortMouseMove.current.signal }
+      );
 
-    // 拖动结束
-    document.addEventListener(
-      UP_EVENT_NAME,
-      ev => {
-        if (currentActivedPointerId.current !== ev.pointerId) return;
+      // 拖动结束
+      document.addEventListener(
+        UP_EVENT_NAME,
+        ev => {
+          if (currentActivedPointerId.current !== ev.pointerId) return;
 
-        currentActivedPointerId.current = null;
-        startPosition.current = null;
-        lastOffset.current = [...currentOffsetOnTime.current];
-        onEnd?.();
-        clearEvents();
-      },
-      { signal: abortMouseUp.current.signal }
-    );
-  };
+          currentActivedPointerId.current = null;
+          startPosition.current = null;
+          lastOffset.current = [...currentOffsetOnTime.current];
+          onEnd?.();
+          clearEvents();
+        },
+        { signal: abortMouseUp.current.signal }
+      );
+    },
+    [clearEvents, mouseMoveThrottle, onEnd, onStart, watchAxis]
+  );
 
   // 重置拖拽
   const reset = useCallback(() => {
