@@ -2,15 +2,20 @@ import { Box, styled } from '@mui/material';
 
 export const StyledImageWrapper = styled(Box)`
   position: relative;
-  width: 100%;
   font-size: 0;
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   > img {
+    position: absolute;
     width: 100%;
-    height: 100%;
+    height: fit-content;
+
     object-fit: contain;
-    transition: transform ${({ theme }) => theme.transitions.duration.shorter}ms;
+    transition-property: transform, height, width;
+    transition-duration: ${({ theme }) => theme.transitions.duration.shorter}ms;
     touch-action: none;
   }
 `;

@@ -1,5 +1,6 @@
 import { useDrag } from '#/hooks/useDrag';
 import { useGesture } from '#/hooks/useGesture';
+import { useResizeObserver } from '#/hooks/useResizeObserver';
 import { UserZoomParams, useZoom } from '#/hooks/useZoom';
 import { getFileSourceUrl, preventDefault } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
@@ -7,6 +8,7 @@ import {
   AutorenewRounded,
   RotateLeftRounded,
   RotateRightRounded,
+  WallpaperRounded,
   ZoomInRounded,
   ZoomOutRounded,
 } from '@mui/icons-material';
@@ -33,7 +35,7 @@ const INIT_STATE = {
 // 缩放限制
 const SCALE_LIMIT = {
   max: 5,
-  min: 0.75,
+  min: 0.5,
   step: 0.2,
 };
 
@@ -45,6 +47,7 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const sourceUrl = useMemo(() => getFileSourceUrl(file), [file]);
   const imageRef = useRef<HTMLImageElement>(null);
+  const imageContainerRef = useRef<HTMLElement>(null);
   // 偏移值，用于拖拽
   const [offset, setOffset] = useState(INIT_STATE.offset);
   // 缩放值，用于缩放
@@ -52,14 +55,28 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
   // 旋转值，用于旋转
   const [degree, setDegree] = useState(INIT_STATE.degree);
 
+  // 监听容器大小改变
+  const { size: imageContainerSize } = useResizeObserver({
+    domRef: imageContainerRef,
+  });
+
   // 图片位置、缩放、旋转样式
   const imageStyle = useMemo<CSSProperties>(() => {
+    // 旋转 90 度时，需要改变图片容器的大小
+    const isVertical = degree % 180 !== 0;
+
     const dx = offset[0] / scale;
     const dy = offset[1] / scale;
     return {
       transform: `scale(${scale}) translate(${dx}px, ${dy}px) rotate(${degree}deg)`,
+      ...(isVertical && imageContainerSize
+        ? {
+            width: `${imageContainerSize.height}px`,
+            height: `${imageContainerSize.width}px`,
+          }
+        : {}),
     };
-  }, [offset, scale, degree]);
+  }, [offset, scale, degree, imageContainerSize]);
 
   // 禁用图片过渡动画
   const disableTrisition = useCallback(() => {
@@ -133,6 +150,7 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
 
       // 需要重置 offset
       setOffset(INIT_STATE.offset);
+      resetDragOffset();
       // 并且计算旋转为 +/-90 时的缩放
       if (newDeg % 180 === 0) {
         // 0 或者 180
@@ -144,7 +162,7 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
       // 设置旋转值
       setDegree(newDeg);
     },
-    [degree]
+    [degree, resetDragOffset]
   );
 
   // 逆时针旋转
@@ -200,25 +218,33 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
     [detectGesture, dragEventHandler, zoomEventHandler]
   );
 
-  // 重置
-  const handleReset = useCallback(() => {
+  // 重置偏移和缩放
+  const handleResetOffsetAndScale = useCallback(() => {
     setOffset(INIT_STATE.offset);
     setScale(INIT_STATE.scale);
     resetDragOffset();
+  }, [resetDragOffset]);
+
+  // 重置所有
+  const handleResetAll = useCallback(() => {
+    handleResetOffsetAndScale();
     // 角度重置到 360 的整数倍，从 0 倍开始
     // 当前值靠近哪个就重置到哪个值
     // 0 90 180 270
     const restDegree = degree % 360;
     const resetDegree = degree - restDegree + (restDegree <= 180 ? 0 : 360);
     setDegree(resetDegree);
-  }, [degree, resetDragOffset]);
+  }, [degree, handleResetOffsetAndScale]);
 
   return (
     <FixedModal
       visible={visible}
       onClose={onClose}
     >
-      <StyledImageWrapper onContextMenu={preventDefault}>
+      <StyledImageWrapper
+        ref={imageContainerRef}
+        onContextMenu={preventDefault}
+      >
         {sourceUrl && (
           <img
             ref={imageRef}
@@ -255,9 +281,14 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
           <ZoomInRounded />
         </IconButton>
 
-        {/* 重置 */}
-        <IconButton onClick={handleReset}>
+        {/* 重置所有 */}
+        <IconButton onClick={handleResetAll}>
           <AutorenewRounded />
+        </IconButton>
+
+        {/* 只重置缩放和偏移 */}
+        <IconButton onClick={handleResetOffsetAndScale}>
+          <WallpaperRounded />
         </IconButton>
 
         {/* 逆时针旋转 */}

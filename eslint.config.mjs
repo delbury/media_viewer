@@ -45,7 +45,7 @@ export default [
       // 自动换行后的缩进（例如 2 空格）
       'react/jsx-indent-props': ['warn', 2],
       'no-console': [
-        'warn',
+        'error',
         {
           allow: ['info', 'error'],
         },
