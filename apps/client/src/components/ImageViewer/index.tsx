@@ -250,6 +250,7 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
             ref={imageRef}
             src={sourceUrl}
             alt={file.name}
+            draggable="false"
             onError={() => {
               setIsLoading(false);
             }}
