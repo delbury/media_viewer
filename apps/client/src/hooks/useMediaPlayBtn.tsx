@@ -1,6 +1,6 @@
 import { PauseCircleRounded, PlayCircleRounded } from '@mui/icons-material';
 import { Box, IconButton, styled, SxProps, Theme } from '@mui/material';
-import { RefObject, useCallback, useEffect, useMemo, useState } from 'react';
+import { RefObject, useCallback, useEffect, useState } from 'react';
 
 const StyledWrapper = styled(Box)`
   position: absolute;
@@ -31,9 +31,11 @@ const iconSx: SxProps<Theme> = {
 
 interface UseMediaPlayBtn {
   mediaRef: RefObject<HTMLAudioElement | null>;
+  // 不需要按钮组件
+  noBtn?: boolean;
 }
 
-export const useMediaPlayBtn = ({ mediaRef }: UseMediaPlayBtn) => {
+export const useMediaPlayBtn = ({ mediaRef, noBtn }: UseMediaPlayBtn) => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const handleToggle = useCallback(() => {
@@ -73,20 +75,28 @@ export const useMediaPlayBtn = ({ mediaRef }: UseMediaPlayBtn) => {
     }
   }, []);
 
-  const MediaBtn = useMemo(() => {
-    return (
-      <StyledWrapper>
-        <IconButton
-          onClick={handleToggle}
-          sx={{ width: '100%', height: '100%' }}
-        >
-          {isPlaying ? <PlayCircleRounded sx={iconSx} /> : <PauseCircleRounded sx={iconSx} />}
-        </IconButton>
-      </StyledWrapper>
-    );
-  }, [handleToggle, isPlaying]);
+  const MediaBtn = useCallback(
+    ({ sx }: { sx?: SxProps<Theme> }) => {
+      if (noBtn) {
+        return null;
+      }
+      return (
+        <StyledWrapper>
+          <IconButton
+            onClick={handleToggle}
+            sx={sx}
+          >
+            {isPlaying ? <PlayCircleRounded sx={iconSx} /> : <PauseCircleRounded sx={iconSx} />}
+          </IconButton>
+        </StyledWrapper>
+      );
+    },
+    [handleToggle, isPlaying, noBtn]
+  );
 
   return {
     MediaBtn,
+    isPlaying,
+    toggle: handleToggle,
   };
 };

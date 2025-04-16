@@ -1,6 +1,7 @@
 import { Box, styled } from '@mui/material';
 
 export const StyledContentWrapper = styled(Box)`
+  position: relative;
   height: 100%;
   width: 100%;
   display: flex;
@@ -18,5 +19,20 @@ export const StyledVideoWrapper = styled(Box)`
     width: 100%;
     height: fit-content;
     object-fit: contain;
+  }
+`;
+
+export const StyledVideoToolbar = styled(Box)`
+  z-index: 1;
+  padding-bottom: 24px;
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  > button {
+    color: inherit;
   }
 `;
