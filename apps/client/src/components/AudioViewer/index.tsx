@@ -8,7 +8,6 @@ import { SyntheticEvent, useCallback, useMemo, useRef, useState } from 'react';
 import Empty from '../Empty';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
-import RollingText from '../RollingText';
 import {
   StyledContentWrapper,
   StyledImgContainer,
@@ -87,6 +86,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
     <FixedModal
       visible={visible}
       onClose={onClose}
+      title={file.name}
     >
       <StyledContentWrapper>
         <StyledImgContainer>
@@ -98,15 +98,6 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
           )}
           {MediaBtn}
         </StyledImgContainer>
-
-        <RollingText
-          text={file.name}
-          sx={{
-            textAlign: 'center',
-            fontWeight: 700,
-            fontSize: '1.125rem',
-          }}
-        />
 
         <StyledLyricArea>
           {isLoading ? (

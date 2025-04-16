@@ -240,6 +240,43 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
     <FixedModal
       visible={visible}
       onClose={onClose}
+      title={file.name}
+      footerSlot={
+        <>
+          {/* 工具栏 */}
+          <StyledImageToolbar>
+            {/* 缩小 */}
+            <IconButton onClick={handleZoomOut}>
+              <ZoomOutRounded />
+            </IconButton>
+
+            {/* 放大 */}
+            <IconButton onClick={handleZoomIn}>
+              <ZoomInRounded />
+            </IconButton>
+
+            {/* 重置所有 */}
+            <IconButton onClick={handleResetAll}>
+              <AutorenewRounded />
+            </IconButton>
+
+            {/* 只重置缩放和偏移 */}
+            <IconButton onClick={handleResetOffsetAndScale}>
+              <WallpaperRounded />
+            </IconButton>
+
+            {/* 逆时针旋转 */}
+            <IconButton onClick={handleRotateAnticlockwise}>
+              <RotateLeftRounded />
+            </IconButton>
+
+            {/* 顺时针旋转 */}
+            <IconButton onClick={handleRotateClockwise}>
+              <RotateRightRounded />
+            </IconButton>
+          </StyledImageToolbar>
+        </>
+      }
     >
       <StyledImageWrapper
         ref={imageContainerRef}
@@ -269,39 +306,6 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
           </StyledLoadingWrapper>
         )}
       </StyledImageWrapper>
-
-      {/* 工具栏 */}
-      <StyledImageToolbar>
-        {/* 缩小 */}
-        <IconButton onClick={handleZoomOut}>
-          <ZoomOutRounded />
-        </IconButton>
-
-        {/* 放大 */}
-        <IconButton onClick={handleZoomIn}>
-          <ZoomInRounded />
-        </IconButton>
-
-        {/* 重置所有 */}
-        <IconButton onClick={handleResetAll}>
-          <AutorenewRounded />
-        </IconButton>
-
-        {/* 只重置缩放和偏移 */}
-        <IconButton onClick={handleResetOffsetAndScale}>
-          <WallpaperRounded />
-        </IconButton>
-
-        {/* 逆时针旋转 */}
-        <IconButton onClick={handleRotateAnticlockwise}>
-          <RotateLeftRounded />
-        </IconButton>
-
-        {/* 顺时针旋转 */}
-        <IconButton onClick={handleRotateClockwise}>
-          <RotateRightRounded />
-        </IconButton>
-      </StyledImageToolbar>
     </FixedModal>
   );
 };

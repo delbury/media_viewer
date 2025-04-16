@@ -13,15 +13,20 @@ export const StyledFixedModalWrapper = styled(Box)`
   flex-direction: column;
 `;
 
-export const StyledFixedModalToolbar = styled(Box)`
-  /* position: absolute; */
-  /* right: 0; */
-  /* top: 0; */
+export const StyledFixedModalHeader = styled(Box)`
   z-index: 1;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
+`;
 
+export const StyledFixedTitle = styled(Box)`
+  padding: 0 24px;
+  flex: 1;
+  min-width: 0;
+`;
+
+export const StyledFixedToolbar = styled(Box)`
   & > * {
     color: ${({ theme }) => theme.palette.grey[600]};
     &:hover {

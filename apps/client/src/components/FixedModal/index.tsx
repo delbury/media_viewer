@@ -3,7 +3,14 @@ import { stopPropagation } from '#/utils';
 import { CloseRounded } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { createPortal } from 'react-dom';
-import { StyledFixedContent, StyledFixedModalToolbar, StyledFixedModalWrapper } from './style';
+import RollingText from '../RollingText';
+import {
+  StyledFixedContent,
+  StyledFixedModalHeader,
+  StyledFixedModalWrapper,
+  StyledFixedTitle,
+  StyledFixedToolbar,
+} from './style';
 
 export interface FixedModalProps {
   visible?: boolean;
@@ -11,9 +18,19 @@ export interface FixedModalProps {
   children?: React.ReactNode;
   // 点击空白处关闭
   closeWhenClickBlank?: boolean;
+  title?: string;
+  // 放在底部的元素
+  footerSlot?: React.ReactNode;
 }
 
-const FixedModal = ({ children, visible, onClose, closeWhenClickBlank }: FixedModalProps) => {
+const FixedModal = ({
+  children,
+  visible,
+  onClose,
+  closeWhenClickBlank,
+  title,
+  footerSlot,
+}: FixedModalProps) => {
   useShortcut({
     onEscPressed: onClose,
   });
@@ -27,20 +44,25 @@ const FixedModal = ({ children, visible, onClose, closeWhenClickBlank }: FixedMo
           if (closeWhenClickBlank) onClose?.();
         }}
       >
-        <StyledFixedModalToolbar>
-          <IconButton
-            color="inherit"
-            size="large"
-            onClick={ev => {
-              stopPropagation(ev);
-              onClose?.();
-            }}
-          >
-            <CloseRounded fontSize="large" />
-          </IconButton>
-        </StyledFixedModalToolbar>
+        <StyledFixedModalHeader>
+          <StyledFixedTitle>{title && <RollingText text={title} />}</StyledFixedTitle>
+
+          <StyledFixedToolbar>
+            <IconButton
+              color="inherit"
+              size="large"
+              onClick={ev => {
+                stopPropagation(ev);
+                onClose?.();
+              }}
+            >
+              <CloseRounded fontSize="large" />
+            </IconButton>
+          </StyledFixedToolbar>
+        </StyledFixedModalHeader>
 
         <StyledFixedContent>{children}</StyledFixedContent>
+        {footerSlot}
       </StyledFixedModalWrapper>,
       document.body
     )
