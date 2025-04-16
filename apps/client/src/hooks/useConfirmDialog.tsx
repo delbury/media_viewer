@@ -73,7 +73,7 @@ export const useConfirmDialogByKeys = <T extends string = string>(
       setCurrentKey(key);
       handleOpen();
     },
-    [handleOpen, setCurrentKey]
+    [handleOpen]
   );
 
   const handleOpenSkipConfirmWrapped = useCallback(
@@ -81,7 +81,7 @@ export const useConfirmDialogByKeys = <T extends string = string>(
       setCurrentKey(key);
       handleOpenSkipConfirm();
     },
-    [handleOpenSkipConfirm, setCurrentKey]
+    [handleOpenSkipConfirm]
   );
 
   return {

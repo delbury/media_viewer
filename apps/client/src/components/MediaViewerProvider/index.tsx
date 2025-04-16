@@ -18,7 +18,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
       state,
       setState,
     }),
-    [state, setState]
+    [state]
   );
 
   const show = useMemo(() => {

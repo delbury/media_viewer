@@ -1,9 +1,8 @@
 import { preventDefault } from '#/utils';
 import { useCallback, useEffect, useRef } from 'react';
-import { GestureStartPointer } from './useGesture';
 
 export interface UserZoomParams {
-  callback: (startPos: [number, number], diffScale: number) => void;
+  callback: (diffScale: number, startPos: [number, number]) => void;
   // 开始拖拽
   onStart?: () => void;
   // 结束拖拽
@@ -21,7 +20,7 @@ const calcDistance = (a: [number, number], b: [number, number]) => {
 
 export const useZoom = ({ onStart, onEnd, callback }: UserZoomParams) => {
   // 当前双触点的 id => 位置信息
-  const currentPoints = useRef<Record<GestureStartPointer[0], GestureStartPointer[1]>>({});
+  const currentPointers = useRef<Record<string, [number, number]>>({});
   // 手startPoints势开始时双触点的距离
   const startDistance = useRef<number>(0);
   // 当前的双触点的距离
@@ -39,21 +38,20 @@ export const useZoom = ({ onStart, onEnd, callback }: UserZoomParams) => {
     moveController.current = null;
     upController.current?.abort();
     upController.current = null;
-  }, [moveController, upController]);
+  }, []);
 
   // 点击事件，开始
   const fnPointerDown = useCallback(
-    (pointers: GestureStartPointer[]) => {
-      if (pointers.length !== 2) return;
-
+    (infos: Record<string, [number, number]>) => {
       onStart?.();
 
-      currentPoints.current = Object.fromEntries(pointers);
-      startDistance.current = calcDistance(pointers[0][1], pointers[1][1]);
+      currentPointers.current = infos;
+      const pointers = Object.values(currentPointers.current);
+      startDistance.current = calcDistance(pointers[0], pointers[1]);
 
       startCenterPosition.current = [
-        (pointers[0][1][0] + pointers[1][1][0]) / 2,
-        (pointers[0][1][1] + pointers[1][1][1]) / 2,
+        (pointers[0][0] + pointers[1][0]) / 2,
+        (pointers[0][1] + pointers[1][1]) / 2,
       ];
 
       // 绑定事件
@@ -64,18 +62,18 @@ export const useZoom = ({ onStart, onEnd, callback }: UserZoomParams) => {
       document.addEventListener(
         MOVE_EVENT_NAME,
         ev => {
-          if (!currentPoints.current[ev.pointerId]) return;
+          if (!currentPointers.current[ev.pointerId]) return;
           preventDefault(ev);
           // 更新触点位置
-          currentPoints.current[ev.pointerId] = [ev.clientX, ev.clientY];
+          currentPointers.current[ev.pointerId] = [ev.clientX, ev.clientY];
 
-          const ps = Object.values(currentPoints.current);
+          const ps = Object.values(currentPointers.current);
           // 计算更新后的双触点距离
           currentDistance.current = calcDistance(ps[0], ps[1]);
 
           const zoomScale = currentDistance.current / startDistance.current;
 
-          callback(startCenterPosition.current, zoomScale);
+          callback(zoomScale, startCenterPosition.current);
         },
         {
           signal: moveController.current.signal,
@@ -86,7 +84,7 @@ export const useZoom = ({ onStart, onEnd, callback }: UserZoomParams) => {
       document.addEventListener(
         UP_EVENT_NAME,
         ev => {
-          if (!currentPoints.current[ev.pointerId]) return;
+          if (!currentPointers.current[ev.pointerId]) return;
 
           clearEvents();
           onEnd?.();

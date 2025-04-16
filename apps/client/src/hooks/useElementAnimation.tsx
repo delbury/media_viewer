@@ -37,23 +37,20 @@ export const useElementAnimation = <T extends HTMLElement>() => {
   const domRef = useRef<T>(null);
   const animation = useRef<Animation>(null);
 
-  const startByPreset = useCallback(
-    (key: PresetAnimations) => {
-      if (domRef.current) {
-        if (animation.current) {
-          animation.current.finish();
-          animation.current = null;
-        }
-        const preset = PRESET_ANIMATIONS[key];
-        const instance = createAnimation(domRef.current, preset.frames, preset.options);
-        instance.onfinish = () => {
-          animation.current = null;
-        };
-        animation.current = instance;
+  const startByPreset = useCallback((key: PresetAnimations) => {
+    if (domRef.current) {
+      if (animation.current) {
+        animation.current.finish();
+        animation.current = null;
       }
-    },
-    [domRef]
-  );
+      const preset = PRESET_ANIMATIONS[key];
+      const instance = createAnimation(domRef.current, preset.frames, preset.options);
+      instance.onfinish = () => {
+        animation.current = null;
+      };
+      animation.current = instance;
+    }
+  }, []);
 
   return {
     domRef,

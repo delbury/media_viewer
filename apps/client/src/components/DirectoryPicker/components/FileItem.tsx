@@ -28,7 +28,7 @@ const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) =>
 
   const doLoad = useCallback(() => {
     setEnabled(true);
-  }, [setEnabled]);
+  }, []);
 
   return (
     <StyledFileCardWrapper

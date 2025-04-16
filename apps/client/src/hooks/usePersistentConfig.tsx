@@ -51,7 +51,7 @@ export function usePersistentConfig<T = unknown>(
         saveLocalConfigIdle();
       }
     },
-    [setValue, key, saveLocalConfigIdle]
+    [key, saveLocalConfigIdle]
   );
 
   return [value, setValueWithLocal];

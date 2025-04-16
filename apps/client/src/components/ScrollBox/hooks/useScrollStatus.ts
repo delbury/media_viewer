@@ -32,35 +32,32 @@ const DEFAULT_SCROLL_STATUS: ScrollStatus = {
 export const useScrollStatus = () => {
   const [scrollStatus, setScrollStatus] = useState<ScrollStatus>(DEFAULT_SCROLL_STATUS);
   // 检测滚动状态
-  const detectScrollExist = useCallback(
-    (elm: HTMLElement, type: ScrollStatus['type']) => {
-      const { clientHeight, scrollHeight, scrollTop, clientWidth, scrollWidth, scrollLeft } = elm;
-      const isy = clientHeight < scrollHeight;
-      const ist = scrollTop <= SCROLL_THRESHOLD;
-      const isb = Math.ceil(scrollTop + clientHeight) >= scrollHeight - SCROLL_THRESHOLD;
+  const detectScrollExist = useCallback((elm: HTMLElement, type: ScrollStatus['type']) => {
+    const { clientHeight, scrollHeight, scrollTop, clientWidth, scrollWidth, scrollLeft } = elm;
+    const isy = clientHeight < scrollHeight;
+    const ist = scrollTop <= SCROLL_THRESHOLD;
+    const isb = Math.ceil(scrollTop + clientHeight) >= scrollHeight - SCROLL_THRESHOLD;
 
-      const isx = clientWidth < scrollWidth;
-      const isl = scrollLeft <= SCROLL_THRESHOLD;
-      const isr = Math.ceil(scrollLeft + clientWidth) >= scrollWidth - SCROLL_THRESHOLD;
+    const isx = clientWidth < scrollWidth;
+    const isl = scrollLeft <= SCROLL_THRESHOLD;
+    const isr = Math.ceil(scrollLeft + clientWidth) >= scrollWidth - SCROLL_THRESHOLD;
 
-      setScrollStatus({
-        type,
-        clientHeight,
-        scrollHeight,
-        scrollTop,
-        clientWidth,
-        scrollWidth,
-        scrollLeft,
-        isScrollableX: isx,
-        isScrollableY: isy,
-        isScrollAtTop: ist,
-        isScrollAtBottom: isb,
-        isScrollAtLeft: isl,
-        isScrollAtRight: isr,
-      });
-    },
-    [setScrollStatus]
-  );
+    setScrollStatus({
+      type,
+      clientHeight,
+      scrollHeight,
+      scrollTop,
+      clientWidth,
+      scrollWidth,
+      scrollLeft,
+      isScrollableX: isx,
+      isScrollableY: isy,
+      isScrollAtTop: ist,
+      isScrollAtBottom: isb,
+      isScrollAtLeft: isl,
+      isScrollAtRight: isr,
+    });
+  }, []);
   const detectScrollExistIdle = useThrottle(detectScrollExist, 20);
 
   return {

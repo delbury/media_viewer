@@ -67,7 +67,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
   // 用户拖拽
   const handleScrollByUser = useCallback(() => {
     setIsUserScrolling(true);
-  }, [setIsUserScrolling]);
+  }, []);
   const handleScrollByUserThrottle = useThrottle(handleScrollByUser, 200);
 
   // 恢复自动滚动

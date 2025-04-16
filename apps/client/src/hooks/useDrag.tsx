@@ -55,7 +55,8 @@ export const useDrag = ({
     moveController.current = null;
     upController.current?.abort();
     upController.current = null;
-  }, [moveController, upController]);
+    currentActivedPointerId.current = null;
+  }, []);
 
   // 点击事件，开始
   const fnPointerDown: PointerEventHandler<HTMLElement> = useCallback(
@@ -122,7 +123,7 @@ export const useDrag = ({
   );
 
   // 重置拖拽
-  const reset = useCallback(() => {
+  const resetDragOffset = useCallback(() => {
     lastOffset.current = defaultOffset ?? [0, 0];
   }, [defaultOffset]);
 
@@ -135,6 +136,6 @@ export const useDrag = ({
 
   return {
     dragEventHandler: fnPointerDown,
-    reset,
+    resetDragOffset,
   };
 };
