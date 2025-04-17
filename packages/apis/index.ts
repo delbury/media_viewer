@@ -62,6 +62,11 @@ export const API_CONFIGS = {
     url: '/file/poster/clear',
     method: 'post',
   },
+  // 获取视频文件的 fallback url
+  fileVideoFallback: {
+    url: '/file/video/fallback',
+    method: 'get',
+  },
 } satisfies Record<string, ApiConfig>;
 
 export type ApiKeys = keyof typeof API_CONFIGS;
@@ -86,7 +91,7 @@ interface FileTextResponseData {
  */
 export type ApiRequestParamsTypes<T extends ApiKeys> = T extends 'filePoster'
   ? ApiFilePosterParams
-  : T extends 'fileGet' | 'fileText'
+  : T extends 'fileGet' | 'fileText' | 'fileVideoFallback'
     ? ApiFileFetchParams
     : T extends 'filePosterClear'
       ? ApiFilePosterClearParams

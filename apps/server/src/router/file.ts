@@ -2,6 +2,7 @@ import {
   DIRECTORY_ROOTS,
   POSTER_CACHE_MAX_AGE,
   POSTER_DIR_NAME,
+  POSTER_FILE_EXT,
   POSTER_FILE_NAME_PREFIX,
   RAW_IMAGE_FOR_POSTER_MAX_SIZE,
   TEXT_FILE_SIZE_LIMIT,
@@ -25,10 +26,30 @@ import { hideFile, returnBody } from '../util/common';
 import { generatePoster, getPosterFileName } from '../util/poster';
 import { sendFileWithRange } from '../util/range';
 import { getTask } from '../util/task';
+import { transforVideoStream } from '../util/video';
 
 const fileRouter = new Router();
 
 const clearPosterTask = getTask('clearPoster');
+
+// 视频文件的降级地址，转码并返回
+fileRouter[API_CONFIGS.fileVideoFallback.method](API_CONFIGS.fileVideoFallback.url, async ctx => {
+  const { basePathIndex, relativePath } = ctx.query as ApiRequestParamsTypes<'fileVideoFallback'>;
+
+  // 校验根目录
+  const basePath = DIRECTORY_ROOTS[+basePathIndex];
+  if (!basePath) throw new Error(ERROR_MSG.noRootDir);
+
+  // 校验文件路径的合法性
+  const fullPath = path.posix.join(basePath, relativePath);
+  if (!fullPath.startsWith(basePath)) throw new Error(ERROR_MSG.errorPath);
+
+  // 校验文件类型
+  const fileType = detectFileType(relativePath);
+  if (fileType !== 'video') throw new Error(ERROR_MSG.notAnVideoFile);
+
+  transforVideoStream(ctx, fullPath);
+});
 
 // 返回文件的文本内容
 fileRouter[API_CONFIGS.fileText.method](API_CONFIGS.fileText.url, async ctx => {
@@ -118,7 +139,7 @@ fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx 
     // 缩略图相对路径
     const relativePosterFilePath = path.join(
       posterDir,
-      getPosterFileName(path.parse(relativePath).name)
+      getPosterFileName(path.basename(relativePath))
     );
     // 缩略图绝对路径
     const fullPosterFilePath = path.join(basePath, relativePosterFilePath);
@@ -172,10 +193,10 @@ fileRouter[API_CONFIGS.filePosterClear.method](API_CONFIGS.filePosterClear.url, 
         ignoreChildFiles.forEach(async file => {
           const fileName = path.basename(file);
           // 删除专用文件夹外的缩略图文件
-          if (fileName.startsWith(POSTER_FILE_NAME_PREFIX)) {
+          if (fileName !== POSTER_DIR_NAME && fileName.startsWith(POSTER_FILE_NAME_PREFIX)) {
             tasks.add(async () => {
               await unlink(file);
-              logSuccess(`removed: ${file}`);
+              logSuccess(`removed poster (old): ${file}`);
             });
           }
         });
@@ -187,7 +208,7 @@ fileRouter[API_CONFIGS.filePosterClear.method](API_CONFIGS.filePosterClear.url, 
             if (path.basename(dir) === POSTER_DIR_NAME) {
               tasks.add(async () => {
                 await rm(dir, { recursive: true });
-                logSuccess(`removed: ${dir}`);
+                logSuccess(`removed dir: ${dir}`);
               });
             }
           });
@@ -202,11 +223,15 @@ fileRouter[API_CONFIGS.filePosterClear.method](API_CONFIGS.filePosterClear.url, 
           const childFilesSet = new Set(childFiles.map(file => path.basename(file)));
 
           posterFiles.forEach(async posterName => {
-            if (!childFilesSet.has(posterName.replace(POSTER_FILE_NAME_PREFIX, ''))) {
+            if (
+              !childFilesSet.has(
+                path.basename(posterName.replace(POSTER_FILE_NAME_PREFIX, ''), POSTER_FILE_EXT)
+              )
+            ) {
               const fp = path.join(posterDir, posterName);
               tasks.add(async () => {
                 await rm(fp);
-                logSuccess(`removed: ${fp}`);
+                logSuccess(`removed poster: ${fp}`);
               });
             }
           });

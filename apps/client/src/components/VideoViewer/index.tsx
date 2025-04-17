@@ -1,9 +1,9 @@
 import { useMediaPlayBtn } from '#/hooks/useMediaPlayBtn';
-import { getFilePosterUrl, getFileSourceUrl } from '#/utils';
+import { getFilePosterUrl, getFileSourceUrl, getVideoFileFallbackUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { PauseRounded, PlayArrowRounded } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
-import { useMemo, useRef } from 'react';
+import { ReactEventHandler, useCallback, useMemo, useRef, useState } from 'react';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import { StyledContentWrapper, StyledVideoToolbar, StyledVideoWrapper } from './style';
 
@@ -16,8 +16,29 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
   // 链接
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
   const sourceUrl = useMemo(() => getFileSourceUrl(file), [file]);
-
+  // 视频状态控制
   const { isPlaying, toggle } = useMediaPlayBtn({ mediaRef: videoRef, noBtn: true });
+  // 原始视频格式不支持播放时，降级播放地址
+  const [fallbackUrl, setFallbackUrl] = useState<string | null>(null);
+  // 实机使用的资源地址
+  const realSourceUrl = useMemo(() => fallbackUrl ?? sourceUrl, [fallbackUrl, sourceUrl]);
+
+  // 视频报错事件
+  const handleError = useCallback<ReactEventHandler<HTMLVideoElement>>(
+    ev => {
+      const err = (ev.target as HTMLVideoElement).error;
+      // 判断错误类型，如果是浏览器不支持播放的视频，则降级为服务端转码
+      if (
+        err &&
+        !fallbackUrl &&
+        (err.code === err.MEDIA_ERR_DECODE || err.code === err.MEDIA_ERR_SRC_NOT_SUPPORTED)
+      ) {
+        const url = getVideoFileFallbackUrl(file);
+        setFallbackUrl(url);
+      }
+    },
+    [fallbackUrl, file]
+  );
 
   return (
     <FixedModal
@@ -36,13 +57,15 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
     >
       <StyledContentWrapper>
         <StyledVideoWrapper>
-          {sourceUrl && (
+          {realSourceUrl && (
             <video
               ref={videoRef}
               poster={posterUrl}
-              src={sourceUrl}
+              src={realSourceUrl}
+              preload="metadata"
               playsInline
-              // controls
+              controls
+              onError={handleError}
             />
           )}
         </StyledVideoWrapper>

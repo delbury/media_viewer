@@ -12,8 +12,8 @@ import { ERROR_MSG } from '../i18n/errorMsg';
 import { execCommand } from './common';
 
 // 缩略图文件名
-export const getPosterFileName = (pureFileName: string) =>
-  `${POSTER_FILE_NAME_PREFIX}${pureFileName}${POSTER_FILE_EXT}`;
+export const getPosterFileName = (fileName: string) =>
+  `${POSTER_FILE_NAME_PREFIX}${fileName}${POSTER_FILE_EXT}`;
 
 // 生成 poster 的 ffmpeg 的基础命令
 const basePosterCommandParam = 'ffmpeg -y -hide_banner -loglevel error';

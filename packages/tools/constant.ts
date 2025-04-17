@@ -41,3 +41,5 @@ export const IGNORE_FILE_NAME_REG = new RegExp(
   `(^${IGNORE_FILE_NAME_PREFIX}.*|^\\.DS_Store$)`,
   'i'
 );
+
+// chrome 支持的视频 / 音频编码

@@ -60,3 +60,18 @@ export const getFileSourceUrl = (file?: FileInfo) => {
 
   return source;
 };
+
+// 生成视频资源 fallback url
+export const getVideoFileFallbackUrl = (file?: FileInfo) => {
+  if (!file) return '';
+  const fallback = joinUrlWithQueryString(
+    'fileVideoFallback',
+    {
+      basePathIndex: file.basePathIndex.toString(),
+      relativePath: file.relativePath,
+    },
+    API_BASE_URL
+  );
+
+  return fallback;
+};
