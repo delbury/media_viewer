@@ -7,11 +7,8 @@ import { ERROR_MSG } from '../i18n/errorMsg';
 // 每次的最大 size
 const MAX_RANGE_SIZE_STEP = 2 ** 22;
 
-// 处理 Range 头
-export const sendFileWithRange = async (ctx: ParameterizedContext, filePath: string) => {
-  const range = ctx.request.header.range as string;
-  if (!range) return false;
-
+// 解析 Range 头
+export const resolveRange = async (range: string, filePath: string) => {
   const positions = range.replace(/bytes=/, '').split('-');
 
   // 获取文件信息
@@ -39,6 +36,20 @@ export const sendFileWithRange = async (ctx: ParameterizedContext, filePath: str
     'Content-Length': (end - start + 1).toString(),
     'Content-Type': mime.getType(filePath) ?? '',
   };
+
+  return {
+    headers,
+    start,
+    end,
+  };
+};
+
+// 发送带 Range 头的文件
+export const sendFileWithRange = async (ctx: ParameterizedContext, filePath: string) => {
+  const range = ctx.request.header.range;
+  if (!range) return false;
+
+  const { headers, start, end } = await resolveRange(range, filePath);
 
   // 视频流
   const vs = createReadStream(filePath, {

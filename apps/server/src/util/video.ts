@@ -87,11 +87,13 @@ export const transforVideoStream = async (ctx: ParameterizedContext, filePath: s
     '-y', '-hide_banner', '-loglevel', 'error',
     '-hwaccel', 'cuda',
     '-i', `${filePath}`,
-    '-c:v', 'libx264',
+    // '-movflags', '+faststart',
+    '-movflags', '+faststart+frag_keyframe',
     '-preset', 'fast',
     '-tune', 'zerolatency',
+    '-c:v', 'libx264',
+    "-c:a", "aac",
     '-f', 'mp4',
-    '-movflags', '+faststart+frag_keyframe',
     'pipe:1',
   ];
 

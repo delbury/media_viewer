@@ -40,6 +40,18 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
     [fallbackUrl, file]
   );
 
+  // 视频可播放事件，防止只有音频可以播放，视频无法播放
+  const handleCanplay = useCallback<ReactEventHandler<HTMLVideoElement>>(
+    ev => {
+      const target = ev.target as HTMLVideoElement;
+      if (!target.videoHeight && !target.videoWidth) {
+        const url = getVideoFileFallbackUrl(file);
+        setFallbackUrl(url);
+      }
+    },
+    [file]
+  );
+
   return (
     <FixedModal
       visible={visible}
@@ -58,6 +70,7 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
       <StyledVideoWrapper>
         {realSourceUrl && (
           <video
+            key={realSourceUrl}
             ref={videoRef}
             poster={posterUrl}
             src={realSourceUrl}
@@ -65,6 +78,7 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
             playsInline
             controls
             onError={handleError}
+            onCanPlay={handleCanplay}
           />
         )}
       </StyledVideoWrapper>

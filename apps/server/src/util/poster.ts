@@ -41,7 +41,7 @@ const getGenerateVideoPosterCommand = async (rawFilePath: string, posterFilePath
     basePosterCommandParam,
     `-i "${rawFilePath}"`,
     `-ss ${frameTime}`,
-    scalePosterCommandParam,
+    // scalePosterCommandParam,
     '-vframes 1 -q:v 5',
     `"${posterFilePath}"`,
   ];
@@ -64,7 +64,7 @@ const getGenerateAudioPosterCommand = async (rawFilePath: string, posterFilePath
       basePosterCommandParam,
       `-i "${rawFilePath}"`,
       '-map 0:v',
-      scalePosterCommandParam,
+      // scalePosterCommandParam,
       `"${posterFilePath}"`,
     ];
   } else {
