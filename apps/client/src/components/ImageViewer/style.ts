@@ -11,7 +11,9 @@ export const StyledImageWrapper = styled(Box)`
   > img {
     position: absolute;
     width: 100%;
-    height: fit-content;
+    height: 100%;
+    max-width: fit-content;
+    max-height: fit-content;
     object-fit: contain;
     transition-property: transform, height, width;
     transition-duration: ${({ theme }) => theme.transitions.duration.shorter}ms;

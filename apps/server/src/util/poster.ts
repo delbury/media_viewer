@@ -30,7 +30,7 @@ const getGenerateVideoPosterCommand = async (rawFilePath: string, posterFilePath
   ].join(' ');
   const { stdout } = await execCommand(durationCommand);
   // 视频时长，单位为秒
-  const duration = parseFloat(stdout);
+  const duration = parseFloat(stdout as string);
   const frameTime =
     duration < LONG_VIDEO_DURATION_THRESHOLD
       ? SHORT_VIDEO_POSTER_FRAME_TIME

@@ -1,15 +1,9 @@
 import { Box, styled } from '@mui/material';
 
-export const StyledContentWrapper = styled(Box)`
+export const StyledVideoWrapper = styled(Box)`
   position: relative;
   height: 100%;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
-export const StyledVideoWrapper = styled(Box)`
-  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -17,7 +11,9 @@ export const StyledVideoWrapper = styled(Box)`
 
   > video {
     width: 100%;
-    height: fit-content;
+    height: 100%;
+    max-width: fit-content;
+    max-height: fit-content;
     object-fit: contain;
   }
 `;

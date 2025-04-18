@@ -1,6 +1,7 @@
-import { logInfo } from '#pkgs/tools/common';
+import { logError, logInfo } from '#pkgs/tools/common';
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
+import { ERROR_MSG } from './i18n/errorMsg';
 import { directoryRouter } from './router/directory';
 import { fileRouter } from './router/file';
 import { returnError } from './util/common';
@@ -19,7 +20,7 @@ app.use(async (ctx, next) => {
   } catch (err) {
     // logError(err);
     ctx.status = 400;
-    ctx.body = returnError(err.message);
+    ctx.body = returnError((err as Error)?.message || ERROR_MSG.serverError);
   }
 });
 
@@ -27,6 +28,10 @@ for (const r of routers) {
   app.use(r.routes());
   app.use(r.allowedMethods());
 }
+
+app.on('error', err => {
+  logError(err);
+});
 
 app.listen(PORT, () => {
   logInfo(`server started on ${PORT}`);

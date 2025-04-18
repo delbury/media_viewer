@@ -5,7 +5,7 @@ import { PauseRounded, PlayArrowRounded } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { ReactEventHandler, useCallback, useMemo, useRef, useState } from 'react';
 import FixedModal, { FixedModalProps } from '../FixedModal';
-import { StyledContentWrapper, StyledVideoToolbar, StyledVideoWrapper } from './style';
+import { StyledVideoToolbar, StyledVideoWrapper } from './style';
 
 type VideoViewerProps = {
   file: FileInfo;
@@ -55,21 +55,19 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
         </StyledVideoToolbar>
       }
     >
-      <StyledContentWrapper>
-        <StyledVideoWrapper>
-          {realSourceUrl && (
-            <video
-              ref={videoRef}
-              poster={posterUrl}
-              src={realSourceUrl}
-              preload="metadata"
-              playsInline
-              controls
-              onError={handleError}
-            />
-          )}
-        </StyledVideoWrapper>
-      </StyledContentWrapper>
+      <StyledVideoWrapper>
+        {realSourceUrl && (
+          <video
+            ref={videoRef}
+            poster={posterUrl}
+            src={realSourceUrl}
+            preload="metadata"
+            playsInline
+            controls
+            onError={handleError}
+          />
+        )}
+      </StyledVideoWrapper>
     </FixedModal>
   );
 };

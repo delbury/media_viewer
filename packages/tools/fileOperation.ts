@@ -27,7 +27,7 @@ export const writeDataToFile = async (fullFilePath: string, data: Record<string,
 
 // 从根目录开始遍历文件夹
 export const walkFromRootDirs = async (
-  rootDirs: string[] | string,
+  rootDirs: string[] | string | null,
   callback: (
     selfDir: string,
     items: {
@@ -39,6 +39,8 @@ export const walkFromRootDirs = async (
   ) => void,
   { skipHiddenDir = true }: { skipHiddenDir?: boolean } = {}
 ) => {
+  if (!rootDirs) return;
+
   const dirs = Array.isArray(rootDirs) ? [...rootDirs] : [rootDirs];
   while (dirs.length) {
     const currentDir = dirs.pop();

@@ -3,7 +3,7 @@ import packageJson from '#root/package.json';
 import path from 'node:path';
 
 // server 版本
-export const SERVER_VERSION = process.env.SERVER_VERSION || packageJson.version || null;
+export const SERVER_VERSION = process.env.SERVER_VERSION || packageJson.version || void 0;
 
 // 资源文件夹根目录
 export const DIRECTORY_ROOTS = process.env.API_DIRECTORY_ROOT

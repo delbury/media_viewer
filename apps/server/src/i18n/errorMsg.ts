@@ -1,4 +1,5 @@
 export const ERROR_MSG = {
+  serverError: 'server error',
   commandError: 'inner command error',
   taskInProgress: 'task in progress',
   noRootDir: 'no root dir',

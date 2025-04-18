@@ -29,16 +29,20 @@ import { getTask } from '../util/task';
 import { transforVideoStream } from '../util/video';
 
 const fileRouter = new Router();
-
 const clearPosterTask = getTask('clearPoster');
+const getRootDir = (index: number | string) => {
+  const basePath = DIRECTORY_ROOTS?.[+index];
+  if (!basePath) throw new Error(ERROR_MSG.noRootDir);
+
+  return basePath;
+};
 
 // 视频文件的降级地址，转码并返回
 fileRouter[API_CONFIGS.fileVideoFallback.method](API_CONFIGS.fileVideoFallback.url, async ctx => {
   const { basePathIndex, relativePath } = ctx.query as ApiRequestParamsTypes<'fileVideoFallback'>;
 
   // 校验根目录
-  const basePath = DIRECTORY_ROOTS[+basePathIndex];
-  if (!basePath) throw new Error(ERROR_MSG.noRootDir);
+  const basePath = getRootDir(basePathIndex);
 
   // 校验文件路径的合法性
   const fullPath = path.posix.join(basePath, relativePath);
@@ -56,8 +60,7 @@ fileRouter[API_CONFIGS.fileText.method](API_CONFIGS.fileText.url, async ctx => {
   const { basePathIndex, relativePath } = ctx.query as ApiRequestParamsTypes<'fileText'>;
 
   // 校验根目录
-  const basePath = DIRECTORY_ROOTS[+basePathIndex];
-  if (!basePath) throw new Error(ERROR_MSG.noRootDir);
+  const basePath = getRootDir(basePathIndex);
 
   // 校验文件路径的合法性
   const fullPath = path.posix.join(basePath, relativePath);
@@ -66,7 +69,7 @@ fileRouter[API_CONFIGS.fileText.method](API_CONFIGS.fileText.url, async ctx => {
   const fileInfo = await stat(fullPath);
   if (fileInfo.size > TEXT_FILE_SIZE_LIMIT) throw new Error(ERROR_MSG.sizeLimited);
 
-  const content = await readDataFromFile(fullPath);
+  const content = (await readDataFromFile(fullPath)) ?? '';
 
   ctx.body = returnBody<ApiResponseDataTypes<'fileText'>>({ content });
 });
@@ -76,8 +79,7 @@ fileRouter[API_CONFIGS.fileGet.method](API_CONFIGS.fileGet.url, async ctx => {
   const { basePathIndex, relativePath } = ctx.query as ApiRequestParamsTypes<'fileGet'>;
 
   // 校验根目录
-  const basePath = DIRECTORY_ROOTS[+basePathIndex];
-  if (!basePath) throw new Error(ERROR_MSG.noRootDir);
+  const basePath = getRootDir(basePathIndex);
 
   // 校验文件路径的合法性
   const fullPath = path.posix.join(basePath, relativePath);
@@ -104,8 +106,7 @@ fileRouter[API_CONFIGS.filePoster.method](API_CONFIGS.filePoster.url, async ctx 
   const forceUpdate = force === 'true';
 
   // 校验根目录
-  const basePath = DIRECTORY_ROOTS[+basePathIndex];
-  if (!basePath) throw new Error(ERROR_MSG.noRootDir);
+  const basePath = getRootDir(basePathIndex);
 
   // 校验文件类型
   const fileType = detectFileType(relativePath);

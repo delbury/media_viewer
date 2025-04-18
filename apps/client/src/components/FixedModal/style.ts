@@ -39,4 +39,5 @@ export const StyledFixedContent = styled(Box)`
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-height: 0;
 `;

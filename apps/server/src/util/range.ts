@@ -37,7 +37,7 @@ export const sendFileWithRange = async (ctx: ParameterizedContext, filePath: str
     'Content-Range': `bytes ${start}-${end}/${total}`,
     'Accept-Ranges': 'bytes',
     'Content-Length': (end - start + 1).toString(),
-    'Content-Type': mime.getType(filePath),
+    'Content-Type': mime.getType(filePath) ?? '',
   };
 
   // 视频流

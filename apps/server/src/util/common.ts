@@ -21,7 +21,10 @@ export const returnError = <T>(msg: string, code?: number) => {
 
 // 执行命令
 export const execCommand = (command: string, options?: ExecOptions) => {
-  return new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
+  return new Promise<{
+    stdout: string | Buffer<ArrayBufferLike>;
+    stderr: string | Buffer<ArrayBufferLike>;
+  }>((resolve, reject) => {
     exec(command, options, (error, stdout, stderr) => {
       // 错误处理
       if (error) {
