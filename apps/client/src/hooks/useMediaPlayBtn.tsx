@@ -1,6 +1,6 @@
 import { PauseCircleRounded, PlayCircleRounded } from '@mui/icons-material';
 import { Box, IconButton, styled, SxProps, Theme } from '@mui/material';
-import { RefObject, useCallback, useEffect, useState } from 'react';
+import { DOMAttributes, ReactEventHandler, RefObject, useCallback, useState } from 'react';
 
 const StyledWrapper = styled(Box)`
   position: absolute;
@@ -47,32 +47,12 @@ export const useMediaPlayBtn = ({ mediaRef, noBtn }: UseMediaPlayBtn) => {
     }
   }, [mediaRef]);
 
-  useEffect(() => {
-    if (mediaRef.current) {
-      const playController = new AbortController();
-      const pauseController = new AbortController();
+  const handlePlay = useCallback<ReactEventHandler<HTMLVideoElement>>(() => {
+    setIsPlaying(true);
+  }, []);
 
-      mediaRef.current.addEventListener(
-        'play',
-        () => {
-          setIsPlaying(true);
-        },
-        { signal: playController.signal }
-      );
-
-      mediaRef.current.addEventListener(
-        'pause',
-        () => {
-          setIsPlaying(false);
-        },
-        { signal: pauseController.signal }
-      );
-
-      return () => {
-        playController.abort();
-        pauseController.abort();
-      };
-    }
+  const handlePause = useCallback<ReactEventHandler<HTMLVideoElement>>(() => {
+    setIsPlaying(false);
   }, []);
 
   const MediaBtn = useCallback(
@@ -98,5 +78,9 @@ export const useMediaPlayBtn = ({ mediaRef, noBtn }: UseMediaPlayBtn) => {
     MediaBtn,
     isPlaying,
     toggle: handleToggle,
+    events: {
+      onPlay: handlePlay,
+      onPause: handlePause,
+    } as Pick<DOMAttributes<HTMLVideoElement>, 'onPlay' | 'onPause'>,
   };
 };

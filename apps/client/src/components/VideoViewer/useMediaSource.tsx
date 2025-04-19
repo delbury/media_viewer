@@ -52,6 +52,10 @@ export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams
           // 创建并添加 buffer
           buffer = source.addSourceBuffer(FILE_CODECS);
 
+          // buffer.addEventListener('updateend', () => {
+          //   console.log(mediaRef.current?.duration);
+          // });
+
           try {
             // 请求资源
             const response = await fetchArrayBufferData('fileVideoFallback', {

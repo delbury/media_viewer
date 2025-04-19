@@ -95,6 +95,7 @@ export const transforVideoStream = async (ctx: ParameterizedContext, filePath: s
     // '-g', '48', '-keyint_min', '48', '-sc_threshold', '0',
     "-c:a", "aac", '-ar', '44100',
 
+    // faststart
     '-movflags', '+frag_keyframe+empty_moov+default_base_moof',
 
     '-f', 'mp4',
