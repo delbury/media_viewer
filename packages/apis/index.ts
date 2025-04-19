@@ -67,6 +67,11 @@ export const API_CONFIGS = {
     url: '/file/video/fallback',
     method: 'get',
   },
+  // 获取视频文件的 metadata 信息
+  fileVideoMetadata: {
+    url: '/file/video/metadata',
+    method: 'get',
+  },
 } satisfies Record<string, ApiConfig>;
 
 export type ApiKeys = keyof typeof API_CONFIGS;
@@ -80,10 +85,19 @@ export type ApiResponseDataTypes<T extends ApiKeys> = T extends 'dirUpdate'
     ? DirectoryInfo
     : T extends 'fileText'
       ? FileTextResponseData
-      : never;
+      : T extends 'fileVideoMetadata'
+        ? FileVideoMetadataResponseData
+        : never;
 
+// 文件文件直接返回文本数据
 interface FileTextResponseData {
   content: string;
+}
+// 视频文件的 metadata 信息
+interface FileVideoMetadataResponseData {
+  duration: number;
+  size: number;
+  bitRate: number;
 }
 
 /**
@@ -91,7 +105,7 @@ interface FileTextResponseData {
  */
 export type ApiRequestParamsTypes<T extends ApiKeys> = T extends 'filePoster'
   ? ApiFilePosterParams
-  : T extends 'fileGet' | 'fileText' | 'fileVideoFallback'
+  : T extends 'fileGet' | 'fileText' | 'fileVideoFallback' | 'fileVideoMetadata'
     ? ApiFileFetchParams
     : never;
 

@@ -1,8 +1,9 @@
+import { useSwr } from '#/hooks/useSwr';
 import { fetchArrayBufferData } from '#/request';
 import { getFileSourceUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { useTranslations } from 'next-intl';
-import { RefObject, useCallback, useEffect, useState } from 'react';
+import { RefObject, useCallback, useEffect } from 'react';
 
 interface UseMediaSourceParams {
   mediaRef: RefObject<HTMLMediaElement | null>;
@@ -29,16 +30,23 @@ const waitUpdateend = async (buffer: SourceBuffer) => {
 
 export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams) => {
   const t = useTranslations();
-  const [sourceType, setSourceType] = useState<'raw' | 'mediaSource' | null>(null);
-  // const mediaSource = useRef<MediaSource>(null);
+
+  const metadataRequest = useSwr('fileVideoMetadata', {
+    params: {
+      basePathIndex: file.basePathIndex.toString(),
+      relativePath: file.relativePath,
+    },
+    lazy: true,
+    disabled: !enabled,
+    noticeWhenSuccess: false,
+  });
 
   // 创建 media source
   const createSource = useCallback(() => {
     const elm = mediaRef.current;
     if (elm) {
-      const source = new MediaSource();
-      // mediaSource.current = source;
-      const src = URL.createObjectURL(source);
+      const mediaSource = new MediaSource();
+      const src = URL.createObjectURL(mediaSource);
       // 绑定源
       elm.src = src;
       const abortController = new AbortController();
@@ -46,15 +54,24 @@ export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams
       let reader: ReadableStreamDefaultReader<Uint8Array<ArrayBufferLike>> | null = null;
 
       // 开始事件
-      source.addEventListener(
+      mediaSource.addEventListener(
         'sourceopen',
         async () => {
-          // 创建并添加 buffer
-          buffer = source.addSourceBuffer(FILE_CODECS);
+          // 获取视频的总长度
+          const metadataInfo = await metadataRequest.mutate();
+          const videoDuration = metadataInfo?.data?.duration ?? NaN;
 
-          // buffer.addEventListener('updateend', () => {
-          //   console.log(mediaRef.current?.duration);
-          // });
+          // 创建并添加 buffer
+          buffer = mediaSource.addSourceBuffer(FILE_CODECS);
+
+          buffer.addEventListener(
+            'updateend',
+            async () => {
+              // 手动设置时长
+              mediaSource.duration = videoDuration;
+            },
+            { once: true }
+          );
 
           try {
             // 请求资源
@@ -67,7 +84,7 @@ export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams
             });
             abortController.signal.onabort = () => {
               // 中断 fetch 请求后，结束流
-              stopStream(source, buffer);
+              stopStream(mediaSource, buffer);
             };
 
             // 读取流
@@ -79,7 +96,7 @@ export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams
               if (done) break;
               await waitUpdateend(buffer);
               // 如果此时流已经结束了，则直接结束
-              if (!Array.from(source.sourceBuffers).includes(buffer)) break;
+              if (!Array.from(mediaSource.sourceBuffers).includes(buffer)) break;
               buffer.appendBuffer(value);
             }
           } catch {
@@ -87,18 +104,18 @@ export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams
             abortController?.abort();
           } finally {
             // 结束流
-            stopStream(source, buffer);
+            stopStream(mediaSource, buffer);
           }
         },
         { once: true }
       );
 
       return () => {
-        stopStream(source, buffer);
+        stopStream(mediaSource, buffer);
         abortController.abort();
       };
     }
-  }, [file.basePathIndex, file.relativePath, mediaRef, t]);
+  }, [file.basePathIndex, file.relativePath, mediaRef, metadataRequest, t]);
 
   useEffect(() => {
     const elm = mediaRef.current;
@@ -108,16 +125,10 @@ export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams
 
     if (enabled) {
       cb = createSource();
-      setSourceType('mediaSource');
     } else {
       elm.src = getFileSourceUrl(file);
-      setSourceType('raw');
     }
 
     return cb;
   }, [enabled]);
-
-  return {
-    sourceType,
-  };
 };

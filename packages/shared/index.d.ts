@@ -19,8 +19,6 @@ export interface MediaMeta {
 }
 
 export interface MediaDetailInfo {
-  data: {
-    streams: MediaStream[];
-    format: MediaMeta;
-  };
+  streams: MediaStream[];
+  format: MediaMeta;
 }

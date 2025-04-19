@@ -73,7 +73,6 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
       <StyledVideoWrapper>
         {
           <video
-            key={`${fallbackEnabled}`}
             ref={videoRef}
             poster={posterUrl}
             // src={realSourceUrl}

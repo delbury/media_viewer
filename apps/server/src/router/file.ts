@@ -26,7 +26,7 @@ import { hideFile, returnBody } from '../util/common';
 import { generatePoster, getPosterFileName } from '../util/poster';
 import { sendFileWithRange } from '../util/range';
 import { getTask } from '../util/task';
-import { transforVideoStream } from '../util/video';
+import { getVideoDetail, transforVideoStream } from '../util/video';
 
 const fileRouter = new Router();
 const clearPosterTask = getTask('clearPoster');
@@ -36,6 +36,33 @@ const getRootDir = (index: number | string) => {
 
   return basePath;
 };
+
+// 获取视频基本信息
+fileRouter[API_CONFIGS.fileVideoMetadata.method](API_CONFIGS.fileVideoMetadata.url, async ctx => {
+  const { basePathIndex, relativePath } = ctx.query as ApiRequestParamsTypes<'fileVideoMetadata'>;
+
+  // 校验根目录
+  const basePath = getRootDir(basePathIndex);
+
+  // 校验文件路径的合法性
+  const fullPath = path.posix.join(basePath, relativePath);
+  if (!fullPath.startsWith(basePath)) throw new Error(ERROR_MSG.errorPath);
+
+  // 校验文件类型
+  const fileType = detectFileType(relativePath);
+  if (fileType !== 'video') throw new Error(ERROR_MSG.notAnVideoFile);
+
+  // 获取文件信息
+  const fullMetadata = await getVideoDetail(fullPath, true);
+  const fileInfo: ApiResponseDataTypes<'fileVideoMetadata'> | null = fullMetadata
+    ? {
+        duration: +fullMetadata.format.duration,
+        size: +fullMetadata.format.size,
+        bitRate: +fullMetadata.format.bit_rate,
+      }
+    : null;
+  ctx.body = returnBody(fileInfo);
+});
 
 // 视频文件的降级地址，转码并返回
 fileRouter[API_CONFIGS.fileVideoFallback.method](API_CONFIGS.fileVideoFallback.url, async ctx => {
