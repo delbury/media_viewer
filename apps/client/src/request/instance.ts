@@ -16,31 +16,28 @@ const instance = axios.create({
 interface FetchDataOptions<T extends ApiKeys> {
   params?: ApiRequestParamsTypes<T>;
   data?: ApiRequestDataTypes<T>;
+  signal?: AbortSignal;
 }
 
 const fetchArrayBufferData = async <T extends ApiKeys>(
   apiKey: T,
-  { params, data }: FetchDataOptions<T> = {}
+  { params, data, signal }: FetchDataOptions<T> = {}
 ) => {
   const body = data ? JSON.stringify(data) : void 0;
   const search = params
     ? `?${new URLSearchParams(params as Record<string, string>).toString()}`
     : '';
 
-  const controller = new AbortController();
   const response = await fetch(`${API_BASE_URL}${API_CONFIGS[apiKey].url}${search}`, {
     method: API_CONFIGS[apiKey].method,
     body,
     headers: {
       'Content-Type': 'application/json',
     },
-    signal: controller.signal,
+    signal,
   });
 
-  return {
-    controller,
-    response,
-  };
+  return response;
 };
 
 export { fetchArrayBufferData, instance };

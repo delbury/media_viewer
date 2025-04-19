@@ -13,6 +13,11 @@ interface UseMediaSourceParams {
 
 const FILE_CODECS = 'video/mp4; codecs="avc1.640028, mp4a.40.2"';
 
+const stopStream = (source: MediaSource, buffer: SourceBuffer | null) => {
+  if (buffer?.updating) buffer?.abort();
+  if (source.readyState === 'open') source.endOfStream();
+};
+
 // updateend 有时候 buffer.updating 仍为 true
 // 可能是 bug，先用递归判断的方式兜底
 const waitUpdateend = async (buffer: SourceBuffer) => {
@@ -36,7 +41,7 @@ export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams
       const src = URL.createObjectURL(source);
       // 绑定源
       elm.src = src;
-      let abortController: AbortController | null = null;
+      const abortController = new AbortController();
       let buffer: SourceBuffer | null = null;
       let reader: ReadableStreamDefaultReader<Uint8Array<ArrayBufferLike>> | null = null;
 
@@ -49,16 +54,16 @@ export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams
 
           try {
             // 请求资源
-            const { response, controller } = await fetchArrayBufferData('fileVideoFallback', {
+            const response = await fetchArrayBufferData('fileVideoFallback', {
               params: {
                 basePathIndex: file.basePathIndex.toString(),
                 relativePath: file.relativePath,
               },
+              signal: abortController.signal,
             });
-            abortController = controller;
-            controller.signal.onabort = () => {
+            abortController.signal.onabort = () => {
               // 中断 fetch 请求后，结束流
-              if (source.readyState === 'open') source.endOfStream();
+              stopStream(source, buffer);
             };
 
             // 读取流
@@ -78,16 +83,15 @@ export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams
             abortController?.abort();
           } finally {
             // 结束流
-            if (source.readyState === 'open') source.endOfStream();
+            stopStream(source, buffer);
           }
         },
         { once: true }
       );
 
       return () => {
-        if (buffer?.updating) buffer.abort();
-        if (source.readyState === 'open') source.endOfStream();
-        abortController?.abort();
+        stopStream(source, buffer);
+        abortController.abort();
       };
     }
   }, [file.basePathIndex, file.relativePath, mediaRef, t]);

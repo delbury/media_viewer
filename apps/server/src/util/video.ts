@@ -114,28 +114,34 @@ export const transforVideoStream = async (ctx: ParameterizedContext, filePath: s
 
   // 错误处理
   ffmpegProcess.stderr.on('data', data => {
-    logError(`${hash}: ffmpeg stream error: ${data}`);
+    logError(`${hash}: ffmpeg stream stderr error: ${data}`);
   });
 
   // 流开始
   ffmpegProcess.stdout.once('readable', () => {
-    logWarn(`${hash}: ffmpeg stream start`);
+    logWarn(`${hash}: ffmpeg stream process start`);
   });
 
   // 连接断开
   ctx.req.once('aborted', () => {
-    logWarn(`${hash}: ffmpeg stream aborted`);
+    logWarn(`${hash}: ffmpeg stream request aborted`);
     killProcess();
   });
 
-  // 客户端主动关闭
+  // 客户端请求关闭
   ctx.req.once('close', () => {
-    logWarn(`${hash}: ffmpeg stream close`);
+    logWarn(`${hash}: ffmpeg stream request close`);
+  });
+
+  // 客户端主动连接关闭
+  ctx.req.socket.once('close', () => {
+    logWarn(`${hash}: ffmpeg stream socket close`);
+    killProcess();
   });
 
   ctx.req.socket.once('error', err => {
     if ((err as unknown as { code: string }).code === 'ECONNRESET') {
-      logWarn(`${hash}: ffmpeg socket ECONNRESET`);
+      logWarn(`${hash}: ffmpeg stream socket ECONNRESET`);
       ctx.req.socket.destroy();
     }
   });
