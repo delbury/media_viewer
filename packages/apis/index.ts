@@ -93,9 +93,7 @@ export type ApiRequestParamsTypes<T extends ApiKeys> = T extends 'filePoster'
   ? ApiFilePosterParams
   : T extends 'fileGet' | 'fileText' | 'fileVideoFallback'
     ? ApiFileFetchParams
-    : T extends 'filePosterClear'
-      ? ApiFilePosterClearParams
-      : never;
+    : never;
 
 type ApiRequestParamsBase = ParsedUrlQuery;
 interface ApiFileFetchParams extends ApiRequestParamsBase {

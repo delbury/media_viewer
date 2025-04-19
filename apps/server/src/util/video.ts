@@ -87,12 +87,16 @@ export const transforVideoStream = async (ctx: ParameterizedContext, filePath: s
     '-y', '-hide_banner', '-loglevel', 'error',
     '-hwaccel', 'cuda',
     '-i', `${filePath}`,
-    // '-movflags', '+faststart',
-    '-movflags', '+faststart+frag_keyframe',
-    '-preset', 'fast',
+
     '-tune', 'zerolatency',
     '-c:v', 'libx264',
-    "-c:a", "aac",
+    '-profile:v', 'high', '-level', '4.0',
+    '-preset', 'fast',
+    // '-g', '48', '-keyint_min', '48', '-sc_threshold', '0',
+    "-c:a", "aac", '-ar', '44100',
+
+    '-movflags', '+frag_keyframe+empty_moov+default_base_moof',
+
     '-f', 'mp4',
     'pipe:1',
   ];
@@ -109,8 +113,8 @@ export const transforVideoStream = async (ctx: ParameterizedContext, filePath: s
   ctx.set('Transfer-Encoding', 'chunked');
 
   // 错误处理
-  ffmpegProcess.stdout.on('error', err => {
-    logError(`${hash}: ffmpeg stream error:`, err);
+  ffmpegProcess.stderr.on('data', data => {
+    logError(`${hash}: ffmpeg stream error: ${data}`);
   });
 
   // 流开始

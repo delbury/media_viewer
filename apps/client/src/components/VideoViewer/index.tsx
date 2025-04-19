@@ -1,11 +1,13 @@
 import { useMediaPlayBtn } from '#/hooks/useMediaPlayBtn';
-import { getFilePosterUrl, getFileSourceUrl, getVideoFileFallbackUrl } from '#/utils';
+import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
+import { logError } from '#pkgs/tools/common';
 import { PauseRounded, PlayArrowRounded } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { ReactEventHandler, useCallback, useMemo, useRef, useState } from 'react';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import { StyledVideoToolbar, StyledVideoWrapper } from './style';
+import { useMediaSource } from './useMediaSource';
 
 type VideoViewerProps = {
   file: FileInfo;
@@ -15,13 +17,18 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   // 链接
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
-  const sourceUrl = useMemo(() => getFileSourceUrl(file), [file]);
   // 视频状态控制
   const { isPlaying, toggle } = useMediaPlayBtn({ mediaRef: videoRef, noBtn: true });
   // 原始视频格式不支持播放时，降级播放地址
-  const [fallbackUrl, setFallbackUrl] = useState<string | null>(null);
+  const [fallbackEnabled, setFallbackEnabled] = useState(false);
   // 实机使用的资源地址
-  const realSourceUrl = useMemo(() => fallbackUrl ?? sourceUrl, [fallbackUrl, sourceUrl]);
+
+  // 自定义流媒体控制
+  useMediaSource({
+    file,
+    mediaRef: videoRef,
+    enabled: fallbackEnabled,
+  });
 
   // 视频报错事件
   const handleError = useCallback<ReactEventHandler<HTMLVideoElement>>(
@@ -30,27 +37,24 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
       // 判断错误类型，如果是浏览器不支持播放的视频，则降级为服务端转码
       if (
         err &&
-        !fallbackUrl &&
+        !fallbackEnabled &&
         (err.code === err.MEDIA_ERR_DECODE || err.code === err.MEDIA_ERR_SRC_NOT_SUPPORTED)
       ) {
-        const url = getVideoFileFallbackUrl(file);
-        setFallbackUrl(url);
+        setFallbackEnabled(true);
+      } else {
+        logError(err);
       }
     },
-    [fallbackUrl, file]
+    [fallbackEnabled]
   );
 
   // 视频可播放事件，防止只有音频可以播放，视频无法播放
-  const handleCanplay = useCallback<ReactEventHandler<HTMLVideoElement>>(
-    ev => {
-      const target = ev.target as HTMLVideoElement;
-      if (!target.videoHeight && !target.videoWidth) {
-        const url = getVideoFileFallbackUrl(file);
-        setFallbackUrl(url);
-      }
-    },
-    [file]
-  );
+  const handleCanplay = useCallback<ReactEventHandler<HTMLVideoElement>>(ev => {
+    const target = ev.target as HTMLVideoElement;
+    if (!target.videoHeight && !target.videoWidth) {
+      setFallbackEnabled(true);
+    }
+  }, []);
 
   return (
     <FixedModal
@@ -68,19 +72,19 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
       }
     >
       <StyledVideoWrapper>
-        {realSourceUrl && (
+        {
           <video
-            key={realSourceUrl}
+            key={`${fallbackEnabled}`}
             ref={videoRef}
             poster={posterUrl}
-            src={realSourceUrl}
+            // src={realSourceUrl}
             preload="metadata"
             playsInline
             controls
             onError={handleError}
             onCanPlay={handleCanplay}
           />
-        )}
+        }
       </StyledVideoWrapper>
     </FixedModal>
   );

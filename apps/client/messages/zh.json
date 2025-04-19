@@ -41,6 +41,9 @@
   "Btn": {
     "AutoScroll": "自动滚动"
   },
+  "Error": {
+    "NetError": "网络错误"
+  },
   "File": {
     "Size": "大小",
     "Type": "类型",

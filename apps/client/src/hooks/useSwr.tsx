@@ -26,10 +26,10 @@ interface UseSwrReturnValue<T> {
   refresh: () => void;
 }
 
-function useSwr<T extends ApiKeys, D = ApiResponseDataTypes<T>>(
+const useSwr = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
   apiKey: T,
   options?: UseSwrOptions<D, T>
-): UseSwrReturnValue<D> {
+): UseSwrReturnValue<D> => {
   const {
     lazy = false,
     onSuccess,
@@ -86,6 +86,6 @@ function useSwr<T extends ApiKeys, D = ApiResponseDataTypes<T>>(
     mutate,
     refresh: useCallback(() => mutate(), [mutate]),
   };
-}
+};
 
 export { useSwr };
