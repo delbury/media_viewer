@@ -16,7 +16,16 @@ interface VideoDetailTasks {
 const VIDEO_DETAIL_TASKS: VideoDetailTasks = {};
 
 // 获取视频详细信息
-export const getVideoDetail = async (filaPath: string, forceUpdate = false) => {
+export const getVideoDetail = async (
+  filaPath: string,
+  {
+    forceUpdate,
+    showStreams,
+  }: {
+    forceUpdate?: boolean;
+    showStreams?: boolean;
+  } = {}
+) => {
   const task = VIDEO_DETAIL_TASKS[filaPath];
   if (task && !forceUpdate) {
     // 有缓存则取缓存
@@ -34,7 +43,8 @@ export const getVideoDetail = async (filaPath: string, forceUpdate = false) => {
         const command = [
           'ffprobe -v error',
           '-print_format json',
-          '-show_streams -show_format',
+          ...(showStreams ? ['-show_streams'] : []),
+          '-show_format',
           `"${filaPath}"`,
         ].join(' ');
         execCommand(command)
@@ -77,9 +87,23 @@ const killProcess = () => {
   CACHED_INFO.hash = null;
 };
 
-// 转码处理视频流
-export const transforVideoStream = async (ctx: ParameterizedContext, filePath: string) => {
+interface SegmentOptions {
+  start: number;
+  duration: number;
+}
+// 转码处理视频流 或 视频分片
+export const transforVideoStream = async (
+  ctx: ParameterizedContext,
+  filePath: string,
+  segOpt?: SegmentOptions
+) => {
   const hash = createHash('md5').update(filePath).digest('hex').substring(0, 8);
+
+  let segArgs: string[] = [];
+  if (segOpt) {
+    const { start, duration } = segOpt;
+    segArgs = ['-ss', `${start}`, '-t', `${duration}`];
+  }
 
   // 转码命令
   /* prettier-ignore */
@@ -87,6 +111,9 @@ export const transforVideoStream = async (ctx: ParameterizedContext, filePath: s
     '-y', '-hide_banner', '-loglevel', 'error',
     '-hwaccel', 'cuda',
     '-i', `${filePath}`,
+
+    // 分片
+    ...segArgs,
 
     '-tune', 'zerolatency',
     '-c:v', 'libx264',

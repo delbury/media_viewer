@@ -18,12 +18,16 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
   // 链接
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
   // 视频状态控制
-  const { isPlaying, toggle, events } = useMediaPlayBtn({ mediaRef: videoRef, noBtn: true });
+  const {
+    isPlaying,
+    toggle,
+    events: stateEvents,
+  } = useMediaPlayBtn({ mediaRef: videoRef, noBtn: true });
   // 原始视频格式不支持播放时，降级播放地址
   const [fallbackEnabled, setFallbackEnabled] = useState(false);
 
   // 自定义流媒体控制
-  useMediaSource({
+  const { events: progressEvents } = useMediaSource({
     file,
     mediaRef: videoRef,
     enabled: fallbackEnabled,
@@ -81,7 +85,8 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
             controls
             onError={handleError}
             onCanPlay={handleCanplay}
-            {...events}
+            {...stateEvents}
+            {...progressEvents}
           />
         }
       </StyledVideoWrapper>

@@ -72,6 +72,11 @@ export const API_CONFIGS = {
     url: '/file/video/metadata',
     method: 'get',
   },
+  // 获取视频文件的转换成 fmp4 的分片
+  fileVideoSegment: {
+    url: '/file/video/segment',
+    method: 'get',
+  },
 } satisfies Record<string, ApiConfig>;
 
 export type ApiKeys = keyof typeof API_CONFIGS;
@@ -107,15 +112,25 @@ export type ApiRequestParamsTypes<T extends ApiKeys> = T extends 'filePoster'
   ? ApiFilePosterParams
   : T extends 'fileGet' | 'fileText' | 'fileVideoFallback' | 'fileVideoMetadata'
     ? ApiFileFetchParams
-    : never;
+    : T extends 'fileVideoSegment'
+      ? ApiFileVideoSegment
+      : never;
 
 type ApiRequestParamsBase = ParsedUrlQuery;
 interface ApiFileFetchParams extends ApiRequestParamsBase {
   basePathIndex: string;
   relativePath: string;
 }
+// 获取缩略图的请求参数
 interface ApiFilePosterParams extends ApiFileFetchParams {
   force?: 'true';
+}
+// 请求 fmp4 分片的请求参数
+interface ApiFileVideoSegment extends ApiFileFetchParams {
+  // 数字字符串
+  start: string;
+  // 数字字符串
+  duration: string;
 }
 
 /**

@@ -10,4 +10,6 @@ export const ERROR_MSG = {
   errorPath: 'error path',
   noFile: 'no file',
   sizeLimited: 'the requested file size is limited',
+  notANumber: 'param is not a number',
+  required: 'param is required',
 } satisfies Record<string, string | ((...args: string[]) => string)>;
