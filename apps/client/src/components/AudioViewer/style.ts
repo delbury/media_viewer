@@ -76,3 +76,25 @@ export const StyledLyricRow = styled(Box, {
       `
       : ''}
 `;
+
+export const StyledCoverBtnWrapper = styled(Box)`
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  > * {
+    color: ${({ theme }) => theme.palette.common.white} !important;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity ${({ theme }) => theme.transitions.duration.shorter}ms;
+  }
+  :hover > * {
+    opacity: 1;
+    pointer-events: all;
+  }
+`;

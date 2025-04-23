@@ -1,8 +1,9 @@
-import { useMediaPlayBtn } from '#/hooks/useMediaPlayBtn';
+import { useMediaState } from '#/hooks/useMediaState';
 import { useThrottle } from '#/hooks/useThrottle';
 import { getFilePosterUrl, getFileSourceUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
-import { Button } from '@mui/material';
+import { PauseCircleRounded, PlayCircleRounded } from '@mui/icons-material';
+import { Button, IconButton, SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { SyntheticEvent, useCallback, useMemo, useRef, useState } from 'react';
 import Empty from '../Empty';
@@ -10,6 +11,7 @@ import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
 import {
   StyledContentWrapper,
+  StyledCoverBtnWrapper,
   StyledImgContainer,
   StyledLyricArea,
   StyledLyricContent,
@@ -21,6 +23,17 @@ import { findLyricIndex, useLyric } from './useLyric';
 type AudioViewerProps = {
   file: FileInfo;
 } & Omit<FixedModalProps, 'children'>;
+
+const MEDIA_BTN_SX: SxProps<Theme> = {
+  padding: 0,
+  width: '100%',
+  height: '100%',
+};
+const MEDIA_ICON_SX: SxProps<Theme> = {
+  padding: '12.5%',
+  width: '100%',
+  height: '100%',
+};
 
 const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
   const t = useTranslations();
@@ -80,7 +93,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
     });
   }, [currentLyricIndex]);
 
-  const { MediaBtn } = useMediaPlayBtn({ mediaRef: audioRef });
+  const { isPlaying, toggle, events } = useMediaState({ mediaRef: audioRef });
 
   return (
     <FixedModal
@@ -96,7 +109,18 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
               alt={file.name}
             />
           )}
-          <MediaBtn sx={{ width: '100%', height: '100%' }} />
+          <StyledCoverBtnWrapper>
+            <IconButton
+              onClick={toggle}
+              sx={MEDIA_BTN_SX}
+            >
+              {isPlaying ? (
+                <PlayCircleRounded sx={MEDIA_ICON_SX} />
+              ) : (
+                <PauseCircleRounded sx={MEDIA_ICON_SX} />
+              )}
+            </IconButton>
+          </StyledCoverBtnWrapper>
         </StyledImgContainer>
 
         <StyledLyricArea>
@@ -143,6 +167,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
             src={sourceUrl}
             controls
             onTimeUpdate={handleTimeUpdateThrottle}
+            {...events}
           />
         )}
       </StyledContentWrapper>

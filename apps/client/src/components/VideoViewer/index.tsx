@@ -1,4 +1,4 @@
-import { useMediaPlayBtn } from '#/hooks/useMediaPlayBtn';
+import { useMediaState } from '#/hooks/useMediaState';
 import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { logError } from '#pkgs/tools/common';
@@ -18,11 +18,7 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
   // 链接
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
   // 视频状态控制
-  const {
-    isPlaying,
-    toggle,
-    events: stateEvents,
-  } = useMediaPlayBtn({ mediaRef: videoRef, noBtn: true });
+  const { isPlaying, toggle, events: stateEvents } = useMediaState({ mediaRef: videoRef });
   // 原始视频格式不支持播放时，降级播放地址
   const [fallbackEnabled, setFallbackEnabled] = useState(false);
 
