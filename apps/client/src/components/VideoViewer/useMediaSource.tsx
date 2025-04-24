@@ -1,3 +1,4 @@
+import { useDebounce } from '#/hooks/useDebounce';
 import { useSwr } from '#/hooks/useSwr';
 import { fetchArrayBufferData } from '#/request';
 import { getFileSourceUrl } from '#/utils';
@@ -159,6 +160,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
       isLoading.current = false;
     }
   }, [file.basePathIndex, file.relativePath]);
+  const lazyLoadSegmentDebounce = useDebounce(lazyLoadSegment, 200);
 
   // 创建 media source
   const createSource = useCallback(() => {
@@ -198,7 +200,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
             { once: true }
           );
 
-          await lazyLoadSegment();
+          await lazyLoadSegmentDebounce();
         },
         { once: true }
       );
@@ -208,7 +210,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
         abortController.current?.abort();
       };
     }
-  }, [lazyLoadSegment, mediaRef, metadataRequest]);
+  }, [lazyLoadSegmentDebounce, mediaRef, metadataRequest]);
 
   // 播放时间改变
   const handleTimeUpdate = useCallback<ReactEventHandler<HTMLVideoElement>>(
@@ -223,10 +225,10 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
       // 未加载完成，且播放到当前缓存区间剩余时间不足时，继续加载分片
       // 命中缓存时才自动加载，否则跳过
       if (cacheRange && cacheRange[1] - currentTime < VIDEO_LAZY_LOAD_THRESHOLD) {
-        lazyLoadSegment();
+        lazyLoadSegmentDebounce();
       }
     },
-    [enabled, lazyLoadSegment]
+    [enabled, lazyLoadSegmentDebounce]
   );
 
   // 拖动进度条事件
@@ -250,9 +252,9 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
         currentSegmentOffset.current = cacheRange[1];
 
         // 清除其他分段缓存
-        buffer.remove(cacheRange[1], Infinity);
+        // buffer.remove(cacheRange[1], Infinity);
 
-        // 判断当前命中的缓存没有已经加载到视频结束
+        // 判断当前命中的缓存未加载到视频结束
         if (
           Math.abs(cacheRange[1] - (mediaSource.current?.duration ?? 0)) > VIDEO_ENDED_THRESHOLD
         ) {
@@ -267,9 +269,9 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
       // 从当前进度开始，请求缓存数据
       currentSegmentOffset.current = currentTime;
 
-      lazyLoadSegment();
+      lazyLoadSegmentDebounce();
     },
-    [enabled, lazyLoadSegment, mediaRef]
+    [enabled, lazyLoadSegmentDebounce, mediaRef]
   );
 
   // 播放结束事件
