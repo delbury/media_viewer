@@ -1,3 +1,4 @@
+import { noop } from 'lodash-es';
 import { DOMAttributes, ReactEventHandler, RefObject, useCallback, useState } from 'react';
 
 interface UseMediaPlayBtn {
@@ -10,7 +11,7 @@ export const useMediaState = ({ mediaRef }: UseMediaPlayBtn) => {
   const handleToggle = useCallback(() => {
     if (!mediaRef.current) return;
     if (mediaRef.current.paused) {
-      mediaRef.current.play();
+      mediaRef.current.play().catch(noop);
     } else {
       mediaRef.current.pause();
     }
@@ -30,6 +31,6 @@ export const useMediaState = ({ mediaRef }: UseMediaPlayBtn) => {
     events: {
       onPlay: handlePlay,
       onPause: handlePause,
-    } as Pick<DOMAttributes<HTMLVideoElement>, 'onPlay' | 'onPause'>,
+    } satisfies Pick<DOMAttributes<HTMLVideoElement>, 'onPlay' | 'onPause'>,
   };
 };

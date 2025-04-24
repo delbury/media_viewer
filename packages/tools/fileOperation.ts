@@ -22,7 +22,7 @@ export const writeDataToFile = async (fullFilePath: string, data: Record<string,
   const jsonString = JSON.stringify(data ?? {});
   await writeFile(fullFilePath, jsonString);
 
-  logInfo('successfully written file');
+  logInfo('written file successfully');
 };
 
 // 从根目录开始遍历文件夹

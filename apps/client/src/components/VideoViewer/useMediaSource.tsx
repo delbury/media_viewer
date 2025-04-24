@@ -2,90 +2,36 @@ import { useSwr } from '#/hooks/useSwr';
 import { fetchArrayBufferData } from '#/request';
 import { getFileSourceUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
-import Big from 'big.js';
+import { logError } from '#pkgs/tools/common';
 import { isNil } from 'lodash-es';
-import { DOMAttributes, ReactEventHandler, RefObject, useCallback, useEffect, useRef } from 'react';
+import {
+  DOMAttributes,
+  ReactEventHandler,
+  RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import {
+  calcVideoSegmentParams,
+  FILE_CODECS,
+  hitCacheRange,
+  stopStream,
+  VIDEO_ENDED_THRESHOLD,
+  VIDEO_LAZY_LOAD_THRESHOLD,
+  waitUpdateend,
+} from './util';
 
 interface UseMediaSourceParams {
   mediaRef: RefObject<HTMLMediaElement | null>;
   file: FileInfo;
-  // 启用
-  enabled: boolean;
 }
 
-// 视频编码
-const FILE_CODECS = 'video/mp4; codecs="avc1.640028, mp4a.40.2"';
-
-// 视频分片的长度，单位 s
-const VIDEO_SEGMENT_DURATION = 5;
-
-// 继续加载视频分片的最小剩余时间
-const VIDEO_LAZY_LOAD_THRESHOLD = VIDEO_SEGMENT_DURATION / 2;
-
-// 视频最后不满分片长度的最小百分比
-// 如果最后一个分片的长度小于 VIDEO_LAST_DURATION_MIN_THRESHOLD，
-// 则最后一个分片与上一个完整的分片合并，否则则作为单独的一个分片
-const VIDEO_LAST_SEGMENT_THRESHOLD = Big(0.5).mul(VIDEO_SEGMENT_DURATION);
-
-/**
- * 阈值：VIDEO_LAST_DURATION_MIN_THRESHOLD
- *
- * 场景1：当前段结束时间大于等于总长，则取 total
- *   total   ==========----------=====|
- *   next    ==========----------==========|
- *   real    ..............................|
- *
- * 场景2：当前段结束时间小于总长，且相差部分小于等于阈值，则取 total
- *   total   ==========----------=====|
- *   next    ==========----------|
- *   real    .........................|
- *
- * 场景3：当前段结束时间小于总长，且相差部分大于阈值，则取 next
- *   total   ==========----------=====|
- *   next    ==========|
- *   real    ..........|
- */
-const calcVideoSegmentParams = (currentTime: number, fullDuration: number) => {
-  // 已结束
-  let done = false;
-  const nextBig = Big(currentTime).add(VIDEO_SEGMENT_DURATION);
-  const fullBig = Big(fullDuration);
-  let nextTime: number = 0;
-  let durationTime = 0;
-
-  if (nextBig.lt(fullBig) && fullBig.minus(nextBig).gt(VIDEO_LAST_SEGMENT_THRESHOLD)) {
-    nextTime = nextBig.toNumber();
-    durationTime = VIDEO_SEGMENT_DURATION;
-  } else {
-    done = true;
-    nextTime = fullDuration;
-    durationTime = fullBig.minus(currentTime).toNumber();
-  }
-
-  return {
-    done,
-    current: currentTime,
-    duration: durationTime,
-    next: nextTime,
-  };
-};
-
-const stopStream = (source: MediaSource, buffer: SourceBuffer | null) => {
-  if (buffer?.updating) buffer?.abort();
-  if (source.readyState === 'open') source.endOfStream();
-};
-
-// updateend 有时候 buffer.updating 仍为 true
-// 可能是 bug，先用递归判断的方式兜底
-const waitUpdateend = async (buffer: SourceBuffer) => {
-  if (buffer.updating) {
-    await new Promise(resolve => buffer.addEventListener('updateend', resolve, { once: true }));
-    if (buffer.updating) await waitUpdateend(buffer);
-  }
-};
-
 // hook
-export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams) => {
+export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
+  // 原始视频格式不支持播放时，降级播放地址
+  const [enabled, setEnabled] = useState(false);
   // 当前视频分片请求的 offset
   const currentSegmentOffset = useRef(0);
   // 视频总时长
@@ -100,6 +46,37 @@ export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams
   const isLoadDone = useRef(false);
   // 正在加载中
   const isLoading = useRef(false);
+  // 真正的可以播放，完成降级处理后
+  const [isCanplay, setIsCanplay] = useState(false);
+
+  // 视频报错事件
+  const handleError = useCallback<ReactEventHandler<HTMLVideoElement>>(
+    ev => {
+      const err = (ev.target as HTMLVideoElement).error;
+      // 判断错误类型，如果是浏览器不支持播放的视频，则降级为服务端转码
+      if (
+        err &&
+        !enabled &&
+        (err.code === err.MEDIA_ERR_DECODE || err.code === err.MEDIA_ERR_SRC_NOT_SUPPORTED)
+      ) {
+        setEnabled(true);
+      } else {
+        logError(err);
+      }
+    },
+    [enabled]
+  );
+
+  // 视频可播放事件，防止只有音频可以播放，视频无法播放
+  const handleCanplay = useCallback<ReactEventHandler<HTMLVideoElement>>(ev => {
+    const target = ev.target as HTMLVideoElement;
+
+    if (!target.videoHeight && !target.videoWidth) {
+      setEnabled(true);
+    } else {
+      setIsCanplay(true);
+    }
+  }, []);
 
   // 请求视频分段数据接口
   const metadataRequest = useSwr('fileVideoMetadata', {
@@ -150,22 +127,33 @@ export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams
         },
         signal: controller.signal,
       });
+      abortController.current = null;
       controller.signal.onabort = () => {
         // 中断 fetch 请求后，结束流
         stopStream(source, buffer);
+        abortController.current = null;
+        isLoading.current = false;
       };
 
       // 读取数据
       const data = await response.arrayBuffer();
       await waitUpdateend(buffer);
       if (Array.from(source.sourceBuffers).includes(buffer)) {
+        // 监听当次分片请求完毕
+        buffer.addEventListener(
+          'updateend',
+          async () => {
+            if (done && source.readyState === 'open') stopStream(source, buffer);
+          },
+          { once: true }
+        );
+
         buffer.timestampOffset = current;
         buffer.appendBuffer(data);
       }
     } catch {
       // 流中断后，直接中断 fetch 请求
       controller.abort();
-      abortController.current = null;
     } finally {
       // 加载结束
       isLoading.current = false;
@@ -195,19 +183,20 @@ export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams
           const buffer = source.addSourceBuffer(FILE_CODECS);
           sourceBuffer.current = buffer;
 
+          // 设置播放窗口
+          if (!isNil(totalDuration)) {
+            buffer.appendWindowStart = 0;
+            buffer.appendWindowEnd = totalDuration;
+          }
+
+          // 手动设置时长，只触发一次
           buffer.addEventListener(
             'updateend',
-            async () => {
-              // 手动设置时长
-              source.duration = totalDuration ?? NaN;
+            () => {
+              if (source.readyState === 'open') source.duration = totalDuration ?? NaN;
             },
             { once: true }
           );
-
-          buffer.addEventListener('updateend', async () => {
-            // 结束流
-            if (isLoadDone.current) stopStream(source, buffer);
-          });
 
           await lazyLoadSegment();
         },
@@ -221,30 +210,72 @@ export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams
     }
   }, [lazyLoadSegment, mediaRef, metadataRequest]);
 
-  // 进度条拖动
-  const handleSeeked = useCallback<ReactEventHandler<HTMLVideoElement>>(
-    ev => {
-      if (!enabled) return;
-
-      // console.log(ev);
-    },
-    [enabled]
-  );
-
   // 播放时间改变
   const handleTimeUpdate = useCallback<ReactEventHandler<HTMLVideoElement>>(
     ev => {
-      if (!enabled) return;
+      const buffer = sourceBuffer.current;
+      const source = mediaSource.current;
+      if (!enabled || !buffer || !source) return;
 
       const currentTime = (ev.target as HTMLMediaElement).currentTime;
 
-      // 未加载完成，且播放到剩余时间不足时，继续加载分片
-      if (currentSegmentOffset.current - currentTime < VIDEO_LAZY_LOAD_THRESHOLD) {
+      const cacheRange = hitCacheRange(buffer.buffered, currentTime);
+      // 未加载完成，且播放到当前缓存区间剩余时间不足时，继续加载分片
+      // 命中缓存时才自动加载，否则跳过
+      if (cacheRange && cacheRange[1] - currentTime < VIDEO_LAZY_LOAD_THRESHOLD) {
         lazyLoadSegment();
       }
     },
-    [lazyLoadSegment, enabled]
+    [enabled, lazyLoadSegment]
   );
+
+  // 拖动进度条事件
+  const handleSeeking = useCallback<ReactEventHandler<HTMLVideoElement>>(
+    ev => {
+      const elm = mediaRef.current;
+      const buffer = sourceBuffer.current;
+      if (!enabled || !buffer || !elm) return;
+
+      // 停止旧的请求
+      abortController.current?.abort();
+
+      const currentTime = (ev.target as HTMLMediaElement).currentTime;
+
+      // 查询缓存
+      const cacheRange = hitCacheRange(buffer.buffered, currentTime);
+
+      // 命中缓存
+      if (cacheRange) {
+        // 设置加载缓存的开始时间
+        currentSegmentOffset.current = cacheRange[1];
+
+        // 清除其他分段缓存
+        buffer.remove(cacheRange[1], Infinity);
+
+        // 判断当前命中的缓存没有已经加载到视频结束
+        if (
+          Math.abs(cacheRange[1] - (mediaSource.current?.duration ?? 0)) > VIDEO_ENDED_THRESHOLD
+        ) {
+          isLoadDone.current = false;
+        }
+        // 跳过
+        return;
+      }
+
+      // 没有命中缓存，重置加载结束 flag
+      isLoadDone.current = false;
+      // 从当前进度开始，请求缓存数据
+      currentSegmentOffset.current = currentTime;
+
+      lazyLoadSegment();
+    },
+    [enabled, lazyLoadSegment, mediaRef]
+  );
+
+  // 播放结束事件
+  const handleEnded = useCallback<ReactEventHandler<HTMLVideoElement>>(() => {
+    if (!enabled) return;
+  }, [enabled]);
 
   useEffect(() => {
     const elm = mediaRef.current;
@@ -262,9 +293,16 @@ export const useMediaSource = ({ mediaRef, file, enabled }: UseMediaSourceParams
   }, [enabled]);
 
   return {
+    isCanplay,
     events: {
-      onSeeked: handleSeeked,
       onTimeUpdate: handleTimeUpdate,
-    } as Pick<DOMAttributes<HTMLVideoElement>, 'onSeeked' | 'onTimeUpdate'>,
+      onEnded: handleEnded,
+      onSeeking: handleSeeking,
+      onError: handleError,
+      onCanPlay: handleCanplay,
+    } satisfies Pick<
+      DOMAttributes<HTMLVideoElement>,
+      'onSeeking' | 'onError' | 'onTimeUpdate' | 'onEnded' | 'onCanPlay'
+    >,
   };
 };

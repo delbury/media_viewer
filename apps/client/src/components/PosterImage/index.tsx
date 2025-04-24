@@ -146,9 +146,6 @@ const PosterImage = ({ disabled, file }: PosterImageProps) => {
               alt={file.name}
               style={{
                 visibility: isLoading ? 'hidden' : 'visible',
-                width: '100%',
-                height: ' 100%',
-                objectFit: 'contain',
               }}
               loading="lazy"
               onError={() => {

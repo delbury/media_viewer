@@ -1,5 +1,5 @@
 import { MediaDetailInfo } from '#pkgs/shared/index.js';
-import { logError, logWarn } from '#pkgs/tools/common.js';
+import { logError, logWarn as RawLogWarn, switchFnByFlag } from '#pkgs/tools/common.js';
 import { ParameterizedContext } from 'koa';
 import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -12,8 +12,10 @@ interface VideoDetailTasks {
     promise?: Promise<MediaDetailInfo>;
   };
 }
-
+// 进行中的任务信息
 const VIDEO_DETAIL_TASKS: VideoDetailTasks = {};
+
+const logWarn = switchFnByFlag(RawLogWarn, false);
 
 // 获取视频详细信息
 export const getVideoDetail = async (

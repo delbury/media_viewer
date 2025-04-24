@@ -22,7 +22,7 @@ export const StyledFilePosterHover = styled(StyledFilePosterIcon)`
   /* mix-blend-mode: difference; */
 `;
 
-export const StyledFilePosterWrapper = styled(Box)`
+export const StyledFilePosterWrapper = muiStyled(Box)`
   position: relative;
   height: 100%;
   width: 100%;
@@ -30,5 +30,12 @@ export const StyledFilePosterWrapper = styled(Box)`
 
   :hover ${StyledFilePosterHover} {
     display: flex;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: ${({ theme }) => theme.palette.common.black}
   }
 `;
