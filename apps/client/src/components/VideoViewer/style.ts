@@ -17,18 +17,3 @@ export const StyledVideoWrapper = styled(Box)`
     object-fit: contain;
   }
 `;
-
-export const StyledVideoToolbar = styled(Box)`
-  z-index: 1;
-  padding-bottom: 24px;
-  width: 100%;
-  height: fit-content;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  > button {
-    color: inherit;
-  }
-`;

@@ -10,6 +10,7 @@ import {
   StyledFixedModalWrapper,
   StyledFixedTitle,
   StyledFixedToolbar,
+  StyledFooterWrapper,
 } from './style';
 
 export interface FixedModalProps {
@@ -62,7 +63,7 @@ const FixedModal = ({
         </StyledFixedModalHeader>
 
         <StyledFixedContent>{children}</StyledFixedContent>
-        {footerSlot}
+        <StyledFooterWrapper>{footerSlot}</StyledFooterWrapper>
       </StyledFixedModalWrapper>,
       document.body
     )

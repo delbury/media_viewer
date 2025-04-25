@@ -41,3 +41,7 @@ export const StyledFixedContent = styled(Box)`
   flex: 1;
   min-height: 0;
 `;
+
+export const StyledFooterWrapper = styled(Box)`
+  z-index: 1;
+`;

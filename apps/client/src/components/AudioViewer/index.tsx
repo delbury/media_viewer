@@ -9,6 +9,7 @@ import { SyntheticEvent, useCallback, useMemo, useRef, useState } from 'react';
 import Empty from '../Empty';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
+import MediaControls from '../MediaControls';
 import {
   StyledContentWrapper,
   StyledCoverBtnWrapper,
@@ -93,13 +94,17 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
     });
   }, [currentLyricIndex]);
 
-  const { isPlaying, toggle, events } = useMediaState({ mediaRef: audioRef });
+  const { isPlaying, toggle } = useMediaState({ mediaRef: audioRef });
 
   return (
     <FixedModal
       visible={visible}
       onClose={onClose}
       title={file.name}
+      footerSlot={
+        // 工具栏
+        <MediaControls mediaRef={audioRef} />
+      }
     >
       <StyledContentWrapper>
         <StyledImgContainer>
@@ -167,7 +172,6 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
             src={sourceUrl}
             controls
             onTimeUpdate={handleTimeUpdateThrottle}
-            {...events}
           />
         )}
       </StyledContentWrapper>
