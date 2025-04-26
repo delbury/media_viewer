@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { Box } from '@mui/material';
 
 export const StyledMediaControlsWrapper = styled(Box)`
-  padding: 0 24px 24px;
+  padding: 0 24px 16px;
   width: 100%;
   height: fit-content;
   display: flex;
@@ -25,18 +25,35 @@ export const StyledBtnsGroup = styled(Box)`
 export const StyledCursorContainer = styled(Box)`
   display: none;
   position: absolute;
-  width: 24px;
-  height: 24px;
-  top: -10px;
+  top: 10px;
   left: -12px;
   color: ${({ theme }) => theme.palette.primary.light};
+  pointer-events: none;
+
+  & > * {
+    position: absolute;
+    left: 0;
+    width: 24px;
+    height: 24px;
+
+    :first-child {
+      bottom: -4px;
+    }
+
+    :last-child {
+      top: -4px;
+    }
+  }
 `;
 
 export const StyledProgressContainer = styled(Box)`
   position: relative;
+  margin-bottom: 12px;
+  /* margin: -8px 0; */
+  padding: 8px 0;
   width: 100%;
-  cursor: pointer;
   font-size: 0;
+  cursor: pointer;
 
   &:hover {
     ${StyledCursorContainer} {

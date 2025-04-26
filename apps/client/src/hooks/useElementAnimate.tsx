@@ -33,7 +33,7 @@ const createAnimation = (
   });
 };
 
-export const useElementAnimation = <T extends HTMLElement>() => {
+export const useElementAnimate = <T extends HTMLElement>() => {
   const domRef = useRef<T>(null);
   const animation = useRef<Animation>(null);
 

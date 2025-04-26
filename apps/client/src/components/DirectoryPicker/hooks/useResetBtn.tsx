@@ -1,10 +1,10 @@
-import { useElementAnimation } from '#/hooks/useElementAnimation';
+import { useElementAnimate } from '#/hooks/useElementAnimate';
 import { RefreshRounded } from '@mui/icons-material';
 import { useMemo } from 'react';
 import { StyledFileResetBtn } from '../style/use-reset-btn';
 
 export const useResetBtn = (onClick: () => void) => {
-  const reset = useElementAnimation<HTMLButtonElement>();
+  const reset = useElementAnimate<HTMLButtonElement>();
 
   const ResetBtn = useMemo(() => {
     return (

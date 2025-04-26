@@ -1,13 +1,15 @@
+import { useMove } from '#/hooks/useMove';
 import {
+  ArrowDropDownRounded,
+  ArrowDropUpRounded,
   PauseRounded,
   PlayArrowRounded,
   SkipNextRounded,
   SkipPreviousRounded,
-  UnfoldLessRounded,
   VolumeOffRounded,
   VolumeUpRounded,
 } from '@mui/icons-material';
-import { IconButton, LinearProgress } from '@mui/material';
+import { IconButton, LinearProgress, SxProps } from '@mui/material';
 import { noop } from 'lodash-es';
 import {
   forwardRef,
@@ -16,6 +18,7 @@ import {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { calcTimeRanges } from '../VideoViewer/util';
@@ -65,6 +68,10 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [currentTime, setCurrentTime] = useState(0);
     const [isMuted, setIsMuted] = useState(false);
     const [currentVolume, setCurrentVolume] = useState(0);
+    const [cursorOffset, setCursorOffset] = useState(0);
+    const progressBarRef = useRef<HTMLElement>(null);
+
+    useMove({ domRef: progressBarRef, onMove: pos => setCursorOffset(pos[0]) });
 
     useEffect(() => {
       onPausedStateChange?.(isPaused);
@@ -76,10 +83,18 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       [currentTime, videoDuration]
     );
 
+    // 游标随鼠标移动的位置
+    const pointerCursorOffsetSx = useMemo<SxProps>(
+      () => ({
+        transform: `translate(${cursorOffset}px)`,
+      }),
+      [cursorOffset]
+    );
+
     // 缓存进度百分比，渐变样式
     // 10 ~ 20, 40 ~ 80
     // 0 - 10 | (10 - 20) | 20 - 40 | (40 - 80) | 80 - 100
-    const bufferRangesPercentsBar = useMemo(() => {
+    const bufferRangesPercentsBarSx = useMemo<SxProps>(() => {
       const pointers: string[] = [`${BUFFER_BAR_COLOR_EMPTY} 0%`];
       for (const [s, e] of bufferRanges) {
         // 计算百分比
@@ -98,8 +113,12 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       }
       pointers.push(`${BUFFER_BAR_COLOR_EMPTY} 100%`);
 
-      const bgImage = `linear-gradient(to right, ${pointers.join(',')})`;
-      return bgImage;
+      return {
+        // 已缓存的进度条颜色，通过 css 渐变来显示分段颜色
+        '.MuiLinearProgress-bar2': {
+          backgroundImage: `linear-gradient(to right, ${pointers.join(',')})`,
+        },
+      };
     }, [bufferRanges, videoDuration]);
 
     // 播放切换
@@ -187,21 +206,17 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     return (
       <StyledMediaControlsWrapper>
         {/* 进度条 */}
-        <StyledProgressContainer>
+        <StyledProgressContainer ref={progressBarRef}>
           <LinearProgress
             variant="buffer"
             value={currentTimePercent}
             valueBuffer={100}
-            sx={{
-              // 已缓存的进度条颜色，通过 css 渐变来显示分段颜色
-              '.MuiLinearProgress-bar2': {
-                backgroundImage: bufferRangesPercentsBar,
-              },
-            }}
+            sx={bufferRangesPercentsBarSx}
           />
 
-          <StyledCursorContainer>
-            <UnfoldLessRounded />
+          <StyledCursorContainer sx={pointerCursorOffsetSx}>
+            <ArrowDropDownRounded />
+            <ArrowDropUpRounded />
           </StyledCursorContainer>
         </StyledProgressContainer>
 

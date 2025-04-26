@@ -21,6 +21,8 @@ const nextConfig: NextConfig = {
   // 严格模式下，在开发环境下，组件会挂载两次
   reactStrictMode: false,
   images: {},
+  // 禁用 dev 下的工具浮窗
+  devIndicators: false,
 };
 
 export default withNextIntl(nextConfig);
