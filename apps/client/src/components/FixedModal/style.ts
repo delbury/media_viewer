@@ -1,12 +1,14 @@
 import { Box, styled } from '@mui/material';
 
+const FIXED_MODAL_Z_INDEX = 1400;
+
 export const StyledFixedModalWrapper = styled(Box)`
   position: fixed;
   left: 0;
   right: 0;
   top: 0;
   bottom: 0;
-  z-index: 3000;
+  z-index: ${FIXED_MODAL_Z_INDEX};
   background-color: rgba(0, 0, 0, 0.85);
   color: ${({ theme }) => theme.palette.common.white};
   display: flex;

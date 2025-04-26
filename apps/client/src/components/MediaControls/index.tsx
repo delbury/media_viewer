@@ -26,6 +26,7 @@ import {
   StyledMediaControlsWrapper,
   StyledToolsRow,
 } from './style';
+import VolumeSetting from './VolumeSetting';
 
 // 绑定事件
 const bindEvent = <T extends keyof HTMLMediaElementEventMap>(
@@ -107,6 +108,15 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       (time: number) => {
         if (!mediaRef.current) return;
         mediaRef.current.currentTime = time;
+      },
+      [mediaRef]
+    );
+
+    // 改变音量
+    const handleVolumeChange = useCallback(
+      (v: number) => {
+        if (!mediaRef.current) return;
+        mediaRef.current.volume = v;
       },
       [mediaRef]
     );
@@ -220,9 +230,14 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
             <StyledBtnsGroup>
               {/* 静音 */}
-              <IconButton onClick={handleToggleMute}>
-                {isMuted ? <VolumeOffRounded /> : <VolumeUpRounded />}
-              </IconButton>
+              <VolumeSetting
+                volume={currentVolume}
+                onVolumeChange={handleVolumeChange}
+              >
+                <IconButton onClick={handleToggleMute}>
+                  {isMuted ? <VolumeOffRounded /> : <VolumeUpRounded />}
+                </IconButton>
+              </VolumeSetting>
             </StyledBtnsGroup>
           </StyledBtnsContainer>
         </StyledToolsRow>

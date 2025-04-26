@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Box } from '@mui/material';
+import { Box, linearProgressClasses, Slider, sliderClasses, tooltipClasses } from '@mui/material';
 
 export const StyledMediaControlsWrapper = styled(Box)`
   padding: 0 24px 16px;
@@ -65,25 +65,25 @@ export const StyledProgressContainer = styled(Box)`
       display: block;
     }
 
-    .MuiLinearProgress-root {
+    & .${linearProgressClasses.root} {
       transform: scaleY(1.5);
     }
   }
 
   /* 已播放的进度条 */
-  .MuiLinearProgress-bar1 {
+  & .${linearProgressClasses.bar1} {
     transition: none;
     background-color: ${({ theme }) => theme.palette.primary.light};
   }
 
   /* 已缓存的进度条颜色 */
-  .MuiLinearProgress-bar2 {
+  & .${linearProgressClasses.bar2} {
     background-color: unset;
     transition: all 200ms;
   }
 
   /* 未加载的进度条颜色 */
-  .MuiLinearProgress-dashed {
+  & .${linearProgressClasses.dashed} {
     animation: none;
     background-image: none;
     background-color: ${({ theme }) => theme.palette.grey[800]};
@@ -95,4 +95,34 @@ export const StyledToolsRow = styled(Box)`
   display: flex;
   align-items: center;
   gap: 24px;
+`;
+
+export const StyledVolumeTooltipWrapper = styled(Box)`
+  position: relative;
+
+  && .${tooltipClasses.tooltip} {
+    margin: 0;
+    padding: 0;
+  }
+`;
+
+export const StyledVolumePopoverContainer = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 120px;
+  padding: 8px 0;
+
+  > span {
+    margin-bottom: 8px;
+  }
+`;
+
+export const StyledSlider = styled(Slider)`
+  color: ${({ theme }) => theme.palette.primary.light};
+
+  & .${sliderClasses.rail} {
+    background-color: ${({ theme }) => theme.palette.common.white};
+  }
 `;

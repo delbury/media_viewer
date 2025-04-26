@@ -3,6 +3,7 @@ import {
   Button,
   Dialog,
   DialogActions,
+  dialogClasses,
   DialogContent,
   DialogTitle,
   Divider,
@@ -59,7 +60,7 @@ const CompDialog = (props: DialogProps) => {
       onClose={onClose}
       fullWidth
       sx={{
-        '& .MuiDialog-paper': {
+        [`& .${dialogClasses.paper}`]: {
           margin: '0 16px',
           width: 'calc(100% - 32px)',
         },

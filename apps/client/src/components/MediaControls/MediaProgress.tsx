@@ -1,6 +1,6 @@
 import { useMove } from '#/hooks/useMove';
 import { ArrowDropDownRounded, ArrowDropUpRounded } from '@mui/icons-material';
-import { LinearProgress, SxProps } from '@mui/material';
+import { LinearProgress, linearProgressClasses, SxProps } from '@mui/material';
 import { MouseEventHandler, useCallback, useMemo, useRef, useState } from 'react';
 import { StyledCursorContainer, StyledProgressContainer } from './style';
 
@@ -63,7 +63,7 @@ export const MediaProgress = ({
 
     return {
       // 已缓存的进度条颜色，通过 css 渐变来显示分段颜色
-      '.MuiLinearProgress-bar2': {
+      [`& .${linearProgressClasses.bar2}`]: {
         backgroundImage: `linear-gradient(to right, ${pointers.join(',')})`,
       },
     };
