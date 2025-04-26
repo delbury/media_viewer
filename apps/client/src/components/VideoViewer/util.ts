@@ -60,9 +60,9 @@ export const calcVideoSegmentParams = (currentTime: number, fullDuration: number
   };
 };
 
-export const stopStream = (source: MediaSource, buffer: SourceBuffer | null) => {
+export const stopStream = (source: MediaSource | null, buffer: SourceBuffer | null) => {
   if (buffer?.updating) buffer?.abort();
-  if (source.readyState === 'open') source.endOfStream();
+  if (source?.readyState === 'open') source.endOfStream();
 };
 
 // updateend 有时候 buffer.updating 仍为 true

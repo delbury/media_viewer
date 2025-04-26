@@ -1,14 +1,16 @@
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, CircularProgressProps } from '@mui/material';
 
 interface LoadingProps {
   color?: string;
+  size?: CircularProgressProps['size'];
 }
 
-const Loading = ({ color }: LoadingProps) => {
+const Loading = ({ color, size }: LoadingProps) => {
   return (
     <CircularProgress
-      sx={{ width: '100%', height: '100%', color: color ?? 'inherit' }}
-      thickness={6}
+      sx={{ color: color ?? 'inherit' }}
+      thickness={4}
+      size={size}
     />
   );
 };

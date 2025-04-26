@@ -2,7 +2,7 @@ import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { useMemo, useRef } from 'react';
 import FixedModal, { FixedModalProps } from '../FixedModal';
-import MediaControls from '../MediaControls';
+import MediaControls, { MediaControlsInstance } from '../MediaControls';
 import { StyledVideoWrapper } from './style';
 import { useMediaSource } from './useMediaSource';
 
@@ -11,12 +11,13 @@ type VideoViewerProps = {
 } & Omit<FixedModalProps, 'children'>;
 
 const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
+  const controlsRef = useRef<MediaControlsInstance>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   // 链接
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
 
   // 自定义流媒体控制
-  const { isCanplay, events: progressEvents } = useMediaSource({
+  const { events: progressEvents } = useMediaSource({
     file,
     mediaRef: videoRef,
   });
@@ -28,21 +29,21 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
       title={file.name}
       footerSlot={
         // 工具栏
-        <MediaControls mediaRef={videoRef} />
+        <MediaControls
+          ref={controlsRef}
+          mediaRef={videoRef}
+        />
       }
     >
       <StyledVideoWrapper>
-        {
-          <video
-            ref={videoRef}
-            poster={posterUrl}
-            // src={realSourceUrl}
-            preload="metadata"
-            playsInline
-            controls={isCanplay}
-            {...progressEvents}
-          />
-        }
+        <video
+          ref={videoRef}
+          poster={posterUrl}
+          preload="metadata"
+          playsInline
+          {...progressEvents}
+          onClick={controlsRef.current?.togglePlay}
+        />
       </StyledVideoWrapper>
     </FixedModal>
   );

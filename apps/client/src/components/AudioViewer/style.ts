@@ -89,12 +89,12 @@ export const StyledCoverBtnWrapper = styled(Box)`
 
   > * {
     color: ${({ theme }) => theme.palette.common.white} !important;
-    opacity: 0;
-    pointer-events: none;
     transition: opacity ${({ theme }) => theme.transitions.duration.shorter}ms;
   }
-  :hover > * {
+  > button {
+    opacity: 0;
+  }
+  :hover > button {
     opacity: 1;
-    pointer-events: all;
   }
 `;

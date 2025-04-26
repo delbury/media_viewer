@@ -1,7 +1,5 @@
-import { useMove } from '#/hooks/useMove';
+import { formatTime } from '#/utils';
 import {
-  ArrowDropDownRounded,
-  ArrowDropUpRounded,
   PauseRounded,
   PlayArrowRounded,
   SkipNextRounded,
@@ -9,7 +7,7 @@ import {
   VolumeOffRounded,
   VolumeUpRounded,
 } from '@mui/icons-material';
-import { IconButton, LinearProgress, SxProps } from '@mui/material';
+import { IconButton, Typography } from '@mui/material';
 import { noop } from 'lodash-es';
 import {
   forwardRef,
@@ -18,19 +16,16 @@ import {
   useEffect,
   useImperativeHandle,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { calcTimeRanges } from '../VideoViewer/util';
+import { MediaProgress } from './MediaProgress';
 import {
+  StyledBtnsContainer,
   StyledBtnsGroup,
-  StyledCursorContainer,
   StyledMediaControlsWrapper,
-  StyledProgressContainer,
+  StyledToolsRow,
 } from './style';
-
-const BUFFER_BAR_COLOR = 'var(--mui-palette-grey-600)';
-const BUFFER_BAR_COLOR_EMPTY = 'transparent';
 
 // 绑定事件
 const bindEvent = <T extends keyof HTMLMediaElementEventMap>(
@@ -58,68 +53,36 @@ export interface MediaControlsInstance {
 interface MediaControls {
   mediaRef: RefObject<HTMLMediaElement | null>;
   onPausedStateChange?: (paused: boolean) => void;
+  onWaitingStateChange?: (waiting: boolean) => void;
 }
 
 const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
-  ({ mediaRef, onPausedStateChange }, ref) => {
+  ({ mediaRef, onPausedStateChange, onWaitingStateChange }, ref) => {
     const [isPaused, setIsPaused] = useState(true);
     const [bufferRanges, setBufferRanges] = useState<[number, number][]>([]);
     const [videoDuration, setVideoDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const [isMuted, setIsMuted] = useState(false);
     const [currentVolume, setCurrentVolume] = useState(0);
-    const [cursorOffset, setCursorOffset] = useState(0);
-    const progressBarRef = useRef<HTMLElement>(null);
-
-    useMove({ domRef: progressBarRef, onMove: pos => setCursorOffset(pos[0]) });
+    const [isWaiting, setIsWaiting] = useState(false);
 
     useEffect(() => {
       onPausedStateChange?.(isPaused);
     }, [isPaused, onPausedStateChange]);
 
-    // 当前播放进度
-    const currentTimePercent = useMemo(
-      () => currentTime && (currentTime / videoDuration) * 100,
-      [currentTime, videoDuration]
+    useEffect(() => {
+      onWaitingStateChange?.(isWaiting);
+    }, [isWaiting, onWaitingStateChange]);
+
+    // 当前播放的进度信息，用于展示
+    const ct = Math.floor(currentTime);
+    const currentInfo = useMemo(() => formatTime(ct), [ct]);
+    const tt = Math.floor(videoDuration);
+    const totalInfo = useMemo(() => formatTime(tt), [tt]);
+    const fullProgressInfo = useMemo(
+      () => `${currentInfo} / ${totalInfo}`,
+      [currentInfo, totalInfo]
     );
-
-    // 游标随鼠标移动的位置
-    const pointerCursorOffsetSx = useMemo<SxProps>(
-      () => ({
-        transform: `translate(${cursorOffset}px)`,
-      }),
-      [cursorOffset]
-    );
-
-    // 缓存进度百分比，渐变样式
-    // 10 ~ 20, 40 ~ 80
-    // 0 - 10 | (10 - 20) | 20 - 40 | (40 - 80) | 80 - 100
-    const bufferRangesPercentsBarSx = useMemo<SxProps>(() => {
-      const pointers: string[] = [`${BUFFER_BAR_COLOR_EMPTY} 0%`];
-      for (const [s, e] of bufferRanges) {
-        // 计算百分比
-        const sp = ((s / videoDuration) * 100).toFixed(2);
-        const ep = ((e / videoDuration) * 100).toFixed(2);
-
-        // 上一段空白段的结束
-        pointers.push(`${BUFFER_BAR_COLOR_EMPTY} ${sp}%`);
-
-        // 当前数据段
-        pointers.push(`${BUFFER_BAR_COLOR} ${sp}%`);
-        pointers.push(`${BUFFER_BAR_COLOR} ${ep}%`);
-
-        // 下一段空白段的开始
-        pointers.push(`${BUFFER_BAR_COLOR_EMPTY} ${ep}%`);
-      }
-      pointers.push(`${BUFFER_BAR_COLOR_EMPTY} 100%`);
-
-      return {
-        // 已缓存的进度条颜色，通过 css 渐变来显示分段颜色
-        '.MuiLinearProgress-bar2': {
-          backgroundImage: `linear-gradient(to right, ${pointers.join(',')})`,
-        },
-      };
-    }, [bufferRanges, videoDuration]);
 
     // 播放切换
     const handleTogglePlay = useCallback(() => {
@@ -138,6 +101,15 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       if (!mediaRef.current) return;
       mediaRef.current.muted = !mediaRef.current.muted;
     }, [mediaRef]);
+
+    // 跳转到对应的进度条时刻
+    const handleGoto = useCallback(
+      (time: number) => {
+        if (!mediaRef.current) return;
+        mediaRef.current.currentTime = time;
+      },
+      [mediaRef]
+    );
 
     useEffect(() => {
       const media = mediaRef.current;
@@ -180,12 +152,24 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           setCurrentVolume(media.volume);
         });
 
+        // 等待事件
+        const waitingController = bindEvent(media, 'waiting', () => {
+          setIsWaiting(true);
+        });
+
+        // 可播放事件
+        const canplayController = bindEvent(media, 'canplay', () => {
+          setIsWaiting(false);
+        });
+
         return () => {
           playController.abort();
           pauseController.abort();
           progressController.abort();
           timeupdateController.abort();
           volumechangeController.abort();
+          waitingController.abort();
+          canplayController.abort();
         };
       }
     }, [mediaRef]);
@@ -206,41 +190,42 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     return (
       <StyledMediaControlsWrapper>
         {/* 进度条 */}
-        <StyledProgressContainer ref={progressBarRef}>
-          <LinearProgress
-            variant="buffer"
-            value={currentTimePercent}
-            valueBuffer={100}
-            sx={bufferRangesPercentsBarSx}
-          />
+        <MediaProgress
+          currentTime={currentTime}
+          videoDuration={videoDuration}
+          bufferRanges={bufferRanges}
+          onGoto={handleGoto}
+        />
 
-          <StyledCursorContainer sx={pointerCursorOffsetSx}>
-            <ArrowDropDownRounded />
-            <ArrowDropUpRounded />
-          </StyledCursorContainer>
-        </StyledProgressContainer>
+        <StyledToolsRow>
+          <Typography variant="body2">{fullProgressInfo}</Typography>
 
-        <StyledBtnsGroup>
-          {/* 上一个 */}
-          <IconButton>
-            <SkipPreviousRounded />
-          </IconButton>
+          <StyledBtnsContainer>
+            <StyledBtnsGroup>
+              {/* 上一个 */}
+              <IconButton>
+                <SkipPreviousRounded />
+              </IconButton>
 
-          {/* 播放 */}
-          <IconButton onClick={handleTogglePlay}>
-            {isPaused ? <PlayArrowRounded /> : <PauseRounded />}
-          </IconButton>
+              {/* 播放 */}
+              <IconButton onClick={handleTogglePlay}>
+                {isPaused ? <PlayArrowRounded /> : <PauseRounded />}
+              </IconButton>
 
-          {/* 下一个 */}
-          <IconButton>
-            <SkipNextRounded />
-          </IconButton>
+              {/* 下一个 */}
+              <IconButton>
+                <SkipNextRounded />
+              </IconButton>
+            </StyledBtnsGroup>
 
-          {/* 静音 */}
-          <IconButton onClick={handleToggleMute}>
-            {isMuted ? <VolumeOffRounded /> : <VolumeUpRounded />}
-          </IconButton>
-        </StyledBtnsGroup>
+            <StyledBtnsGroup>
+              {/* 静音 */}
+              <IconButton onClick={handleToggleMute}>
+                {isMuted ? <VolumeOffRounded /> : <VolumeUpRounded />}
+              </IconButton>
+            </StyledBtnsGroup>
+          </StyledBtnsContainer>
+        </StyledToolsRow>
       </StyledMediaControlsWrapper>
     );
   }

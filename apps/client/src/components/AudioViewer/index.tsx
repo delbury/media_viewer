@@ -44,6 +44,8 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   // 播放中
   const [isPaused, setIsPaused] = useState(true);
+  // 等待中
+  const [isWaiting, setIsWaiting] = useState(false);
 
   // 链接
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
@@ -107,6 +109,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
           ref={controlsRef}
           mediaRef={audioRef}
           onPausedStateChange={setIsPaused}
+          onWaitingStateChange={setIsWaiting}
         />
       }
     >
@@ -119,16 +122,20 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
             />
           )}
           <StyledCoverBtnWrapper>
-            <IconButton
-              onClick={controlsRef.current?.togglePlay}
-              sx={MEDIA_BTN_SX}
-            >
-              {isPaused ? (
-                <PauseCircleRounded sx={MEDIA_ICON_SX} />
-              ) : (
-                <PlayCircleRounded sx={MEDIA_ICON_SX} />
-              )}
-            </IconButton>
+            {isWaiting ? (
+              <Loading size="75%" />
+            ) : (
+              <IconButton
+                onClick={controlsRef.current?.togglePlay}
+                sx={MEDIA_BTN_SX}
+              >
+                {isPaused ? (
+                  <PauseCircleRounded sx={MEDIA_ICON_SX} />
+                ) : (
+                  <PlayCircleRounded sx={MEDIA_ICON_SX} />
+                )}
+              </IconButton>
+            )}
           </StyledCoverBtnWrapper>
         </StyledImgContainer>
 

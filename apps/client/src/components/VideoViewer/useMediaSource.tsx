@@ -204,11 +204,6 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
         },
         { once: true }
       );
-
-      return () => {
-        stopStream(source, sourceBuffer.current);
-        abortController.current?.abort();
-      };
     }
   }, [lazyLoadSegmentDebounce, mediaRef, metadataRequest]);
 
@@ -283,15 +278,22 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
     const elm = mediaRef.current;
     if (!elm) return;
 
-    let cb: (() => void) | undefined;
-
     if (enabled) {
-      cb = createSource();
+      createSource();
     } else {
       elm.src = getFileSourceUrl(file);
     }
 
-    return cb;
+    return () => {
+      stopStream(mediaSource.current, sourceBuffer.current);
+      abortController.current?.abort();
+      videoDuration.current = 0;
+      currentSegmentOffset.current = 0;
+      sourceBuffer.current = null;
+      mediaSource.current = null;
+      isLoadDone.current = false;
+      isLoading.current = false;
+    };
   }, [enabled]);
 
   return {

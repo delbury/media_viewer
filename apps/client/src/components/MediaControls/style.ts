@@ -11,13 +11,18 @@ export const StyledMediaControlsWrapper = styled(Box)`
   flex-direction: column;
 `;
 
-export const StyledBtnsGroup = styled(Box)`
+export const StyledBtnsContainer = styled(Box)`
+  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+`;
+
+export const StyledBtnsGroup = styled(Box)`
+  display: flex;
   gap: 8px;
 
-  > button {
+  button {
     color: inherit;
   }
 `;
@@ -83,4 +88,11 @@ export const StyledProgressContainer = styled(Box)`
     background-image: none;
     background-color: ${({ theme }) => theme.palette.grey[800]};
   }
+`;
+
+export const StyledToolsRow = styled(Box)`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 24px;
 `;

@@ -10,6 +10,20 @@ export const formatDate = (v: number) => {
   return `${year}-${month}-${day}`;
 };
 
+// 格式化时间
+export const formatTime = (t: number) => {
+  const s = t % 60;
+  t -= s;
+  t /= 60;
+  const m = t % 60;
+  t -= m;
+  t /= 60;
+
+  const h = t ? `${t.toString().padStart(2, '0')}:` : '';
+
+  return `${h}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+};
+
 // 格式化文件大小
 export const formatFileSize = (size: number) => {
   const unit = ['B', 'K', 'M', 'G'];
