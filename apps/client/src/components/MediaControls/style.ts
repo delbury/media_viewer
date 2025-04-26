@@ -1,7 +1,7 @@
 import { Box, styled } from '@mui/material';
 
 export const StyledMediaControlsWrapper = styled(Box)`
-  padding-bottom: 24px;
+  padding: 0 24px 24px;
   width: 100%;
   height: fit-content;
   display: flex;
@@ -21,13 +21,30 @@ export const StyledBtnsGroup = styled(Box)`
   }
 `;
 
+export const StyledCursorContainer = styled(Box)`
+  display: none;
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  top: -10px;
+  left: -12px;
+  color: ${({ theme }) => theme.palette.primary.light};
+`;
+
 export const StyledProgressContainer = styled(Box)`
-  padding: 0 24px;
+  position: relative;
   width: 100%;
   cursor: pointer;
+  font-size: 0;
 
   &:hover {
-    transform: scaleY(1.5);
+    ${StyledCursorContainer} {
+      display: block;
+    }
+
+    .MuiLinearProgress-root {
+      transform: scaleY(1.5);
+    }
   }
 
   /* 已播放的进度条 */
@@ -39,6 +56,7 @@ export const StyledProgressContainer = styled(Box)`
   /* 已缓存的进度条颜色 */
   .MuiLinearProgress-bar2 {
     background-color: unset;
+    transition: all 200ms;
   }
 
   /* 未加载的进度条颜色 */

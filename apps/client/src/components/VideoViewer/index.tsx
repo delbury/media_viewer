@@ -1,4 +1,3 @@
-import { useMediaState } from '#/hooks/useMediaState';
 import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { useMemo, useRef } from 'react';
@@ -15,8 +14,6 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   // 链接
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
-  // 视频状态控制
-  const { isPlaying, toggle } = useMediaState({ mediaRef: videoRef });
 
   // 自定义流媒体控制
   const { isCanplay, events: progressEvents } = useMediaSource({

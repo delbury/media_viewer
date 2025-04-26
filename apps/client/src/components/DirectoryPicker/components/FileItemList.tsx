@@ -3,7 +3,7 @@ import ScrollBox from '#/components/ScrollBox';
 import { GridLayout, VirtualListChildItemProps } from '#/components/ScrollBox/hooks/useVirtualList';
 import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { h5Max } from '#/style/device';
-import { TFunction } from '#/types';
+import { TFunction } from '#/types/i18n';
 import { FileInfo } from '#pkgs/apis';
 import { FullFileType } from '#pkgs/shared';
 import { useMediaQuery } from '@mui/material';

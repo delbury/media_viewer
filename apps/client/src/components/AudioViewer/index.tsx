@@ -1,4 +1,3 @@
-import { useMediaState } from '#/hooks/useMediaState';
 import { useThrottle } from '#/hooks/useThrottle';
 import { getFilePosterUrl, getFileSourceUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
@@ -9,7 +8,7 @@ import { SyntheticEvent, useCallback, useMemo, useRef, useState } from 'react';
 import Empty from '../Empty';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
-import MediaControls from '../MediaControls';
+import MediaControls, { MediaControlsInstance } from '../MediaControls';
 import {
   StyledContentWrapper,
   StyledCoverBtnWrapper,
@@ -39,9 +38,12 @@ const MEDIA_ICON_SX: SxProps<Theme> = {
 const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
   const t = useTranslations();
   const audioRef = useRef<HTMLAudioElement>(null);
+  const controlsRef = useRef<MediaControlsInstance>(null);
 
   // 用户滚动中
   const [isUserScrolling, setIsUserScrolling] = useState(false);
+  // 播放中
+  const [isPaused, setIsPaused] = useState(true);
 
   // 链接
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
@@ -94,8 +96,6 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
     });
   }, [currentLyricIndex]);
 
-  const { isPlaying, toggle } = useMediaState({ mediaRef: audioRef });
-
   return (
     <FixedModal
       visible={visible}
@@ -103,7 +103,11 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
       title={file.name}
       footerSlot={
         // 工具栏
-        <MediaControls mediaRef={audioRef} />
+        <MediaControls
+          ref={controlsRef}
+          mediaRef={audioRef}
+          onPausedStateChange={setIsPaused}
+        />
       }
     >
       <StyledContentWrapper>
@@ -116,13 +120,13 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
           )}
           <StyledCoverBtnWrapper>
             <IconButton
-              onClick={toggle}
+              onClick={controlsRef.current?.togglePlay}
               sx={MEDIA_BTN_SX}
             >
-              {isPlaying ? (
-                <PlayCircleRounded sx={MEDIA_ICON_SX} />
-              ) : (
+              {isPaused ? (
                 <PauseCircleRounded sx={MEDIA_ICON_SX} />
+              ) : (
+                <PlayCircleRounded sx={MEDIA_ICON_SX} />
               )}
             </IconButton>
           </StyledCoverBtnWrapper>
