@@ -1,4 +1,5 @@
-import { Box, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Box } from '@mui/material';
 
 export const StyledMediaControlsWrapper = styled(Box)`
   padding: 0 24px 24px;

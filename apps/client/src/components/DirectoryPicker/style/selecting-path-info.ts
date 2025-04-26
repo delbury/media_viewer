@@ -1,11 +1,11 @@
-import sty from '@emotion/styled';
-import { Box, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Box } from '@mui/material';
 
-export const StyledPathNode = sty(Box)`
+export const StyledPathNode = styled(Box)`
   cursor: pointer;
 `;
 
-export const StyledPathNodeTitle = sty(Box)`
+export const StyledPathNodeTitle = styled(Box)`
   flex: 1;
   min-width: 0;
   overflow: hidden;

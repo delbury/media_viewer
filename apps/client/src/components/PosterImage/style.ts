@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
-import { Box, styled as muiStyled } from '@mui/material';
+import { Box } from '@mui/material';
 
-export const StyledFilePosterIcon = muiStyled(Box)`
+export const StyledFilePosterIcon = styled(Box)`
   position: absolute;
   top: 0;
   left: 0;
@@ -22,7 +22,7 @@ export const StyledFilePosterHover = styled(StyledFilePosterIcon)`
   /* mix-blend-mode: difference; */
 `;
 
-export const StyledFilePosterWrapper = muiStyled(Box)`
+export const StyledFilePosterWrapper = styled(Box)`
   position: relative;
   height: 100%;
   width: 100%;
@@ -36,6 +36,6 @@ export const StyledFilePosterWrapper = muiStyled(Box)`
     width: 100%;
     height: 100%;
     object-fit: contain;
-    background-color: ${({ theme }) => theme.palette.common.black}
+    background-color: ${({ theme }) => theme.palette.common.black};
   }
 `;
