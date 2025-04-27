@@ -1,5 +1,7 @@
 import { formatTime } from '#/utils';
 import {
+  FullscreenExitRounded,
+  FullscreenRounded,
   PauseRounded,
   PlayArrowRounded,
   SkipNextRounded,
@@ -7,7 +9,7 @@ import {
   VolumeOffRounded,
   VolumeUpRounded,
 } from '@mui/icons-material';
-import { IconButton, Typography } from '@mui/material';
+import { IconButton } from '@mui/material';
 import { noop } from 'lodash-es';
 import {
   forwardRef,
@@ -21,9 +23,9 @@ import {
 import { calcTimeRanges } from '../VideoViewer/util';
 import { MediaProgress } from './MediaProgress';
 import {
-  StyledBtnsContainer,
   StyledBtnsGroup,
   StyledMediaControlsWrapper,
+  StyledProgressInfo,
   StyledToolsRow,
 } from './style';
 import VolumeSetting from './VolumeSetting';
@@ -57,8 +59,11 @@ interface MediaControls {
   onWaitingStateChange?: (waiting: boolean) => void;
 }
 
+type MediaType = 'audio' | 'video' | undefined;
+
 const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
   ({ mediaRef, onPausedStateChange, onWaitingStateChange }, ref) => {
+    const [mediaType, setMediaType] = useState<MediaType>();
     const [isPaused, setIsPaused] = useState(true);
     const [bufferRanges, setBufferRanges] = useState<[number, number][]>([]);
     const [videoDuration, setVideoDuration] = useState(0);
@@ -66,6 +71,9 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [isMuted, setIsMuted] = useState(false);
     const [currentVolume, setCurrentVolume] = useState(0);
     const [isWaiting, setIsWaiting] = useState(false);
+    const [isFullScreen, setIsFullScreen] = useState(false);
+
+    const [showFullScreenBtn, setShowFullScreenBtn] = useState(false);
 
     useEffect(() => {
       onPausedStateChange?.(isPaused);
@@ -103,6 +111,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       mediaRef.current.muted = !mediaRef.current.muted;
     }, [mediaRef]);
 
+    // 全屏切换
+    const handleToggleFullScreen = useCallback(() => {
+      setIsFullScreen(v => !v);
+    }, []);
+
     // 跳转到对应的进度条时刻
     const handleGoto = useCallback(
       (time: number) => {
@@ -122,54 +135,62 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     );
 
     useEffect(() => {
-      const media = mediaRef.current;
-      if (media) {
+      const elm = mediaRef.current;
+      if (elm) {
         // 初始化状态
-        setIsPaused(media.paused);
-        setIsMuted(media.muted);
-        setCurrentVolume(media.volume);
+        setIsPaused(elm.paused);
+        setIsMuted(elm.muted);
+        setCurrentVolume(elm.volume);
+        const type: MediaType =
+          elm instanceof HTMLAudioElement
+            ? 'audio'
+            : elm instanceof HTMLVideoElement
+              ? 'video'
+              : void 0;
+        setMediaType(type);
+        setShowFullScreenBtn(type === 'video' && document.fullscreenEnabled);
 
         // 播放事件
-        const playController = bindEvent(media, 'play', () => {
+        const playController = bindEvent(elm, 'play', () => {
           setIsPaused(false);
         });
 
         // 暂停事件
-        const pauseController = bindEvent(media, 'pause', () => {
+        const pauseController = bindEvent(elm, 'pause', () => {
           setIsPaused(true);
         });
 
         // 加载事件
-        const progressController = bindEvent(media, 'progress', () => {
-          const ranges = calcTimeRanges(media.buffered);
+        const progressController = bindEvent(elm, 'progress', () => {
+          const ranges = calcTimeRanges(elm.buffered);
           setBufferRanges(ranges);
         });
 
         // 加载第一帧完成
-        bindEventOnce(media, 'loadeddata', () => {
-          const ranges = calcTimeRanges(media.buffered);
+        bindEventOnce(elm, 'loadeddata', () => {
+          const ranges = calcTimeRanges(elm.buffered);
           setBufferRanges(ranges);
-          setVideoDuration(media.duration);
+          setVideoDuration(elm.duration);
         });
 
         // 播放时间改变事件
-        const timeupdateController = bindEvent(media, 'timeupdate', () => {
-          setCurrentTime(media.currentTime);
+        const timeupdateController = bindEvent(elm, 'timeupdate', () => {
+          setCurrentTime(elm.currentTime);
         });
 
         // 音量改变事件
-        const volumechangeController = bindEvent(media, 'volumechange', () => {
-          setIsMuted(media.muted || !media.volume);
-          setCurrentVolume(media.volume);
+        const volumechangeController = bindEvent(elm, 'volumechange', () => {
+          setIsMuted(elm.muted || !elm.volume);
+          setCurrentVolume(elm.volume);
         });
 
         // 等待事件
-        const waitingController = bindEvent(media, 'waiting', () => {
+        const waitingController = bindEvent(elm, 'waiting', () => {
           setIsWaiting(true);
         });
 
         // 可播放事件
-        const canplayController = bindEvent(media, 'canplay', () => {
+        const canplayController = bindEvent(elm, 'canplay', () => {
           setIsWaiting(false);
         });
 
@@ -209,38 +230,43 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         />
 
         <StyledToolsRow>
-          <Typography variant="body2">{fullProgressInfo}</Typography>
+          <StyledProgressInfo variant="body2">{fullProgressInfo}</StyledProgressInfo>
 
-          <StyledBtnsContainer>
-            <StyledBtnsGroup>
-              {/* 上一个 */}
-              <IconButton>
-                <SkipPreviousRounded />
+          <StyledBtnsGroup>
+            {/* 上一个 */}
+            <IconButton>
+              <SkipPreviousRounded />
+            </IconButton>
+
+            {/* 播放 */}
+            <IconButton onClick={handleTogglePlay}>
+              {isPaused ? <PlayArrowRounded /> : <PauseRounded />}
+            </IconButton>
+
+            {/* 下一个 */}
+            <IconButton>
+              <SkipNextRounded />
+            </IconButton>
+          </StyledBtnsGroup>
+
+          <StyledBtnsGroup>
+            {/* 静音 */}
+            <VolumeSetting
+              volume={currentVolume}
+              onVolumeChange={handleVolumeChange}
+            >
+              <IconButton onClick={handleToggleMute}>
+                {isMuted ? <VolumeOffRounded /> : <VolumeUpRounded />}
               </IconButton>
+            </VolumeSetting>
 
-              {/* 播放 */}
-              <IconButton onClick={handleTogglePlay}>
-                {isPaused ? <PlayArrowRounded /> : <PauseRounded />}
+            {/* 全屏 */}
+            {showFullScreenBtn && (
+              <IconButton onClick={handleToggleFullScreen}>
+                {isFullScreen ? <FullscreenExitRounded /> : <FullscreenRounded />}
               </IconButton>
-
-              {/* 下一个 */}
-              <IconButton>
-                <SkipNextRounded />
-              </IconButton>
-            </StyledBtnsGroup>
-
-            <StyledBtnsGroup>
-              {/* 静音 */}
-              <VolumeSetting
-                volume={currentVolume}
-                onVolumeChange={handleVolumeChange}
-              >
-                <IconButton onClick={handleToggleMute}>
-                  {isMuted ? <VolumeOffRounded /> : <VolumeUpRounded />}
-                </IconButton>
-              </VolumeSetting>
-            </StyledBtnsGroup>
-          </StyledBtnsContainer>
+            )}
+          </StyledBtnsGroup>
         </StyledToolsRow>
       </StyledMediaControlsWrapper>
     );
