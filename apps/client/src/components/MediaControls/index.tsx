@@ -127,6 +127,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         // 初始化状态
         setIsPaused(media.paused);
         setIsMuted(media.muted);
+        setCurrentVolume(media.volume);
 
         // 播放事件
         const playController = bindEvent(media, 'play', () => {
