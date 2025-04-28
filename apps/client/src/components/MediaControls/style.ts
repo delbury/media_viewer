@@ -35,28 +35,39 @@ export const StyledToolsRow = styled(Box)`
   gap: 24px;
 `;
 
+// 游标相关
 export const StyledCursorContainer = styled(Box)`
   /* display: none; */
   position: absolute;
   top: 10px;
-  left: -12px;
+  left: 0;
   color: ${({ theme }) => theme.palette.primary.light};
   pointer-events: none;
 
-  & > * {
+  & > svg {
     position: absolute;
-    left: 0;
+    left: -12px;
     width: 24px;
     height: 24px;
 
-    :first-child {
+    :first-of-type {
       bottom: -4px;
     }
 
-    :last-child {
+    :last-of-type {
       top: -4px;
     }
   }
+`;
+export const StyleCursorTime = styled(Box)`
+  position: absolute;
+  left: 0;
+  left: 50%;
+  width: fit-content;
+  height: fit-content;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.palette.common.white};
+  transform: translate(-50%, -200%);
 `;
 
 export const StyledProgressContainer = styled(Box)`

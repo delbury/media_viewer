@@ -1,8 +1,9 @@
 import { useMove } from '#/hooks/useMove';
+import { formatTime } from '#/utils';
 import { ArrowDropDownRounded, ArrowDropUpRounded } from '@mui/icons-material';
 import { LinearProgress, linearProgressClasses, SxProps } from '@mui/material';
 import { MouseEventHandler, useCallback, useMemo, useRef, useState } from 'react';
-import { StyledCursorContainer, StyledProgressContainer } from './style';
+import { StyleCursorTime, StyledCursorContainer, StyledProgressContainer } from './style';
 
 const BUFFER_BAR_COLOR = 'var(--mui-palette-grey-600)';
 const BUFFER_BAR_COLOR_EMPTY = 'transparent';
@@ -26,14 +27,19 @@ export const MediaProgress = ({
 }: MediaProgressProps) => {
   const progressBarRef = useRef<HTMLElement>(null);
   const [cursorOffset, setCursorOffset] = useState(0);
+  const [cursorPercent, setCursorPercent] = useState(0);
   const [showCursor, setShowCursor] = useState(false);
 
   useMove({
     domRef: progressBarRef,
     onMove: (pos, size) => {
-      if (pos[0] <= 0) setCursorOffset(0);
-      else if (pos[0] >= size.width) setCursorOffset(size.width);
-      else setCursorOffset(pos[0]);
+      let offset = 0;
+      if (pos[0] <= 0) offset = 0;
+      else if (pos[0] >= size.width) offset = size.width;
+      else offset = pos[0];
+
+      setCursorOffset(offset);
+      setCursorPercent(offset / size.width);
     },
     onEnter: pos => {
       setCursorOffset(pos[0]);
@@ -46,6 +52,12 @@ export const MediaProgress = ({
   const currentTimePercent = useMemo(
     () => currentTime && (currentTime / videoDuration) * 100,
     [currentTime, videoDuration]
+  );
+
+  // 当前光标的时刻
+  const cursorTime = useMemo(
+    () => formatTime(Math.floor(cursorPercent * videoDuration)),
+    [cursorPercent, videoDuration]
   );
 
   // 游标随鼠标移动的位置
@@ -118,6 +130,7 @@ export const MediaProgress = ({
 
       {showCursor && (
         <StyledCursorContainer sx={pointerCursorOffsetSx}>
+          <StyleCursorTime>{cursorTime}</StyleCursorTime>
           <ArrowDropDownRounded />
           <ArrowDropUpRounded />
         </StyledCursorContainer>

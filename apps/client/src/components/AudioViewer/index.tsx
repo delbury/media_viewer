@@ -153,7 +153,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
                 {lyrics.map((row, index) => (
                   <StyledLyricRow
                     key={row.timeString}
-                    isActived={index === currentLyricIndex}
+                    isActivated={index === currentLyricIndex}
                     data-index={index}
                   >
                     {row.words}

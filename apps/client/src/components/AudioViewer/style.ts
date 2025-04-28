@@ -1,4 +1,5 @@
-import { Box, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Box } from '@mui/material';
 
 export const StyledContentWrapper = styled(Box)`
   height: 100%;
@@ -30,9 +31,10 @@ export const StyledImgContainer = styled(Box)`
   }
 `;
 
+const CONTENT_HEIGHT_PERCENT = 32;
 export const StyledLyricArea = styled(Box)`
   position: relative;
-  height: 20vh;
+  height: ${CONTENT_HEIGHT_PERCENT}vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -41,8 +43,9 @@ export const StyledLyricArea = styled(Box)`
 `;
 
 export const StyledLyricContent = styled(Box)`
-  padding: 10vh 0;
-  overflow: auto;
+  padding: ${CONTENT_HEIGHT_PERCENT / 2}vh 0;
+  overflow-x: hidden;
+  overflow-y: auto;
   scrollbar-width: none;
 `;
 
@@ -54,25 +57,27 @@ export const StyledScrollRecover = styled(Box)`
   text-align: center;
 
   > button {
-    color: ${({ theme }) => theme.palette.common.black};
-    background-color: ${({ theme }) => theme.palette.grey[200]};
-    padding: 8px 16px;
+    color: ${({ theme }) => theme.palette.grey[200]};
+    background-color: ${({ theme }) => theme.palette.grey[200] + '80'};
+    backdrop-filter: blur(2px);
+    padding: 4px 16px;
     border-radius: 12px;
   }
 `;
 
 export const StyledLyricRow = styled(Box, {
-  shouldForwardProp: prop => prop !== 'isActived',
-})<{ isActived?: boolean }>`
+  shouldForwardProp: prop => prop !== 'isActivated',
+})<{ isActivated?: boolean }>`
   margin-bottom: 2em;
   padding: 0 24px;
   text-align: center;
 
-  ${({ isActived }) =>
-    isActived
+  ${({ isActivated, theme }) =>
+    isActivated
       ? `
-        transform: scale(1.1);
+        transform: scale(1.2);
         font-weight: 700;
+        color: ${theme.palette.primary.light};
       `
       : ''}
 `;
