@@ -181,7 +181,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
           <audio
             ref={audioRef}
             src={sourceUrl}
-            controls
+            // controls
             onTimeUpdate={handleTimeUpdateThrottle}
           />
         )}

@@ -3,8 +3,8 @@ import { useThrottle } from './useThrottle';
 
 interface UseMoveParams {
   domRef: React.RefObject<HTMLElement | null>;
-  onEnter?: () => void;
-  onMove?: (pos: [number, number]) => void;
+  onEnter?: (pos: [number, number]) => void;
+  onMove?: (pos: [number, number], size: { width: number; height: number }) => void;
   onLeave?: () => void;
 }
 
@@ -25,9 +25,10 @@ export const useMove = ({ domRef, onEnter, onMove, onLeave }: UseMoveParams) => 
 
       elm.addEventListener(
         'pointerenter',
-        () => {
+        ev => {
           enable.current = true;
-          onEnter?.();
+          const { offsetX, offsetY } = ev;
+          onEnter?.([offsetX, offsetY]);
         },
         { signal: enterController.signal }
       );
@@ -37,7 +38,8 @@ export const useMove = ({ domRef, onEnter, onMove, onLeave }: UseMoveParams) => 
         ev => {
           if (enable.current) {
             const { offsetX, offsetY } = ev;
-            onMoveThrottle?.([offsetX, offsetY]);
+            const { offsetWidth, offsetHeight } = ev.target as HTMLElement;
+            onMoveThrottle?.([offsetX, offsetY], { width: offsetWidth, height: offsetHeight });
           }
         },
         { signal: moveController.signal }

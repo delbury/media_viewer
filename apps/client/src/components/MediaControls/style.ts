@@ -36,7 +36,7 @@ export const StyledToolsRow = styled(Box)`
 `;
 
 export const StyledCursorContainer = styled(Box)`
-  display: none;
+  /* display: none; */
   position: absolute;
   top: 10px;
   left: -12px;
@@ -67,15 +67,15 @@ export const StyledProgressContainer = styled(Box)`
   width: 100%;
   font-size: 0;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
 
-  &:hover {
-    ${StyledCursorContainer} {
-      display: block;
-    }
+  &:hover .${linearProgressClasses.root} {
+    transform: scaleY(1.5);
+  }
 
-    & .${linearProgressClasses.root} {
-      transform: scaleY(1.5);
-    }
+  & .${linearProgressClasses.root} {
+    pointer-events: none;
   }
 
   /* 已播放的进度条 */

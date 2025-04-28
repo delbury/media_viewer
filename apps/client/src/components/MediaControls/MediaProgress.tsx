@@ -14,6 +14,10 @@ interface MediaProgressProps {
   onGoto?: (time: number) => void;
 }
 
+// 在移动端拖拽进度条结束时
+// 可以触发当前播放进度改变的垂直方向的位置距离元素的相对距离阈值
+const MOBILE_DRAG_END_TRIGGER_THRESHOLD = 80;
+
 export const MediaProgress = ({
   currentTime,
   videoDuration,
@@ -22,8 +26,21 @@ export const MediaProgress = ({
 }: MediaProgressProps) => {
   const progressBarRef = useRef<HTMLElement>(null);
   const [cursorOffset, setCursorOffset] = useState(0);
+  const [showCursor, setShowCursor] = useState(false);
 
-  useMove({ domRef: progressBarRef, onMove: pos => setCursorOffset(pos[0]) });
+  useMove({
+    domRef: progressBarRef,
+    onMove: (pos, size) => {
+      if (pos[0] <= 0) setCursorOffset(0);
+      else if (pos[0] >= size.width) setCursorOffset(size.width);
+      else setCursorOffset(pos[0]);
+    },
+    onEnter: pos => {
+      setCursorOffset(pos[0]);
+      setShowCursor(true);
+    },
+    onLeave: () => setShowCursor(false),
+  });
 
   // 当前播放进度
   const currentTimePercent = useMemo(
@@ -72,9 +89,15 @@ export const MediaProgress = ({
   // 跳转到对应的进度条时刻
   const handleGoto = useCallback<MouseEventHandler<HTMLDivElement>>(
     ev => {
-      const { offsetX } = ev.nativeEvent;
-      const { offsetWidth } = ev.nativeEvent.target as HTMLElement;
-      onGoto?.((offsetX / offsetWidth) * videoDuration);
+      const { offsetX, offsetY } = ev.nativeEvent;
+      const { offsetWidth, offsetHeight } = ev.nativeEvent.target as HTMLElement;
+
+      if (
+        offsetY >= -MOBILE_DRAG_END_TRIGGER_THRESHOLD &&
+        MOBILE_DRAG_END_TRIGGER_THRESHOLD <= offsetHeight + MOBILE_DRAG_END_TRIGGER_THRESHOLD
+      ) {
+        onGoto?.((offsetX / offsetWidth) * videoDuration);
+      }
     },
     [onGoto, videoDuration]
   );
@@ -83,6 +106,8 @@ export const MediaProgress = ({
     <StyledProgressContainer
       ref={progressBarRef}
       onClick={handleGoto}
+      // 移动端拖动时放开触发
+      onLostPointerCapture={handleGoto}
     >
       <LinearProgress
         variant="buffer"
@@ -91,10 +116,12 @@ export const MediaProgress = ({
         sx={bufferRangesPercentsBarSx}
       />
 
-      <StyledCursorContainer sx={pointerCursorOffsetSx}>
-        <ArrowDropDownRounded />
-        <ArrowDropUpRounded />
-      </StyledCursorContainer>
+      {showCursor && (
+        <StyledCursorContainer sx={pointerCursorOffsetSx}>
+          <ArrowDropDownRounded />
+          <ArrowDropUpRounded />
+        </StyledCursorContainer>
+      )}
     </StyledProgressContainer>
   );
 };
