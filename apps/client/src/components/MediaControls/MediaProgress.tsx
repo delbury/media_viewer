@@ -1,8 +1,16 @@
+import { useCancelAreaContext } from '#/hooks/useCancelAreaContext';
 import { useMove } from '#/hooks/useMove';
 import { formatTime } from '#/utils';
 import { ArrowDropDownRounded, ArrowDropUpRounded } from '@mui/icons-material';
 import { LinearProgress, linearProgressClasses, SxProps } from '@mui/material';
-import { MouseEventHandler, useCallback, useMemo, useRef, useState } from 'react';
+import {
+  MouseEventHandler,
+  TouchEventHandler,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { StyleCursorTime, StyledCursorContainer, StyledProgressContainer } from './style';
 
 const BUFFER_BAR_COLOR = 'var(--mui-palette-grey-600)';
@@ -17,7 +25,7 @@ interface MediaProgressProps {
 
 // 在移动端拖拽进度条结束时
 // 可以触发当前播放进度改变的垂直方向的位置距离元素的相对距离阈值
-const MOBILE_DRAG_END_TRIGGER_THRESHOLD = 80;
+// const MOBILE_DRAG_END_TRIGGER_THRESHOLD = 80;
 
 export const MediaProgress = ({
   currentTime,
@@ -29,6 +37,8 @@ export const MediaProgress = ({
   const [cursorOffset, setCursorOffset] = useState(0);
   const [cursorPercent, setCursorPercent] = useState(0);
   const [showCursor, setShowCursor] = useState(false);
+
+  const { openCancelArea, closeCancelArea, detectIfInArea } = useCancelAreaContext();
 
   useMove({
     domRef: progressBarRef,
@@ -101,17 +111,32 @@ export const MediaProgress = ({
   // 跳转到对应的进度条时刻
   const handleGoto = useCallback<MouseEventHandler<HTMLDivElement>>(
     ev => {
-      const { offsetX, offsetY } = ev.nativeEvent;
-      const { offsetWidth, offsetHeight } = ev.nativeEvent.target as HTMLElement;
-
-      if (
-        offsetY >= -MOBILE_DRAG_END_TRIGGER_THRESHOLD &&
-        MOBILE_DRAG_END_TRIGGER_THRESHOLD <= offsetHeight + MOBILE_DRAG_END_TRIGGER_THRESHOLD
-      ) {
-        onGoto?.((offsetX / offsetWidth) * videoDuration);
-      }
+      const { offsetX } = ev.nativeEvent;
+      const { offsetWidth } = ev.nativeEvent.target as HTMLElement;
+      onGoto?.((offsetX / offsetWidth) * videoDuration);
     },
     [onGoto, videoDuration]
+  );
+
+  // 移动端触发，结束事件
+  const handleLostPointerCapture = useCallback<MouseEventHandler<HTMLDivElement>>(
+    ev => {
+      if (!detectIfInArea([ev.clientX, ev.clientY])) {
+        handleGoto(ev);
+      }
+      closeCancelArea();
+    },
+    [closeCancelArea, detectIfInArea, handleGoto]
+  );
+
+  // 移动端触发，move 过程中判断
+  const handleTouchMove = useCallback<TouchEventHandler<HTMLDivElement>>(
+    ev => {
+      const { clientX, clientY } = ev.targetTouches[0];
+      detectIfInArea([clientX, clientY]);
+      openCancelArea();
+    },
+    [detectIfInArea, openCancelArea]
   );
 
   return (
@@ -119,7 +144,8 @@ export const MediaProgress = ({
       ref={progressBarRef}
       onClick={handleGoto}
       // 移动端拖动时放开触发
-      onLostPointerCapture={handleGoto}
+      onLostPointerCapture={handleLostPointerCapture}
+      onTouchMove={handleTouchMove}
     >
       <LinearProgress
         variant="buffer"

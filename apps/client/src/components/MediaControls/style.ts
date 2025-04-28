@@ -18,6 +18,14 @@ export const StyledMediaControlsWrapper = styled(Box)`
   flex-direction: column;
 `;
 
+// 工具栏相关、
+export const StyledToolsRow = styled(Box)`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+`;
 export const StyledBtnsGroup = styled(Box)`
   display: flex;
   gap: 8px;
@@ -25,14 +33,6 @@ export const StyledBtnsGroup = styled(Box)`
   button {
     color: inherit;
   }
-`;
-
-export const StyledToolsRow = styled(Box)`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
 `;
 
 // 游标相关
@@ -70,6 +70,7 @@ export const StyleCursorTime = styled(Box)`
   transform: translate(-50%, -200%);
 `;
 
+// 进度条相关
 export const StyledProgressContainer = styled(Box)`
   position: relative;
   margin-bottom: 12px;
@@ -108,7 +109,11 @@ export const StyledProgressContainer = styled(Box)`
     background-color: ${({ theme }) => theme.palette.grey[800]};
   }
 `;
+export const StyledProgressInfo = styled(Typography)`
+  font-size: 0.75rem;
+`;
 
+// 音量控件相关
 export const StyledVolumeTooltipWrapper = styled(Box)`
   position: relative;
 
@@ -118,7 +123,6 @@ export const StyledVolumeTooltipWrapper = styled(Box)`
     font-size: 0.875rem !important;
   }
 `;
-
 export const StyledVolumePopoverContainer = styled(Box)`
   display: flex;
   flex-direction: column;
@@ -131,16 +135,10 @@ export const StyledVolumePopoverContainer = styled(Box)`
     margin-bottom: 8px;
   }
 `;
-
 export const StyledSlider = styled(Slider)`
   color: ${({ theme }) => theme.palette.primary.light};
 
   & .${sliderClasses.rail} {
     background-color: ${({ theme }) => theme.palette.common.white};
   }
-`;
-
-// 播放进度信息
-export const StyledProgressInfo = styled(Typography)`
-  font-size: 0.75rem;
 `;

@@ -19,7 +19,7 @@ const VolumeSetting = ({ volume, onVolumeChange, children }: VolumeSettingProps)
 
   const handleOpen = useCallback(() => setOpen(true), []);
   const handleClose = useCallback(() => {
-    if (!lockOpen) setOpen(false);
+    if (!lockOpen.current) setOpen(false);
   }, [lockOpen]);
 
   // 在调整音量时，锁定 tooltip

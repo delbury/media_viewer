@@ -1,6 +1,7 @@
 'use client';
 
 import { NotificationsProvider } from '@toolpad/core/useNotifications';
+import CancelAreaProvider from '../CancelAreaProvider';
 import MediaViewerProvider from '../MediaViewerProvider';
 
 const Layout = ({
@@ -20,7 +21,9 @@ const Layout = ({
         },
       }}
     >
-      <MediaViewerProvider>{children}</MediaViewerProvider>
+      <CancelAreaProvider>
+        <MediaViewerProvider>{children}</MediaViewerProvider>
+      </CancelAreaProvider>
     </NotificationsProvider>
   );
 };

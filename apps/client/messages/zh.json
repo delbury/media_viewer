@@ -44,6 +44,9 @@
   "Error": {
     "NetError": "网络错误"
   },
+  "Util": {
+    "MoveHereToCancel": "移动到此处取消"
+  },
   "File": {
     "Size": "大小",
     "Type": "类型",
