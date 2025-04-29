@@ -3,14 +3,7 @@ import { useMove } from '#/hooks/useMove';
 import { formatTime } from '#/utils';
 import { ArrowDropDownRounded, ArrowDropUpRounded } from '@mui/icons-material';
 import { LinearProgress, linearProgressClasses, SxProps } from '@mui/material';
-import {
-  MouseEventHandler,
-  TouchEventHandler,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { MouseEventHandler, useCallback, useMemo, useRef, useState } from 'react';
 import { StyleCursorTime, StyledCursorContainer, StyledProgressContainer } from './style';
 
 const BUFFER_BAR_COLOR = 'var(--mui-palette-grey-600)';
@@ -37,8 +30,6 @@ export const MediaProgress = ({
   const [cursorOffset, setCursorOffset] = useState(0);
   const [cursorPercent, setCursorPercent] = useState(0);
   const [showCursor, setShowCursor] = useState(false);
-
-  const { openCancelArea, closeCancelArea, detectIfInArea } = useCancelAreaContext();
 
   useMove({
     domRef: progressBarRef,
@@ -118,34 +109,17 @@ export const MediaProgress = ({
     [onGoto, videoDuration]
   );
 
-  // 移动端触发，结束事件
-  const handleLostPointerCapture = useCallback<MouseEventHandler<HTMLDivElement>>(
-    ev => {
-      if (!detectIfInArea([ev.clientX, ev.clientY])) {
-        handleGoto(ev);
-      }
-      closeCancelArea();
-    },
-    [closeCancelArea, detectIfInArea, handleGoto]
-  );
-
-  // 移动端触发，move 过程中判断
-  const handleTouchMove = useCallback<TouchEventHandler<HTMLDivElement>>(
-    ev => {
-      const { clientX, clientY } = ev.targetTouches[0];
-      detectIfInArea([clientX, clientY]);
-      openCancelArea();
-    },
-    [detectIfInArea, openCancelArea]
-  );
+  // 移动端下，拖到区域内取消拖动进度条操作
+  const { events: cancelAreaEvents } = useCancelAreaContext({
+    onActivatedCallback: handleGoto,
+  });
 
   return (
     <StyledProgressContainer
       ref={progressBarRef}
       onClick={handleGoto}
       // 移动端拖动时放开触发
-      onLostPointerCapture={handleLostPointerCapture}
-      onTouchMove={handleTouchMove}
+      {...cancelAreaEvents}
     >
       <LinearProgress
         variant="buffer"

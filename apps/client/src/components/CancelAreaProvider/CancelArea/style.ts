@@ -19,6 +19,6 @@ export const CancelAreaWrapper = styled(Box, {
   touch-action: none;
   color: ${({ theme }) => theme.palette.common.white};
   background-color: ${({ theme, activated }) =>
-    (activated ? theme.palette.primary.light : theme.palette.grey[800]) + '80'};
+    (activated ? theme.palette.grey[400] : theme.palette.grey[800]) + '80'};
   backdrop-filter: blur(2px);
 `;

@@ -1,7 +1,17 @@
 import { CancelAreaContext } from '#/components/CancelAreaProvider/Context';
-import { useCallback, useContext } from 'react';
+import {
+  DOMAttributes,
+  MouseEventHandler,
+  TouchEventHandler,
+  useCallback,
+  useContext,
+} from 'react';
 
-export const useCancelAreaContext = () => {
+interface UseCancelAreaContextParams {
+  onActivatedCallback: MouseEventHandler<HTMLElement>;
+}
+
+export const useCancelAreaContext = ({ onActivatedCallback }: UseCancelAreaContextParams) => {
   const { visible, setVisible, areaSize, activated, setActivated } = useContext(CancelAreaContext);
 
   const openCancelArea = useCallback(() => setVisible(true), [setVisible]);
@@ -28,6 +38,27 @@ export const useCancelAreaContext = () => {
     [areaSize, setActivated]
   );
 
+  // 移动端触发，move 过程中判断
+  const handleTouchMove = useCallback<TouchEventHandler<HTMLElement>>(
+    ev => {
+      const { clientX, clientY } = ev.targetTouches[0];
+      detectIfActivated([clientX, clientY]);
+      openCancelArea();
+    },
+    [detectIfActivated, openCancelArea]
+  );
+
+  // 移动端触发，结束事件
+  const handleLostPointerCapture = useCallback<MouseEventHandler<HTMLElement>>(
+    ev => {
+      if (!detectIfActivated([ev.clientX, ev.clientY])) {
+        onActivatedCallback?.(ev);
+      }
+      closeCancelArea();
+    },
+    [closeCancelArea, detectIfActivated, onActivatedCallback]
+  );
+
   return {
     cancelAreaActivated: activated,
     cancelAreaVisible: visible,
@@ -35,6 +66,10 @@ export const useCancelAreaContext = () => {
     closeCancelArea,
     activateCancelArea,
     deactivateCancelArea,
-    detectIfInArea: detectIfActivated,
+    detectIfActivated,
+    events: {
+      onTouchMove: handleTouchMove,
+      onLostPointerCapture: handleLostPointerCapture,
+    } satisfies Pick<DOMAttributes<HTMLElement>, 'onTouchMove' | 'onLostPointerCapture'>,
   };
 };
