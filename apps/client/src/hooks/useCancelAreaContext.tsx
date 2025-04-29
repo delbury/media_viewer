@@ -6,6 +6,7 @@ import {
   useCallback,
   useContext,
 } from 'react';
+import { useThrottle } from './useThrottle';
 
 interface UseCancelAreaContextParams {
   onActivatedCallback: MouseEventHandler<HTMLElement>;
@@ -47,6 +48,10 @@ export const useCancelAreaContext = ({ onActivatedCallback }: UseCancelAreaConte
     },
     [detectIfActivated, openCancelArea]
   );
+  const handleTouchMoveThrottle = useThrottle(handleTouchMove, {
+    byAnimationFrame: true,
+    notCacheLastCall: true,
+  });
 
   // 移动端触发，结束事件
   const handleLostPointerCapture = useCallback<MouseEventHandler<HTMLElement>>(
@@ -68,7 +73,7 @@ export const useCancelAreaContext = ({ onActivatedCallback }: UseCancelAreaConte
     deactivateCancelArea,
     detectIfActivated,
     events: {
-      onTouchMove: handleTouchMove,
+      onTouchMove: handleTouchMoveThrottle,
       onLostPointerCapture: handleLostPointerCapture,
     } satisfies Pick<DOMAttributes<HTMLElement>, 'onTouchMove' | 'onLostPointerCapture'>,
   };

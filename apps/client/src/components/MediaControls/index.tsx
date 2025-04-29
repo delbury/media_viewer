@@ -57,13 +57,12 @@ interface MediaControls {
   mediaRef: RefObject<HTMLMediaElement | null>;
   onPausedStateChange?: (paused: boolean) => void;
   onWaitingStateChange?: (waiting: boolean) => void;
+  onNext?: () => void;
+  onPrev?: () => void;
 }
 
-type MediaType = 'audio' | 'video' | undefined;
-
 const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
-  ({ mediaRef, onPausedStateChange, onWaitingStateChange }, ref) => {
-    const [mediaType, setMediaType] = useState<MediaType>();
+  ({ mediaRef, onPausedStateChange, onWaitingStateChange, onNext, onPrev }, ref) => {
     const [isPaused, setIsPaused] = useState(true);
     const [bufferRanges, setBufferRanges] = useState<[number, number][]>([]);
     const [videoDuration, setVideoDuration] = useState(0);
@@ -73,6 +72,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [isWaiting, setIsWaiting] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
 
+    // 是否可全屏
     const [showFullScreenBtn, setShowFullScreenBtn] = useState(false);
 
     useEffect(() => {
@@ -141,14 +141,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         setIsPaused(elm.paused);
         setIsMuted(elm.muted);
         setCurrentVolume(elm.volume);
-        const type: MediaType =
-          elm instanceof HTMLAudioElement
-            ? 'audio'
-            : elm instanceof HTMLVideoElement
-              ? 'video'
-              : void 0;
-        setMediaType(type);
-        setShowFullScreenBtn(type === 'video' && document.fullscreenEnabled);
+        setShowFullScreenBtn(elm instanceof HTMLVideoElement && document.fullscreenEnabled);
 
         // 播放事件
         const playController = bindEvent(elm, 'play', () => {
@@ -234,9 +227,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
           <StyledBtnsGroup>
             {/* 上一个 */}
-            <IconButton>
-              <SkipPreviousRounded />
-            </IconButton>
+            {!!onPrev && (
+              <IconButton>
+                <SkipPreviousRounded />
+              </IconButton>
+            )}
 
             {/* 播放 */}
             <IconButton onClick={handleTogglePlay}>
@@ -244,9 +239,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
             </IconButton>
 
             {/* 下一个 */}
-            <IconButton>
-              <SkipNextRounded />
-            </IconButton>
+            {!!onNext && (
+              <IconButton>
+                <SkipNextRounded />
+              </IconButton>
+            )}
           </StyledBtnsGroup>
 
           <StyledBtnsGroup>
