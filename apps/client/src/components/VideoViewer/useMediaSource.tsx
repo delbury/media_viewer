@@ -46,7 +46,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
   // 资源已经加载到结尾
   const isLoadDone = useRef(false);
   // 正在加载中
-  const isLoading = useRef(false);
+  const [isLoading, setIsLoading] = useState(false);
   // 真正的可以播放，完成降级处理后
   const [isCanplay, setIsCanplay] = useState(false);
 
@@ -93,7 +93,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
   // 动态懒加载视频分片
   const lazyLoadSegment = useCallback(async () => {
     // 正在请求或者已经完成，直接返回
-    if (isLoading.current || isLoadDone.current) return;
+    if (isLoading || isLoadDone.current) return;
 
     const buffer = sourceBuffer.current;
     const source = mediaSource.current;
@@ -117,7 +117,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
       // 计算下一分片的起始时间
       currentSegmentOffset.current = next;
       // 开始加载
-      isLoading.current = true;
+      setIsLoading(true);
 
       const response = await fetchArrayBufferData('fileVideoSegment', {
         params: {
@@ -133,7 +133,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
         // 中断 fetch 请求后，结束流
         stopStream(source, buffer);
         abortController.current = null;
-        isLoading.current = false;
+        setIsLoading(false);
       };
 
       // 读取数据
@@ -157,9 +157,9 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
       controller.abort();
     } finally {
       // 加载结束
-      isLoading.current = false;
+      setIsLoading(false);
     }
-  }, [file.basePathIndex, file.relativePath]);
+  }, [file.basePathIndex, file.relativePath, isLoading]);
   const lazyLoadSegmentDebounce = useDebounce(lazyLoadSegment, 200);
 
   // 创建 media source
@@ -292,12 +292,12 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
       sourceBuffer.current = null;
       mediaSource.current = null;
       isLoadDone.current = false;
-      isLoading.current = false;
     };
   }, [enabled]);
 
   return {
     isCanplay,
+    isLoading,
     events: {
       onTimeUpdate: handleTimeUpdate,
       onEnded: handleEnded,

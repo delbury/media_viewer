@@ -1,9 +1,10 @@
 import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import FixedModal, { FixedModalProps } from '../FixedModal';
+import Loading from '../Loading';
 import MediaControls, { MediaControlsInstance } from '../MediaControls';
-import { StyledVideoWrapper } from './style';
+import { StyledLoadingWrapper, StyledVideoWrapper } from './style';
 import { useMediaSource } from './useMediaSource';
 
 type VideoViewerProps = {
@@ -15,9 +16,11 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   // 链接
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
+  // 等待中
+  const [isWaiting, setIsWaiting] = useState(false);
 
   // 自定义流媒体控制
-  const { events: progressEvents } = useMediaSource({
+  const { isLoading, events: progressEvents } = useMediaSource({
     file,
     mediaRef: videoRef,
   });
@@ -32,6 +35,7 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
         <MediaControls
           ref={controlsRef}
           mediaRef={videoRef}
+          onWaitingStateChange={setIsWaiting}
         />
       }
     >
@@ -41,9 +45,16 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
           poster={posterUrl}
           preload="metadata"
           playsInline
+          // controls
           {...progressEvents}
           onClick={controlsRef.current?.togglePlay}
         />
+
+        {(isWaiting || isLoading) && (
+          <StyledLoadingWrapper>
+            <Loading size="75%" />
+          </StyledLoadingWrapper>
+        )}
       </StyledVideoWrapper>
     </FixedModal>
   );

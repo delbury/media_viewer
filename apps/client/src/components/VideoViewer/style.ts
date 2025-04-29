@@ -1,4 +1,5 @@
-import { Box, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Box } from '@mui/material';
 
 export const StyledVideoWrapper = styled(Box)`
   position: relative;
@@ -16,4 +17,14 @@ export const StyledVideoWrapper = styled(Box)`
     max-height: fit-content;
     object-fit: contain;
   }
+`;
+
+export const StyledLoadingWrapper = styled(Box)`
+  position: absolute;
+  margin: auto;
+  height: 250px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
