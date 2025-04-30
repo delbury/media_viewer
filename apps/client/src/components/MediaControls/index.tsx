@@ -1,10 +1,10 @@
 import { formatTime } from '#/utils';
 import {
-  DoubleArrowRounded,
   FullscreenExitRounded,
   FullscreenRounded,
   PauseRounded,
   PlayArrowRounded,
+  RectangleRounded,
   SkipNextRounded,
   SkipPreviousRounded,
   VolumeOffRounded,
@@ -23,6 +23,7 @@ import {
 } from 'react';
 import { calcTimeRanges } from '../VideoViewer/util';
 import { MediaProgress } from './MediaProgress';
+import RateSetting, { SWITCH_RATE_OPTIONS } from './RateSetting';
 import {
   StyledBtnsContainer,
   StyledBtnsGroup,
@@ -74,12 +75,12 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [currentVolume, setCurrentVolume] = useState(0);
     const [isWaiting, setIsWaiting] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
+    const [currentRate, setCurrentRate] = useState(1);
 
     // 是否可全屏
     const [showFullScreenBtn, setShowFullScreenBtn] = useState(false);
     // 是否是 video
     const [isVideo, setIsVideo] = useState(false);
-    const isAudio = !isVideo;
     // 是否展示前进/后退按钮
     const showPrevBtn = !!onPrev;
     const showNextBtn = !!onNext;
@@ -139,6 +140,25 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       [mediaRef]
     );
 
+    // 改变速率
+    const handleRateChange = useCallback(
+      (v: number) => {
+        if (!mediaRef.current) return;
+        mediaRef.current.playbackRate = v;
+      },
+      [mediaRef]
+    );
+
+    // 切换速率
+    const handleSwitchRate = useCallback(() => {
+      if (!mediaRef.current) return;
+      const rate = mediaRef.current.playbackRate;
+      const index = SWITCH_RATE_OPTIONS.findIndex(v => v === rate);
+      let newRate = 1;
+      if (index > -1) newRate = SWITCH_RATE_OPTIONS[(index + 1) % SWITCH_RATE_OPTIONS.length];
+      mediaRef.current.playbackRate = newRate;
+    }, [mediaRef]);
+
     useEffect(() => {
       const elm = mediaRef.current;
       if (elm) {
@@ -149,6 +169,9 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         const isVideoMedia = elm instanceof HTMLVideoElement;
         setShowFullScreenBtn(isVideoMedia && document.fullscreenEnabled);
         setIsVideo(isVideoMedia);
+        setCurrentRate(elm.playbackRate);
+        setVideoDuration(elm.duration);
+        setCurrentTime(elm.currentTime);
 
         // 播放事件
         const playController = bindEvent(elm, 'play', () => {
@@ -184,6 +207,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           setCurrentVolume(elm.volume);
         });
 
+        // 播放速率改变事件
+        const ratechangeController = bindEvent(elm, 'ratechange', () => {
+          setCurrentRate(elm.playbackRate);
+        });
+
         // 等待事件
         const waitingController = bindEvent(elm, 'waiting', () => {
           setIsWaiting(true);
@@ -202,6 +230,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           volumechangeController.abort();
           waitingController.abort();
           canplayController.abort();
+          ratechangeController.abort();
         };
       }
     }, [mediaRef]);
@@ -239,9 +268,14 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           <StyledBtnsContainer>
             <StyledBtnsGroup>
               {/* 倍速 */}
-              <IconButton>
-                <DoubleArrowRounded />
-              </IconButton>
+              <RateSetting
+                rate={currentRate}
+                onRateChange={handleRateChange}
+              >
+                <IconButton onClick={handleSwitchRate}>
+                  <RectangleRounded />
+                </IconButton>
+              </RateSetting>
 
               {/* 旋转 */}
               {/* 逆时针旋转 */}

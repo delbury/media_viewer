@@ -1,4 +1,4 @@
-import { Tooltip } from '@mui/material';
+import { PopperProps, Tooltip } from '@mui/material';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { StyledSettingTooltipWrapper } from './style';
 
@@ -12,6 +12,20 @@ export interface TooltipSettingInstance {
   close: () => void;
   open: () => void;
 }
+
+// modifiers
+const TOOLTIP_MODIFIERS: PopperProps['modifiers'] = [
+  {
+    // 防止溢出屏幕
+    name: 'preventOverflow',
+    options: {
+      // 设置与屏幕边缘的最小间距（单位：px）
+      padding: 12,
+      // 以视口为边界
+      boundariesElement: 'viewport',
+    },
+  },
+];
 
 const TooltipSetting = forwardRef<TooltipSettingInstance, TooltipSettingProps>(
   ({ children, tooltipContent }, ref) => {
@@ -67,6 +81,7 @@ const TooltipSetting = forwardRef<TooltipSettingInstance, TooltipSettingProps>(
           slotProps={{
             popper: {
               container: wrapperRef.current,
+              modifiers: TOOLTIP_MODIFIERS,
             },
           }}
           open={open}

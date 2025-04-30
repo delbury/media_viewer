@@ -11,7 +11,7 @@ interface VolumeSettingProps {
 
 const VolumeSetting = ({ volume, onVolumeChange, children }: VolumeSettingProps) => {
   const tooltipSettingRef = useRef<TooltipSettingInstance>(null);
-  const showVolumeText = useMemo(() => (volume * 100).toFixed(0), [volume]);
+  const displayVolumeText = useMemo(() => (volume * 100).toFixed(0), [volume]);
 
   // 在调整音量时，锁定 tooltip
   const handlePointerDown = useCallback(() => {
@@ -30,7 +30,7 @@ const VolumeSetting = ({ volume, onVolumeChange, children }: VolumeSettingProps)
       ref={tooltipSettingRef}
       tooltipContent={
         <StyledVolumePopoverContainer>
-          <span>{showVolumeText}</span>
+          <span>{displayVolumeText}</span>
           <StyledSlider
             size="small"
             orientation="vertical"

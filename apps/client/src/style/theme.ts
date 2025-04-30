@@ -22,6 +22,17 @@ const theme = createTheme({
         },
       },
     },
+    MuiSlider: {
+      styleOverrides: {
+        root: {
+          padding: '0 16px',
+          '@media (pointer: coarse)': {
+            // 强制覆盖原有样式
+            padding: '0 16px !important',
+          },
+        },
+      },
+    },
   },
 });
 

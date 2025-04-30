@@ -1,6 +1,14 @@
 import { h5Max } from '#/style/device';
 import styled from '@emotion/styled';
-import { Box, linearProgressClasses, Slider, sliderClasses, Typography } from '@mui/material';
+import {
+  Box,
+  linearProgressClasses,
+  Slider,
+  sliderClasses,
+  ToggleButton,
+  toggleButtonClasses,
+  Typography,
+} from '@mui/material';
 
 export const StyledMediaControlsWrapper = styled(Box)`
   padding: 0 12px 16px;
@@ -48,11 +56,6 @@ export const StyledBtnsGroup = styled(Box)`
   button {
     color: inherit;
     padding: 6px;
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
   }
 `;
 
@@ -164,7 +167,34 @@ export const StyledVolumePopoverContainer = styled(Box)`
 export const StyledSlider = styled(Slider)`
   color: ${({ theme }) => theme.palette.primary.light};
 
+  & .${sliderClasses.root} {
+    padding: 0;
+  }
   & .${sliderClasses.rail} {
     background-color: ${({ theme }) => theme.palette.common.white};
   }
+`;
+
+// 播放速率控件
+export const StyledRatePopoverContainer = styled(Box)`
+  && .${toggleButtonClasses.selected} {
+    color: ${({ theme }) => theme.palette.primary.light};
+  }
+`;
+export const StyledRateChildrenWrapper = styled(Box)`
+  position: relative;
+`;
+export const StyledRateText = styled(Box)`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ theme }) => theme.palette.common.black};
+  font-size: 0.55rem;
+  font-weight: 700;
+  pointer-events: none;
+`;
+export const StyledRateOption = styled(ToggleButton)`
+  text-transform: none;
 `;
