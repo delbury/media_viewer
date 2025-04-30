@@ -3,6 +3,8 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useSta
 import { StyledSettingTooltipWrapper } from './style';
 
 interface TooltipSettingProps {
+  // 强制打开
+  forceOpen?: boolean;
   children: React.ReactElement;
   tooltipContent?: React.ReactElement;
 }
@@ -28,7 +30,7 @@ const TOOLTIP_MODIFIERS: PopperProps['modifiers'] = [
 ];
 
 const TooltipSetting = forwardRef<TooltipSettingInstance, TooltipSettingProps>(
-  ({ children, tooltipContent }, ref) => {
+  ({ children, tooltipContent, forceOpen }, ref) => {
     const wrapperRef = useRef<HTMLElement>(null);
     // tooltip 是否打开
     const [open, setOpen] = useState(false);
@@ -74,7 +76,8 @@ const TooltipSetting = forwardRef<TooltipSettingInstance, TooltipSettingProps>(
       <StyledSettingTooltipWrapper ref={wrapperRef}>
         <Tooltip
           placement="top"
-          leaveDelay={200}
+          enterDelay={200}
+          leaveDelay={50}
           enterTouchDelay={500}
           disableFocusListener
           title={tooltipContent}
@@ -84,7 +87,7 @@ const TooltipSetting = forwardRef<TooltipSettingInstance, TooltipSettingProps>(
               modifiers: TOOLTIP_MODIFIERS,
             },
           }}
-          open={open}
+          open={open || !!forceOpen}
           onOpen={handleOpen}
           onClose={handleClose}
         >

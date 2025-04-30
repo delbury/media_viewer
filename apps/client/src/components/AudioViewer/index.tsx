@@ -3,7 +3,6 @@ import { getFilePosterUrl, getFileSourceUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { PauseCircleRounded, PlayCircleRounded } from '@mui/icons-material';
 import { Button, IconButton, SxProps, Theme } from '@mui/material';
-import { noop } from 'lodash-es';
 import { useTranslations } from 'next-intl';
 import { SyntheticEvent, useCallback, useMemo, useRef, useState } from 'react';
 import Empty from '../Empty';
@@ -111,8 +110,6 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
           mediaRef={audioRef}
           onPausedStateChange={setIsPaused}
           onWaitingStateChange={setIsWaiting}
-          onNext={noop}
-          onPrev={noop}
         />
       }
     >

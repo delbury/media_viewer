@@ -51,7 +51,7 @@ export const StyledBtnsContainer = styled(Box)`
 `;
 export const StyledBtnsGroup = styled(Box)`
   display: flex;
-  gap: 4px;
+  gap: 12px;
 
   button {
     color: inherit;
@@ -176,14 +176,6 @@ export const StyledSlider = styled(Slider)`
 `;
 
 // 播放速率控件
-export const StyledRatePopoverContainer = styled(Box)`
-  && .${toggleButtonClasses.selected} {
-    color: ${({ theme }) => theme.palette.primary.light};
-  }
-`;
-export const StyledRateChildrenWrapper = styled(Box)`
-  position: relative;
-`;
 export const StyledRateText = styled(Box)`
   position: absolute;
   inset: 0;
@@ -197,4 +189,14 @@ export const StyledRateText = styled(Box)`
 `;
 export const StyledRateOption = styled(ToggleButton)`
   text-transform: none;
+`;
+export const StyledRateChildrenWrapper = styled(Box)`
+  position: relative;
+`;
+
+// Tooltip 包裹容器
+export const StyledToggleBtnPopoverContainer = styled(Box)`
+  && .${toggleButtonClasses.selected} {
+    color: ${({ theme }) => theme.palette.primary.light};
+  }
 `;

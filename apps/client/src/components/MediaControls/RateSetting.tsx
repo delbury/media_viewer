@@ -1,12 +1,12 @@
 import { ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
-import { at } from 'lodash-es';
+import { at, isNil } from 'lodash-es';
 import { useCallback, useMemo, useRef } from 'react';
 import TooltipSetting, { TooltipSettingInstance } from '../TooltipSetting';
 import {
   StyledRateChildrenWrapper,
   StyledRateOption,
-  StyledRatePopoverContainer,
   StyledRateText,
+  StyledToggleBtnPopoverContainer,
 } from './style';
 
 interface RateSettingProps {
@@ -28,7 +28,7 @@ const RateSetting = ({ rate, onRateChange, children }: RateSettingProps) => {
 
   const handleChange = useCallback<NonNullable<ToggleButtonGroupProps['onChange']>>(
     (ev, val) => {
-      onRateChange(val as number);
+      if (!isNil(val)) onRateChange(val as number);
       tooltipSettingRef.current?.close();
     },
     [onRateChange]
@@ -38,7 +38,7 @@ const RateSetting = ({ rate, onRateChange, children }: RateSettingProps) => {
     <TooltipSetting
       ref={tooltipSettingRef}
       tooltipContent={
-        <StyledRatePopoverContainer>
+        <StyledToggleBtnPopoverContainer>
           <ToggleButtonGroup
             size="small"
             value={rate}
@@ -54,7 +54,7 @@ const RateSetting = ({ rate, onRateChange, children }: RateSettingProps) => {
               </StyledRateOption>
             ))}
           </ToggleButtonGroup>
-        </StyledRatePopoverContainer>
+        </StyledToggleBtnPopoverContainer>
       }
     >
       <StyledRateChildrenWrapper>

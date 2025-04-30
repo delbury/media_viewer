@@ -35,7 +35,7 @@ export const StyledLoadingWrapper = styled(Box)`
 
 export const StyledImageToolbar = styled(Box)`
   z-index: 1;
-  padding-bottom: 24px;
+  padding: 0 12px 16px;
   width: 100%;
   height: fit-content;
   display: flex;

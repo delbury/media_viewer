@@ -1,10 +1,13 @@
+import { useResizeObserver } from '#/hooks/useResizeObserver';
 import { formatTime } from '#/utils';
 import {
+  CachedRounded,
   FullscreenExitRounded,
   FullscreenRounded,
   PauseRounded,
   PlayArrowRounded,
   RectangleRounded,
+  RotateRightRounded,
   SkipNextRounded,
   SkipPreviousRounded,
   VolumeOffRounded,
@@ -24,6 +27,7 @@ import {
 import { calcTimeRanges } from '../VideoViewer/util';
 import { MediaProgress } from './MediaProgress';
 import RateSetting, { SWITCH_RATE_OPTIONS } from './RateSetting';
+import RotateSetting from './RotateSetting';
 import {
   StyledBtnsContainer,
   StyledBtnsGroup,
@@ -76,6 +80,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [isWaiting, setIsWaiting] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [currentRate, setCurrentRate] = useState(1);
+    const [currentDegree, setCurrentDegree] = useState(0);
 
     // 是否可全屏
     const [showFullScreenBtn, setShowFullScreenBtn] = useState(false);
@@ -84,6 +89,9 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     // 是否展示前进/后退按钮
     const showPrevBtn = !!onPrev;
     const showNextBtn = !!onNext;
+
+    // 是否是未旋转状态，即为 360 的整数倍
+    const isNotRotated = useMemo(() => currentDegree % 360 === 0, [currentDegree]);
 
     useEffect(() => {
       onPausedStateChange?.(isPaused);
@@ -98,6 +106,33 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const currentInfo = useMemo(() => formatTime(ct), [ct]);
     const tt = Math.floor(videoDuration);
     const totalInfo = useMemo(() => formatTime(tt), [tt]);
+
+    // 监听容器大小改变
+    const { size: mediaContainerSize } = useResizeObserver({
+      domRef: mediaRef,
+      findDom: elm => elm.parentElement,
+    });
+
+    // 视频旋转
+    useEffect(() => {
+      const elm = mediaRef.current;
+      if (!elm) return;
+
+      // 旋转 90 度时，需要改变图片容器的大小
+      const isVertical = currentDegree % 180 !== 0;
+
+      elm.style.setProperty('transform', `rotate(${currentDegree}deg)`);
+      if (isVertical && mediaContainerSize) {
+        elm.style.setProperty('width', `${mediaContainerSize.height}px`);
+        elm.style.setProperty('height', `${mediaContainerSize.width}px`);
+      }
+
+      return () => {
+        elm.style.removeProperty('transform');
+        elm.style.removeProperty('width');
+        elm.style.removeProperty('height');
+      };
+    }, [currentDegree, mediaContainerSize, mediaRef]);
 
     // 播放切换
     const handleTogglePlay = useCallback(() => {
@@ -159,6 +194,32 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       mediaRef.current.playbackRate = newRate;
     }, [mediaRef]);
 
+    // 切换旋转
+    const handleToggleRotate = useCallback(() => {
+      let deg = currentDegree;
+      const rest = currentDegree % 360;
+      if (rest === 0 || rest > 180) deg += 90;
+      else deg -= rest;
+      setCurrentDegree(deg);
+    }, [currentDegree]);
+
+    // 改变旋转
+    const handleDegreeChange = useCallback((newDeg: number) => {
+      setCurrentDegree(curDeg => {
+        // 判断当前的旋转在哪
+        const rest = curDeg % 360;
+        // 旋转不变
+        if (rest === newDeg) return curDeg;
+        // 新的旋转角度小于与当前角度的差值
+        const diff = newDeg - rest;
+        // 如果差值小于等于 180，直接转
+        if (Math.abs(diff) <= 180) return curDeg + diff;
+        // 否则，差值大于270
+        return curDeg + diff + (diff > 0 ? -360 : 360);
+      });
+    }, []);
+
+    // 初始化
     useEffect(() => {
       const elm = mediaRef.current;
       if (elm) {
@@ -278,19 +339,16 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
               </RateSetting>
 
               {/* 旋转 */}
-              {/* 逆时针旋转 */}
-              {/* {isVideo && (
-                <IconButton>
-                  <RotateLeftRounded />
-                </IconButton>
-              )} */}
-
-              {/* 顺时针旋转 */}
-              {/* {isVideo && (
-                <IconButton>
-                  <RotateRightRounded />
-                </IconButton>
-              )} */}
+              {isVideo && (
+                <RotateSetting
+                  degree={currentDegree}
+                  onDegreeChange={handleDegreeChange}
+                >
+                  <IconButton onClick={handleToggleRotate}>
+                    {isNotRotated ? <RotateRightRounded /> : <CachedRounded />}
+                  </IconButton>
+                </RotateSetting>
+              )}
             </StyledBtnsGroup>
 
             <StyledBtnsGroup>
