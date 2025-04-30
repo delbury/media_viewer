@@ -1,5 +1,6 @@
 import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
+import { noop } from 'lodash-es';
 import { useMemo, useRef, useState } from 'react';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
@@ -36,6 +37,8 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
           ref={controlsRef}
           mediaRef={videoRef}
           onWaitingStateChange={setIsWaiting}
+          onNext={noop}
+          onPrev={noop}
         />
       }
     >

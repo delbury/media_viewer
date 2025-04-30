@@ -1,5 +1,6 @@
 import { formatTime } from '#/utils';
 import {
+  DoubleArrowRounded,
   FullscreenExitRounded,
   FullscreenRounded,
   PauseRounded,
@@ -23,7 +24,9 @@ import {
 import { calcTimeRanges } from '../VideoViewer/util';
 import { MediaProgress } from './MediaProgress';
 import {
+  StyledBtnsContainer,
   StyledBtnsGroup,
+  StyledInfoDivider,
   StyledMediaControlsWrapper,
   StyledProgressInfo,
   StyledToolsRow,
@@ -74,6 +77,12 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
     // 是否可全屏
     const [showFullScreenBtn, setShowFullScreenBtn] = useState(false);
+    // 是否是 video
+    const [isVideo, setIsVideo] = useState(false);
+    const isAudio = !isVideo;
+    // 是否展示前进/后退按钮
+    const showPrevBtn = !!onPrev;
+    const showNextBtn = !!onNext;
 
     useEffect(() => {
       onPausedStateChange?.(isPaused);
@@ -88,10 +97,6 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const currentInfo = useMemo(() => formatTime(ct), [ct]);
     const tt = Math.floor(videoDuration);
     const totalInfo = useMemo(() => formatTime(tt), [tt]);
-    const fullProgressInfo = useMemo(
-      () => `${currentInfo} / ${totalInfo}`,
-      [currentInfo, totalInfo]
-    );
 
     // 播放切换
     const handleTogglePlay = useCallback(() => {
@@ -141,7 +146,9 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         setIsPaused(elm.paused);
         setIsMuted(elm.muted);
         setCurrentVolume(elm.volume);
-        setShowFullScreenBtn(elm instanceof HTMLVideoElement && document.fullscreenEnabled);
+        const isVideoMedia = elm instanceof HTMLVideoElement;
+        setShowFullScreenBtn(isVideoMedia && document.fullscreenEnabled);
+        setIsVideo(isVideoMedia);
 
         // 播放事件
         const playController = bindEvent(elm, 'play', () => {
@@ -223,47 +230,75 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         />
 
         <StyledToolsRow>
-          <StyledProgressInfo variant="body2">{fullProgressInfo}</StyledProgressInfo>
+          <StyledProgressInfo variant="body2">
+            {currentInfo}
+            <StyledInfoDivider>/</StyledInfoDivider>
+            {totalInfo}
+          </StyledProgressInfo>
 
-          <StyledBtnsGroup>
-            {/* 上一个 */}
-            {!!onPrev && (
+          <StyledBtnsContainer>
+            <StyledBtnsGroup>
+              {/* 倍速 */}
               <IconButton>
-                <SkipPreviousRounded />
+                <DoubleArrowRounded />
               </IconButton>
-            )}
 
-            {/* 播放 */}
-            <IconButton onClick={handleTogglePlay}>
-              {isPaused ? <PlayArrowRounded /> : <PauseRounded />}
-            </IconButton>
+              {/* 旋转 */}
+              {/* 逆时针旋转 */}
+              {/* {isVideo && (
+                <IconButton>
+                  <RotateLeftRounded />
+                </IconButton>
+              )} */}
 
-            {/* 下一个 */}
-            {!!onNext && (
-              <IconButton>
-                <SkipNextRounded />
+              {/* 顺时针旋转 */}
+              {/* {isVideo && (
+                <IconButton>
+                  <RotateRightRounded />
+                </IconButton>
+              )} */}
+            </StyledBtnsGroup>
+
+            <StyledBtnsGroup>
+              {/* 上一个 */}
+              {showPrevBtn && (
+                <IconButton>
+                  <SkipPreviousRounded />
+                </IconButton>
+              )}
+
+              {/* 播放 */}
+              <IconButton onClick={handleTogglePlay}>
+                {isPaused ? <PlayArrowRounded /> : <PauseRounded />}
               </IconButton>
-            )}
-          </StyledBtnsGroup>
 
-          <StyledBtnsGroup>
-            {/* 静音 */}
-            <VolumeSetting
-              volume={currentVolume}
-              onVolumeChange={handleVolumeChange}
-            >
-              <IconButton onClick={handleToggleMute}>
-                {isMuted ? <VolumeOffRounded /> : <VolumeUpRounded />}
-              </IconButton>
-            </VolumeSetting>
+              {/* 下一个 */}
+              {showNextBtn && (
+                <IconButton>
+                  <SkipNextRounded />
+                </IconButton>
+              )}
+            </StyledBtnsGroup>
 
-            {/* 全屏 */}
-            {showFullScreenBtn && (
-              <IconButton onClick={handleToggleFullScreen}>
-                {isFullScreen ? <FullscreenExitRounded /> : <FullscreenRounded />}
-              </IconButton>
-            )}
-          </StyledBtnsGroup>
+            <StyledBtnsGroup>
+              {/* 静音 */}
+              <VolumeSetting
+                volume={currentVolume}
+                onVolumeChange={handleVolumeChange}
+              >
+                <IconButton onClick={handleToggleMute}>
+                  {isMuted ? <VolumeOffRounded /> : <VolumeUpRounded />}
+                </IconButton>
+              </VolumeSetting>
+
+              {/* 全屏 */}
+              {showFullScreenBtn && (
+                <IconButton onClick={handleToggleFullScreen}>
+                  {isFullScreen ? <FullscreenExitRounded /> : <FullscreenRounded />}
+                </IconButton>
+              )}
+            </StyledBtnsGroup>
+          </StyledBtnsContainer>
         </StyledToolsRow>
       </StyledMediaControlsWrapper>
     );

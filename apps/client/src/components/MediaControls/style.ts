@@ -1,15 +1,9 @@
+import { h5Max } from '#/style/device';
 import styled from '@emotion/styled';
-import {
-  Box,
-  linearProgressClasses,
-  Slider,
-  sliderClasses,
-  tooltipClasses,
-  Typography,
-} from '@mui/material';
+import { Box, linearProgressClasses, Slider, sliderClasses, Typography } from '@mui/material';
 
 export const StyledMediaControlsWrapper = styled(Box)`
-  padding: 0 24px 16px;
+  padding: 0 12px 16px;
   width: 100%;
   height: fit-content;
   display: flex;
@@ -18,21 +12,65 @@ export const StyledMediaControlsWrapper = styled(Box)`
   flex-direction: column;
 `;
 
-// 工具栏相关、
+// 工具栏相关
 export const StyledToolsRow = styled(Box)`
+  position: relative;
   width: 100%;
+
+  display: flex;
+  align-items: center;
+`;
+export const StyledBtnsContainer = styled(Box)`
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+
+  @media ${h5Max} {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    > *:nth-child(1) {
+      justify-content: flex-start;
+    }
+    > *:nth-child(2) {
+      justify-content: center;
+    }
+    > *:nth-child(3) {
+      justify-content: flex-end;
+    }
+  }
 `;
 export const StyledBtnsGroup = styled(Box)`
   display: flex;
-  gap: 8px;
+  gap: 4px;
 
   button {
     color: inherit;
+    padding: 6px;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
   }
+`;
+
+// 播放时间/总时间信息
+export const StyledProgressInfo = styled(Typography)`
+  display: flex;
+  font-size: 0.75rem;
+  margin-inline-end: 24px;
+
+  @media ${h5Max} {
+    position: absolute;
+    top: 0;
+    transform: translateY(-100%);
+    font-size: 0.6rem;
+  }
+`;
+export const StyledInfoDivider = styled(Box)`
+  margin: 0 4px;
 `;
 
 // 游标相关
@@ -109,20 +147,8 @@ export const StyledProgressContainer = styled(Box)`
     background-color: ${({ theme }) => theme.palette.grey[800]};
   }
 `;
-export const StyledProgressInfo = styled(Typography)`
-  font-size: 0.75rem;
-`;
 
-// 音量控件相关
-export const StyledVolumeTooltipWrapper = styled(Box)`
-  position: relative;
-
-  && .${tooltipClasses.tooltip} {
-    margin: 0 0 12px !important;
-    padding: 0 !important;
-    font-size: 0.875rem !important;
-  }
-`;
+// 音量控件
 export const StyledVolumePopoverContainer = styled(Box)`
   display: flex;
   flex-direction: column;
