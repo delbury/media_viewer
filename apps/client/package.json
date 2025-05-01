@@ -6,7 +6,8 @@
     "dev": "next dev -p 4001 --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "ts": "tsc --noEmit"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

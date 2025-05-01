@@ -91,7 +91,7 @@ export const useLyric = (file: FileInfo) => {
   const lyricRequest = useSwr('fileText', {
     disabled: !file.lrcPath,
     params: {
-      basePathIndex: file.basePathIndex.toString(),
+      basePathIndex: file.basePathIndex?.toString() as string,
       relativePath: file.lrcPath as string,
     },
   });
