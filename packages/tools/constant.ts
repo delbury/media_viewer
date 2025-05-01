@@ -27,7 +27,7 @@ export const VIDEO_EXTS = [
 ];
 
 // 字幕文件后缀
-export const SUBTITLES_EXTS = ['ass', 'srt'];
+export const SUBTITLES_EXTS = ['ass', 'srt', 'vtt'];
 
 // 歌词文件后缀
 export const LYRIC_EXT = 'lrc';
