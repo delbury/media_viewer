@@ -123,7 +123,10 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
           )}
           <StyledCoverBtnWrapper>
             {isWaiting ? (
-              <Loading size="75%" />
+              <Loading
+                size="75%"
+                lazy
+              />
             ) : (
               <IconButton
                 onClick={controlsRef.current?.togglePlay}

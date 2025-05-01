@@ -7,7 +7,7 @@ export const VIDEO_ENDED_THRESHOLD = 0.1;
 export const FILE_CODECS = 'video/mp4; codecs="avc1.640028, mp4a.40.2"';
 
 // 视频分片的长度，单位 s
-const VIDEO_SEGMENT_DURATION = 5;
+const VIDEO_SEGMENT_DURATION = 8;
 
 // 继续加载视频分片的最小剩余时间
 export const VIDEO_LAZY_LOAD_THRESHOLD = VIDEO_SEGMENT_DURATION / 2;

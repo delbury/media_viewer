@@ -1,17 +1,35 @@
 import { CircularProgress, CircularProgressProps } from '@mui/material';
+import { useEffect, useState } from 'react';
 
 interface LoadingProps {
   color?: string;
   size?: CircularProgressProps['size'];
+  // 延迟出现
+  lazy?: boolean | number;
 }
 
-const Loading = ({ color, size }: LoadingProps) => {
+const Loading = ({ color, size, lazy }: LoadingProps) => {
+  const [visible, setVisible] = useState(lazy !== true);
+
+  useEffect(() => {
+    if (lazy) {
+      setTimeout(
+        () => {
+          setVisible(true);
+        },
+        typeof lazy === 'number' ? lazy : 250
+      );
+    }
+  }, []);
+
   return (
-    <CircularProgress
-      sx={{ color: color ?? 'inherit' }}
-      thickness={4}
-      size={size}
-    />
+    visible && (
+      <CircularProgress
+        sx={{ color: color ?? 'inherit' }}
+        thickness={4}
+        size={size}
+      />
+    )
   );
 };
 

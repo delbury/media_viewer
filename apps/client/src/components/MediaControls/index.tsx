@@ -108,8 +108,8 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
     // 当前播放的进度信息，用于展示
     const ct = Math.floor(currentTime);
-    const currentInfo = useMemo(() => formatTime(ct), [ct]);
     const tt = Math.floor(videoDuration);
+    const currentInfo = useMemo(() => formatTime(ct, tt >= 3600), [ct, tt]);
     const totalInfo = useMemo(() => formatTime(tt), [tt]);
 
     // 监听容器大小改变

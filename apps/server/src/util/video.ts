@@ -112,18 +112,22 @@ export const transforVideoStream = async (
   const args = [
     '-y', '-hide_banner', '-loglevel', 'error',
     '-hwaccel', 'cuda',
+    '-hwaccel_output_format', 'cuda',
     '-i', `${filePath}`,
 
     // 分片
     ...segArgs,
-
-    '-tune', 'zerolatency',
-    '-c:v', 'libx264',
+    
+    // 视频
+    '-c:v', 'h264_nvenc',
     '-profile:v', 'high', '-level', '4.0',
-    '-preset', 'fast',
-    // '-g', '48', '-keyint_min', '48', '-sc_threshold', '0',
-    "-c:a", "aac", '-ar', '44100',
+    '-preset', 'p6',
+    '-tune', 'll',
+    '-bf', '0',
+    '-gpu', 'any',
 
+    // 音频
+    "-c:a", "aac", '-ar', '44100',
     // faststart
     '-movflags', '+frag_keyframe+empty_moov+default_base_moof',
 

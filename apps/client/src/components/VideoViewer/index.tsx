@@ -21,7 +21,7 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
   const [isWaiting, setIsWaiting] = useState(false);
 
   // 自定义流媒体控制
-  const { isLoading, events: progressEvents } = useMediaSource({
+  const { events: progressEvents } = useMediaSource({
     file,
     mediaRef: videoRef,
   });
@@ -53,9 +53,12 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
           onClick={controlsRef.current?.togglePlay}
         />
 
-        {(isWaiting || isLoading) && (
+        {isWaiting && (
           <StyledLoadingWrapper>
-            <Loading size="75%" />
+            <Loading
+              size="75%"
+              lazy
+            />
           </StyledLoadingWrapper>
         )}
       </StyledVideoWrapper>

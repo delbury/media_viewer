@@ -11,7 +11,9 @@ export const formatDate = (v: number) => {
 };
 
 // 格式化时间
-export const formatTime = (t: number) => {
+export const formatTime = (t: number, withHour = false) => {
+  if (Number.isNaN(t)) return withHour ? '00:00:00' : '00:00';
+
   const s = t % 60;
   t -= s;
   t /= 60;
@@ -19,7 +21,7 @@ export const formatTime = (t: number) => {
   t -= m;
   t /= 60;
 
-  const h = t ? `${t.toString().padStart(2, '0')}:` : '';
+  const h = t ? `${t.toString().padStart(2, '0')}:` : withHour ? '00:' : '';
 
   return `${h}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 };
