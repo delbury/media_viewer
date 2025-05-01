@@ -11,7 +11,7 @@ export const IMAGE_EXTS = [
   'tif',
   'ico',
 ];
-export const AUDIO_EXTS = ['mp3', 'wav', 'aac', 'flac', 'm4a', 'wma', 'ogg'];
+export const AUDIO_EXTS = ['mp3', 'wav', 'aac', 'flac', 'm4a', 'wma', 'ogg', 'mka'];
 export const VIDEO_EXTS = [
   'mp4',
   'mkv',
@@ -25,10 +25,15 @@ export const VIDEO_EXTS = [
   '3gp',
   'ts',
 ];
-export const TEXT_EXTS = ['pdf', 'txt'];
+
+// 字幕文件后缀
+export const SUBTITLES_EXTS = ['ass', 'srt'];
 
 // 歌词文件后缀
 export const LYRIC_EXT = 'lrc';
+
+// 文本文件后缀
+export const TEXT_EXTS = ['pdf', 'txt', LYRIC_EXT, ...SUBTITLES_EXTS];
 
 export const IMAGE_REG = new RegExp(`\\.(${IMAGE_EXTS.join('|')})$`, 'i');
 export const AUDIO_REG = new RegExp(`\\.(${AUDIO_EXTS.join('|')})$`, 'i');
@@ -41,5 +46,3 @@ export const IGNORE_FILE_NAME_REG = new RegExp(
   `(^${IGNORE_FILE_NAME_PREFIX}.*|^\\.DS_Store$)`,
   'i'
 );
-
-// chrome 支持的视频 / 音频编码

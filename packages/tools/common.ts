@@ -47,7 +47,7 @@ export const createAsyncTaskQueue = (concurrency: number = 1) => {
   // 任务队列
   const waitingTasks: TaskFn[] = [];
   // 正在运行的任务
-  const runnings: Promise<void>[] = Array(concurrency).fill(null);
+  const runnings: (Promise<void> | null)[] = Array(concurrency).fill(null);
 
   const result = Promise.withResolvers<void>();
 
@@ -66,7 +66,8 @@ export const createAsyncTaskQueue = (concurrency: number = 1) => {
       const index = runnings.findIndex(item => !item);
       if (index === -1 || index >= concurrency) return;
 
-      const task = waitingTasks.shift();
+      const task = waitingTasks.shift() as TaskFn;
+
       // 开始任务
       const taskPromise = task();
       runnings[index] = taskPromise;
@@ -80,4 +81,14 @@ export const createAsyncTaskQueue = (concurrency: number = 1) => {
   };
 
   return { add, start, result: result.promise };
+};
+
+// 构造正则，文件名 + 忽略大小写的后缀名
+export const createFileNameRegExp = (pureName: string, ext: string) => {
+  const extRule = ext
+    .split('')
+    .map(c => `[${c.toLowerCase()}${c.toUpperCase()}]`)
+    .join('');
+  const fullRule = `^${pureName}\\.${extRule}$`;
+  return new RegExp(fullRule);
 };

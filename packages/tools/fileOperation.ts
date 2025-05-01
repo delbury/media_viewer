@@ -43,7 +43,7 @@ export const walkFromRootDirs = async (
 
   const dirs = Array.isArray(rootDirs) ? [...rootDirs] : [rootDirs];
   while (dirs.length) {
-    const currentDir = dirs.pop();
+    const currentDir = dirs.pop() as string;
 
     // 跳过隐藏文件夹
     if (skipHiddenDir && IGNORE_FILE_NAME_REG.test(path.basename(currentDir))) continue;
