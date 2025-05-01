@@ -61,7 +61,7 @@ export const getFilePosterUrl = (file?: FileInfo) => {
   const poster = joinUrlWithQueryString(
     'filePoster',
     {
-      basePathIndex: file.basePathIndex.toString(),
+      basePathIndex: file.basePathIndex?.toString() as string,
       relativePath: file.relativePath,
     },
     API_BASE_URL
@@ -75,7 +75,7 @@ export const getFileSourceUrl = (file?: FileInfo) => {
   const source = joinUrlWithQueryString(
     'fileGet',
     {
-      basePathIndex: file.basePathIndex.toString(),
+      basePathIndex: file.basePathIndex?.toString() as string,
       relativePath: file.relativePath,
     },
     API_BASE_URL
@@ -90,7 +90,7 @@ export const getVideoFileFallbackUrl = (file?: FileInfo) => {
   const fallback = joinUrlWithQueryString(
     'fileVideoFallback',
     {
-      basePathIndex: file.basePathIndex.toString(),
+      basePathIndex: file.basePathIndex?.toString() as string,
       relativePath: file.relativePath,
     },
     API_BASE_URL

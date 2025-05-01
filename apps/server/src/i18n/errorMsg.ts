@@ -6,10 +6,11 @@ export const ERROR_MSG = {
   notAnImageFile: 'not an image file',
   notAnVideoFile: 'not an video file',
   notAnAudioFile: 'not an audio file',
-  notAnCorrectFile: 'not an currect file',
+  notAnCorrectFile: 'not an correct file',
   errorPath: 'error path',
   noFile: 'no file',
   sizeLimited: 'the requested file size is limited',
   notANumber: 'param is not a number',
   required: 'param is required',
+  invalid: 'param is invalid',
 } satisfies Record<string, string | ((...args: string[]) => string)>;

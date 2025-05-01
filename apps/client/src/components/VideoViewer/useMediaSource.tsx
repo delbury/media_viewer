@@ -82,7 +82,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
   // 请求视频分段数据接口
   const metadataRequest = useSwr('fileVideoMetadata', {
     params: {
-      basePathIndex: file.basePathIndex.toString(),
+      basePathIndex: file.basePathIndex?.toString() as string,
       relativePath: file.relativePath,
     },
     lazy: true,
@@ -112,6 +112,9 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
         totalDuration
       );
 
+      // 无效分片
+      if (!duration) return;
+
       try {
         // 是否已经加载完所有分片
         isLoadDone.current = done;
@@ -122,7 +125,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
 
         const response = await fetchArrayBufferData('fileVideoSegment', {
           params: {
-            basePathIndex: file.basePathIndex.toString(),
+            basePathIndex: file.basePathIndex?.toString() as string,
             relativePath: file.relativePath,
             start: current.toString(),
             duration: duration.toString(),

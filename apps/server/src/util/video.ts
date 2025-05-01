@@ -4,7 +4,9 @@ import { ParameterizedContext } from 'koa';
 import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { VIDEO_TRANSFORM_MAX_HEIGHT, VIDEO_TRANSFORM_MAX_WIDTH } from '../config';
+import { ERROR_MSG } from '../i18n/errorMsg';
 import { execCommand } from './common';
+import { logCommand } from './debug';
 
 interface VideoDetailTasks {
   [key: string]: {
@@ -100,11 +102,15 @@ export const transformVideoStream = async (
   filePath: string,
   segOpt?: SegmentOptions
 ) => {
+  // 关闭之前的进程
+  killProcess();
+
   const hash = createHash('md5').update(filePath).digest('hex').substring(0, 8);
 
   let segArgs: string[] = [];
   if (segOpt) {
     const { start, duration } = segOpt;
+    if (duration === 0) throw new Error(ERROR_MSG.invalid);
     segArgs = ['-ss', `${start}`, '-t', `${duration}`];
   }
 
@@ -141,6 +147,7 @@ export const transformVideoStream = async (
         'force_original_aspect_ratio=decrease',
         'format=nv12',
       ].join(':'),
+      'hwupload',
     ].join(','),
     
     '-c:v', 'h264_nvenc',
@@ -161,8 +168,6 @@ export const transformVideoStream = async (
     'pipe:1',
   ];
 
-  // 关闭之前的进程
-  killProcess();
   // 创建进程
   const ffmpegProcess = spawn('ffmpeg', args);
   // 保存进程信息
@@ -177,6 +182,7 @@ export const transformVideoStream = async (
   // 错误处理
   ffmpegProcess.stderr.on('data', data => {
     logError(`${hash}: ffmpeg stream stderr error: ${data}`);
+    logCommand('ffmpeg', args);
   });
 
   // 流开始
