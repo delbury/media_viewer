@@ -11,7 +11,7 @@ export const useRotateState = ({ defaultDegree, domRef }: UseRotateStateParams) 
   // 旋转值，用于旋转
   const [degree, setDegreeRaw] = useState(defaultDegree);
   const enableTransitionPromise = useRef<Promise<void>>(null);
-  const setDegree = useCallback(async (deg: number) => {
+  const setDegree = useCallback(async (deg: number | ((deg: number) => number)) => {
     if (enableTransitionPromise.current) {
       await enableTransitionPromise.current;
     }

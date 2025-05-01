@@ -1,4 +1,5 @@
 import { useResizeObserver } from '#/hooks/useResizeObserver';
+import { useRotateState } from '#/hooks/useRotateState';
 import { formatTime } from '#/utils';
 import {
   CachedRounded,
@@ -80,7 +81,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [isWaiting, setIsWaiting] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [currentRate, setCurrentRate] = useState(1);
-    const [currentDegree, setCurrentDegree] = useState(0);
+    // 旋转值，用于旋转
+    const { degree: currentDegree, setDegree: setCurrentDegree } = useRotateState({
+      defaultDegree: 0,
+      domRef: mediaRef,
+    });
 
     // 是否可全屏
     const [showFullScreenBtn, setShowFullScreenBtn] = useState(false);
@@ -201,23 +206,26 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       if (rest === 0 || rest > 180) deg += 90;
       else deg -= rest;
       setCurrentDegree(deg);
-    }, [currentDegree]);
+    }, [currentDegree, setCurrentDegree]);
 
     // 改变旋转
-    const handleDegreeChange = useCallback((newDeg: number) => {
-      setCurrentDegree(curDeg => {
-        // 判断当前的旋转在哪
-        const rest = curDeg % 360;
-        // 旋转不变
-        if (rest === newDeg) return curDeg;
-        // 新的旋转角度小于与当前角度的差值
-        const diff = newDeg - rest;
-        // 如果差值小于等于 180，直接转
-        if (Math.abs(diff) <= 180) return curDeg + diff;
-        // 否则，差值大于270
-        return curDeg + diff + (diff > 0 ? -360 : 360);
-      });
-    }, []);
+    const handleDegreeChange = useCallback(
+      (newDeg: number) => {
+        setCurrentDegree(curDeg => {
+          // 判断当前的旋转在哪
+          const rest = curDeg % 360;
+          // 旋转不变
+          if (rest === newDeg) return curDeg;
+          // 新的旋转角度小于与当前角度的差值
+          const diff = newDeg - rest;
+          // 如果差值小于等于 180，直接转
+          if (Math.abs(diff) <= 180) return curDeg + diff;
+          // 否则，差值大于270
+          return curDeg + diff + (diff > 0 ? -360 : 360);
+        });
+      },
+      [setCurrentDegree]
+    );
 
     // 初始化
     useEffect(() => {
