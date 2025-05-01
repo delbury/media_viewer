@@ -38,3 +38,7 @@ export const LONG_VIDEO_POSTER_FRAME_TIME = 5;
 
 // 返回文本文件的大小限制，单位：字节 B
 export const TEXT_FILE_SIZE_LIMIT = 1024 * 1024 * 0.5;
+
+// 视频转码的最大分辨率尺寸
+export const VIDEO_TRANSFORM_MAX_WIDTH = 1920;
+export const VIDEO_TRANSFORM_MAX_HEIGHT = 1080;

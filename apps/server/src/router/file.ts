@@ -26,7 +26,7 @@ import { hideFile, returnBody, validateNumberString } from '../util/common';
 import { generatePoster, getPosterFileName } from '../util/poster';
 import { sendFileWithRange } from '../util/range';
 import { getTask } from '../util/task';
-import { getVideoDetail, transforVideoStream } from '../util/video';
+import { getVideoDetail, transformVideoStream } from '../util/video';
 
 const fileRouter = new Router();
 const clearPosterTask = getTask('clearPoster');
@@ -53,7 +53,7 @@ fileRouter[API_CONFIGS.fileVideoMetadata.method](API_CONFIGS.fileVideoMetadata.u
   if (fileType !== 'video') throw new Error(ERROR_MSG.notAnVideoFile);
 
   // 获取文件信息
-  const fullMetadata = await getVideoDetail(fullPath);
+  const fullMetadata = await getVideoDetail(fullPath, { showStreams: false });
   const fileInfo: ApiResponseDataTypes<'fileVideoMetadata'> | null = fullMetadata
     ? {
         duration: +fullMetadata.format.duration,
@@ -84,7 +84,7 @@ fileRouter[API_CONFIGS.fileVideoSegment.method](API_CONFIGS.fileVideoSegment.url
   const fileType = detectFileType(relativePath);
   if (fileType !== 'video') throw new Error(ERROR_MSG.notAnVideoFile);
 
-  transforVideoStream(ctx, fullPath, { start: startNumber, duration: durationNumber });
+  transformVideoStream(ctx, fullPath, { start: startNumber, duration: durationNumber });
 });
 
 // 视频文件的降级地址，转码并返回视频流
@@ -102,7 +102,7 @@ fileRouter[API_CONFIGS.fileVideoFallback.method](API_CONFIGS.fileVideoFallback.u
   const fileType = detectFileType(relativePath);
   if (fileType !== 'video') throw new Error(ERROR_MSG.notAnVideoFile);
 
-  transforVideoStream(ctx, fullPath);
+  transformVideoStream(ctx, fullPath);
 });
 
 // 返回文件的文本内容

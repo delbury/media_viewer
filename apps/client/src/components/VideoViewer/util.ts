@@ -10,7 +10,7 @@ export const FILE_CODECS = 'video/mp4; codecs="avc1.640028, mp4a.40.2"';
 const VIDEO_SEGMENT_DURATION = 8;
 
 // 继续加载视频分片的最小剩余时间
-export const VIDEO_LAZY_LOAD_THRESHOLD = VIDEO_SEGMENT_DURATION / 2;
+export const VIDEO_LAZY_LOAD_THRESHOLD = 30;
 
 // 视频最后不满分片长度的最小百分比
 // 如果最后一个分片的长度小于 VIDEO_LAST_DURATION_MIN_THRESHOLD，

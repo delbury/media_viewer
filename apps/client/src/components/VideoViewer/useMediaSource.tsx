@@ -91,75 +91,78 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
   });
 
   // 动态懒加载视频分片
-  const lazyLoadSegment = useCallback(async () => {
-    // 正在请求或者已经完成，直接返回
-    if (isLoading || isLoadDone.current) return;
+  const lazyLoadSegment = useCallback(
+    async (force: boolean = false) => {
+      // 正在请求或者已经完成，直接返回
+      if ((isLoading && !force) || isLoadDone.current) return;
 
-    const buffer = sourceBuffer.current;
-    const source = mediaSource.current;
-    if (!buffer || !source) return;
+      const buffer = sourceBuffer.current;
+      const source = mediaSource.current;
+      if (!buffer || !source) return;
 
-    const totalDuration = videoDuration.current;
-    const controller = new AbortController();
-    abortController.current = controller;
+      const totalDuration = videoDuration.current;
+      const controller = new AbortController();
+      abortController.current = controller;
 
-    if (isNil(totalDuration)) throw new Error('video duration error');
+      if (isNil(totalDuration)) throw new Error('video duration error');
 
-    // 请求资源
-    const { current, duration, next, done } = calcVideoSegmentParams(
-      currentSegmentOffset.current,
-      totalDuration
-    );
+      // 请求资源
+      const { current, duration, next, done } = calcVideoSegmentParams(
+        currentSegmentOffset.current,
+        totalDuration
+      );
 
-    try {
-      // 是否已经加载完所有分片
-      isLoadDone.current = done;
-      // 计算下一分片的起始时间
-      currentSegmentOffset.current = next;
-      // 开始加载
-      setIsLoading(true);
+      try {
+        // 是否已经加载完所有分片
+        isLoadDone.current = done;
+        // 计算下一分片的起始时间
+        currentSegmentOffset.current = next;
+        // 开始加载
+        setIsLoading(true);
 
-      const response = await fetchArrayBufferData('fileVideoSegment', {
-        params: {
-          basePathIndex: file.basePathIndex.toString(),
-          relativePath: file.relativePath,
-          start: current.toString(),
-          duration: duration.toString(),
-        },
-        signal: controller.signal,
-      });
-      abortController.current = null;
-      controller.signal.onabort = () => {
-        // 中断 fetch 请求后，结束流
-        stopStream(source, buffer);
-        abortController.current = null;
-        setIsLoading(false);
-      };
-
-      // 读取数据
-      const data = await response.arrayBuffer();
-      await waitUpdateend(buffer);
-      if (Array.from(source.sourceBuffers).includes(buffer)) {
-        // 监听当次分片请求完毕
-        buffer.addEventListener(
-          'updateend',
-          async () => {
-            if (done && source.readyState === 'open') stopStream(source, buffer);
+        const response = await fetchArrayBufferData('fileVideoSegment', {
+          params: {
+            basePathIndex: file.basePathIndex.toString(),
+            relativePath: file.relativePath,
+            start: current.toString(),
+            duration: duration.toString(),
           },
-          { once: true }
-        );
+          signal: controller.signal,
+        });
+        abortController.current = null;
+        controller.signal.onabort = () => {
+          // 中断 fetch 请求后，结束流
+          stopStream(source, buffer);
+          abortController.current = null;
+          setIsLoading(false);
+        };
 
-        buffer.timestampOffset = current;
-        buffer.appendBuffer(data);
+        // 读取数据
+        const data = await response.arrayBuffer();
+        await waitUpdateend(buffer);
+        if (Array.from(source.sourceBuffers).includes(buffer)) {
+          // 监听当次分片请求完毕
+          buffer.addEventListener(
+            'updateend',
+            async () => {
+              if (done && source.readyState === 'open') stopStream(source, buffer);
+            },
+            { once: true }
+          );
+
+          buffer.timestampOffset = current;
+          buffer.appendBuffer(data);
+        }
+      } catch {
+        // 流中断后，直接中断 fetch 请求
+        controller.abort();
+      } finally {
+        // 加载结束
+        setIsLoading(false);
       }
-    } catch {
-      // 流中断后，直接中断 fetch 请求
-      controller.abort();
-    } finally {
-      // 加载结束
-      setIsLoading(false);
-    }
-  }, [file.basePathIndex, file.relativePath, isLoading]);
+    },
+    [file.basePathIndex, file.relativePath, isLoading]
+  );
   const lazyLoadSegmentDebounce = useDebounce(lazyLoadSegment, 200);
 
   // 创建 media source
@@ -233,9 +236,6 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
       const buffer = sourceBuffer.current;
       if (!enabled || !buffer || !elm) return;
 
-      // 停止旧的请求
-      abortController.current?.abort();
-
       const currentTime = (ev.target as HTMLMediaElement).currentTime;
 
       // 查询缓存
@@ -259,12 +259,15 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
         return;
       }
 
+      // 停止旧的请求
+      abortController.current?.abort();
+
       // 没有命中缓存，重置加载结束 flag
       isLoadDone.current = false;
       // 从当前进度开始，请求缓存数据
       currentSegmentOffset.current = currentTime;
 
-      lazyLoadSegmentDebounce();
+      lazyLoadSegmentDebounce(true);
     },
     [enabled, lazyLoadSegmentDebounce, mediaRef]
   );

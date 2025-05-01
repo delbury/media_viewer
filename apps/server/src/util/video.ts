@@ -3,6 +3,7 @@ import { logError, logWarn as RawLogWarn, switchFnByFlag } from '#pkgs/tools/com
 import { ParameterizedContext } from 'koa';
 import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { VIDEO_TRANSFORM_MAX_HEIGHT, VIDEO_TRANSFORM_MAX_WIDTH } from '../config';
 import { execCommand } from './common';
 
 interface VideoDetailTasks {
@@ -94,7 +95,7 @@ interface SegmentOptions {
   duration: number;
 }
 // 转码处理视频流 或 视频分片
-export const transforVideoStream = async (
+export const transformVideoStream = async (
   ctx: ParameterizedContext,
   filePath: string,
   segOpt?: SegmentOptions
@@ -110,27 +111,52 @@ export const transforVideoStream = async (
   // 转码命令
   /* prettier-ignore */
   const args = [
+    // 忽略无用提示
     '-y', '-hide_banner', '-loglevel', 'error',
+
+    // 硬件加速
+    '-init_hw_device', 'cuda=cuda:0',
+    '-filter_hw_device', 'cuda',
     '-hwaccel', 'cuda',
     '-hwaccel_output_format', 'cuda',
-    '-i', `${filePath}`,
+    // '-hwaccel_device', '0',
+    '-extra_hw_frames', '4',
+
+    // 系统优化
+    '-threads', '0',
+    '-reinit_filter', '0',
 
     // 分片
     ...segArgs,
-    
+
+    // 输入文件
+    '-i', `${filePath}`,
+
     // 视频
+    '-vf',
+    [
+      'scale_cuda=' + [
+        `w='if(gt(iw,ih),min(iw,${VIDEO_TRANSFORM_MAX_WIDTH}),min(iw,${VIDEO_TRANSFORM_MAX_HEIGHT}))'`,
+        `h='if(gt(iw,ih),min(ih,${VIDEO_TRANSFORM_MAX_HEIGHT}),min(ih,${VIDEO_TRANSFORM_MAX_WIDTH}))'`,
+        'force_original_aspect_ratio=decrease',
+        'format=nv12',
+      ].join(':'),
+    ].join(','),
+    
     '-c:v', 'h264_nvenc',
     '-profile:v', 'high', '-level', '4.0',
-    '-preset', 'p6',
+    '-preset', 'p4',
     '-tune', 'll',
     '-bf', '0',
     '-gpu', 'any',
 
     // 音频
-    "-c:a", "aac", '-ar', '44100',
-    // faststart
+    "-c:a", "aac", '-b:a', '128k',
+    
+    // fmp4
     '-movflags', '+frag_keyframe+empty_moov+default_base_moof',
 
+    // 输出
     '-f', 'mp4',
     'pipe:1',
   ];
@@ -141,6 +167,8 @@ export const transforVideoStream = async (
   const ffmpegProcess = spawn('ffmpeg', args);
   // 保存进程信息
   setProcess(ffmpegProcess, hash);
+
+  // logCommand('ffmpeg', args);
 
   // 设置响应头，告知客户端这是一个视频流
   ctx.set('Content-Type', 'video/mp4');
