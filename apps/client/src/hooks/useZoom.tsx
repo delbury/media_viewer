@@ -101,7 +101,7 @@ export const useZoom = ({ onStart, onEnd, callback }: UserZoomParams) => {
     return () => {
       clearEvents();
     };
-  }, []);
+  }, [clearEvents]);
 
   return {
     zoomEventHandler: fnPointerDown,

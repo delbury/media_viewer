@@ -32,7 +32,7 @@ export const useDrag = ({
   // 当次拖拽时，鼠标相对于点击原点的实时偏移值
   const currentOffsetOnTime = useRef<[number, number]>([0, 0]);
   // 当前按下的指针 id
-  const currentActivedPointerId = useRef<number>(null);
+  const currentActivePointerId = useRef<number>(null);
 
   // 中断信号
   const moveController = useRef<AbortController>(null);
@@ -55,15 +55,15 @@ export const useDrag = ({
     moveController.current = null;
     upController.current?.abort();
     upController.current = null;
-    currentActivedPointerId.current = null;
+    currentActivePointerId.current = null;
   }, []);
 
   // 点击事件，开始
   const fnPointerDown: PointerEventHandler<HTMLElement> = useCallback(
     ev => {
       // 如果已经按下了，则跳过
-      if (currentActivedPointerId.current !== null) return;
-      currentActivedPointerId.current = ev.pointerId;
+      if (currentActivePointerId.current !== null) return;
+      currentActivePointerId.current = ev.pointerId;
 
       preventDefault(ev);
       onStart?.();
@@ -77,7 +77,7 @@ export const useDrag = ({
       document.addEventListener(
         MOVE_EVENT_NAME,
         ev => {
-          if (currentActivedPointerId.current !== ev.pointerId) return;
+          if (currentActivePointerId.current !== ev.pointerId) return;
           preventDefault(ev);
 
           const dx =
@@ -108,9 +108,9 @@ export const useDrag = ({
       document.addEventListener(
         UP_EVENT_NAME,
         ev => {
-          if (currentActivedPointerId.current !== ev.pointerId) return;
+          if (currentActivePointerId.current !== ev.pointerId) return;
 
-          currentActivedPointerId.current = null;
+          currentActivePointerId.current = null;
           startPosition.current = null;
           lastOffset.current = [...currentOffsetOnTime.current];
           onEnd?.();

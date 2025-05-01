@@ -35,6 +35,13 @@ export const formatFileSize = (size: number) => {
   }
 };
 
+// 将角度限定在 0 ~ 270 之间
+export const normalizeDegree = (deg: number) => {
+  let pureDeg = deg % 360;
+  pureDeg += pureDeg < 0 ? 360 : 0;
+  return pureDeg;
+};
+
 // 将对象转换为选项数组
 export const mapToOptions = <T extends string>(map: Record<T, string>) => {
   return Object.entries(map).map(([key, value]) => ({ label: value as string, value: key as T }));

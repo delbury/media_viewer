@@ -1,6 +1,7 @@
 import { useDrag } from '#/hooks/useDrag';
 import { useGesture } from '#/hooks/useGesture';
 import { useResizeObserver } from '#/hooks/useResizeObserver';
+import { useRotateState } from '#/hooks/useRotateState';
 import { UserZoomParams, useZoom } from '#/hooks/useZoom';
 import { getFileSourceUrl, preventDefault } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
@@ -53,7 +54,10 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
   // 缩放值，用于缩放
   const [scale, setScale] = useState(INIT_STATE.scale);
   // 旋转值，用于旋转
-  const [degree, setDegree] = useState(INIT_STATE.degree);
+  const { degree, setDegree, enableTransition, disableTransition } = useRotateState({
+    defaultDegree: INIT_STATE.degree,
+    domRef: imageRef,
+  });
 
   // 监听容器大小改变
   const { size: imageContainerSize } = useResizeObserver({
@@ -78,26 +82,14 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
     };
   }, [offset, scale, degree, imageContainerSize]);
 
-  // 禁用图片过渡动画
-  const disableTrisition = useCallback(() => {
-    imageRef.current?.style.setProperty('transition', 'none', 'important');
-  }, []);
-
-  // 启用图片过渡动画
-  const enableTrisition = useCallback(() => {
-    window.setTimeout(() => {
-      imageRef.current?.style.removeProperty('transition');
-    }, 100);
-  }, []);
-
   // 判断手势
   const { detectGesture } = useGesture();
 
   // 拖拽 hook
   const { dragEventHandler, resetDragOffset } = useDrag({
     callback: setOffset,
-    onStart: disableTrisition,
-    onEnd: enableTrisition,
+    onStart: disableTransition,
+    onEnd: enableTransition,
   });
 
   // 缩放至
@@ -138,8 +130,8 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
 
   // zoom 手势
   const { zoomEventHandler } = useZoom({
-    onStart: disableTrisition,
-    onEnd: enableTrisition,
+    onStart: disableTransition,
+    onEnd: enableTransition,
     callback: handleZoomCallback,
   });
 
@@ -162,7 +154,7 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
       // 设置旋转值
       setDegree(newDeg);
     },
-    [degree, resetDragOffset]
+    [degree, resetDragOffset, setDegree]
   );
 
   // 逆时针旋转
@@ -196,7 +188,7 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
         controller.abort();
       };
     }
-  }, []);
+  }, [handleZoomIn, handleZoomOut, visible]);
 
   // 点击操作
   const handlePointerDown = useCallback<PointerEventHandler<HTMLElement>>(
@@ -234,7 +226,7 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
     const restDegree = degree % 360;
     const resetDegree = degree - restDegree + (restDegree <= 180 ? 0 : 360);
     setDegree(resetDegree);
-  }, [degree, handleResetOffsetAndScale]);
+  }, [degree, handleResetOffsetAndScale, setDegree]);
 
   return (
     <FixedModal
