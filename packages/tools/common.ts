@@ -1,7 +1,7 @@
 // client 和 server 通用的工具函数
 
 import chalk from 'chalk';
-import { noop } from 'lodash-es';
+import { escapeRegExp, noop } from 'lodash-es';
 import { FullFileType } from '../shared';
 import { AUDIO_REG, IMAGE_REG, TEXT_REG, VIDEO_REG } from './constant';
 
@@ -84,11 +84,18 @@ export const createAsyncTaskQueue = (concurrency: number = 1) => {
 };
 
 // 构造正则，文件名 + 忽略大小写的后缀名
-export const createFileNameRegExp = (pureName: string, ext: string) => {
-  const extRule = ext
-    .split('')
-    .map(c => `[${c.toLowerCase()}${c.toUpperCase()}]`)
-    .join('');
-  const fullRule = `^${pureName}\\.${extRule}$`;
+export const createFileNameRegExp = (pureName: string, ext: string | string[]) => {
+  const exts = Array.isArray(ext) ? ext : [ext];
+  // [jpg, png] => ([jJ][pP][gG]|[pP][nN][gG])
+  const extRule = exts
+    .map(e =>
+      e
+        .split('')
+        .map(c => `[${c.toLowerCase()}${c.toUpperCase()}]`)
+        .join('')
+    )
+    .join('|');
+  const validPureName = escapeRegExp(pureName);
+  const fullRule = `^${validPureName}\\.?(?<middle>.+)?\\.(?<ext>${extRule})$`;
   return new RegExp(fullRule);
 };

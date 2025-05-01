@@ -3,7 +3,7 @@ import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { FullFileType } from '../shared';
 import { createFileNameRegExp, detectFileType, formatPath } from './common';
-import { IGNORE_FILE_NAME_REG, LYRIC_EXT } from './constant';
+import { IGNORE_FILE_NAME_REG, LYRIC_EXT, SUBTITLES_EXTS } from './constant';
 
 interface CommonInfo {
   // 文件根路径
@@ -40,6 +40,7 @@ export interface FileInfo extends CommonInfo {
   subtitles?: {
     lang: string;
     path: string;
+    ext: string;
   }[];
 }
 export interface DirectoryInfo extends CommonInfo {
@@ -63,6 +64,7 @@ interface NewInfoParams {
   bpi?: number;
 }
 
+// 返回类型
 export type TraverseDirectoriesReturnValue = Awaited<ReturnType<typeof traverseDirectories>>;
 
 // 文件和文件夹通用基础信息
@@ -137,14 +139,21 @@ const resolveFileRelation = (fileInfos: FileInfo[]) => {
     if (fileType === 'audio') {
       // 音频文件，则查找是否有歌词文件
       const targetFileReg = createFileNameRegExp(namePure, LYRIC_EXT);
-      if (textFiles.some(tf => targetFileReg.test(tf.name))) {
-        const targetFileName = `${namePure}.${LYRIC_EXT}`;
-        mediaInfo.lrcPath = formatPath(
-          path.join(path.dirname(mediaInfo.relativePath), targetFileName)
-        );
-      }
+      const tf = textFiles.find(tf => targetFileReg.test(tf.name));
+      if (tf) mediaInfo.lrcPath = tf.relativePath;
     } else if (fileType === 'video') {
       // 视频文件，查找是否有字幕文件
+      const targetFileReg = createFileNameRegExp(namePure, SUBTITLES_EXTS);
+      textFiles.forEach(tf => {
+        const matched = tf.name.match(targetFileReg);
+        if (!matched) return;
+        if (!mediaInfo.subtitles) mediaInfo.subtitles = [];
+        mediaInfo.subtitles.push({
+          lang: matched[1],
+          ext: matched[2],
+          path: tf.relativePath,
+        });
+      });
     }
   });
 };
