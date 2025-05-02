@@ -1,4 +1,5 @@
-export const IMAGE_EXTS = [
+// 图片文件后缀
+const CONST_IMAGE_EXTS = [
   'gif',
   'jpg',
   'png',
@@ -10,9 +11,17 @@ export const IMAGE_EXTS = [
   'tiff',
   'tif',
   'ico',
-];
-export const AUDIO_EXTS = ['mp3', 'wav', 'aac', 'flac', 'm4a', 'wma', 'ogg', 'mka'];
-export const VIDEO_EXTS = [
+] as const;
+export type ImageExts = (typeof CONST_IMAGE_EXTS)[number];
+export const IMAGE_EXTS = [...CONST_IMAGE_EXTS];
+
+// 音频文件后缀
+const CONST_AUDIO_EXTS = ['mp3', 'wav', 'aac', 'flac', 'm4a', 'wma', 'ogg', 'mka'] as const;
+export type AudioExts = (typeof CONST_AUDIO_EXTS)[number];
+export const AUDIO_EXTS = [...CONST_AUDIO_EXTS];
+
+// 视频文件后缀
+const CONST_VIDEO_EXTS = [
   'mp4',
   'mkv',
   'mov',
@@ -24,16 +33,23 @@ export const VIDEO_EXTS = [
   'webm',
   '3gp',
   'ts',
-];
+] as const;
+export type VideoExts = (typeof CONST_VIDEO_EXTS)[number];
+export const VIDEO_EXTS = [...CONST_VIDEO_EXTS];
 
 // 字幕文件后缀
-export const SUBTITLES_EXTS = ['ass', 'srt', 'vtt'];
+const CONST_SUBTITLES_EXTS = ['ass', 'srt', 'vtt'] as const;
+export type SubtitlesExts = (typeof CONST_SUBTITLES_EXTS)[number];
+export const SUBTITLES_EXTS = [...CONST_SUBTITLES_EXTS];
 
 // 歌词文件后缀
 export const LYRIC_EXT = 'lrc';
+export type LyricExt = typeof LYRIC_EXT;
 
 // 文本文件后缀
-export const TEXT_EXTS = ['pdf', 'txt', LYRIC_EXT, ...SUBTITLES_EXTS];
+const CONST_TEXT_EXTS = ['pdf', 'txt', LYRIC_EXT, ...SUBTITLES_EXTS] as const;
+export type TextExts = (typeof CONST_TEXT_EXTS)[number];
+export const TEXT_EXTS = [...CONST_TEXT_EXTS];
 
 export const IMAGE_REG = new RegExp(`\\.(${IMAGE_EXTS.join('|')})$`, 'i');
 export const AUDIO_REG = new RegExp(`\\.(${AUDIO_EXTS.join('|')})$`, 'i');

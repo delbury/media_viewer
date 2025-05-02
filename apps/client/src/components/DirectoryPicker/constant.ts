@@ -1,4 +1,4 @@
-import { mapToOptions } from '#/utils';
+import { mapToOptions, stringToMap } from '#/utils';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { FullFileType } from '#pkgs/shared';
 import { AUDIO_EXTS, IMAGE_EXTS, VIDEO_EXTS } from '#pkgs/tools/constant';
@@ -20,13 +20,12 @@ export const FULL_FILE_FILTER_MAP: Record<FullFileType, string> = {
   other: 'Common.Other',
 };
 export const FILE_FILTER_OPTIONS = mapToOptions(FILE_FILTER_MAP);
-const stringToMap = (str: string) => ({ label: str.toUpperCase(), value: str });
-export const FILE_TYPE_EXTS: Record<FileFilterField, { label: string; value: string }[]> = {
+export const FILE_TYPE_EXTS = {
   image: IMAGE_EXTS.map(stringToMap),
   audio: AUDIO_EXTS.map(stringToMap),
   video: VIDEO_EXTS.map(stringToMap),
   // text: TEXT_EXTS,
-};
+} satisfies Record<FileFilterField, { label: string; value: string }[]>;
 
 // 文件夹信息行的高度
 export const DIRECTORY_ITEM_HEIGHT = 48;

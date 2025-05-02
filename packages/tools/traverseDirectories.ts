@@ -3,7 +3,7 @@ import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { FullFileType } from '../shared';
 import { createFileNameRegExp, detectFileType, formatPath } from './common';
-import { IGNORE_FILE_NAME_REG, LYRIC_EXT, SUBTITLES_EXTS } from './constant';
+import { IGNORE_FILE_NAME_REG, LYRIC_EXT, SUBTITLES_EXTS, SubtitlesExts } from './constant';
 
 interface CommonInfo {
   // 文件根路径
@@ -40,7 +40,7 @@ export interface FileInfo extends CommonInfo {
   subtitles?: {
     lang: string;
     path: string;
-    ext: string;
+    ext: SubtitlesExts;
   }[];
 }
 export interface DirectoryInfo extends CommonInfo {
@@ -150,7 +150,7 @@ const resolveFileRelation = (fileInfos: FileInfo[]) => {
         if (!mediaInfo.subtitles) mediaInfo.subtitles = [];
         mediaInfo.subtitles.push({
           lang: matched[1],
-          ext: matched[2],
+          ext: matched[2].toLowerCase() as SubtitlesExts,
           path: tf.relativePath,
         });
       });
