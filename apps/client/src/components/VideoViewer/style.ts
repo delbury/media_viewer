@@ -18,6 +18,7 @@ export const StyledVideoWrapper = styled(Box)`
     object-fit: contain;
     transition-property: transform, height, width;
     transition-duration: ${({ theme }) => theme.transitions.duration.shorter}ms;
+    cursor: pointer;
   }
 `;
 

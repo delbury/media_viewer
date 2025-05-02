@@ -46,4 +46,13 @@ export const StyledFixedContent = styled(Box)`
 
 export const StyledFooterWrapper = styled(Box)`
   z-index: 1;
+
+  /* :fullscreen {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+  } */
 `;

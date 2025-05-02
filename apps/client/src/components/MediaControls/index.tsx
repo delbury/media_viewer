@@ -1,5 +1,6 @@
 import { useResizeObserver } from '#/hooks/useResizeObserver';
 import { useRotateState } from '#/hooks/useRotateState';
+import { useShortcut } from '#/hooks/useShortcut';
 import { formatTime } from '#/utils';
 import {
   CachedRounded,
@@ -15,20 +16,10 @@ import {
   VolumeUpRounded,
 } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
-import { noop } from 'lodash-es';
-import {
-  forwardRef,
-  RefObject,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useState,
-} from 'react';
-import { RootType } from '../FixedModal';
+import { forwardRef, RefObject, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import { calcTimeRanges } from '../VideoViewer/util';
 import { MediaProgress } from './MediaProgress';
-import RateSetting, { SWITCH_RATE_OPTIONS } from './RateSetting';
+import RateSetting from './RateSetting';
 import RotateSetting from './RotateSetting';
 import {
   StyledBtnsContainer,
@@ -38,6 +29,7 @@ import {
   StyledProgressInfo,
   StyledToolsRow,
 } from './style';
+import { useHandlers } from './useHandlers';
 import VolumeSetting from './VolumeSetting';
 
 // 绑定事件
@@ -140,105 +132,36 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       };
     }, [currentDegree, mediaContainerSize, mediaRef]);
 
-    // 播放切换
-    const handleTogglePlay = useCallback(() => {
-      if (!mediaRef.current) return;
-      if (mediaRef.current.paused) {
-        mediaRef.current.play().catch(noop);
-        setIsPaused(false);
-      } else {
-        mediaRef.current.pause();
-        setIsPaused(true);
-      }
-    }, [mediaRef]);
+    // handlers
+    const {
+      handleTogglePlay,
+      handleToggleRotate,
+      handleToggleMute,
+      handleToggleFullScreen,
+      handleGoTo,
+      handleBack,
+      handleForward,
+      handleVolumeChange,
+      handleRateChange,
+      handleSwitchRate,
+      handleDegreeChange,
+    } = useHandlers({
+      mediaRef,
+      setIsPaused,
+      setIsFullScreen,
+      currentDegree,
+      setCurrentDegree,
+    });
 
-    // 静音切换
-    const handleToggleMute = useCallback(() => {
-      if (!mediaRef.current) return;
-      mediaRef.current.muted = !mediaRef.current.muted;
-    }, [mediaRef]);
-
-    // 全屏切换
-    const handleToggleFullScreen = useCallback(() => {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-        setIsFullScreen(false);
-      } else {
-        let curElm: HTMLElement | null = mediaRef.current;
-        while (curElm) {
-          if (curElm.dataset.root === RootType.Media) break;
-          curElm = curElm.parentElement;
-        }
-        if (!curElm) return;
-        curElm.requestFullscreen();
-        setIsFullScreen(true);
-      }
-    }, [mediaRef]);
-
-    // 跳转到对应的进度条时刻
-    const handleGoto = useCallback(
-      (time: number) => {
-        if (!mediaRef.current) return;
-        mediaRef.current.currentTime = time;
-      },
-      [mediaRef]
-    );
-
-    // 改变音量
-    const handleVolumeChange = useCallback(
-      (v: number) => {
-        if (!mediaRef.current) return;
-        mediaRef.current.volume = v;
-      },
-      [mediaRef]
-    );
-
-    // 改变速率
-    const handleRateChange = useCallback(
-      (v: number) => {
-        if (!mediaRef.current) return;
-        mediaRef.current.playbackRate = v;
-      },
-      [mediaRef]
-    );
-
-    // 切换速率
-    const handleSwitchRate = useCallback(() => {
-      if (!mediaRef.current) return;
-      const rate = mediaRef.current.playbackRate;
-      const index = SWITCH_RATE_OPTIONS.findIndex(v => v === rate);
-      let newRate = 1;
-      if (index > -1) newRate = SWITCH_RATE_OPTIONS[(index + 1) % SWITCH_RATE_OPTIONS.length];
-      mediaRef.current.playbackRate = newRate;
-    }, [mediaRef]);
-
-    // 切换旋转
-    const handleToggleRotate = useCallback(() => {
-      let deg = currentDegree;
-      const rest = currentDegree % 360;
-      if (rest === 0 || rest > 180) deg += 90;
-      else deg -= rest;
-      setCurrentDegree(deg);
-    }, [currentDegree, setCurrentDegree]);
-
-    // 改变旋转
-    const handleDegreeChange = useCallback(
-      (newDeg: number) => {
-        setCurrentDegree(curDeg => {
-          // 判断当前的旋转在哪
-          const rest = curDeg % 360;
-          // 旋转不变
-          if (rest === newDeg) return curDeg;
-          // 新的旋转角度小于与当前角度的差值
-          const diff = newDeg - rest;
-          // 如果差值小于等于 180，直接转
-          if (Math.abs(diff) <= 180) return curDeg + diff;
-          // 否则，差值大于270
-          return curDeg + diff + (diff > 0 ? -360 : 360);
-        });
-      },
-      [setCurrentDegree]
-    );
+    // 快捷键
+    useShortcut({
+      onUpPressed: onPrev,
+      onDownPressed: onNext,
+      onLeftPressed: handleBack,
+      onRightPressed: handleForward,
+      onSpacePressed: handleTogglePlay,
+      onEnterPressed: handleTogglePlay,
+    });
 
     // 初始化
     useEffect(() => {
@@ -337,7 +260,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           currentTime={currentTime}
           videoDuration={videoDuration}
           bufferRanges={bufferRanges}
-          onGoto={handleGoto}
+          onGoto={handleGoTo}
         />
 
         <StyledToolsRow>
@@ -375,7 +298,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
             <StyledBtnsGroup>
               {/* 上一个 */}
               {showPrevBtn && (
-                <IconButton>
+                <IconButton onClick={onPrev}>
                   <SkipPreviousRounded />
                 </IconButton>
               )}
@@ -387,7 +310,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
               {/* 下一个 */}
               {showNextBtn && (
-                <IconButton>
+                <IconButton onClick={onNext}>
                   <SkipNextRounded />
                 </IconButton>
               )}
