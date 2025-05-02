@@ -157,6 +157,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
                   <StyledLyricRow
                     key={row.timeString}
                     isActivated={index === currentLyricIndex}
+                    // 作为当前歌词的 id
                     data-index={index}
                   >
                     {row.words}

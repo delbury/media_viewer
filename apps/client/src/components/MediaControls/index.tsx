@@ -25,6 +25,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { RootType } from '../FixedModal';
 import { calcTimeRanges } from '../VideoViewer/util';
 import { MediaProgress } from './MediaProgress';
 import RateSetting, { SWITCH_RATE_OPTIONS } from './RateSetting';
@@ -159,8 +160,20 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
     // 全屏切换
     const handleToggleFullScreen = useCallback(() => {
-      setIsFullScreen(v => !v);
-    }, []);
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+        setIsFullScreen(false);
+      } else {
+        let curElm: HTMLElement | null = mediaRef.current;
+        while (curElm) {
+          if (curElm.dataset.root === RootType.Media) break;
+          curElm = curElm.parentElement;
+        }
+        if (!curElm) return;
+        curElm.requestFullscreen();
+        setIsFullScreen(true);
+      }
+    }, [mediaRef]);
 
     // 跳转到对应的进度条时刻
     const handleGoto = useCallback(

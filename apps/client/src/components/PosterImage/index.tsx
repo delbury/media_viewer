@@ -142,7 +142,8 @@ const PosterImage = ({ disabled, file }: PosterImageProps) => {
               key={refreshKey.toString()}
               ref={imageRef}
               src={posterUrl ?? ''}
-              data-type={file.fileType}
+              // 标记缩略图的源文件类型
+              // data-type={file.fileType}
               alt={file.name}
               style={{
                 visibility: isLoading ? 'hidden' : 'visible',

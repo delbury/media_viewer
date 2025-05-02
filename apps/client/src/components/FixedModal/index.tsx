@@ -2,6 +2,7 @@ import { useShortcut } from '#/hooks/useShortcut';
 import { stopPropagation } from '#/utils';
 import { CloseRounded } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
+import { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import RollingText from '../RollingText';
 import {
@@ -12,6 +13,10 @@ import {
   StyledFixedToolbar,
   StyledFooterWrapper,
 } from './style';
+
+export enum RootType {
+  Media = 'media',
+}
 
 export interface FixedModalProps {
   visible?: boolean;
@@ -32,6 +37,8 @@ const FixedModal = ({
   title,
   footerSlot,
 }: FixedModalProps) => {
+  const contentRef = useRef<HTMLElement>(null);
+
   useShortcut({
     onEscPressed: onClose,
   });
@@ -62,8 +69,14 @@ const FixedModal = ({
           </StyledFixedToolbar>
         </StyledFixedModalHeader>
 
-        <StyledFixedContent>{children}</StyledFixedContent>
-        <StyledFooterWrapper>{footerSlot}</StyledFooterWrapper>
+        <StyledFixedContent
+          ref={contentRef}
+          // 标记为媒体元素的根元素
+          data-root={RootType.Media}
+        >
+          {children}
+          <StyledFooterWrapper>{footerSlot}</StyledFooterWrapper>
+        </StyledFixedContent>
       </StyledFixedModalWrapper>,
       document.body
     )
