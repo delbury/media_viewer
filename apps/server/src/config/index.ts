@@ -23,9 +23,9 @@ export const POSTER_CACHE_MAX_AGE = 1000 * 60 * 10;
 // 缩略图封面文件名前缀
 export const POSTER_FILE_NAME_PREFIX = `${IGNORE_FILE_NAME_PREFIX}poster__`;
 // 生成的缩略图文件名扩展名
-export const POSTER_FILE_EXT = '.jpg';
+export const POSTER_FILE_EXT = '.webp';
 // 缩略图长或宽最大尺寸
-export const POSTER_MAX_SIZE = 400;
+export const POSTER_MAX_SIZE = 640;
 // 保存缩略图的文件夹名
 export const POSTER_DIR_NAME = `${IGNORE_FILE_NAME_PREFIX}poster_dir`;
 

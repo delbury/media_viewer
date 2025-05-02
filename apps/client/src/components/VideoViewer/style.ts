@@ -9,6 +9,7 @@ export const StyledVideoWrapper = styled(Box)`
   justify-content: center;
   align-items: center;
   font-size: 0;
+  min-height: 0;
 
   > video {
     width: 100%;

@@ -104,14 +104,23 @@ export const transformVideoStream = async (
 ) => {
   // 关闭之前的进程
   killProcess();
-
   const hash = createHash('md5').update(filePath).digest('hex').substring(0, 8);
 
-  let segArgs: string[] = [];
+  const inputArgs: string[] = ['-i', `${filePath}`];
+  // 处理分片
   if (segOpt) {
     const { start, duration } = segOpt;
     if (duration === 0) throw new Error(ERROR_MSG.invalid);
-    segArgs = ['-ss', `${start}`, '-t', `${duration}`];
+    const segArgs = ['-ss', `${start}`, '-t', `${duration}`];
+
+    const metadata = await getVideoDetail(filePath);
+    if (metadata?.format.format_name.includes('avi')) {
+      // avi 格式，将 -ss 放在 -i 后面，防止报错 first frame is no keyframe
+      // TODO 先如此处理 avi 格式的问题，可能有更好的处理方式
+      inputArgs.push(...segArgs);
+    } else {
+      inputArgs.unshift(...segArgs);
+    }
   }
 
   // 转码命令
@@ -132,11 +141,8 @@ export const transformVideoStream = async (
     '-threads', '0',
     '-reinit_filter', '0',
 
-    // 分片
-    ...segArgs,
-
     // 输入文件
-    '-i', `${filePath}`,
+    ...inputArgs,
 
     // 视频
     '-vf',

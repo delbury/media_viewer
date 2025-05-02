@@ -1,3 +1,4 @@
+import { MediaDetailInfo } from '#pkgs/shared/index.js';
 import { DEFAULT_RATIO, detectFileType, logError } from '#pkgs/tools/common';
 import path from 'node:path';
 import {
@@ -18,31 +19,38 @@ export const getPosterFileName = (fileName: string) =>
 // 生成 poster 的 ffmpeg 的基础命令
 const basePosterCommandParam = 'ffmpeg -y -hide_banner -loglevel error';
 const scalePosterCommandParam = `-vf "scale='min(${POSTER_MAX_SIZE},iw)':'min(${POSTER_MAX_SIZE},ih)':force_original_aspect_ratio=decrease"`;
+const webpCommandParam = '-c:v libwebp -quality 50';
 
 // 截取视频帧，生成缩略图
 const getGenerateVideoPosterCommand = async (rawFilePath: string, posterFilePath: string) => {
   // 获取视频时长命令
   const durationCommand = [
     'ffprobe -v error',
-    '-show_entries format=duration',
-    '-of default=noprint_wrappers=1:nokey=1',
+    '-show_entries format=duration,format_name',
+    // '-of default=noprint_wrappers=1:nokey=1',
+    '-print_format json',
     `"${rawFilePath}"`,
   ].join(' ');
   const { stdout } = await execCommand(durationCommand);
+  const info = JSON.parse(stdout as string) as MediaDetailInfo;
+  const isAvi = info.format.format_name.includes('avi');
   // 视频时长，单位为秒
-  const duration = parseFloat(stdout as string);
+  const duration = parseFloat(info.format.duration);
   const frameTime =
     duration < LONG_VIDEO_DURATION_THRESHOLD
       ? SHORT_VIDEO_POSTER_FRAME_TIME
       : LONG_VIDEO_POSTER_FRAME_TIME;
 
   // 生成缩略图命令
+  const inputArgs = [`-ss ${frameTime}`, `-i "${rawFilePath}"`];
+  // TODO 先如此处理 avi 格式的问题，可能有更好的处理方式
+  if (isAvi) inputArgs.reverse();
   return [
     basePosterCommandParam,
-    `-i "${rawFilePath}"`,
-    `-ss ${frameTime}`,
-    // scalePosterCommandParam,
-    '-vframes 1 -q:v 5',
+    ...inputArgs,
+    scalePosterCommandParam,
+    '-vframes 1',
+    webpCommandParam,
     `"${posterFilePath}"`,
   ];
 };
@@ -65,6 +73,7 @@ const getGenerateAudioPosterCommand = async (rawFilePath: string, posterFilePath
       `-i "${rawFilePath}"`,
       '-map 0:v',
       // scalePosterCommandParam,
+      webpCommandParam,
       `"${posterFilePath}"`,
     ];
   } else {
@@ -74,6 +83,7 @@ const getGenerateAudioPosterCommand = async (rawFilePath: string, posterFilePath
       '-f lavfi',
       `-i "color=c=black:s=${POSTER_MAX_SIZE}x${DEFAULT_RATIO * POSTER_MAX_SIZE}"`,
       '-vframes 1',
+      webpCommandParam,
       `"${posterFilePath}"`,
     ];
   }
@@ -91,7 +101,7 @@ export const generatePoster = async (rawFilePath: string, posterFilePath: string
       basePosterCommandParam,
       `-i "${rawFilePath}"`,
       scalePosterCommandParam,
-      '-q:v 5',
+      webpCommandParam,
       `"${posterFilePath}"`,
     ];
   } else if (fileType === 'video') {
