@@ -1,7 +1,7 @@
 import { SliderOwnProps } from '@mui/material';
 import { useCallback, useMemo, useRef } from 'react';
-import TooltipSetting, { TooltipSettingInstance } from '../TooltipSetting';
-import { StyledSlider, StyledVolumePopoverContainer } from './style';
+import TooltipSetting, { TooltipSettingInstance } from '../../TooltipSetting';
+import { StyledSlider, StyledVolumePopoverContainer } from '../style';
 
 interface VolumeSettingProps {
   volume: number;

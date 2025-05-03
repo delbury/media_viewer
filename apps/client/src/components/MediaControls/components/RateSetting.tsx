@@ -1,13 +1,13 @@
 import { ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
 import { at, isNil } from 'lodash-es';
 import { useCallback, useMemo, useRef } from 'react';
-import TooltipSetting, { TooltipSettingInstance } from '../TooltipSetting';
+import TooltipSetting, { TooltipSettingInstance } from '../../TooltipSetting';
 import {
   StyledRateChildrenWrapper,
   StyledRateOption,
   StyledRateText,
   StyledToggleBtnPopoverContainer,
-} from './style';
+} from '../style';
 
 interface RateSettingProps {
   rate: number;

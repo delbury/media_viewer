@@ -35,10 +35,13 @@ import {
   useState,
 } from 'react';
 import { calcTimeRanges } from '../VideoViewer/util';
-import AlertInfo from './AlertInfo';
-import { MediaProgress } from './MediaProgress';
-import RateSetting, { MAX_RATE } from './RateSetting';
-import RotateSetting from './RotateSetting';
+import AlertInfo from './components/AlertInfo';
+import { MediaProgress } from './components/MediaProgress';
+import RateSetting, { MAX_RATE } from './components/RateSetting';
+import RotateSetting from './components/RotateSetting';
+import SubtitleSetting, { Subtitle } from './components/SubtitleSetting';
+import VolumeSetting from './components/VolumeSetting';
+import { useHandlers } from './hooks/useHandlers';
 import {
   StyledBtnsContainer,
   StyledBtnsGroup,
@@ -47,9 +50,6 @@ import {
   StyledProgressInfo,
   StyledToolsRow,
 } from './style';
-import SubtitleSetting, { Subtitle } from './SubtitleSetting';
-import { useHandlers } from './useHandlers';
-import VolumeSetting from './VolumeSetting';
 
 // 绑定事件
 const bindEvent = <T extends keyof HTMLMediaElementEventMap>(

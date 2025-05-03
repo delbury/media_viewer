@@ -1,4 +1,4 @@
-import { StyledFloatAlertInfo } from './style';
+import { StyledFloatAlertInfo } from '../style';
 
 interface AlertInfoProps {
   message?: string;

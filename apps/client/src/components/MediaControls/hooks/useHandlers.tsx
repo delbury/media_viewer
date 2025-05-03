@@ -1,8 +1,8 @@
+import { RootType } from '#/components/FixedModal';
 import { isNil, noop } from 'lodash-es';
 import { RefObject, useCallback, useRef } from 'react';
-import { RootType } from '../FixedModal';
-import { SWITCH_RATE_OPTIONS } from './RateSetting';
-import { Subtitle } from './SubtitleSetting';
+import { SWITCH_RATE_OPTIONS } from '../components/RateSetting';
+import { Subtitle } from '../components/SubtitleSetting';
 
 // 键盘每次跳转的时间间隔
 const GO_BY_MAX_DIFF = 15;

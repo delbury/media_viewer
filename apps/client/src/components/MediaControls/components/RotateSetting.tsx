@@ -1,9 +1,9 @@
+import TooltipSetting, { TooltipSettingInstance } from '#/components/TooltipSetting';
 import { OndemandVideoRounded } from '@mui/icons-material';
 import { ToggleButton, ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
 import { isNil } from 'lodash-es';
 import { useCallback, useMemo, useRef } from 'react';
-import TooltipSetting, { TooltipSettingInstance } from '../TooltipSetting';
-import { StyledToggleBtnPopoverContainer } from './style';
+import { StyledToggleBtnPopoverContainer } from '../style';
 
 interface RotateSettingProps {
   degree: number;

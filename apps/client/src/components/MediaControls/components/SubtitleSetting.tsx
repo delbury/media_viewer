@@ -1,8 +1,8 @@
 import { FileInfo } from '#pkgs/apis';
 import { ToggleButton, ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
 import { useCallback, useRef } from 'react';
-import TooltipSetting, { TooltipSettingInstance } from '../TooltipSetting';
-import { StyledRateChildrenWrapper, StyledToggleBtnPopoverContainer } from './style';
+import TooltipSetting, { TooltipSettingInstance } from '../../TooltipSetting';
+import { StyledRateChildrenWrapper, StyledToggleBtnPopoverContainer } from '../style';
 
 export type Subtitle = NonNullable<FileInfo['subtitles']>[0];
 

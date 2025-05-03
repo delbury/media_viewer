@@ -11,7 +11,7 @@ import {
   StyleCursorTime,
   StyledCursorContainer,
   StyledProgressContainer,
-} from './style';
+} from '../style';
 
 const BUFFER_BAR_COLOR = 'var(--mui-palette-grey-600)';
 const BUFFER_BAR_COLOR_EMPTY = 'transparent';
