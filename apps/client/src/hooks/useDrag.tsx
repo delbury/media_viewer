@@ -15,6 +15,8 @@ export interface UseDragParams {
   onEnd?: () => void;
   // 拖拽后重置
   resetAtEnd?: boolean;
+  // 只在移动端使用
+  onlyMobile?: boolean;
 }
 
 const MOVE_EVENT_NAME = 'pointermove';
@@ -27,6 +29,7 @@ export const useDrag = ({
   onStart,
   onEnd,
   resetAtEnd,
+  onlyMobile,
 }: UseDragParams) => {
   // 鼠标点击的原点
   const startPosition = useRef<[number, number]>(null);
@@ -71,6 +74,8 @@ export const useDrag = ({
   // 点击事件，开始
   const fnPointerDown = useCallback(
     (ev: PointerEvent) => {
+      if (onlyMobile && ev.pointerType === 'mouse') return;
+
       // 如果已经按下了，则跳过
       if (currentActivePointerId.current !== null) return;
       currentActivePointerId.current = ev.pointerId;
@@ -130,7 +135,16 @@ export const useDrag = ({
         { signal: upController.current.signal }
       );
     },
-    [clearEvents, pointerMoveThrottle, onEnd, onStart, resetAtEnd, resetDragOffset, watchAxis]
+    [
+      onlyMobile,
+      onStart,
+      watchAxis,
+      pointerMoveThrottle,
+      onEnd,
+      clearEvents,
+      resetAtEnd,
+      resetDragOffset,
+    ]
   );
 
   // 移除事件

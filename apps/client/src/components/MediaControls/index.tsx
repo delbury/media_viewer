@@ -1,3 +1,4 @@
+import { useCancelAreaContext } from '#/hooks/useCancelAreaContext';
 import { useDrag } from '#/hooks/useDrag';
 import { useGesture } from '#/hooks/useGesture';
 import { useResizeObserver } from '#/hooks/useResizeObserver';
@@ -5,6 +6,7 @@ import { useRotateState } from '#/hooks/useRotateState';
 import { useShortcut } from '#/hooks/useShortcut';
 import { formatTime } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
+import { Theme } from '@emotion/react';
 import {
   CachedRounded,
   FullscreenExitRounded,
@@ -20,7 +22,7 @@ import {
   VolumeOffRounded,
   VolumeUpRounded,
 } from '@mui/icons-material';
-import { IconButton } from '@mui/material';
+import { IconButton, SxProps } from '@mui/material';
 import {
   forwardRef,
   RefObject,
@@ -74,6 +76,11 @@ export interface MediaControlsInstance {
 const PROGRESS_DRAG_PER_PX = 0.1;
 // 判断在 video 上拖拽的方向时的最小距离的平方
 const DRAG_DIR_MIN_DISTANCE = 5 ** 2;
+
+// 取消区域的样式
+const CANCEL_AREA_SX: SxProps<Theme> = {
+  marginTop: '72px',
+};
 
 type Subtitle = NonNullable<FileInfo['subtitles']>[0];
 interface MediaControls {
@@ -206,6 +213,9 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         const diffTime = currentDragOffsetInstant.current[0] * PROGRESS_DRAG_PER_PX;
         handleGoBy(1, diffTime);
       }
+    }, [handleGoBy]);
+    // 重置
+    const handleResetDrag = useCallback(() => {
       currentDragDirection.current = null;
       currentDragOffsetInstant.current = null;
       setCurrentDragOffset(null);
@@ -225,11 +235,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const { detectGesture } = useGesture();
     // 拖拽 hook
     const { dragEventHandler } = useDrag({
+      onlyMobile: true,
       callback: handleDrag,
       resetAtEnd: true,
-      // onStart: disableTransition,
-      onEnd: handleDragEnd,
     });
+    // 当前拖拽跳转展示的时间信息
     const skipTimeText = useMemo(() => {
       const dir = currentDragDirection.current;
       if (!currentDragOffset || !dir) return;
@@ -242,6 +252,20 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         return timeText;
       }
     }, [currentDragOffset]);
+    // 跳转的相对时间
+    const currentDragDiffTime = useMemo(() => {
+      if (currentDragDirection.current !== 'x') return;
+      return currentDragOffset ? currentDragOffset[0] * PROGRESS_DRAG_PER_PX : void 0;
+    }, [currentDragOffset]);
+    // 中途取消
+    const ifDisableDrag = useCallback(() => currentDragDirection.current !== 'x', []);
+    useCancelAreaContext({
+      domRef: mediaRef,
+      onActivatedCallback: handleDragEnd,
+      onFinal: handleResetDrag,
+      areaSx: CANCEL_AREA_SX,
+      ifDisable: ifDisableDrag,
+    });
     /* end */
 
     // 初始化
@@ -375,6 +399,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           videoDuration={videoDuration}
           bufferRanges={bufferRanges}
           onGoto={handleGoTo}
+          previewDiffTime={currentDragDiffTime}
         />
 
         <StyledToolsRow>

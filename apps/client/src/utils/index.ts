@@ -33,7 +33,9 @@ export const formatTime = (
   // 取绝对值
   t = Math.abs(t);
   // 取小数部分
-  const decimal = (t - Math.trunc(t)).toFixed(fixed).replace('0', '');
+  let decimal = (t - Math.trunc(t)).toString().substring(2, 2 + (fixed ?? 0));
+  decimal = decimal.padStart(fixed ?? 0, '0');
+  if (decimal) decimal = `.${decimal}`;
   // 去掉小数部分
   t = Math.trunc(t);
 

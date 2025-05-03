@@ -3,6 +3,7 @@ import { useMove } from '#/hooks/useMove';
 import { formatTime } from '#/utils';
 import { ArrowDropDownRounded, ArrowDropUpRounded } from '@mui/icons-material';
 import { LinearProgress, linearProgressClasses, SxProps } from '@mui/material';
+import { isNil } from 'lodash-es';
 import { MouseEventHandler, useCallback, useMemo, useRef, useState } from 'react';
 import { StyleCursorTime, StyledCursorContainer, StyledProgressContainer } from './style';
 
@@ -14,6 +15,8 @@ interface MediaProgressProps {
   videoDuration: number;
   bufferRanges: [number, number][];
   onGoto?: (time: number) => void;
+  // 可能要跳转到的时刻预览
+  previewDiffTime?: number;
 }
 
 // 在移动端拖拽进度条结束时
@@ -25,11 +28,13 @@ export const MediaProgress = ({
   videoDuration,
   bufferRanges,
   onGoto,
+  previewDiffTime,
 }: MediaProgressProps) => {
   const progressBarRef = useRef<HTMLElement>(null);
   const [cursorOffset, setCursorOffset] = useState(0);
-  const [cursorPercent, setCursorPercent] = useState(0);
   const [showCursor, setShowCursor] = useState(false);
+
+  const realShowCursor = showCursor || !isNil(previewDiffTime);
 
   useMove({
     domRef: progressBarRef,
@@ -40,7 +45,6 @@ export const MediaProgress = ({
       else offset = pos[0];
 
       setCursorOffset(offset);
-      setCursorPercent(offset / size.width);
     },
     onEnter: pos => {
       setCursorOffset(pos[0]);
@@ -56,18 +60,35 @@ export const MediaProgress = ({
   );
 
   // 当前光标的时刻
-  const cursorTime = useMemo(
-    () => formatTime(cursorPercent * videoDuration),
-    [cursorPercent, videoDuration]
-  );
+  const cursorTime = useMemo(() => {
+    if (!progressBarRef.current) return '';
+    let time = isNil(previewDiffTime)
+      ? (cursorOffset / progressBarRef.current.offsetWidth) * videoDuration
+      : currentTime + previewDiffTime;
+    // 边界限制
+    if (time < 0) time = 0;
+    else if (time > videoDuration) time = videoDuration;
+
+    return formatTime(time);
+  }, [currentTime, cursorOffset, previewDiffTime, videoDuration]);
 
   // 游标随鼠标移动的位置
-  const pointerCursorOffsetSx = useMemo<SxProps>(
-    () => ({
-      transform: `translate(${cursorOffset}px)`,
-    }),
-    [cursorOffset]
-  );
+  const pointerCursorOffsetSx = useMemo<SxProps>(() => {
+    const elm = progressBarRef.current;
+    let offset = cursorOffset;
+    const offsetWidth = elm?.offsetWidth;
+    if (offsetWidth && !isNil(previewDiffTime)) {
+      offset = (currentTimePercent / 100 + previewDiffTime / videoDuration) * offsetWidth;
+    }
+
+    // 边界限制
+    if (offset < 0) offset = 0;
+    else if (offsetWidth && offset > offsetWidth) offset = offsetWidth;
+
+    return {
+      transform: `translate(${offset}px)`,
+    };
+  }, [currentTimePercent, cursorOffset, previewDiffTime, videoDuration]);
 
   // 缓存进度百分比，渐变样式
   // 10 ~ 20, 40 ~ 80
@@ -100,26 +121,31 @@ export const MediaProgress = ({
   }, [bufferRanges, videoDuration]);
 
   // 跳转到对应的进度条时刻
-  const handleGoto = useCallback<MouseEventHandler<HTMLDivElement>>(
-    ev => {
-      const { offsetX } = ev.nativeEvent;
-      const { offsetWidth } = ev.nativeEvent.target as HTMLElement;
+  const handleGoto = useCallback(
+    (ev: PointerEvent | MouseEvent) => {
+      const { offsetX } = ev;
+      const { offsetWidth } = ev.target as HTMLElement;
       onGoto?.((offsetX / offsetWidth) * videoDuration);
     },
     [onGoto, videoDuration]
   );
+  const handleClick = useCallback<MouseEventHandler>(
+    ev => {
+      handleGoto(ev.nativeEvent);
+    },
+    [handleGoto]
+  );
 
   // 移动端下，拖到区域内取消拖动进度条操作
-  const { events: cancelAreaEvents } = useCancelAreaContext({
+  useCancelAreaContext({
+    domRef: progressBarRef,
     onActivatedCallback: handleGoto,
   });
 
   return (
     <StyledProgressContainer
       ref={progressBarRef}
-      onClick={handleGoto}
-      // 移动端拖动时放开触发
-      {...cancelAreaEvents}
+      onClick={handleClick}
     >
       <LinearProgress
         variant="buffer"
@@ -128,7 +154,7 @@ export const MediaProgress = ({
         sx={bufferRangesPercentsBarSx}
       />
 
-      {showCursor && (
+      {realShowCursor && (
         <StyledCursorContainer sx={pointerCursorOffsetSx}>
           <StyleCursorTime>{cursorTime}</StyleCursorTime>
           <ArrowDropDownRounded />

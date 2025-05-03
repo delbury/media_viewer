@@ -211,7 +211,7 @@ export const StyledFloatAlertInfo = styled(Box)`
   width: 120px;
   position: absolute;
   top: 0;
-  transform: translateY(-100%);
+  transform: translateY(calc(-100% - 24px));
   font-size: 0.8rem;
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);

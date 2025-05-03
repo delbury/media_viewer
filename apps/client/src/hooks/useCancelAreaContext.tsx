@@ -1,24 +1,43 @@
 import { CancelAreaContext } from '#/components/CancelAreaProvider/Context';
-import {
-  DOMAttributes,
-  MouseEventHandler,
-  TouchEventHandler,
-  useCallback,
-  useContext,
-} from 'react';
+import { SxProps, Theme } from '@mui/material';
+import { useCallback, useContext, useEffect, useRef } from 'react';
 import { useThrottle } from './useThrottle';
 
 interface UseCancelAreaContextParams {
-  onActivatedCallback: MouseEventHandler<HTMLElement>;
+  domRef: React.RefObject<HTMLElement | null>;
+  onActivatedCallback: (ev: PointerEvent) => void;
+  onFinal?: () => void;
+  areaSx?: SxProps<Theme>;
+  // 是否禁用
+  ifDisable?: () => boolean;
 }
 
-export const useCancelAreaContext = ({ onActivatedCallback }: UseCancelAreaContextParams) => {
-  const { visible, setVisible, areaSize, activated, setActivated } = useContext(CancelAreaContext);
+export const useCancelAreaContext = ({
+  domRef,
+  onActivatedCallback,
+  onFinal,
+  areaSx,
+  ifDisable,
+}: UseCancelAreaContextParams) => {
+  // 判断是否开始
+  const isStart = useRef(false);
+  const { visible, setVisible, areaSize, activated, setActivated, setAreaSx } =
+    useContext(CancelAreaContext);
 
-  const openCancelArea = useCallback(() => setVisible(true), [setVisible]);
+  // 开
+  const openCancelArea = useCallback(() => {
+    if (!isStart.current) {
+      isStart.current = true;
+      setAreaSx(areaSx);
+    }
+    setVisible(true);
+  }, [areaSx, setAreaSx, setVisible]);
+
+  // 关
   const closeCancelArea = useCallback(() => {
     setVisible(false);
     setActivated(false);
+    isStart.current = false;
   }, [setActivated, setVisible]);
 
   const activateCancelArea = useCallback(() => setActivated(true), [setActivated]);
@@ -40,29 +59,51 @@ export const useCancelAreaContext = ({ onActivatedCallback }: UseCancelAreaConte
   );
 
   // 移动端触发，move 过程中判断
-  const handleTouchMove = useCallback<TouchEventHandler<HTMLElement>>(
-    ev => {
+  const handleTouchMove = useCallback(
+    (ev: TouchEvent) => {
+      if (ifDisable?.()) return;
+
       const { clientX, clientY } = ev.targetTouches[0];
       detectIfActivated([clientX, clientY]);
       openCancelArea();
     },
-    [detectIfActivated, openCancelArea]
+    [detectIfActivated, ifDisable, openCancelArea]
   );
   const handleTouchMoveThrottle = useThrottle(handleTouchMove, {
     byAnimationFrame: true,
     notCacheLastCall: true,
   });
 
-  // 移动端触发，结束事件
-  const handleLostPointerCapture = useCallback<MouseEventHandler<HTMLElement>>(
-    ev => {
+  // 结束事件
+  const handleLostPointerCapture = useCallback(
+    (ev: PointerEvent) => {
       if (!detectIfActivated([ev.clientX, ev.clientY])) {
         onActivatedCallback?.(ev);
       }
       closeCancelArea();
+      onFinal?.();
     },
-    [closeCancelArea, detectIfActivated, onActivatedCallback]
+    [closeCancelArea, detectIfActivated, onActivatedCallback, onFinal]
   );
+
+  useEffect(() => {
+    const elm = domRef.current;
+    if (!elm) return;
+
+    const moveController = new AbortController();
+    const lostController = new AbortController();
+
+    elm.addEventListener('lostpointercapture', handleLostPointerCapture, {
+      signal: lostController.signal,
+    });
+
+    elm.addEventListener('touchmove', handleTouchMoveThrottle, { signal: moveController.signal });
+
+    return () => {
+      moveController.abort();
+      lostController.abort();
+    };
+  }, [domRef, handleLostPointerCapture, handleTouchMoveThrottle]);
 
   return {
     cancelAreaActivated: activated,
@@ -72,9 +113,5 @@ export const useCancelAreaContext = ({ onActivatedCallback }: UseCancelAreaConte
     activateCancelArea,
     deactivateCancelArea,
     detectIfActivated,
-    events: {
-      onTouchMove: handleTouchMoveThrottle,
-      onLostPointerCapture: handleLostPointerCapture,
-    } satisfies Pick<DOMAttributes<HTMLElement>, 'onTouchMove' | 'onLostPointerCapture'>,
   };
 };

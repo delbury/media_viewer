@@ -21,6 +21,7 @@ export const StyledVideoWrapper = styled(Box)`
     transition-duration: ${({ theme }) => theme.transitions.duration.shorter}ms;
     cursor: pointer;
     touch-action: none;
+    -webkit-tap-highlight-color: transparent;
   }
 `;
 

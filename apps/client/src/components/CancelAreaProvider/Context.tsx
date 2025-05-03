@@ -1,3 +1,4 @@
+import { SxProps, Theme } from '@mui/material';
 import { noop } from 'lodash-es';
 import { createContext } from 'react';
 
@@ -7,6 +8,8 @@ interface CancelAreaValue {
   setVisible: (v: boolean) => void;
   activated: boolean;
   setActivated: (v: boolean) => void;
+  areaSx?: SxProps<Theme>;
+  setAreaSx: (sx?: SxProps<Theme>) => void;
 }
 
 export const CancelAreaContext = createContext<CancelAreaValue>({
@@ -15,4 +18,6 @@ export const CancelAreaContext = createContext<CancelAreaValue>({
   setVisible: noop,
   activated: false,
   setActivated: noop,
+  areaSx: null,
+  setAreaSx: noop,
 });
