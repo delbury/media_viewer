@@ -1,7 +1,8 @@
 import { isNil, noop } from 'lodash-es';
-import { RefObject, useCallback } from 'react';
+import { RefObject, useCallback, useRef } from 'react';
 import { RootType } from '../FixedModal';
 import { SWITCH_RATE_OPTIONS } from './RateSetting';
+import { Subtitle } from './SubtitleSetting';
 
 // 键盘每次跳转的时间间隔
 const GO_BY_MAX_DIFF = 15;
@@ -16,6 +17,8 @@ interface UseHandlersParams {
   setIsFullScreen: (v: boolean) => void;
   currentDegree: number;
   setCurrentDegree: (deg: number | ((deg: number) => number)) => Promise<void>;
+  currentSubtitle?: Subtitle;
+  setCurrentSubtitle: (s?: Subtitle) => void;
 }
 
 export const useHandlers = ({
@@ -24,6 +27,8 @@ export const useHandlers = ({
   setIsFullScreen,
   currentDegree,
   setCurrentDegree,
+  currentSubtitle,
+  setCurrentSubtitle,
 }: UseHandlersParams) => {
   // 播放切换
   const handleTogglePlay = useCallback(() => {
@@ -153,6 +158,19 @@ export const useHandlers = ({
     [setCurrentDegree]
   );
 
+  // 之前的字幕
+  const lastSubtitle = useRef<Subtitle>(void 0);
+  // 启用、禁用字幕
+  const handleToggleSubtitle = useCallback(() => {
+    if (currentSubtitle) {
+      lastSubtitle.current = currentSubtitle;
+      setCurrentSubtitle(void 0);
+    } else {
+      setCurrentSubtitle(lastSubtitle.current);
+      lastSubtitle.current = void 0;
+    }
+  }, [currentSubtitle, setCurrentSubtitle]);
+
   return {
     handleTogglePlay,
     handleToggleRotate,
@@ -166,5 +184,6 @@ export const useHandlers = ({
     handleSwitchRate,
     handleDegreeChange,
     handleGoBy,
+    handleToggleSubtitle,
   };
 };

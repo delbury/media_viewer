@@ -47,6 +47,7 @@ import {
   StyledProgressInfo,
   StyledToolsRow,
 } from './style';
+import SubtitleSetting, { Subtitle } from './SubtitleSetting';
 import { useHandlers } from './useHandlers';
 import VolumeSetting from './VolumeSetting';
 
@@ -83,7 +84,6 @@ const CANCEL_AREA_SX: SxProps<Theme> = {
   marginTop: '72px',
 };
 
-type Subtitle = NonNullable<FileInfo['subtitles']>[0];
 interface MediaControls {
   mediaRef: RefObject<HTMLMediaElement | null>;
   subtitles?: FileInfo['subtitles'];
@@ -119,7 +119,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
     // 是否有可选字幕
     const hasSubtitle = useMemo(() => !!subtitles?.length, [subtitles?.length]);
-    const [currentSubtitle, setCurrentSubtitle] = useState<Subtitle | null>(null);
+    const [currentSubtitle, setCurrentSubtitle] = useState<Subtitle | undefined>(subtitles?.[0]);
 
     useEffect(() => {
       onPausedStateChange?.(isPaused);
@@ -186,12 +186,15 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       handleSwitchRate,
       handleDegreeChange,
       handleGoBy,
+      handleToggleSubtitle,
     } = useHandlers({
       mediaRef,
       setIsPaused,
       setIsFullScreen,
       currentDegree,
       setCurrentDegree,
+      currentSubtitle,
+      setCurrentSubtitle,
     });
 
     // 快捷键
@@ -484,9 +487,22 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
             <StyledBtnsGroup>
               {/* 字幕 */}
               {isVideo && (
-                <IconButton disabled={!hasSubtitle}>
-                  {hasSubtitle && currentSubtitle ? <SubtitlesRounded /> : <SubtitlesOffRounded />}
-                </IconButton>
+                <SubtitleSetting
+                  subtitle={currentSubtitle}
+                  onSubtitleChange={setCurrentSubtitle}
+                  subtitleOptions={subtitles}
+                >
+                  <IconButton
+                    disabled={!hasSubtitle}
+                    onClick={handleToggleSubtitle}
+                  >
+                    {hasSubtitle && currentSubtitle ? (
+                      <SubtitlesRounded />
+                    ) : (
+                      <SubtitlesOffRounded />
+                    )}
+                  </IconButton>
+                </SubtitleSetting>
               )}
 
               {/* 静音 */}
