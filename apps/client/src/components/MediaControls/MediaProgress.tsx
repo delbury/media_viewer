@@ -5,7 +5,13 @@ import { ArrowDropDownRounded, ArrowDropUpRounded } from '@mui/icons-material';
 import { LinearProgress, linearProgressClasses, SxProps } from '@mui/material';
 import { isNil } from 'lodash-es';
 import { MouseEventHandler, useCallback, useMemo, useRef, useState } from 'react';
-import { StyleCursorTime, StyledCursorContainer, StyledProgressContainer } from './style';
+import {
+  NEAR_EDGE_MIN_DISTANCE,
+  NearType,
+  StyleCursorTime,
+  StyledCursorContainer,
+  StyledProgressContainer,
+} from './style';
 
 const BUFFER_BAR_COLOR = 'var(--mui-palette-grey-600)';
 const BUFFER_BAR_COLOR_EMPTY = 'transparent';
@@ -53,14 +59,14 @@ export const MediaProgress = ({
     onLeave: () => setShowCursor(false),
   });
 
-  // 当前播放进度
+  // 当前播放进度百分比，0 ~ 100
   const currentTimePercent = useMemo(
     () => currentTime && (currentTime / videoDuration) * 100,
     [currentTime, videoDuration]
   );
 
-  // 当前光标的时刻
-  const cursorTime = useMemo(() => {
+  // 当前光标的时刻文本
+  const cursorTimeText = useMemo(() => {
     if (!progressBarRef.current) return '';
     let time = isNil(previewDiffTime)
       ? (cursorOffset / progressBarRef.current.offsetWidth) * videoDuration
@@ -72,11 +78,11 @@ export const MediaProgress = ({
     return formatTime(time);
   }, [currentTime, cursorOffset, previewDiffTime, videoDuration]);
 
-  // 游标随鼠标移动的位置
-  const pointerCursorOffsetSx = useMemo<SxProps>(() => {
+  // 鼠标移动的位置，或者相对跳转会到达的位置，定位游标的位置
+  const { pointerCursorOffsetSx, near } = useMemo(() => {
     const elm = progressBarRef.current;
     let offset = cursorOffset;
-    const offsetWidth = elm?.offsetWidth;
+    const offsetWidth = elm?.offsetWidth ?? 0;
     if (offsetWidth && !isNil(previewDiffTime)) {
       offset = (currentTimePercent / 100 + previewDiffTime / videoDuration) * offsetWidth;
     }
@@ -85,8 +91,17 @@ export const MediaProgress = ({
     if (offset < 0) offset = 0;
     else if (offsetWidth && offset > offsetWidth) offset = offsetWidth;
 
+    const near: NearType =
+      offset <= NEAR_EDGE_MIN_DISTANCE
+        ? 'left'
+        : offset >= offsetWidth - NEAR_EDGE_MIN_DISTANCE
+          ? 'right'
+          : null;
     return {
-      transform: `translate(${offset}px)`,
+      near,
+      pointerCursorOffsetSx: {
+        transform: `translate(${offset}px)`,
+      } satisfies SxProps,
     };
   }, [currentTimePercent, cursorOffset, previewDiffTime, videoDuration]);
 
@@ -156,7 +171,7 @@ export const MediaProgress = ({
 
       {realShowCursor && (
         <StyledCursorContainer sx={pointerCursorOffsetSx}>
-          <StyleCursorTime>{cursorTime}</StyleCursorTime>
+          <StyleCursorTime near={near}>{cursorTimeText}</StyleCursorTime>
           <ArrowDropDownRounded />
           <ArrowDropUpRounded />
         </StyledCursorContainer>

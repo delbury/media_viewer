@@ -105,15 +105,21 @@ export const StyledCursorContainer = styled(Box)`
     }
   }
 `;
-export const StyleCursorTime = styled(Box)`
+export type NearType = 'left' | 'right' | null;
+// 当前游标靠近进度条左侧开始或者右侧结束的最小距离
+export const NEAR_EDGE_MIN_DISTANCE = 16;
+export const StyleCursorTime = styled(Box, {
+  shouldForwardProp: prop => prop !== 'near',
+})<{ near: NearType }>`
   position: absolute;
-  left: 0;
-  left: 50%;
+  left: ${({ near }) =>
+    near === 'left' ? 'calc(50% + 8px)' : near === 'right' ? 'calc(50% - 12px)' : '50%'};
   width: fit-content;
   height: fit-content;
   font-size: 0.75rem;
   color: ${({ theme }) => theme.palette.common.white};
   transform: translate(-50%, -200%);
+  transition: left ${({ theme }) => theme.transitions.duration.shorter}ms;
 `;
 
 // 进度条相关
