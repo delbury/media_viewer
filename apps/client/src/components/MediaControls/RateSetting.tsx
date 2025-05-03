@@ -17,6 +17,8 @@ interface RateSettingProps {
 
 const FULL_RATE_OPTIONS = [0.5, 1, 1.5, 2];
 export const SWITCH_RATE_OPTIONS = at(FULL_RATE_OPTIONS, [1, 2]);
+// 最大播放速度
+export const MAX_RATE = FULL_RATE_OPTIONS[FULL_RATE_OPTIONS.length - 1];
 
 const RATE_SUFFIX_SYMBOL = 'x';
 

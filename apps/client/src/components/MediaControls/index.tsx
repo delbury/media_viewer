@@ -23,6 +23,7 @@ import {
   VolumeUpRounded,
 } from '@mui/icons-material';
 import { IconButton, SxProps } from '@mui/material';
+import { isNil } from 'lodash-es';
 import {
   forwardRef,
   RefObject,
@@ -36,7 +37,7 @@ import {
 import { calcTimeRanges } from '../VideoViewer/util';
 import AlertInfo from './AlertInfo';
 import { MediaProgress } from './MediaProgress';
-import RateSetting from './RateSetting';
+import RateSetting, { MAX_RATE } from './RateSetting';
 import RotateSetting from './RotateSetting';
 import {
   StyledBtnsContainer,
@@ -102,6 +103,10 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [currentVolume, setCurrentVolume] = useState(0);
     const [isWaiting, setIsWaiting] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
+
+    // 之前的播放速度
+    const lastRate = useRef<number>(null);
+    // 播放速度
     const [currentRate, setCurrentRate] = useState(1);
 
     // 是否可全屏
@@ -286,18 +291,38 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         // 指针按下
         const pointerDownController = isVideoMedia
           ? bindEvent(elm, 'pointerdown', async ev => {
+              if (ev.pointerType === 'mouse') return;
               // 当触摸开始时一段时间内命中了某个手势操作后，则不进入 drag 操作
               const gesture = await detectGesture(ev);
               // 未完成手势，跳过
               if (!gesture) return;
-              // 单指操作，进入 drag 操作
-              if (gesture.type === 'single-down') dragEventHandler(ev);
+              // 单指拖动，进入 drag 操作
+              if (gesture.type === 'single-move') dragEventHandler(ev);
+              // 单指按下，进入快速播放模式
+              if (gesture.type === 'single-down') {
+                lastRate.current = elm.playbackRate;
+                elm.playbackRate = MAX_RATE;
+              }
             })
           : null;
 
         // 指针抬起
         const pointerUpController = isVideoMedia
           ? bindEvent(elm, 'pointerup', async ev => {
+              if (ev.pointerType === 'mouse') return;
+              detectGesture(ev);
+
+              if (!isNil(lastRate.current)) {
+                elm.playbackRate = lastRate.current;
+                lastRate.current = null;
+              }
+            })
+          : null;
+
+        // 指针移动
+        const pointerMoveController = isVideoMedia
+          ? bindEvent(elm, 'pointermove', async ev => {
+              if (ev.pointerType === 'mouse') return;
               detectGesture(ev);
             })
           : null;
@@ -370,6 +395,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           dblclickController?.abort();
           pointerDownController?.abort();
           pointerUpController?.abort();
+          pointerMoveController?.abort();
         };
       }
     }, [detectGesture, dragEventHandler, handleTogglePlay, mediaRef]);

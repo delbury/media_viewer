@@ -7,10 +7,11 @@ interface GesturePointerInfos {
   [pointerId: string]: {
     down: [number, number];
     up?: [number, number];
+    moves?: [number, number][];
   };
 }
 
-type GestureType = 'single-down' | 'single-click' | 'double-down' | 'unknown';
+type GestureType = 'single-down' | 'single-click' | 'single-move' | 'double-down' | 'unknown';
 export interface DetectGestureResult {
   pointerInfos: GesturePointerInfos;
   type: GestureType;
@@ -22,6 +23,7 @@ const resolveGestureType = (infos: GesturePointerInfos): GestureType => {
   if (keys.length === 1) {
     // click
     if (infos[keys[0]].up) return 'single-click';
+    if (infos[keys[0]].moves?.length) return 'single-move';
     // 只是按下
     return 'single-down';
   }
@@ -35,7 +37,7 @@ const resolveGestureType = (infos: GesturePointerInfos): GestureType => {
 };
 
 // 默认防抖时间
-const DEFAULT_DEBOUNCE_TIME = 20;
+const DEFAULT_DEBOUNCE_TIME = 50;
 
 export const useGesture = () => {
   // 手势开始
@@ -73,6 +75,13 @@ export const useGesture = () => {
 
       if (recordingTimeout.current && gestureInfo.current[ev.pointerId]) {
         gestureInfo.current[ev.pointerId].up = [ev.clientX, ev.clientY];
+      }
+    } else if (ev.type === 'pointermove') {
+      // 触点移动事件
+
+      if (recordingTimeout.current && gestureInfo.current[ev.pointerId]) {
+        if (!gestureInfo.current[ev.pointerId].moves) gestureInfo.current[ev.pointerId].moves = [];
+        gestureInfo.current[ev.pointerId].moves?.push([ev.clientX, ev.clientY]);
       }
     }
     // 在一次手势检测中，未完成手势
