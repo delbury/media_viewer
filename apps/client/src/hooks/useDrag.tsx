@@ -1,7 +1,7 @@
 'use client';
 
 import { preventDefault } from '#/utils';
-import { PointerEventHandler, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useThrottle } from './useThrottle';
 
 export interface UseDragParams {
@@ -13,6 +13,8 @@ export interface UseDragParams {
   onStart?: () => void;
   // 结束拖拽
   onEnd?: () => void;
+  // 拖拽后重置
+  resetAtEnd?: boolean;
 }
 
 const MOVE_EVENT_NAME = 'pointermove';
@@ -24,6 +26,7 @@ export const useDrag = ({
   defaultOffset,
   onStart,
   onEnd,
+  resetAtEnd,
 }: UseDragParams) => {
   // 鼠标点击的原点
   const startPosition = useRef<[number, number]>(null);
@@ -38,17 +41,19 @@ export const useDrag = ({
   const moveController = useRef<AbortController>(null);
   const upController = useRef<AbortController>(null);
 
-  const mouseMoveThrottle = useThrottle(
+  // drag 回调
+  const pointerMove = useCallback(
     (dx: number, dy: number) => {
       const flag = callback([dx, dy]);
       if (flag === false) return;
       currentOffsetOnTime.current = [dx, dy];
     },
-    {
-      notCacheLastCall: true,
-      byAnimationFrame: true,
-    }
+    [callback]
   );
+  const pointerMoveThrottle = useThrottle(pointerMove, {
+    notCacheLastCall: true,
+    byAnimationFrame: true,
+  });
 
   const clearEvents = useCallback(() => {
     moveController.current?.abort();
@@ -58,9 +63,14 @@ export const useDrag = ({
     currentActivePointerId.current = null;
   }, []);
 
+  // 重置拖拽
+  const resetDragOffset = useCallback(() => {
+    lastOffset.current = defaultOffset ?? [0, 0];
+  }, [defaultOffset]);
+
   // 点击事件，开始
-  const fnPointerDown: PointerEventHandler<HTMLElement> = useCallback(
-    ev => {
+  const fnPointerDown = useCallback(
+    (ev: PointerEvent) => {
       // 如果已经按下了，则跳过
       if (currentActivePointerId.current !== null) return;
       currentActivePointerId.current = ev.pointerId;
@@ -99,7 +109,7 @@ export const useDrag = ({
           }
 
           // 节流
-          mouseMoveThrottle(dx, dy);
+          pointerMoveThrottle(dx, dy);
         },
         { signal: moveController.current.signal }
       );
@@ -115,17 +125,13 @@ export const useDrag = ({
           lastOffset.current = [...currentOffsetOnTime.current];
           onEnd?.();
           clearEvents();
+          if (resetAtEnd) resetDragOffset();
         },
         { signal: upController.current.signal }
       );
     },
-    [clearEvents, mouseMoveThrottle, onEnd, onStart, watchAxis]
+    [clearEvents, pointerMoveThrottle, onEnd, onStart, resetAtEnd, resetDragOffset, watchAxis]
   );
-
-  // 重置拖拽
-  const resetDragOffset = useCallback(() => {
-    lastOffset.current = defaultOffset ?? [0, 0];
-  }, [defaultOffset]);
 
   // 移除事件
   useEffect(() => {

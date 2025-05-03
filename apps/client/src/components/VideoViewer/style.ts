@@ -20,6 +20,7 @@ export const StyledVideoWrapper = styled(Box)`
     transition-property: transform, height, width;
     transition-duration: ${({ theme }) => theme.transitions.duration.shorter}ms;
     cursor: pointer;
+    touch-action: none;
   }
 `;
 

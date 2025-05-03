@@ -11,19 +11,46 @@ export const formatDate = (v: number) => {
 };
 
 // 格式化时间
-export const formatTime = (t: number, withHour = false) => {
+export const formatTime = (
+  t: number | string,
+  {
+    withHour,
+    fixed,
+    withSymbol,
+  }: {
+    // 强制显示小时
+    withHour?: boolean;
+    // 显示小数点后 n 位
+    fixed?: number;
+    // 强制显示正负号
+    withSymbol?: boolean;
+  } = {}
+) => {
+  // 转换为数字
+  t = +t;
+  // 判断正负
+  const symbol = t < 0 ? '-' : withSymbol ? '+' : '';
+  // 取绝对值
+  t = Math.abs(t);
+  // 取小数部分
+  const decimal = (t - Math.trunc(t)).toFixed(fixed).replace('0', '');
+  // 去掉小数部分
+  t = Math.trunc(t);
+
   if (Number.isNaN(t)) return withHour ? '00:00:00' : '00:00';
 
+  // 减去秒之后的剩余部分
   const s = t % 60;
   t -= s;
   t /= 60;
+  // 计算分
   const m = t % 60;
   t -= m;
   t /= 60;
-
+  // 计算时
   const h = t ? `${t.toString().padStart(2, '0')}:` : withHour ? '00:' : '';
 
-  return `${h}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  return `${symbol} ${h}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}${decimal}`;
 };
 
 // 格式化文件大小

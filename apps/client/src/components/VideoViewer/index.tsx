@@ -4,7 +4,7 @@ import { noop } from 'lodash-es';
 import { useMemo, useRef, useState } from 'react';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
-import MediaControls, { MediaControlsInstance } from '../MediaControls';
+import MediaControls from '../MediaControls';
 import { StyledLoadingWrapper, StyledVideoWrapper } from './style';
 import { useMediaSource } from './useMediaSource';
 
@@ -13,7 +13,6 @@ type VideoViewerProps = {
 } & Omit<FixedModalProps, 'children'>;
 
 const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
-  const controlsRef = useRef<MediaControlsInstance>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   // 链接
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
@@ -34,7 +33,6 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
       footerSlot={
         // 工具栏
         <MediaControls
-          ref={controlsRef}
           mediaRef={videoRef}
           subtitles={file.subtitles}
           onWaitingStateChange={setIsWaiting}
@@ -51,7 +49,6 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
           playsInline
           // controls
           {...progressEvents}
-          onClick={controlsRef.current?.togglePlay}
         />
 
         {isWaiting && (

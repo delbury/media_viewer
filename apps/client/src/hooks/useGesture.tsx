@@ -44,7 +44,7 @@ export const useGesture = () => {
   const gestureInfo = useRef<GesturePointerInfos>({});
 
   // 检测手势
-  const detectGesture = useCallback(async (ev: React.PointerEvent<HTMLElement>) => {
+  const detectGesture = useCallback(async (ev: PointerEvent) => {
     if (ev.type === 'pointerdown') {
       // 触点按下事件
 

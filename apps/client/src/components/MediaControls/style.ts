@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 
 export const StyledMediaControlsWrapper = styled(Box)`
+  position: relative;
   padding: 0 12px 16px;
   width: 100%;
   height: fit-content;
@@ -203,4 +204,18 @@ export const StyledToggleBtnPopoverContainer = styled(Box)`
   && .${toggleButtonClasses.selected} {
     color: ${({ theme }) => theme.palette.primary.light};
   }
+`;
+
+// 提示信息悬浮框
+export const StyledFloatAlertInfo = styled(Box)`
+  width: 120px;
+  position: absolute;
+  top: 0;
+  transform: translateY(-100%);
+  font-size: 0.8rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  padding: 12px 24px;
+  border-radius: 4px;
+  text-align: center;
 `;

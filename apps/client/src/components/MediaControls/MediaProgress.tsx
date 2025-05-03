@@ -57,7 +57,7 @@ export const MediaProgress = ({
 
   // 当前光标的时刻
   const cursorTime = useMemo(
-    () => formatTime(Math.floor(cursorPercent * videoDuration)),
+    () => formatTime(cursorPercent * videoDuration),
     [cursorPercent, videoDuration]
   );
 

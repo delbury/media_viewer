@@ -1,3 +1,5 @@
+import { useDrag } from '#/hooks/useDrag';
+import { useGesture } from '#/hooks/useGesture';
 import { useResizeObserver } from '#/hooks/useResizeObserver';
 import { useRotateState } from '#/hooks/useRotateState';
 import { useShortcut } from '#/hooks/useShortcut';
@@ -19,8 +21,18 @@ import {
   VolumeUpRounded,
 } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
-import { forwardRef, RefObject, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import {
+  forwardRef,
+  RefObject,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { calcTimeRanges } from '../VideoViewer/util';
+import AlertInfo from './AlertInfo';
 import { MediaProgress } from './MediaProgress';
 import RateSetting from './RateSetting';
 import RotateSetting from './RotateSetting';
@@ -58,6 +70,11 @@ export interface MediaControlsInstance {
   togglePlay: () => void;
 }
 
+// 在 video 上拖动时，每像素的偏移时间
+const PROGRESS_DRAG_PER_PX = 0.1;
+// 判断在 video 上拖拽的方向时的最小距离的平方
+const DRAG_DIR_MIN_DISTANCE = 5 ** 2;
+
 type Subtitle = NonNullable<FileInfo['subtitles']>[0];
 interface MediaControls {
   mediaRef: RefObject<HTMLMediaElement | null>;
@@ -79,11 +96,6 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [isWaiting, setIsWaiting] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [currentRate, setCurrentRate] = useState(1);
-    // 旋转值，用于旋转
-    const { degree: currentDegree, setDegree: setCurrentDegree } = useRotateState({
-      defaultDegree: 0,
-      domRef: mediaRef,
-    });
 
     // 是否可全屏
     const [showFullScreenBtn, setShowFullScreenBtn] = useState(false);
@@ -93,11 +105,8 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const showPrevBtn = !!onPrev;
     const showNextBtn = !!onNext;
 
-    // 是否是未旋转状态，即为 360 的整数倍
-    const isNotRotated = useMemo(() => currentDegree % 360 === 0, [currentDegree]);
-
     // 是否有可选字幕
-    const hasSubtitle = useMemo(() => !!subtitles?.length && isVideo, [isVideo, subtitles?.length]);
+    const hasSubtitle = useMemo(() => !!subtitles?.length, [subtitles?.length]);
     const [currentSubtitle, setCurrentSubtitle] = useState<Subtitle | null>(null);
 
     useEffect(() => {
@@ -111,15 +120,24 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     // 当前播放的进度信息，用于展示
     const ct = Math.floor(currentTime);
     const tt = Math.floor(videoDuration);
-    const currentInfo = useMemo(() => formatTime(ct, tt >= 3600), [ct, tt]);
+    const currentInfo = useMemo(() => formatTime(ct, { withHour: tt >= 3600 }), [ct, tt]);
     const totalInfo = useMemo(() => formatTime(tt), [tt]);
 
+    /**
+     * start 用以控制视频旋转并自适应缩放
+     */
+    // 旋转值，用于旋转
+    const { degree: currentDegree, setDegree: setCurrentDegree } = useRotateState({
+      defaultDegree: 0,
+      domRef: mediaRef,
+    });
+    // 是否是未旋转状态，即为 360 的整数倍
+    const isNotRotated = useMemo(() => currentDegree % 360 === 0, [currentDegree]);
     // 监听容器大小改变
     const { size: mediaContainerSize } = useResizeObserver({
       domRef: mediaRef,
       findDom: elm => elm.parentElement,
     });
-
     // 视频旋转
     useEffect(() => {
       const elm = mediaRef.current;
@@ -140,6 +158,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         elm.style.removeProperty('height');
       };
     }, [currentDegree, mediaContainerSize, mediaRef]);
+    /** end */
 
     // handlers
     const {
@@ -154,6 +173,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       handleRateChange,
       handleSwitchRate,
       handleDegreeChange,
+      handleGoBy,
     } = useHandlers({
       mediaRef,
       setIsPaused,
@@ -172,6 +192,58 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       onEnterPressed: handleTogglePlay,
     });
 
+    /**
+     * start video 上的拖动控制
+     */
+    // 拖拽方向
+    const currentDragDirection = useRef<'x' | 'y' | null>(null);
+    // 判断当前拖拽距离
+    const currentDragOffsetInstant = useRef<[number, number] | null>(null);
+    const [currentDragOffset, setCurrentDragOffset] = useState<[number, number] | null>(null);
+    // 拖拽结束
+    const handleDragEnd = useCallback(() => {
+      if (currentDragDirection.current === 'x' && currentDragOffsetInstant.current) {
+        const diffTime = currentDragOffsetInstant.current[0] * PROGRESS_DRAG_PER_PX;
+        handleGoBy(1, diffTime);
+      }
+      currentDragDirection.current = null;
+      currentDragOffsetInstant.current = null;
+      setCurrentDragOffset(null);
+    }, []);
+    // 拖拽中
+    const handleDrag = useCallback((offset: [number, number]) => {
+      if (
+        !currentDragDirection.current &&
+        offset[0] ** 2 + offset[1] ** 2 >= DRAG_DIR_MIN_DISTANCE
+      ) {
+        currentDragDirection.current = Math.abs(offset[0]) > Math.abs(offset[1]) ? 'x' : 'y';
+      }
+      setCurrentDragOffset(offset);
+      currentDragOffsetInstant.current = offset;
+    }, []);
+    // 手势检测
+    const { detectGesture } = useGesture();
+    // 拖拽 hook
+    const { dragEventHandler } = useDrag({
+      callback: handleDrag,
+      resetAtEnd: true,
+      // onStart: disableTransition,
+      onEnd: handleDragEnd,
+    });
+    const skipTimeText = useMemo(() => {
+      const dir = currentDragDirection.current;
+      if (!currentDragOffset || !dir) return;
+      if (dir === 'x') {
+        // 水平方向拖动
+        const timeText = formatTime(currentDragOffset[0] * PROGRESS_DRAG_PER_PX, {
+          fixed: 1,
+          withSymbol: true,
+        });
+        return timeText;
+      }
+    }, [currentDragOffset]);
+    /* end */
+
     // 初始化
     useEffect(() => {
       const elm = mediaRef.current;
@@ -186,6 +258,32 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         setCurrentRate(elm.playbackRate);
         setVideoDuration(elm.duration);
         setCurrentTime(elm.currentTime);
+
+        // 指针按下
+        const pointerDownController = isVideoMedia
+          ? bindEvent(elm, 'pointerdown', async ev => {
+              // 当触摸开始时一段时间内命中了某个手势操作后，则不进入 drag 操作
+              const gesture = await detectGesture(ev);
+              // 未完成手势，跳过
+              if (!gesture) return;
+              // 单指操作，进入 drag 操作
+              if (gesture.type === 'single-down') dragEventHandler(ev);
+            })
+          : null;
+
+        // 指针抬起
+        const pointerUpController = isVideoMedia
+          ? bindEvent(elm, 'pointerup', async ev => {
+              detectGesture(ev);
+            })
+          : null;
+
+        // 双击播放
+        const dblclickController = isVideoMedia
+          ? bindEvent(elm, 'dblclick', () => {
+              handleTogglePlay();
+            })
+          : null;
 
         // 播放事件
         const playController = bindEvent(elm, 'play', () => {
@@ -245,10 +343,14 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           waitingController.abort();
           canplayController.abort();
           ratechangeController.abort();
+          dblclickController?.abort();
+          pointerDownController?.abort();
+          pointerUpController?.abort();
         };
       }
-    }, [mediaRef]);
+    }, [detectGesture, dragEventHandler, handleTogglePlay, mediaRef]);
 
+    // 实例方法
     useImperativeHandle(
       ref,
       () => ({
@@ -264,6 +366,9 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
     return (
       <StyledMediaControlsWrapper>
+        {/* 提示信息框 */}
+        <AlertInfo message={skipTimeText} />
+
         {/* 进度条 */}
         <MediaProgress
           currentTime={currentTime}
@@ -327,9 +432,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
             <StyledBtnsGroup>
               {/* 字幕 */}
-              <IconButton disabled={!hasSubtitle}>
-                {hasSubtitle && currentSubtitle ? <SubtitlesRounded /> : <SubtitlesOffRounded />}
-              </IconButton>
+              {isVideo && (
+                <IconButton disabled={!hasSubtitle}>
+                  {hasSubtitle && currentSubtitle ? <SubtitlesRounded /> : <SubtitlesOffRounded />}
+                </IconButton>
+              )}
 
               {/* 静音 */}
               <VolumeSetting

@@ -194,11 +194,11 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
   const handlePointerDown = useCallback<PointerEventHandler<HTMLElement>>(
     async ev => {
       // 当触摸开始时一段时间内命中了某个手势操作后，则不进入 drag 操作
-      const gesture = await detectGesture(ev);
+      const gesture = await detectGesture(ev.nativeEvent);
       // 未完成手势，跳过
       if (!gesture) return;
       // 单指操作，进入 drag 操作
-      if (gesture.type === 'single-down') dragEventHandler(ev);
+      if (gesture.type === 'single-down') dragEventHandler(ev.nativeEvent);
       // 双指操作，进入 zoom 操作
       if (gesture.type === 'double-down') {
         const pointers = Object.fromEntries(
@@ -208,6 +208,12 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
       }
     },
     [detectGesture, dragEventHandler, zoomEventHandler]
+  );
+  const handlePointerUp = useCallback<PointerEventHandler<HTMLElement>>(
+    ev => {
+      detectGesture(ev.nativeEvent);
+    },
+    [detectGesture]
   );
 
   // 重置偏移和缩放
@@ -286,7 +292,7 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
             }}
             style={imageStyle}
             onPointerDown={handlePointerDown}
-            onPointerUp={detectGesture}
+            onPointerUp={handlePointerUp}
           />
         )}
 

@@ -165,5 +165,6 @@ export const useHandlers = ({
     handleRateChange,
     handleSwitchRate,
     handleDegreeChange,
+    handleGoBy,
   };
 };
