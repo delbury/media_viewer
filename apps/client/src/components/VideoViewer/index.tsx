@@ -36,6 +36,7 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
         <MediaControls
           ref={controlsRef}
           mediaRef={videoRef}
+          subtitles={file.subtitles}
           onWaitingStateChange={setIsWaiting}
           onNext={noop}
           onPrev={noop}

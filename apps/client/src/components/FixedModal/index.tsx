@@ -71,7 +71,7 @@ const FixedModal = ({
 
         <StyledFixedContent
           ref={contentRef}
-          // 标记为媒体元素的根元素
+          // 标记为媒体元素的根元素，用于 video 全屏时选择的元素
           data-root={RootType.Media}
         >
           {children}

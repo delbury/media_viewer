@@ -2,6 +2,7 @@ import { h5Max } from '#/style/device';
 import styled from '@emotion/styled';
 import {
   Box,
+  buttonBaseClasses,
   linearProgressClasses,
   Slider,
   sliderClasses,
@@ -34,7 +35,7 @@ export const StyledBtnsContainer = styled(Box)`
   align-items: center;
   justify-content: space-between;
 
-  @media ${h5Max} {
+  /* @media ${h5Max} {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
@@ -47,15 +48,18 @@ export const StyledBtnsContainer = styled(Box)`
     > *:nth-child(3) {
       justify-content: flex-end;
     }
-  }
+  } */
 `;
 export const StyledBtnsGroup = styled(Box)`
   display: flex;
   gap: 12px;
 
-  button {
+  & .${buttonBaseClasses.root} {
     color: inherit;
-    padding: 6px;
+    padding: 4px;
+  }
+  & .${buttonBaseClasses.disabled} {
+    color: ${({ theme }) => theme.palette.grey[600]};
   }
 `;
 

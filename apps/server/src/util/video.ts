@@ -146,7 +146,7 @@ export const transformVideoStream = async (
 
     // 视频
     '-vf',
-    [
+    [ 
       'scale_cuda=' + [
         `w='if(gt(iw,ih),min(iw,${VIDEO_TRANSFORM_MAX_WIDTH}),min(iw,${VIDEO_TRANSFORM_MAX_HEIGHT}))'`,
         `h='if(gt(iw,ih),min(ih,${VIDEO_TRANSFORM_MAX_HEIGHT}),min(ih,${VIDEO_TRANSFORM_MAX_WIDTH}))'`,

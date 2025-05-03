@@ -19,7 +19,7 @@ interface FetchDataOptions<T extends ApiKeys> {
   signal?: AbortSignal;
 }
 
-const fetchArrayBufferData = async <T extends ApiKeys>(
+const fetchData = async <T extends ApiKeys>(
   apiKey: T,
   { params, data, signal }: FetchDataOptions<T> = {}
 ) => {
@@ -40,4 +40,4 @@ const fetchArrayBufferData = async <T extends ApiKeys>(
   return response;
 };
 
-export { fetchArrayBufferData, instance };
+export { fetchData, instance };

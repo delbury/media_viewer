@@ -2,6 +2,7 @@ import { useResizeObserver } from '#/hooks/useResizeObserver';
 import { useRotateState } from '#/hooks/useRotateState';
 import { useShortcut } from '#/hooks/useShortcut';
 import { formatTime } from '#/utils';
+import { FileInfo } from '#pkgs/apis';
 import {
   CachedRounded,
   FullscreenExitRounded,
@@ -12,6 +13,8 @@ import {
   RotateRightRounded,
   SkipNextRounded,
   SkipPreviousRounded,
+  SubtitlesOffRounded,
+  SubtitlesRounded,
   VolumeOffRounded,
   VolumeUpRounded,
 } from '@mui/icons-material';
@@ -55,8 +58,10 @@ export interface MediaControlsInstance {
   togglePlay: () => void;
 }
 
+type Subtitle = NonNullable<FileInfo['subtitles']>[0];
 interface MediaControls {
   mediaRef: RefObject<HTMLMediaElement | null>;
+  subtitles?: FileInfo['subtitles'];
   onPausedStateChange?: (paused: boolean) => void;
   onWaitingStateChange?: (waiting: boolean) => void;
   onNext?: () => void;
@@ -64,7 +69,7 @@ interface MediaControls {
 }
 
 const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
-  ({ mediaRef, onPausedStateChange, onWaitingStateChange, onNext, onPrev }, ref) => {
+  ({ mediaRef, subtitles, onPausedStateChange, onWaitingStateChange, onNext, onPrev }, ref) => {
     const [isPaused, setIsPaused] = useState(true);
     const [bufferRanges, setBufferRanges] = useState<[number, number][]>([]);
     const [videoDuration, setVideoDuration] = useState(0);
@@ -90,6 +95,10 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
     // 是否是未旋转状态，即为 360 的整数倍
     const isNotRotated = useMemo(() => currentDegree % 360 === 0, [currentDegree]);
+
+    // 是否有可选字幕
+    const hasSubtitle = useMemo(() => !!subtitles?.length && isVideo, [isVideo, subtitles?.length]);
+    const [currentSubtitle, setCurrentSubtitle] = useState<Subtitle | null>(null);
 
     useEffect(() => {
       onPausedStateChange?.(isPaused);
@@ -317,6 +326,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
             </StyledBtnsGroup>
 
             <StyledBtnsGroup>
+              {/* 字幕 */}
+              <IconButton disabled={!hasSubtitle}>
+                {hasSubtitle && currentSubtitle ? <SubtitlesRounded /> : <SubtitlesOffRounded />}
+              </IconButton>
+
               {/* 静音 */}
               <VolumeSetting
                 volume={currentVolume}

@@ -18,4 +18,4 @@ export const screenMax = {
   desktop: `screen and (max-width: ${screenWidth.desktop})`,
 };
 
-export const h5Max = screenMax.mobileL;
+export const h5Max = screenMax.tablet;

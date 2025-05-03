@@ -1,6 +1,6 @@
 import { useDebounce } from '#/hooks/useDebounce';
 import { useSwr } from '#/hooks/useSwr';
-import { fetchArrayBufferData } from '#/request';
+import { fetchData } from '#/request';
 import { getFileSourceUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { logError } from '#pkgs/tools/common';
@@ -123,7 +123,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
         // 开始加载
         setIsLoading(true);
 
-        const response = await fetchArrayBufferData('fileVideoSegment', {
+        const response = await fetchData('fileVideoSegment', {
           params: {
             basePathIndex: file.basePathIndex?.toString() as string,
             relativePath: file.relativePath,
