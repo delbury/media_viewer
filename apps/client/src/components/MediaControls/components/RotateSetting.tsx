@@ -88,6 +88,7 @@ const RotateSetting = ({ mediaRef }: RotateSettingProps) => {
     return val;
   }, [auto, degree]);
 
+  // 旋转改变
   const handleChange = useCallback<NonNullable<ToggleButtonGroupProps['onChange']>>(
     (ev, val) => {
       if (val === AUTO_VALUE) {
@@ -104,8 +105,13 @@ const RotateSetting = ({ mediaRef }: RotateSettingProps) => {
   // 切换旋转
   // 未旋转 -> 自动旋转，自动旋转 -> 未旋转，手动旋转 -> 未旋转
   const handleToggleRotate = useCallback(() => {
-    setAuto(v => !v);
-  }, []);
+    if (!degree) {
+      setAuto(true);
+    } else {
+      setDegree(0);
+      setAuto(false);
+    }
+  }, [degree, setDegree]);
 
   // 自动旋转控制
   useEffect(() => {
@@ -173,7 +179,7 @@ const RotateSetting = ({ mediaRef }: RotateSettingProps) => {
     >
       <StyledChildrenWrapper>
         <IconButton onClick={handleToggleRotate}>
-          {auto ? <RotateRightRounded /> : <CachedRounded />}
+          {!auto && !!degree ? <CachedRounded /> : <RotateRightRounded />}
         </IconButton>
         {auto && <StyledRotateText>A</StyledRotateText>}
       </StyledChildrenWrapper>
