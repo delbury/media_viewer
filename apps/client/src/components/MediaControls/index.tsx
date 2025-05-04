@@ -1,8 +1,4 @@
-import { useCancelAreaContext } from '#/hooks/useCancelAreaContext';
-import { useDrag } from '#/hooks/useDrag';
-import { useGesture } from '#/hooks/useGesture';
 import { useShortcut } from '#/hooks/useShortcut';
-import { formatTime } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import {
   FullscreenExitRounded,
@@ -13,39 +9,24 @@ import {
   SkipPreviousRounded,
 } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
-import { isNil } from 'lodash-es';
-import {
-  forwardRef,
-  RefObject,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { forwardRef, RefObject, useEffect, useImperativeHandle, useState } from 'react';
 import { calcTimeRanges } from '../VideoViewer/util';
 import AlertInfo from './components/AlertInfo';
 import { MediaProgress } from './components/MediaProgress';
 import ProgressInfo from './components/ProgressInfo';
-import RateSetting, { MAX_RATE } from './components/RateSetting';
+import RateSetting from './components/RateSetting';
 import RotateSetting from './components/RotateSetting';
 import SubtitleSetting, { Subtitle } from './components/SubtitleSetting';
 import VolumeSetting from './components/VolumeSetting';
 import { useHandlers } from './hooks/useHandlers';
+import { useMobileDrag } from './hooks/useMobileDrag';
 import {
   StyledBtnsContainer,
   StyledBtnsGroup,
   StyledMediaControlsWrapper,
   StyledToolsRow,
 } from './style';
-import {
-  bindEvent,
-  bindEventOnce,
-  CANCEL_AREA_SX,
-  DRAG_DIR_MIN_DISTANCE,
-  PROGRESS_DRAG_PER_PX,
-} from './util';
+import { bindEvent, bindEventOnce } from './util';
 
 export interface MediaControlsInstance {
   togglePlay: () => void;
@@ -71,8 +52,6 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [isWaiting, setIsWaiting] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
 
-    // 之前的播放速度
-    const lastRate = useRef<number>(null);
     // 播放速度
     const [currentRate, setCurrentRate] = useState(1);
 
@@ -121,74 +100,10 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       onEnterPressed: handleTogglePlay,
     });
 
-    /**
-     * start video 上的拖动控制
-     */
-    // 拖拽方向
-    const currentDragDirection = useRef<'x' | 'y' | null>(null);
-    // 判断当前拖拽距离
-    const currentDragOffsetInstant = useRef<[number, number] | null>(null);
-    const [currentDragOffset, setCurrentDragOffset] = useState<[number, number] | null>(null);
-    // 拖拽结束
-    const handleDragEnd = useCallback(() => {
-      if (currentDragDirection.current === 'x' && currentDragOffsetInstant.current) {
-        const diffTime = currentDragOffsetInstant.current[0] * PROGRESS_DRAG_PER_PX;
-        handleGoBy(1, diffTime);
-      }
-    }, [handleGoBy]);
-    // 重置
-    const handleResetDrag = useCallback(() => {
-      currentDragDirection.current = null;
-      currentDragOffsetInstant.current = null;
-      setCurrentDragOffset(null);
-    }, []);
-    // 拖拽中
-    const handleDrag = useCallback((offset: [number, number]) => {
-      if (
-        !currentDragDirection.current &&
-        offset[0] ** 2 + offset[1] ** 2 >= DRAG_DIR_MIN_DISTANCE
-      ) {
-        currentDragDirection.current = Math.abs(offset[0]) > Math.abs(offset[1]) ? 'x' : 'y';
-      }
-      setCurrentDragOffset(offset);
-      currentDragOffsetInstant.current = offset;
-    }, []);
-    // 手势检测
-    const { detectGesture } = useGesture();
-    // 拖拽 hook
-    const { dragEventHandler } = useDrag({
-      onlyMobile: true,
-      callback: handleDrag,
-      resetAtEnd: true,
+    const { skipTimeText, currentDragDiffTime } = useMobileDrag({
+      mediaRef,
+      handleGoBy,
     });
-    // 当前拖拽跳转展示的时间信息
-    const skipTimeText = useMemo(() => {
-      const dir = currentDragDirection.current;
-      if (!currentDragOffset || !dir) return;
-      if (dir === 'x') {
-        // 水平方向拖动
-        const timeText = formatTime(currentDragOffset[0] * PROGRESS_DRAG_PER_PX, {
-          fixed: 1,
-          withSymbol: true,
-        });
-        return timeText;
-      }
-    }, [currentDragOffset]);
-    // 跳转的相对时间
-    const currentDragDiffTime = useMemo(() => {
-      if (currentDragDirection.current !== 'x') return;
-      return currentDragOffset ? currentDragOffset[0] * PROGRESS_DRAG_PER_PX : void 0;
-    }, [currentDragOffset]);
-    // 中途取消
-    const ifDisableDrag = useCallback(() => currentDragDirection.current !== 'x', []);
-    useCancelAreaContext({
-      domRef: mediaRef,
-      onActivatedCallback: handleDragEnd,
-      onFinal: handleResetDrag,
-      areaSx: CANCEL_AREA_SX,
-      ifDisable: ifDisableDrag,
-    });
-    /* end */
 
     // 初始化
     useEffect(() => {
@@ -204,45 +119,6 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         setCurrentRate(elm.playbackRate);
         setVideoDuration(elm.duration);
         setCurrentTime(elm.currentTime);
-
-        // 指针按下
-        const pointerDownController = isVideoMedia
-          ? bindEvent(elm, 'pointerdown', async ev => {
-              if (ev.pointerType === 'mouse') return;
-              // 当触摸开始时一段时间内命中了某个手势操作后，则不进入 drag 操作
-              const gesture = await detectGesture(ev);
-              // 未完成手势，跳过
-              if (!gesture) return;
-              // 单指拖动，进入 drag 操作
-              if (gesture.type === 'single-move') dragEventHandler(ev);
-              // 单指按下，进入快速播放模式
-              if (gesture.type === 'single-down') {
-                lastRate.current = elm.playbackRate;
-                elm.playbackRate = MAX_RATE;
-              }
-            })
-          : null;
-
-        // 指针抬起
-        const pointerUpController = isVideoMedia
-          ? bindEvent(elm, 'pointerup', async ev => {
-              if (ev.pointerType === 'mouse') return;
-              detectGesture(ev);
-
-              if (!isNil(lastRate.current)) {
-                elm.playbackRate = lastRate.current;
-                lastRate.current = null;
-              }
-            })
-          : null;
-
-        // 指针移动
-        const pointerMoveController = isVideoMedia
-          ? bindEvent(elm, 'pointermove', async ev => {
-              if (ev.pointerType === 'mouse') return;
-              detectGesture(ev);
-            })
-          : null;
 
         // 双击播放
         const dblclickController = isVideoMedia
@@ -310,12 +186,9 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           canplayController.abort();
           ratechangeController.abort();
           dblclickController?.abort();
-          pointerDownController?.abort();
-          pointerUpController?.abort();
-          pointerMoveController?.abort();
         };
       }
-    }, [detectGesture, dragEventHandler, handleTogglePlay, mediaRef]);
+    }, [handleTogglePlay, mediaRef]);
 
     // 实例方法
     useImperativeHandle(

@@ -15,8 +15,6 @@ import { bindEvent } from '../util';
 
 interface RotateSettingProps {
   mediaRef: RefObject<HTMLMediaElement | null>;
-  // degree: number;
-  // onDegreeChange: (newVal: number) => void;
 }
 
 const AUTO_VALUE = 'auto';
