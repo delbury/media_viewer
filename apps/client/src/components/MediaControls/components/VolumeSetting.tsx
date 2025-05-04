@@ -1,4 +1,5 @@
-import { SliderOwnProps } from '@mui/material';
+import { VolumeOffRounded, VolumeUpRounded } from '@mui/icons-material';
+import { IconButton, SliderOwnProps } from '@mui/material';
 import { useCallback, useMemo, useRef } from 'react';
 import TooltipSetting, { TooltipSettingInstance } from '../../TooltipSetting';
 import { StyledSlider, StyledVolumePopoverContainer } from '../style';
@@ -6,10 +7,11 @@ import { StyledSlider, StyledVolumePopoverContainer } from '../style';
 interface VolumeSettingProps {
   volume: number;
   onVolumeChange: (v: number) => void;
-  children: React.ReactElement;
+  onClick: () => void;
+  isMuted: boolean;
 }
 
-const VolumeSetting = ({ volume, onVolumeChange, children }: VolumeSettingProps) => {
+const VolumeSetting = ({ volume, onVolumeChange, onClick, isMuted }: VolumeSettingProps) => {
   const tooltipSettingRef = useRef<TooltipSettingInstance>(null);
   const displayVolumeText = useMemo(() => (volume * 100).toFixed(0), [volume]);
 
@@ -44,7 +46,9 @@ const VolumeSetting = ({ volume, onVolumeChange, children }: VolumeSettingProps)
         </StyledVolumePopoverContainer>
       }
     >
-      {children}
+      <IconButton onClick={onClick}>
+        {isMuted ? <VolumeOffRounded /> : <VolumeUpRounded />}
+      </IconButton>
     </TooltipSetting>
   );
 };

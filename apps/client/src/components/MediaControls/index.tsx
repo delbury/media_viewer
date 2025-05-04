@@ -8,19 +8,12 @@ import { formatTime } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { Theme } from '@emotion/react';
 import {
-  CachedRounded,
   FullscreenExitRounded,
   FullscreenRounded,
   PauseRounded,
   PlayArrowRounded,
-  RectangleRounded,
-  RotateRightRounded,
   SkipNextRounded,
   SkipPreviousRounded,
-  SubtitlesOffRounded,
-  SubtitlesRounded,
-  VolumeOffRounded,
-  VolumeUpRounded,
 } from '@mui/icons-material';
 import { IconButton, SxProps } from '@mui/material';
 import { isNil } from 'lodash-es';
@@ -117,8 +110,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const showPrevBtn = !!onPrev;
     const showNextBtn = !!onNext;
 
-    // 是否有可选字幕
-    const hasSubtitle = useMemo(() => !!subtitles?.length, [subtitles?.length]);
+    // 当前字幕
     const [currentSubtitle, setCurrentSubtitle] = useState<Subtitle | undefined>(subtitles?.[0]);
 
     useEffect(() => {
@@ -143,8 +135,6 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       defaultDegree: 0,
       domRef: mediaRef,
     });
-    // 是否是未旋转状态，即为 360 的整数倍
-    const isNotRotated = useMemo(() => currentDegree % 360 === 0, [currentDegree]);
     // 监听容器大小改变
     const { size: mediaContainerSize } = useResizeObserver({
       domRef: mediaRef,
@@ -444,22 +434,16 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
               <RateSetting
                 rate={currentRate}
                 onRateChange={handleRateChange}
-              >
-                <IconButton onClick={handleSwitchRate}>
-                  <RectangleRounded />
-                </IconButton>
-              </RateSetting>
+                onClick={handleSwitchRate}
+              />
 
               {/* 旋转 */}
               {isVideo && (
                 <RotateSetting
                   degree={currentDegree}
                   onDegreeChange={handleDegreeChange}
-                >
-                  <IconButton onClick={handleToggleRotate}>
-                    {isNotRotated ? <RotateRightRounded /> : <CachedRounded />}
-                  </IconButton>
-                </RotateSetting>
+                  onClick={handleToggleRotate}
+                />
               )}
             </StyledBtnsGroup>
 
@@ -491,29 +475,17 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
                   subtitle={currentSubtitle}
                   onSubtitleChange={setCurrentSubtitle}
                   subtitleOptions={subtitles}
-                >
-                  <IconButton
-                    disabled={!hasSubtitle}
-                    onClick={handleToggleSubtitle}
-                  >
-                    {hasSubtitle && currentSubtitle ? (
-                      <SubtitlesRounded />
-                    ) : (
-                      <SubtitlesOffRounded />
-                    )}
-                  </IconButton>
-                </SubtitleSetting>
+                  onClick={handleToggleSubtitle}
+                />
               )}
 
               {/* 静音 */}
               <VolumeSetting
                 volume={currentVolume}
                 onVolumeChange={handleVolumeChange}
-              >
-                <IconButton onClick={handleToggleMute}>
-                  {isMuted ? <VolumeOffRounded /> : <VolumeUpRounded />}
-                </IconButton>
-              </VolumeSetting>
+                onClick={handleToggleMute}
+                isMuted={isMuted}
+              />
 
               {/* 全屏 */}
               {showFullScreenBtn && (

@@ -1,4 +1,5 @@
-import { ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
+import { RectangleRounded } from '@mui/icons-material';
+import { IconButton, ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
 import { at, isNil } from 'lodash-es';
 import { useCallback, useMemo, useRef } from 'react';
 import TooltipSetting, { TooltipSettingInstance } from '../../TooltipSetting';
@@ -12,7 +13,7 @@ import {
 interface RateSettingProps {
   rate: number;
   onRateChange: (v: number) => void;
-  children: React.ReactElement;
+  onClick: () => void;
 }
 
 const FULL_RATE_OPTIONS = [0.5, 1, 1.5, 2];
@@ -24,7 +25,7 @@ const RATE_SUFFIX_SYMBOL = 'x';
 
 const formatRate = (rate: number) => `${rate.toFixed(1)}${RATE_SUFFIX_SYMBOL}`;
 
-const RateSetting = ({ rate, onRateChange, children }: RateSettingProps) => {
+const RateSetting = ({ rate, onRateChange, onClick }: RateSettingProps) => {
   const tooltipSettingRef = useRef<TooltipSettingInstance>(null);
   const displayRateText = useMemo(() => formatRate(rate), [rate]);
 
@@ -60,7 +61,9 @@ const RateSetting = ({ rate, onRateChange, children }: RateSettingProps) => {
       }
     >
       <StyledRateChildrenWrapper>
-        {children}
+        <IconButton onClick={onClick}>
+          <RectangleRounded />
+        </IconButton>
         <StyledRateText>{displayRateText}</StyledRateText>
       </StyledRateChildrenWrapper>
     </TooltipSetting>

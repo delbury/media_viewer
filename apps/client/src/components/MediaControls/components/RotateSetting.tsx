@@ -1,6 +1,6 @@
 import TooltipSetting, { TooltipSettingInstance } from '#/components/TooltipSetting';
-import { OndemandVideoRounded } from '@mui/icons-material';
-import { ToggleButton, ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
+import { CachedRounded, OndemandVideoRounded, RotateRightRounded } from '@mui/icons-material';
+import { IconButton, ToggleButton, ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
 import { isNil } from 'lodash-es';
 import { useCallback, useMemo, useRef } from 'react';
 import { StyledToggleBtnPopoverContainer } from '../style';
@@ -8,13 +8,16 @@ import { StyledToggleBtnPopoverContainer } from '../style';
 interface RotateSettingProps {
   degree: number;
   onDegreeChange: (v: number) => void;
-  children: React.ReactElement;
+  onClick: () => void;
 }
 
 const ROTATE_OPTIONS = [0, 90, 180, 270];
 
-const RotateSetting = ({ degree, onDegreeChange, children }: RotateSettingProps) => {
+const RotateSetting = ({ degree, onDegreeChange, onClick }: RotateSettingProps) => {
   const tooltipSettingRef = useRef<TooltipSettingInstance>(null);
+
+  // 是否是未旋转状态，即为 360 的整数倍
+  const isNotRotated = useMemo(() => degree % 360 === 0, [degree]);
 
   const pureDegree = useMemo(() => {
     let val = degree % 360;
@@ -56,7 +59,9 @@ const RotateSetting = ({ degree, onDegreeChange, children }: RotateSettingProps)
         </StyledToggleBtnPopoverContainer>
       }
     >
-      {children}
+      <IconButton onClick={onClick}>
+        {isNotRotated ? <RotateRightRounded /> : <CachedRounded />}
+      </IconButton>
     </TooltipSetting>
   );
 };

@@ -1,6 +1,7 @@
 import { FileInfo } from '#pkgs/apis';
-import { ToggleButton, ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
-import { useCallback, useRef } from 'react';
+import { SubtitlesOffRounded, SubtitlesRounded } from '@mui/icons-material';
+import { IconButton, ToggleButton, ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
+import { useCallback, useMemo, useRef } from 'react';
 import TooltipSetting, { TooltipSettingInstance } from '../../TooltipSetting';
 import { StyledRateChildrenWrapper, StyledToggleBtnPopoverContainer } from '../style';
 
@@ -10,16 +11,18 @@ interface SubtitleSettingProps {
   subtitleOptions?: Subtitle[];
   subtitle?: Subtitle;
   onSubtitleChange: (v: Subtitle) => void;
-  children: React.ReactElement;
+  onClick: () => void;
 }
 
 const SubtitleSetting = ({
   subtitle,
   onSubtitleChange,
   subtitleOptions,
-  children,
+  onClick,
 }: SubtitleSettingProps) => {
   const tooltipSettingRef = useRef<TooltipSettingInstance>(null);
+
+  const hasSubtitle = useMemo(() => !!subtitleOptions?.length, [subtitleOptions?.length]);
 
   const handleChange = useCallback<NonNullable<ToggleButtonGroupProps['onChange']>>(
     (ev, val) => {
@@ -52,7 +55,14 @@ const SubtitleSetting = ({
         </StyledToggleBtnPopoverContainer>
       }
     >
-      <StyledRateChildrenWrapper>{children}</StyledRateChildrenWrapper>
+      <StyledRateChildrenWrapper>
+        <IconButton
+          disabled={!hasSubtitle}
+          onClick={onClick}
+        >
+          {hasSubtitle && !!subtitle ? <SubtitlesRounded /> : <SubtitlesOffRounded />}
+        </IconButton>
+      </StyledRateChildrenWrapper>
     </TooltipSetting>
   );
 };
