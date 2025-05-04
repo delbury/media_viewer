@@ -11,11 +11,11 @@ export const useRotateState = ({ defaultDegree, domRef }: UseRotateStateParams) 
   // 旋转值，用于旋转
   const [degree, setDegreeRaw] = useState(defaultDegree);
   const enableTransitionPromise = useRef<Promise<void>>(null);
-  const setDegree = useCallback(async (deg: number | ((deg: number) => number)) => {
+  const setDegree = useCallback(async (newDeg: number | ((curDeg: number) => number)) => {
     if (enableTransitionPromise.current) {
       await enableTransitionPromise.current;
     }
-    setDegreeRaw(deg);
+    setDegreeRaw(newDeg);
   }, []);
 
   // 禁用图片过渡动画
@@ -40,6 +40,7 @@ export const useRotateState = ({ defaultDegree, domRef }: UseRotateStateParams) 
   const transitionendCallback = useCallback(
     (ev: TransitionEvent) => {
       if (ev.propertyName === 'transform') {
+        if (degree >= 0 && degree < 360) return;
         const pureDeg = normalizeDegree(degree);
         disableTransition();
         setDegree(pureDeg);
@@ -48,6 +49,7 @@ export const useRotateState = ({ defaultDegree, domRef }: UseRotateStateParams) 
     },
     [degree, disableTransition, enableTransition, setDegree]
   );
+
   useEventCallback({
     domRef: domRef,
     eventName: 'transitionend',

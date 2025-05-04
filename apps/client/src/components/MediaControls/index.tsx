@@ -1,8 +1,6 @@
 import { useCancelAreaContext } from '#/hooks/useCancelAreaContext';
 import { useDrag } from '#/hooks/useDrag';
 import { useGesture } from '#/hooks/useGesture';
-import { useResizeObserver } from '#/hooks/useResizeObserver';
-import { useRotateState } from '#/hooks/useRotateState';
 import { useShortcut } from '#/hooks/useShortcut';
 import { formatTime } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
@@ -29,6 +27,7 @@ import {
 import { calcTimeRanges } from '../VideoViewer/util';
 import AlertInfo from './components/AlertInfo';
 import { MediaProgress } from './components/MediaProgress';
+import ProgressInfo from './components/ProgressInfo';
 import RateSetting, { MAX_RATE } from './components/RateSetting';
 import RotateSetting from './components/RotateSetting';
 import SubtitleSetting, { Subtitle } from './components/SubtitleSetting';
@@ -37,9 +36,7 @@ import { useHandlers } from './hooks/useHandlers';
 import {
   StyledBtnsContainer,
   StyledBtnsGroup,
-  StyledInfoDivider,
   StyledMediaControlsWrapper,
-  StyledProgressInfo,
   StyledToolsRow,
 } from './style';
 import {
@@ -98,47 +95,6 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       onWaitingStateChange?.(isWaiting);
     }, [isWaiting, onWaitingStateChange]);
 
-    // 当前播放的进度信息，用于展示
-    const ct = Math.floor(currentTime);
-    const tt = Math.floor(videoDuration);
-    const currentInfo = useMemo(() => formatTime(ct, { withHour: tt >= 3600 }), [ct, tt]);
-    const totalInfo = useMemo(() => formatTime(tt), [tt]);
-
-    /**
-     * start 用以控制视频旋转并自适应缩放
-     */
-    // 旋转值，用于旋转
-    const { degree: currentDegree, setDegree: setCurrentDegree } = useRotateState({
-      defaultDegree: 0,
-      domRef: mediaRef,
-    });
-    // 监听容器大小改变
-    const { size: mediaContainerSize } = useResizeObserver({
-      domRef: mediaRef,
-      findDom: elm => elm.parentElement,
-    });
-    // 视频旋转
-    useEffect(() => {
-      const elm = mediaRef.current;
-      if (!elm) return;
-
-      // 旋转 90 度时，需要改变图片容器的大小
-      const isVertical = currentDegree % 180 !== 0;
-
-      elm.style.setProperty('transform', `rotate(${currentDegree}deg)`);
-      if (isVertical && mediaContainerSize) {
-        elm.style.setProperty('width', `${mediaContainerSize.height}px`);
-        elm.style.setProperty('height', `${mediaContainerSize.width}px`);
-      }
-
-      return () => {
-        elm.style.removeProperty('transform');
-        elm.style.removeProperty('width');
-        elm.style.removeProperty('height');
-      };
-    }, [currentDegree, mediaContainerSize, mediaRef]);
-    /** end */
-
     // handlers
     const {
       handleTogglePlay,
@@ -148,16 +104,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       handleForward,
       handleVolumeChange,
       handleRateChange,
-      handleDegreeChange,
       handleGoBy,
     } = useHandlers({
       mediaRef,
       setIsPaused,
       setIsFullScreen,
-      currentDegree,
-      setCurrentDegree,
-      currentSubtitle,
-      setCurrentSubtitle,
     });
 
     // 快捷键
@@ -395,11 +346,10 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         />
 
         <StyledToolsRow>
-          <StyledProgressInfo variant="body2">
-            {currentInfo}
-            <StyledInfoDivider>/</StyledInfoDivider>
-            {totalInfo}
-          </StyledProgressInfo>
+          <ProgressInfo
+            currentTime={currentTime}
+            videoDuration={videoDuration}
+          />
 
           <StyledBtnsContainer>
             <StyledBtnsGroup>
@@ -411,13 +361,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
               />
 
               {/* 旋转 */}
-              {isVideo && (
-                <RotateSetting
-                  mediaRef={mediaRef}
-                  degree={currentDegree}
-                  onDegreeChange={handleDegreeChange}
-                />
-              )}
+              {isVideo && <RotateSetting mediaRef={mediaRef} />}
             </StyledBtnsGroup>
 
             <StyledBtnsGroup>

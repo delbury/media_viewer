@@ -1,4 +1,6 @@
 import TooltipSetting, { TooltipSettingInstance } from '#/components/TooltipSetting';
+import { useResizeObserver } from '#/hooks/useResizeObserver';
+import { useRotateState } from '#/hooks/useRotateState';
 import {
   CachedRounded,
   HdrAutoRounded,
@@ -13,8 +15,8 @@ import { bindEvent } from '../util';
 
 interface RotateSettingProps {
   mediaRef: RefObject<HTMLMediaElement | null>;
-  degree: number;
-  onDegreeChange: (newVal: number) => void;
+  // degree: number;
+  // onDegreeChange: (newVal: number) => void;
 }
 
 const AUTO_VALUE = 'auto';
@@ -22,8 +24,58 @@ const ROTATE_OPTIONS = [0, 90, 180, 270];
 // 当宽高比大于该值，触发自动旋转
 const AUTO_ROTATE_MIN_ASPECT_RATIO = 1;
 
-const RotateSetting = ({ degree, onDegreeChange, mediaRef }: RotateSettingProps) => {
+const RotateSetting = ({ mediaRef }: RotateSettingProps) => {
   const tooltipSettingRef = useRef<TooltipSettingInstance>(null);
+
+  // 旋转值，用于旋转
+  const { degree, setDegree: rawSetDegree } = useRotateState({
+    defaultDegree: 0,
+    domRef: mediaRef,
+  });
+  const setDegree = useCallback(
+    (newDeg: number) => {
+      rawSetDegree(curDeg => {
+        // 判断当前的旋转在哪
+        const rest = curDeg % 360;
+        // 旋转不变
+        if (rest === newDeg) return curDeg;
+        // 新的旋转角度小于与当前角度的差值
+        const diff = newDeg - rest;
+        // 如果差值小于等于 180，直接转
+        if (Math.abs(diff) <= 180) return curDeg + diff;
+        // 否则，差值大于270
+        return curDeg + diff + (diff > 0 ? -360 : 360);
+      });
+    },
+    [rawSetDegree]
+  );
+
+  // 监听容器大小改变
+  const { size: mediaContainerSize } = useResizeObserver({
+    domRef: mediaRef,
+    findDom: elm => elm.parentElement,
+  });
+
+  // 视频旋转
+  useEffect(() => {
+    const elm = mediaRef.current;
+    if (!elm) return;
+
+    // 旋转 90 度时，需要改变图片容器的大小
+    const isVertical = degree % 180 !== 0;
+
+    elm.style.setProperty('transform', `rotate(${degree}deg)`);
+    if (isVertical && mediaContainerSize) {
+      elm.style.setProperty('width', `${mediaContainerSize.height}px`);
+      elm.style.setProperty('height', `${mediaContainerSize.width}px`);
+    }
+
+    return () => {
+      elm.style.removeProperty('transform');
+      elm.style.removeProperty('width');
+      elm.style.removeProperty('height');
+    };
+  }, [degree, mediaContainerSize, mediaRef]);
 
   // 是否自动旋转
   const [auto, setAuto] = useState(false);
@@ -43,12 +95,12 @@ const RotateSetting = ({ degree, onDegreeChange, mediaRef }: RotateSettingProps)
       if (val === AUTO_VALUE) {
         setAuto(true);
       } else if (!isNil(val)) {
-        onDegreeChange(val);
+        setDegree(val);
         setAuto(false);
       }
       tooltipSettingRef.current?.close();
     },
-    [onDegreeChange]
+    [setDegree]
   );
 
   // 切换旋转
@@ -62,16 +114,17 @@ const RotateSetting = ({ degree, onDegreeChange, mediaRef }: RotateSettingProps)
     if (auto) {
       // 切换到自动旋转
       if (aspectRatio >= AUTO_ROTATE_MIN_ASPECT_RATIO) {
-        onDegreeChange(90);
+        setDegree(90);
       } else {
-        onDegreeChange(0);
+        setDegree(0);
       }
     } else {
       // 从自动旋转切换
-      onDegreeChange(0);
+      setDegree(0);
     }
-  }, [aspectRatio, auto, onDegreeChange]);
+  }, [aspectRatio, auto, setDegree]);
 
+  // 监听视频的宽高比
   useEffect(() => {
     if (!mediaRef.current) return;
 

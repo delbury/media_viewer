@@ -1,7 +1,6 @@
 import { RootType } from '#/components/FixedModal';
 import { isNil, noop } from 'lodash-es';
 import { RefObject, useCallback } from 'react';
-import { Subtitle } from '../components/SubtitleSetting';
 
 // 键盘每次跳转的时间间隔
 const GO_BY_MAX_DIFF = 15;
@@ -14,21 +13,9 @@ interface UseHandlersParams {
   mediaRef: RefObject<HTMLMediaElement | null>;
   setIsPaused: (v: boolean) => void;
   setIsFullScreen: (v: boolean) => void;
-  currentDegree: number;
-  setCurrentDegree: (deg: number | ((deg: number) => number)) => Promise<void>;
-  currentSubtitle?: Subtitle;
-  setCurrentSubtitle: (s?: Subtitle) => void;
 }
 
-export const useHandlers = ({
-  mediaRef,
-  setIsPaused,
-  setIsFullScreen,
-  currentDegree,
-  setCurrentDegree,
-  currentSubtitle,
-  setCurrentSubtitle,
-}: UseHandlersParams) => {
+export const useHandlers = ({ mediaRef, setIsPaused, setIsFullScreen }: UseHandlersParams) => {
   // 播放切换
   const handleTogglePlay = useCallback(() => {
     if (!mediaRef.current) return;
@@ -113,25 +100,6 @@ export const useHandlers = ({
     [mediaRef]
   );
 
-  // 改变旋转
-  const handleDegreeChange = useCallback(
-    (newDeg: number) => {
-      setCurrentDegree(curDeg => {
-        // 判断当前的旋转在哪
-        const rest = curDeg % 360;
-        // 旋转不变
-        if (rest === newDeg) return curDeg;
-        // 新的旋转角度小于与当前角度的差值
-        const diff = newDeg - rest;
-        // 如果差值小于等于 180，直接转
-        if (Math.abs(diff) <= 180) return curDeg + diff;
-        // 否则，差值大于270
-        return curDeg + diff + (diff > 0 ? -360 : 360);
-      });
-    },
-    [setCurrentDegree]
-  );
-
   return {
     handleTogglePlay,
     handleToggleFullScreen,
@@ -140,7 +108,6 @@ export const useHandlers = ({
     handleForward,
     handleVolumeChange,
     handleRateChange,
-    handleDegreeChange,
     handleGoBy,
   };
 };
