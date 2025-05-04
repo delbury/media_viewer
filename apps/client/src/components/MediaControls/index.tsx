@@ -47,13 +47,8 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [bufferRanges, setBufferRanges] = useState<[number, number][]>([]);
     const [videoDuration, setVideoDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
-    const [isMuted, setIsMuted] = useState(false);
-    const [currentVolume, setCurrentVolume] = useState(0);
     const [isWaiting, setIsWaiting] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
-
-    // 播放速度
-    const [currentRate, setCurrentRate] = useState(1);
 
     // 是否可全屏
     const [showFullScreenBtn, setShowFullScreenBtn] = useState(false);
@@ -81,8 +76,6 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       handleGoTo,
       handleBack,
       handleForward,
-      handleVolumeChange,
-      handleRateChange,
       handleGoBy,
     } = useHandlers({
       mediaRef,
@@ -111,12 +104,9 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       if (elm) {
         // 初始化状态
         setIsPaused(elm.paused);
-        setIsMuted(elm.muted);
-        setCurrentVolume(elm.volume);
         const isVideoMedia = elm instanceof HTMLVideoElement;
         setShowFullScreenBtn(isVideoMedia && document.fullscreenEnabled);
         setIsVideo(isVideoMedia);
-        setCurrentRate(elm.playbackRate);
         setVideoDuration(elm.duration);
         setCurrentTime(elm.currentTime);
 
@@ -155,17 +145,6 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           setCurrentTime(elm.currentTime);
         });
 
-        // 音量改变事件
-        const volumechangeController = bindEvent(elm, 'volumechange', () => {
-          setIsMuted(elm.muted || !elm.volume);
-          setCurrentVolume(elm.volume);
-        });
-
-        // 播放速率改变事件
-        const ratechangeController = bindEvent(elm, 'ratechange', () => {
-          setCurrentRate(elm.playbackRate);
-        });
-
         // 等待事件
         const waitingController = bindEvent(elm, 'waiting', () => {
           setIsWaiting(true);
@@ -181,10 +160,8 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           pauseController.abort();
           progressController.abort();
           timeupdateController.abort();
-          volumechangeController.abort();
           waitingController.abort();
           canplayController.abort();
-          ratechangeController.abort();
           dblclickController?.abort();
         };
       }
@@ -227,11 +204,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           <StyledBtnsContainer>
             <StyledBtnsGroup>
               {/* 倍速 */}
-              <RateSetting
-                mediaRef={mediaRef}
-                rate={currentRate}
-                onRateChange={handleRateChange}
-              />
+              <RateSetting mediaRef={mediaRef} />
 
               {/* 旋转 */}
               {isVideo && <RotateSetting mediaRef={mediaRef} />}
@@ -269,12 +242,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
               )}
 
               {/* 静音 */}
-              <VolumeSetting
-                mediaRef={mediaRef}
-                volume={currentVolume}
-                onVolumeChange={handleVolumeChange}
-                isMuted={isMuted}
-              />
+              <VolumeSetting mediaRef={mediaRef} />
 
               {/* 全屏 */}
               {showFullScreenBtn && (

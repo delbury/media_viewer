@@ -82,32 +82,12 @@ export const useHandlers = ({ mediaRef, setIsPaused, setIsFullScreen }: UseHandl
     handleGoBy(1);
   }, [handleGoBy]);
 
-  // 改变音量
-  const handleVolumeChange = useCallback(
-    (v: number) => {
-      if (!mediaRef.current) return;
-      mediaRef.current.volume = v;
-    },
-    [mediaRef]
-  );
-
-  // 改变速率
-  const handleRateChange = useCallback(
-    (v: number) => {
-      if (!mediaRef.current) return;
-      mediaRef.current.playbackRate = v;
-    },
-    [mediaRef]
-  );
-
   return {
     handleTogglePlay,
     handleToggleFullScreen,
     handleGoTo,
     handleBack,
     handleForward,
-    handleVolumeChange,
-    handleRateChange,
     handleGoBy,
   };
 };

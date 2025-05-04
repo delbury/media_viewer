@@ -1,18 +1,19 @@
 import { VolumeOffRounded, VolumeUpRounded } from '@mui/icons-material';
 import { IconButton, SliderOwnProps } from '@mui/material';
-import { RefObject, useCallback, useMemo, useRef } from 'react';
+import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import TooltipSetting, { TooltipSettingInstance } from '../../TooltipSetting';
 import { StyledSlider, StyledVolumePopoverContainer } from '../style';
+import { bindEvent } from '../util';
 
 interface VolumeSettingProps {
   mediaRef: RefObject<HTMLMediaElement | null>;
-  volume: number;
-  onVolumeChange: (v: number) => void;
-  isMuted: boolean;
 }
 
-const VolumeSetting = ({ volume, onVolumeChange, mediaRef, isMuted }: VolumeSettingProps) => {
+const VolumeSetting = ({ mediaRef }: VolumeSettingProps) => {
   const tooltipSettingRef = useRef<TooltipSettingInstance>(null);
+  const [volume, setVolume] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+
   const displayVolumeText = useMemo(() => (volume * 100).toFixed(0), [volume]);
 
   // 在调整音量时，锁定 tooltip
@@ -20,17 +21,35 @@ const VolumeSetting = ({ volume, onVolumeChange, mediaRef, isMuted }: VolumeSett
     tooltipSettingRef.current?.lock();
   }, []);
 
+  // 音量改变
   const handleChange = useCallback<NonNullable<SliderOwnProps['onChange']>>(
     (ev, val) => {
-      onVolumeChange(val as number);
+      if (mediaRef.current) mediaRef.current.volume = val as number;
     },
-    [onVolumeChange]
+    [mediaRef]
   );
 
   // 静音切换
   const handleToggleMute = useCallback(() => {
     if (!mediaRef.current) return;
     mediaRef.current.muted = !mediaRef.current.muted;
+  }, [mediaRef]);
+
+  useEffect(() => {
+    const elm = mediaRef.current;
+    if (!elm) return;
+    setIsMuted(elm.muted);
+    setVolume(elm.volume);
+
+    // 音量改变事件
+    const volumechangeController = bindEvent(elm, 'volumechange', () => {
+      setIsMuted(elm.muted || !elm.volume);
+      setVolume(elm.volume);
+    });
+
+    return () => {
+      volumechangeController.abort();
+    };
   }, [mediaRef]);
 
   return (
