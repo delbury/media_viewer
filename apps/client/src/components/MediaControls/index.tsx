@@ -6,7 +6,6 @@ import { useRotateState } from '#/hooks/useRotateState';
 import { useShortcut } from '#/hooks/useShortcut';
 import { formatTime } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
-import { Theme } from '@emotion/react';
 import {
   FullscreenExitRounded,
   FullscreenRounded,
@@ -15,7 +14,7 @@ import {
   SkipNextRounded,
   SkipPreviousRounded,
 } from '@mui/icons-material';
-import { IconButton, SxProps } from '@mui/material';
+import { IconButton } from '@mui/material';
 import { isNil } from 'lodash-es';
 import {
   forwardRef,
@@ -43,39 +42,17 @@ import {
   StyledProgressInfo,
   StyledToolsRow,
 } from './style';
-
-// 绑定事件
-const bindEvent = <T extends keyof HTMLMediaElementEventMap>(
-  elm: HTMLMediaElement,
-  eventName: T,
-  cb: (ev: HTMLMediaElementEventMap[T]) => void
-) => {
-  const controller = new AbortController();
-  elm.addEventListener(eventName, cb, { signal: controller.signal });
-  return controller;
-};
-// 只执行一次的事件
-const bindEventOnce = <T extends keyof HTMLMediaElementEventMap>(
-  elm: HTMLMediaElement,
-  eventName: T,
-  cb: (ev: HTMLMediaElementEventMap[T]) => void
-) => {
-  elm.addEventListener(eventName, cb, { once: true });
-};
+import {
+  bindEvent,
+  bindEventOnce,
+  CANCEL_AREA_SX,
+  DRAG_DIR_MIN_DISTANCE,
+  PROGRESS_DRAG_PER_PX,
+} from './util';
 
 export interface MediaControlsInstance {
   togglePlay: () => void;
 }
-
-// 在 video 上拖动时，每像素的偏移时间
-const PROGRESS_DRAG_PER_PX = 0.1;
-// 判断在 video 上拖拽的方向时的最小距离的平方
-const DRAG_DIR_MIN_DISTANCE = 5 ** 2;
-
-// 取消区域的样式
-const CANCEL_AREA_SX: SxProps<Theme> = {
-  marginTop: '72px',
-};
 
 interface MediaControls {
   mediaRef: RefObject<HTMLMediaElement | null>;
@@ -165,18 +142,14 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     // handlers
     const {
       handleTogglePlay,
-      handleToggleRotate,
-      handleToggleMute,
       handleToggleFullScreen,
       handleGoTo,
       handleBack,
       handleForward,
       handleVolumeChange,
       handleRateChange,
-      handleSwitchRate,
       handleDegreeChange,
       handleGoBy,
-      handleToggleSubtitle,
     } = useHandlers({
       mediaRef,
       setIsPaused,
@@ -432,17 +405,17 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
             <StyledBtnsGroup>
               {/* 倍速 */}
               <RateSetting
+                mediaRef={mediaRef}
                 rate={currentRate}
                 onRateChange={handleRateChange}
-                onClick={handleSwitchRate}
               />
 
               {/* 旋转 */}
               {isVideo && (
                 <RotateSetting
+                  mediaRef={mediaRef}
                   degree={currentDegree}
                   onDegreeChange={handleDegreeChange}
-                  onClick={handleToggleRotate}
                 />
               )}
             </StyledBtnsGroup>
@@ -475,15 +448,14 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
                   subtitle={currentSubtitle}
                   onSubtitleChange={setCurrentSubtitle}
                   subtitleOptions={subtitles}
-                  onClick={handleToggleSubtitle}
                 />
               )}
 
               {/* 静音 */}
               <VolumeSetting
+                mediaRef={mediaRef}
                 volume={currentVolume}
                 onVolumeChange={handleVolumeChange}
-                onClick={handleToggleMute}
                 isMuted={isMuted}
               />
 

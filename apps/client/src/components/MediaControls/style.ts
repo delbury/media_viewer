@@ -201,8 +201,13 @@ export const StyledRateText = styled(Box)`
 export const StyledRateOption = styled(ToggleButton)`
   text-transform: none;
 `;
-export const StyledRateChildrenWrapper = styled(Box)`
+export const StyledChildrenWrapper = styled(Box)`
   position: relative;
+`;
+
+// 视频旋转控件
+export const StyledRotateText = styled(StyledRateText)`
+  color: ${({ theme }) => theme.palette.common.white};
 `;
 
 // Tooltip 包裹容器

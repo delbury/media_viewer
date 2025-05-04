@@ -1,19 +1,19 @@
 import { RectangleRounded } from '@mui/icons-material';
 import { IconButton, ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
 import { at, isNil } from 'lodash-es';
-import { useCallback, useMemo, useRef } from 'react';
+import { RefObject, useCallback, useMemo, useRef } from 'react';
 import TooltipSetting, { TooltipSettingInstance } from '../../TooltipSetting';
 import {
-  StyledRateChildrenWrapper,
+  StyledChildrenWrapper,
   StyledRateOption,
   StyledRateText,
   StyledToggleBtnPopoverContainer,
 } from '../style';
 
 interface RateSettingProps {
+  mediaRef: RefObject<HTMLMediaElement | null>;
   rate: number;
   onRateChange: (v: number) => void;
-  onClick: () => void;
 }
 
 const FULL_RATE_OPTIONS = [0.5, 1, 1.5, 2];
@@ -25,7 +25,7 @@ const RATE_SUFFIX_SYMBOL = 'x';
 
 const formatRate = (rate: number) => `${rate.toFixed(1)}${RATE_SUFFIX_SYMBOL}`;
 
-const RateSetting = ({ rate, onRateChange, onClick }: RateSettingProps) => {
+const RateSetting = ({ rate, onRateChange, mediaRef }: RateSettingProps) => {
   const tooltipSettingRef = useRef<TooltipSettingInstance>(null);
   const displayRateText = useMemo(() => formatRate(rate), [rate]);
 
@@ -36,6 +36,16 @@ const RateSetting = ({ rate, onRateChange, onClick }: RateSettingProps) => {
     },
     [onRateChange]
   );
+
+  // 切换速率
+  const handleSwitchRate = useCallback(() => {
+    if (!mediaRef.current) return;
+    const rate = mediaRef.current.playbackRate;
+    const index = SWITCH_RATE_OPTIONS.findIndex(v => v === rate);
+    let newRate = 1;
+    if (index > -1) newRate = SWITCH_RATE_OPTIONS[(index + 1) % SWITCH_RATE_OPTIONS.length];
+    mediaRef.current.playbackRate = newRate;
+  }, [mediaRef]);
 
   return (
     <TooltipSetting
@@ -60,12 +70,12 @@ const RateSetting = ({ rate, onRateChange, onClick }: RateSettingProps) => {
         </StyledToggleBtnPopoverContainer>
       }
     >
-      <StyledRateChildrenWrapper>
-        <IconButton onClick={onClick}>
+      <StyledChildrenWrapper>
+        <IconButton onClick={handleSwitchRate}>
           <RectangleRounded />
         </IconButton>
         <StyledRateText>{displayRateText}</StyledRateText>
-      </StyledRateChildrenWrapper>
+      </StyledChildrenWrapper>
     </TooltipSetting>
   );
 };

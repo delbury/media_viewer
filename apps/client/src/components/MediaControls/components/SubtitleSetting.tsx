@@ -3,23 +3,17 @@ import { SubtitlesOffRounded, SubtitlesRounded } from '@mui/icons-material';
 import { IconButton, ToggleButton, ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
 import { useCallback, useMemo, useRef } from 'react';
 import TooltipSetting, { TooltipSettingInstance } from '../../TooltipSetting';
-import { StyledRateChildrenWrapper, StyledToggleBtnPopoverContainer } from '../style';
+import { StyledChildrenWrapper, StyledToggleBtnPopoverContainer } from '../style';
 
 export type Subtitle = NonNullable<FileInfo['subtitles']>[0];
 
 interface SubtitleSettingProps {
   subtitleOptions?: Subtitle[];
   subtitle?: Subtitle;
-  onSubtitleChange: (v: Subtitle) => void;
-  onClick: () => void;
+  onSubtitleChange: (v?: Subtitle) => void;
 }
 
-const SubtitleSetting = ({
-  subtitle,
-  onSubtitleChange,
-  subtitleOptions,
-  onClick,
-}: SubtitleSettingProps) => {
+const SubtitleSetting = ({ subtitle, onSubtitleChange, subtitleOptions }: SubtitleSettingProps) => {
   const tooltipSettingRef = useRef<TooltipSettingInstance>(null);
 
   const hasSubtitle = useMemo(() => !!subtitleOptions?.length, [subtitleOptions?.length]);
@@ -31,6 +25,19 @@ const SubtitleSetting = ({
     },
     [onSubtitleChange]
   );
+
+  // 之前的字幕
+  const lastSubtitle = useRef<Subtitle>(void 0);
+  // 启用、禁用字幕
+  const handleToggleSubtitle = useCallback(() => {
+    if (subtitle) {
+      lastSubtitle.current = subtitle;
+      onSubtitleChange(void 0);
+    } else {
+      onSubtitleChange(lastSubtitle.current);
+      lastSubtitle.current = void 0;
+    }
+  }, [subtitle, onSubtitleChange]);
 
   return (
     <TooltipSetting
@@ -55,14 +62,14 @@ const SubtitleSetting = ({
         </StyledToggleBtnPopoverContainer>
       }
     >
-      <StyledRateChildrenWrapper>
+      <StyledChildrenWrapper>
         <IconButton
           disabled={!hasSubtitle}
-          onClick={onClick}
+          onClick={handleToggleSubtitle}
         >
           {hasSubtitle && !!subtitle ? <SubtitlesRounded /> : <SubtitlesOffRounded />}
         </IconButton>
-      </StyledRateChildrenWrapper>
+      </StyledChildrenWrapper>
     </TooltipSetting>
   );
 };

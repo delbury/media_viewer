@@ -1,7 +1,6 @@
 import { RootType } from '#/components/FixedModal';
 import { isNil, noop } from 'lodash-es';
-import { RefObject, useCallback, useRef } from 'react';
-import { SWITCH_RATE_OPTIONS } from '../components/RateSetting';
+import { RefObject, useCallback } from 'react';
 import { Subtitle } from '../components/SubtitleSetting';
 
 // 键盘每次跳转的时间间隔
@@ -41,12 +40,6 @@ export const useHandlers = ({
       setIsPaused(true);
     }
   }, [mediaRef, setIsPaused]);
-
-  // 静音切换
-  const handleToggleMute = useCallback(() => {
-    if (!mediaRef.current) return;
-    mediaRef.current.muted = !mediaRef.current.muted;
-  }, [mediaRef]);
 
   // 全屏切换
   const handleToggleFullScreen = useCallback(() => {
@@ -120,25 +113,6 @@ export const useHandlers = ({
     [mediaRef]
   );
 
-  // 切换速率
-  const handleSwitchRate = useCallback(() => {
-    if (!mediaRef.current) return;
-    const rate = mediaRef.current.playbackRate;
-    const index = SWITCH_RATE_OPTIONS.findIndex(v => v === rate);
-    let newRate = 1;
-    if (index > -1) newRate = SWITCH_RATE_OPTIONS[(index + 1) % SWITCH_RATE_OPTIONS.length];
-    mediaRef.current.playbackRate = newRate;
-  }, [mediaRef]);
-
-  // 切换旋转
-  const handleToggleRotate = useCallback(() => {
-    let deg = currentDegree;
-    const rest = currentDegree % 360;
-    if (rest === 0 || rest > 180) deg += 90;
-    else deg -= rest;
-    setCurrentDegree(deg);
-  }, [currentDegree, setCurrentDegree]);
-
   // 改变旋转
   const handleDegreeChange = useCallback(
     (newDeg: number) => {
@@ -158,32 +132,15 @@ export const useHandlers = ({
     [setCurrentDegree]
   );
 
-  // 之前的字幕
-  const lastSubtitle = useRef<Subtitle>(void 0);
-  // 启用、禁用字幕
-  const handleToggleSubtitle = useCallback(() => {
-    if (currentSubtitle) {
-      lastSubtitle.current = currentSubtitle;
-      setCurrentSubtitle(void 0);
-    } else {
-      setCurrentSubtitle(lastSubtitle.current);
-      lastSubtitle.current = void 0;
-    }
-  }, [currentSubtitle, setCurrentSubtitle]);
-
   return {
     handleTogglePlay,
-    handleToggleRotate,
-    handleToggleMute,
     handleToggleFullScreen,
     handleGoTo,
     handleBack,
     handleForward,
     handleVolumeChange,
     handleRateChange,
-    handleSwitchRate,
     handleDegreeChange,
     handleGoBy,
-    handleToggleSubtitle,
   };
 };

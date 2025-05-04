@@ -1,17 +1,17 @@
 import { VolumeOffRounded, VolumeUpRounded } from '@mui/icons-material';
 import { IconButton, SliderOwnProps } from '@mui/material';
-import { useCallback, useMemo, useRef } from 'react';
+import { RefObject, useCallback, useMemo, useRef } from 'react';
 import TooltipSetting, { TooltipSettingInstance } from '../../TooltipSetting';
 import { StyledSlider, StyledVolumePopoverContainer } from '../style';
 
 interface VolumeSettingProps {
+  mediaRef: RefObject<HTMLMediaElement | null>;
   volume: number;
   onVolumeChange: (v: number) => void;
-  onClick: () => void;
   isMuted: boolean;
 }
 
-const VolumeSetting = ({ volume, onVolumeChange, onClick, isMuted }: VolumeSettingProps) => {
+const VolumeSetting = ({ volume, onVolumeChange, mediaRef, isMuted }: VolumeSettingProps) => {
   const tooltipSettingRef = useRef<TooltipSettingInstance>(null);
   const displayVolumeText = useMemo(() => (volume * 100).toFixed(0), [volume]);
 
@@ -26,6 +26,12 @@ const VolumeSetting = ({ volume, onVolumeChange, onClick, isMuted }: VolumeSetti
     },
     [onVolumeChange]
   );
+
+  // 静音切换
+  const handleToggleMute = useCallback(() => {
+    if (!mediaRef.current) return;
+    mediaRef.current.muted = !mediaRef.current.muted;
+  }, [mediaRef]);
 
   return (
     <TooltipSetting
@@ -46,7 +52,7 @@ const VolumeSetting = ({ volume, onVolumeChange, onClick, isMuted }: VolumeSetti
         </StyledVolumePopoverContainer>
       }
     >
-      <IconButton onClick={onClick}>
+      <IconButton onClick={handleToggleMute}>
         {isMuted ? <VolumeOffRounded /> : <VolumeUpRounded />}
       </IconButton>
     </TooltipSetting>
