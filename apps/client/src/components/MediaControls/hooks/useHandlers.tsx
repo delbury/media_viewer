@@ -1,4 +1,3 @@
-import { RootType } from '#/components/FixedModal';
 import { isNil, noop } from 'lodash-es';
 import { RefObject, useCallback } from 'react';
 
@@ -11,39 +10,18 @@ const GO_BY_MAX_DIFF_SHORT = 2;
 
 interface UseHandlersParams {
   mediaRef: RefObject<HTMLMediaElement | null>;
-  setIsPaused: (v: boolean) => void;
-  setIsFullScreen: (v: boolean) => void;
 }
 
-export const useHandlers = ({ mediaRef, setIsPaused, setIsFullScreen }: UseHandlersParams) => {
+export const useHandlers = ({ mediaRef }: UseHandlersParams) => {
   // 播放切换
   const handleTogglePlay = useCallback(() => {
     if (!mediaRef.current) return;
     if (mediaRef.current.paused) {
       mediaRef.current.play().catch(noop);
-      setIsPaused(false);
     } else {
       mediaRef.current.pause();
-      setIsPaused(true);
     }
-  }, [mediaRef, setIsPaused]);
-
-  // 全屏切换
-  const handleToggleFullScreen = useCallback(() => {
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-      setIsFullScreen(false);
-    } else {
-      let curElm: HTMLElement | null = mediaRef.current;
-      while (curElm) {
-        if (curElm.dataset.root === RootType.Media) break;
-        curElm = curElm.parentElement;
-      }
-      if (!curElm) return;
-      curElm.requestFullscreen();
-      setIsFullScreen(true);
-    }
-  }, [mediaRef, setIsFullScreen]);
+  }, [mediaRef]);
 
   // 跳转到对应的进度条时刻
   const handleGoTo = useCallback(
@@ -84,7 +62,6 @@ export const useHandlers = ({ mediaRef, setIsPaused, setIsFullScreen }: UseHandl
 
   return {
     handleTogglePlay,
-    handleToggleFullScreen,
     handleGoTo,
     handleBack,
     handleForward,

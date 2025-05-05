@@ -1,8 +1,6 @@
 import { useShortcut } from '#/hooks/useShortcut';
 import { FileInfo } from '#pkgs/apis';
 import {
-  FullscreenExitRounded,
-  FullscreenRounded,
   PauseRounded,
   PlayArrowRounded,
   SkipNextRounded,
@@ -12,11 +10,12 @@ import { IconButton } from '@mui/material';
 import { forwardRef, RefObject, useEffect, useImperativeHandle, useState } from 'react';
 import { calcTimeRanges } from '../VideoViewer/util';
 import AlertInfo from './components/AlertInfo';
+import FullscreenSetting from './components/FullscreenSetting';
 import { MediaProgress } from './components/MediaProgress';
 import ProgressInfo from './components/ProgressInfo';
 import RateSetting from './components/RateSetting';
 import RotateSetting from './components/RotateSetting';
-import SubtitleSetting, { Subtitle } from './components/SubtitleSetting';
+import SubtitleSetting from './components/SubtitleSetting';
 import VolumeSetting from './components/VolumeSetting';
 import { useHandlers } from './hooks/useHandlers';
 import { useMobileDrag } from './hooks/useMobileDrag';
@@ -48,18 +47,13 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [videoDuration, setVideoDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const [isWaiting, setIsWaiting] = useState(false);
-    const [isFullScreen, setIsFullScreen] = useState(false);
 
     // 是否可全屏
-    const [showFullScreenBtn, setShowFullScreenBtn] = useState(false);
     // 是否是 video
     const [isVideo, setIsVideo] = useState(false);
     // 是否展示前进/后退按钮
     const showPrevBtn = !!onPrev;
     const showNextBtn = !!onNext;
-
-    // 当前字幕
-    const [currentSubtitle, setCurrentSubtitle] = useState<Subtitle | undefined>(subtitles?.[0]);
 
     useEffect(() => {
       onPausedStateChange?.(isPaused);
@@ -70,17 +64,8 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     }, [isWaiting, onWaitingStateChange]);
 
     // handlers
-    const {
-      handleTogglePlay,
-      handleToggleFullScreen,
-      handleGoTo,
-      handleBack,
-      handleForward,
-      handleGoBy,
-    } = useHandlers({
+    const { handleTogglePlay, handleGoTo, handleBack, handleForward, handleGoBy } = useHandlers({
       mediaRef,
-      setIsPaused,
-      setIsFullScreen,
     });
 
     // 快捷键
@@ -105,7 +90,6 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         // 初始化状态
         setIsPaused(elm.paused);
         const isVideoMedia = elm instanceof HTMLVideoElement;
-        setShowFullScreenBtn(isVideoMedia && document.fullscreenEnabled);
         setIsVideo(isVideoMedia);
         setVideoDuration(elm.duration);
         setCurrentTime(elm.currentTime);
@@ -233,23 +217,13 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
             <StyledBtnsGroup>
               {/* 字幕 */}
-              {isVideo && (
-                <SubtitleSetting
-                  subtitle={currentSubtitle}
-                  onSubtitleChange={setCurrentSubtitle}
-                  subtitleOptions={subtitles}
-                />
-              )}
+              {isVideo && <SubtitleSetting subtitleOptions={subtitles} />}
 
               {/* 静音 */}
               <VolumeSetting mediaRef={mediaRef} />
 
               {/* 全屏 */}
-              {showFullScreenBtn && (
-                <IconButton onClick={handleToggleFullScreen}>
-                  {isFullScreen ? <FullscreenExitRounded /> : <FullscreenRounded />}
-                </IconButton>
-              )}
+              {isVideo && <FullscreenSetting mediaRef={mediaRef} />}
             </StyledBtnsGroup>
           </StyledBtnsContainer>
         </StyledToolsRow>
