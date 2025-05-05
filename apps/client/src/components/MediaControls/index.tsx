@@ -46,7 +46,6 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [videoDuration, setVideoDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
 
-    // 是否可全屏
     // 是否是 video
     const [isVideo, setIsVideo] = useState(false);
     // 是否展示前进/后退按钮
@@ -76,6 +75,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       onEnterPressed: handleTogglePlay,
     });
 
+    // 移动端，手势拖拽的操作
     const { skipTimeText, currentDragDiffTime } = useMobileDrag({
       mediaRef,
       handleGoBy,

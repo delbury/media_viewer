@@ -1,7 +1,7 @@
 'use client';
 
 import { preventDefault } from '#/utils';
-import { useCallback, useEffect, useRef } from 'react';
+import { PointerEvent as ReactPointerEvent, useCallback, useEffect, useRef } from 'react';
 import { useThrottle } from './useThrottle';
 
 export interface UseDragParams {
@@ -73,7 +73,7 @@ export const useDrag = ({
 
   // 点击事件，开始
   const fnPointerDown = useCallback(
-    (ev: PointerEvent) => {
+    (ev: PointerEvent | ReactPointerEvent<HTMLElement>) => {
       if (onlyMobile && ev.pointerType === 'mouse') return;
 
       // 如果已经按下了，则跳过
