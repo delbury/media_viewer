@@ -22,6 +22,16 @@ export const StyledVideoWrapper = styled(Box)`
     cursor: pointer;
     touch-action: none;
     -webkit-tap-highlight-color: transparent;
+
+    ::cue {
+      color: ${({ theme }) => theme.palette.common.white};
+      background-color: transparent;
+      text-shadow:
+        -1px -1px 2px ${({ theme }) => theme.palette.common.black},
+        1px -1px 2px ${({ theme }) => theme.palette.common.black},
+        -1px 1px 2px ${({ theme }) => theme.palette.common.black},
+        1px 1px 2px ${({ theme }) => theme.palette.common.black};
+    }
   }
 `;
 

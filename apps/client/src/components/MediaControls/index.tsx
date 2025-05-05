@@ -205,7 +205,12 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
             <StyledBtnsGroup>
               {/* 字幕 */}
-              {isVideo && <SubtitleSetting subtitleOptions={subtitles} />}
+              {isVideo && (
+                <SubtitleSetting
+                  mediaRef={mediaRef}
+                  subtitleOptions={subtitles}
+                />
+              )}
 
               {/* 静音 */}
               <VolumeSetting mediaRef={mediaRef} />

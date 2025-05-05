@@ -173,9 +173,9 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
     if (elm) {
       const source = new MediaSource();
       mediaSource.current = source;
-      const src = URL.createObjectURL(source);
+      const url = URL.createObjectURL(source);
       // 绑定源
-      elm.src = src;
+      elm.src = url;
 
       // 开始事件
       source.addEventListener(
@@ -209,6 +209,8 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
         },
         { once: true }
       );
+
+      return { url };
     }
   }, [lazyLoadSegmentDebounce, mediaRef, metadataRequest]);
 
@@ -283,8 +285,10 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
     const elm = mediaRef.current;
     if (!elm) return;
 
+    let url = null;
     if (enabled) {
-      createSource();
+      const res = createSource();
+      url = res?.url;
     } else {
       elm.src = getFileSourceUrl(file);
     }
@@ -297,6 +301,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
       sourceBuffer.current = null;
       mediaSource.current = null;
       isLoadDone.current = false;
+      if (url) URL.revokeObjectURL(url);
     };
   }, [enabled]);
 

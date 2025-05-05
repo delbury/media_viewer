@@ -2,22 +2,25 @@ import { useSwr } from '#/hooks/useSwr';
 import { FileInfo } from '#pkgs/apis';
 import { SubtitlesOffRounded, SubtitlesRounded } from '@mui/icons-material';
 import { IconButton, ToggleButton, ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { RefObject, useCallback, useMemo, useRef, useState } from 'react';
 import TooltipSetting, { TooltipSettingInstance } from '../../TooltipSetting';
+import { useWebVtt } from '../hooks/useWebVtt';
 import { StyledChildrenWrapper, StyledToggleBtnPopoverContainer } from '../style';
 
 export type Subtitle = NonNullable<FileInfo['subtitles']>[0];
 
 interface SubtitleSettingProps {
+  mediaRef: RefObject<HTMLMediaElement | null>;
   subtitleOptions?: Subtitle[];
 }
 
-const SubtitleSetting = ({ subtitleOptions }: SubtitleSettingProps) => {
+const SubtitleSetting = ({ subtitleOptions, mediaRef }: SubtitleSettingProps) => {
   const tooltipSettingRef = useRef<TooltipSettingInstance>(null);
   // 当前字幕
   const [subtitle, setSubtitle] = useState<Subtitle | undefined>(subtitleOptions?.[0]);
   const hasSubtitle = useMemo(() => !!subtitleOptions?.length, [subtitleOptions?.length]);
 
+  // 加载字幕
   const subtitleRequest = useSwr('videoSubtitle', {
     params: {
       basePathIndex: subtitle?.basePathIndex?.toString() as string,
@@ -25,6 +28,9 @@ const SubtitleSetting = ({ subtitleOptions }: SubtitleSettingProps) => {
     },
     disabled: !subtitle,
   });
+
+  // 使用字幕
+  useWebVtt({ mediaRef, vtt: subtitleRequest.data?.content });
 
   const handleChange = useCallback<NonNullable<ToggleButtonGroupProps['onChange']>>((ev, val) => {
     if (val) setSubtitle(val as Subtitle);
