@@ -80,7 +80,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
   }, []);
 
   // 请求视频分段数据接口
-  const metadataRequest = useSwr('fileVideoMetadata', {
+  const metadataRequest = useSwr('videoMetadata', {
     params: {
       basePathIndex: file.basePathIndex?.toString() as string,
       relativePath: file.relativePath,
@@ -123,7 +123,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
         // 开始加载
         setIsLoading(true);
 
-        const response = await fetchData('fileVideoSegment', {
+        const response = await fetchData('videoSegment', {
           params: {
             basePathIndex: file.basePathIndex?.toString() as string,
             relativePath: file.relativePath,

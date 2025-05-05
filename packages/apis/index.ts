@@ -63,18 +63,18 @@ export const API_CONFIGS = {
     method: 'post',
   },
   // 获取视频文件的 fallback url
-  fileVideoFallback: {
-    url: '/file/video/fallback',
+  videoFallback: {
+    url: '/video/fallback',
     method: 'get',
   },
   // 获取视频文件的 metadata 信息
-  fileVideoMetadata: {
-    url: '/file/video/metadata',
+  videoMetadata: {
+    url: '/video/metadata',
     method: 'get',
   },
   // 获取视频文件的转换成 fmp4 的分片
-  fileVideoSegment: {
-    url: '/file/video/segment',
+  videoSegment: {
+    url: '/video/segment',
     method: 'get',
   },
 } satisfies Record<string, ApiConfig>;
@@ -90,7 +90,7 @@ export type ApiResponseDataTypes<T extends ApiKeys> = T extends 'dirUpdate'
     ? DirectoryInfo
     : T extends 'fileText'
       ? FileTextResponseData
-      : T extends 'fileVideoMetadata'
+      : T extends 'videoMetadata'
         ? FileVideoMetadataResponseData
         : never;
 
@@ -110,9 +110,9 @@ interface FileVideoMetadataResponseData {
  */
 export type ApiRequestParamsTypes<T extends ApiKeys> = T extends 'posterGet'
   ? ApiFilePosterParams
-  : T extends 'fileGet' | 'fileText' | 'fileVideoFallback' | 'fileVideoMetadata'
+  : T extends 'fileGet' | 'fileText' | 'videoFallback' | 'videoMetadata'
     ? ApiFileFetchParams
-    : T extends 'fileVideoSegment'
+    : T extends 'videoSegment'
       ? ApiFileVideoSegment
       : never;
 

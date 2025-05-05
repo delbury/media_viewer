@@ -5,9 +5,10 @@ import { ERROR_MSG } from './i18n/errorMsg';
 import { directoryRouter } from './router/directory';
 import { fileRouter } from './router/file';
 import { posterRouter } from './router/poster';
+import { videoRouter } from './router/video';
 import { returnError } from './util/common';
 
-const routers = [directoryRouter, fileRouter, posterRouter];
+const routers = [directoryRouter, fileRouter, posterRouter, videoRouter];
 
 const PORT = 4002;
 

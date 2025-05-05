@@ -120,7 +120,7 @@ export const getFileSourceUrl = (file?: FileInfo) => {
 export const getVideoFileFallbackUrl = (file?: FileInfo) => {
   if (!file) return '';
   const fallback = joinUrlWithQueryString(
-    'fileVideoFallback',
+    'videoFallback',
     {
       basePathIndex: file.basePathIndex?.toString() as string,
       relativePath: file.relativePath,
