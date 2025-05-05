@@ -11,7 +11,7 @@ const FileBrowser = dynamic(
 );
 
 const WRAPPER_SX: SxProps<Theme> = {
-  height: 'calc(100vh - 80px)',
+  height: 'calc(100vh - 72px)',
 };
 
 const CONTAINER_SX: SxProps<Theme> = {
