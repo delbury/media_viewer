@@ -4,9 +4,10 @@ import bodyParser from 'koa-bodyparser';
 import { ERROR_MSG } from './i18n/errorMsg';
 import { directoryRouter } from './router/directory';
 import { fileRouter } from './router/file';
+import { posterRouter } from './router/poster';
 import { returnError } from './util/common';
 
-const routers = [directoryRouter, fileRouter];
+const routers = [directoryRouter, fileRouter, posterRouter];
 
 const PORT = 4002;
 

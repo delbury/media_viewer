@@ -91,7 +91,7 @@ export const preventDefault = (ev: Pick<Event, 'preventDefault'>) => ev.preventD
 export const getFilePosterUrl = (file?: FileInfo) => {
   if (!file) return '';
   const poster = joinUrlWithQueryString(
-    'filePoster',
+    'posterGet',
     {
       basePathIndex: file.basePathIndex?.toString() as string,
       relativePath: file.relativePath,

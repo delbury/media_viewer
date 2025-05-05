@@ -4,6 +4,7 @@ import { IGNORE_FILE_NAME_REG } from '#pkgs/tools/constant';
 import { isNil } from 'lodash-es';
 import { exec, ExecOptions } from 'node:child_process';
 import path from 'node:path';
+import { DIRECTORY_ROOTS } from '../config';
 import { ERROR_MSG } from '../i18n/errorMsg';
 
 export const returnBody = <T>(data?: T) => {
@@ -58,4 +59,12 @@ export const hideFile = async (filePath: string) => {
   if (!IGNORE_FILE_NAME_REG.test(fileName)) {
     return new Error('file name not start with "."');
   }
+};
+
+// 获取根目录
+export const getRootDir = (index: number | string) => {
+  const basePath = DIRECTORY_ROOTS?.[+index];
+  if (!basePath) throw new Error(ERROR_MSG.noRootDir);
+
+  return basePath;
 };

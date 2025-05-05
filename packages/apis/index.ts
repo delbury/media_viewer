@@ -53,13 +53,13 @@ export const API_CONFIGS = {
     method: 'get',
   },
   // 获取缩略图
-  filePoster: {
-    url: '/file/poster',
+  posterGet: {
+    url: '/poster/get',
     method: 'get',
   },
   // 清除缩略图
-  filePosterClear: {
-    url: '/file/poster/clear',
+  posterClear: {
+    url: '/poster/clear',
     method: 'post',
   },
   // 获取视频文件的 fallback url
@@ -108,7 +108,7 @@ interface FileVideoMetadataResponseData {
 /**
  * 接口请求参数类型，query 上的参数
  */
-export type ApiRequestParamsTypes<T extends ApiKeys> = T extends 'filePoster'
+export type ApiRequestParamsTypes<T extends ApiKeys> = T extends 'posterGet'
   ? ApiFilePosterParams
   : T extends 'fileGet' | 'fileText' | 'fileVideoFallback' | 'fileVideoMetadata'
     ? ApiFileFetchParams
@@ -137,7 +137,7 @@ interface ApiFileVideoSegment extends ApiFileFetchParams {
  * 接口请求参数类型，body 上的参数
  */
 
-export type ApiRequestDataTypes<T extends ApiKeys> = T extends 'filePosterClear'
+export type ApiRequestDataTypes<T extends ApiKeys> = T extends 'posterClear'
   ? ApiFilePosterClearParams
   : never;
 

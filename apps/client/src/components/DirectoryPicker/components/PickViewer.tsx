@@ -30,7 +30,7 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
   });
 
   // 删除缩略图
-  const clearPosterRequest = useSwr('filePosterClear', {
+  const clearPosterRequest = useSwr('posterClear', {
     lazy: true,
     data: {
       // clearAll: true,
@@ -43,7 +43,7 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
       onOk: updateRequest.refresh,
       description: t('Tools.AreYouSureReGenerateDirectoryInfo'),
     },
-    filePosterClear: {
+    posterClear: {
       onOk: clearPosterRequest.refresh,
       description: t('Tools.AreYouSureClearUselessPoster'),
     },
@@ -109,7 +109,7 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
             </IconButton>
             <IconButton
               loading={updateRequest.isLoading}
-              onClick={() => confirmOpen('filePosterClear')}
+              onClick={() => confirmOpen('posterClear')}
             >
               <CleaningServicesOutlined />
             </IconButton>
