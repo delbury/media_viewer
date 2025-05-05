@@ -65,7 +65,7 @@ export default async function RootLayout({
               <ErrorBoundary fallback={<Box>Something went wrong</Box>}>
                 <Layout>
                   <Header />
-                  <Box sx={{ padding: '24px' }}>{children}</Box>
+                  <Box sx={{ padding: '16px' }}>{children}</Box>
                 </Layout>
               </ErrorBoundary>
             </ThemeProvider>

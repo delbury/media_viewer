@@ -1,3 +1,5 @@
+'use client';
+
 import { FileInfo } from '#pkgs/apis';
 import React, { useMemo, useState } from 'react';
 import AudioViewer from '../AudioViewer';

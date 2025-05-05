@@ -1,3 +1,5 @@
+'use client';
+
 import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';

@@ -1,3 +1,5 @@
+'use client';
+
 import theme from '#/style/theme';
 import { useCallback, useRef } from 'react';
 

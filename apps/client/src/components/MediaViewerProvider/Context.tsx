@@ -1,3 +1,5 @@
+'use client';
+
 import { FileInfo } from '#pkgs/apis';
 import { FullFileType } from '#pkgs/shared';
 import { noop } from 'lodash-es';

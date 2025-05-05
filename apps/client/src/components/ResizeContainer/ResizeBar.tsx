@@ -1,3 +1,5 @@
+'use client';
+
 import { useDrag, UseDragParams } from '#/hooks/useDrag';
 import { MoreHorizOutlined } from '@mui/icons-material';
 import { BoxProps } from '@mui/material';
