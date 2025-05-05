@@ -3,6 +3,7 @@ import { logError } from '#pkgs/tools/common';
 import { IGNORE_FILE_NAME_REG } from '#pkgs/tools/constant';
 import { isNil } from 'lodash-es';
 import { exec, ExecOptions } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { DIRECTORY_ROOTS } from '../config';
 import { ERROR_MSG } from '../i18n/errorMsg';
@@ -68,3 +69,7 @@ export const getRootDir = (index: number | string) => {
 
   return basePath;
 };
+
+// 生成文件路径 hash
+export const getFilePathHash = (filePath: string) =>
+  createHash('md5').update(filePath).digest('hex').substring(0, 8);

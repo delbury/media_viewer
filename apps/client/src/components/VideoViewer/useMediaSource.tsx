@@ -87,7 +87,6 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
     },
     lazy: true,
     disabled: !enabled,
-    noticeWhenSuccess: false,
   });
 
   // 动态懒加载视频分片

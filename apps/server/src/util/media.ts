@@ -2,10 +2,9 @@ import { MediaDetailInfo } from '#pkgs/shared/index.js';
 import { logError, logWarn as RawLogWarn, switchFnByFlag } from '#pkgs/tools/common.js';
 import { ParameterizedContext } from 'koa';
 import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { VIDEO_TRANSFORM_MAX_HEIGHT, VIDEO_TRANSFORM_MAX_WIDTH } from '../config';
 import { ERROR_MSG } from '../i18n/errorMsg';
-import { execCommand } from './common';
+import { execCommand, getFilePathHash } from './common';
 import { logCommand } from './debug';
 
 interface VideoDetailTasks {
@@ -104,7 +103,7 @@ export const transformVideoStream = async (
 ) => {
   // 关闭之前的进程
   killProcess();
-  const hash = createHash('md5').update(filePath).digest('hex').substring(0, 8);
+  const hash = getFilePathHash(filePath);
 
   const inputArgs: string[] = ['-i', `${filePath}`];
   // 处理分片

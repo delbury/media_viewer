@@ -1,3 +1,4 @@
+import { useSwr } from '#/hooks/useSwr';
 import { FileInfo } from '#pkgs/apis';
 import { SubtitlesOffRounded, SubtitlesRounded } from '@mui/icons-material';
 import { IconButton, ToggleButton, ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
@@ -15,8 +16,15 @@ const SubtitleSetting = ({ subtitleOptions }: SubtitleSettingProps) => {
   const tooltipSettingRef = useRef<TooltipSettingInstance>(null);
   // 当前字幕
   const [subtitle, setSubtitle] = useState<Subtitle | undefined>(subtitleOptions?.[0]);
-
   const hasSubtitle = useMemo(() => !!subtitleOptions?.length, [subtitleOptions?.length]);
+
+  const subtitleRequest = useSwr('videoSubtitle', {
+    params: {
+      basePathIndex: subtitle?.basePathIndex?.toString() as string,
+      relativePath: subtitle?.path as string,
+    },
+    disabled: !subtitle,
+  });
 
   const handleChange = useCallback<NonNullable<ToggleButtonGroupProps['onChange']>>((ev, val) => {
     if (val) setSubtitle(val as Subtitle);

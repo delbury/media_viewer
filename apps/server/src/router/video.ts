@@ -5,6 +5,7 @@ import path from 'node:path';
 import { ERROR_MSG } from '../i18n/errorMsg';
 import { getRootDir, returnBody, validateNumberString } from '../util/common';
 import { getMediaDetail, transformVideoStream } from '../util/media';
+import { transformSubtitleToVtt } from '../util/subtitle';
 
 const videoRouter = new Router();
 
@@ -76,6 +77,18 @@ videoRouter[API_CONFIGS.videoFallback.method](API_CONFIGS.videoFallback.url, asy
   transformVideoStream(ctx, fullPath);
 });
 
-// 返回视频的字幕文件
+// 返回视频的字幕文件，转换并返回 vtt 格式
+videoRouter[API_CONFIGS.videoSubtitle.method](API_CONFIGS.videoSubtitle.url, async ctx => {
+  const { basePathIndex, relativePath } = ctx.query as ApiRequestParamsTypes<'videoSubtitle'>;
+
+  // 校验根目录
+  const basePath = getRootDir(basePathIndex);
+
+  // 校验文件路径的合法性
+  const fullPath = path.posix.join(basePath, relativePath);
+  if (!fullPath.startsWith(basePath)) throw new Error(ERROR_MSG.errorPath);
+
+  await transformSubtitleToVtt(ctx, fullPath);
+});
 
 export { videoRouter };

@@ -38,6 +38,7 @@ export interface FileInfo extends CommonInfo {
   lrcPath?: string;
   // 字幕文件
   subtitles?: {
+    basePathIndex?: number;
     lang: string;
     path: string;
     ext: SubtitlesExts;
@@ -149,6 +150,7 @@ const resolveFileRelation = (fileInfos: FileInfo[]) => {
         if (!matched) return;
         if (!mediaInfo.subtitles) mediaInfo.subtitles = [];
         mediaInfo.subtitles.push({
+          basePathIndex: mediaInfo.basePathIndex,
           lang: matched[1],
           ext: matched[2].toLowerCase() as SubtitlesExts,
           path: tf.relativePath,

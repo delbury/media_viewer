@@ -99,7 +99,7 @@ export type ApiResponseDataTypes<T extends ApiKeys> = T extends 'dirUpdate'
   ? Omit<DirUpdateData, 'fileList'>
   : T extends 'dirTree'
     ? DirectoryInfo
-    : T extends 'fileText'
+    : T extends 'fileText' | 'videoSubtitle'
       ? FileTextResponseData
       : T extends 'videoMetadata'
         ? VideoMetadataResponseData
@@ -123,7 +123,13 @@ interface VideoMetadataResponseData {
  */
 export type ApiRequestParamsTypes<T extends ApiKeys> = T extends 'posterGet'
   ? ApiPosterGetParams
-  : T extends 'fileGet' | 'fileText' | 'videoFallback' | 'videoMetadata' | 'mediaMetadata'
+  : T extends
+        | 'fileGet'
+        | 'fileText'
+        | 'videoFallback'
+        | 'videoMetadata'
+        | 'mediaMetadata'
+        | 'videoSubtitle'
     ? ApiFileFetchParams
     : T extends 'videoSegment'
       ? ApiVideoSegment

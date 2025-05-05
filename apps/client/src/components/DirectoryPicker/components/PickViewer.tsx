@@ -24,6 +24,7 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
   // 后端强制更新文件信息
   const updateRequest = useSwr('dirUpdate', {
     lazy: true,
+    noticeWhenSuccess: true,
     onSuccess: res => {
       setPathList(res.data?.treeNode ? [res.data.treeNode] : []);
     },
@@ -32,6 +33,7 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
   // 删除缩略图
   const clearPosterRequest = useSwr('posterClear', {
     lazy: true,
+    noticeWhenSuccess: true,
     data: {
       // clearAll: true,
     },

@@ -7,8 +7,10 @@ import { AxiosError } from 'axios';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import useSWR, { KeyedMutator } from 'swr';
+import useSWRMutation from 'swr/mutation';
 
-// export type * from '#pkgs/apis';
+const AUTO_HIDE_DURATION_ERROR = 2000;
+const AUTO_HIDE_DURATION_SUCCESS = 1000;
 
 interface UseSwrOptions<T, P extends ApiKeys> {
   lazy?: boolean;
@@ -33,7 +35,7 @@ const useSwr = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
   const {
     lazy = false,
     onSuccess,
-    noticeWhenSuccess = lazy,
+    noticeWhenSuccess,
     params: requestParams,
     data: requestData,
     disabled,
@@ -63,7 +65,7 @@ const useSwr = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
       revalidateOnMount: !lazy && !disabled,
       onError: error => {
         notifications.show(error.response?.data?.msg || error.message, {
-          autoHideDuration: 2000,
+          autoHideDuration: AUTO_HIDE_DURATION_ERROR,
           severity: 'error',
         });
       },
@@ -71,7 +73,7 @@ const useSwr = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
         onSuccess?.(data);
         if (noticeWhenSuccess) {
           notifications.show(t('Common.RequestSuccess'), {
-            autoHideDuration: 1000,
+            autoHideDuration: AUTO_HIDE_DURATION_SUCCESS,
             severity: 'success',
           });
         }
@@ -88,4 +90,55 @@ const useSwr = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
   };
 };
 
-export { useSwr };
+const useSwrMutation = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
+  apiKey: T,
+  options?: UseSwrOptions<D, T>
+) => {
+  const { onSuccess, noticeWhenSuccess, params: requestParams, data: requestData } = options ?? {};
+  const t = useTranslations();
+  const notifications = useNotifications();
+  const { url, method } = API_CONFIGS[apiKey];
+  const {
+    data,
+    isMutating: isLoading,
+    trigger,
+    reset,
+  } = useSWRMutation<ApiResponseBase<D>, AxiosError<ApiResponseBase>>(
+    [url, requestParams, requestData],
+    async () => {
+      const res = await instance.request({
+        url,
+        method,
+        params: requestParams,
+        data: requestData,
+      });
+      return res?.data;
+    },
+    {
+      onError: error => {
+        notifications.show(error.response?.data?.msg || error.message, {
+          autoHideDuration: AUTO_HIDE_DURATION_ERROR,
+          severity: 'error',
+        });
+      },
+      onSuccess: data => {
+        onSuccess?.(data);
+        if (noticeWhenSuccess) {
+          notifications.show(t('Common.RequestSuccess'), {
+            autoHideDuration: AUTO_HIDE_DURATION_SUCCESS,
+            severity: 'success',
+          });
+        }
+      },
+    }
+  );
+
+  return {
+    data: data?.data,
+    isLoading,
+    trigger,
+    reset,
+  };
+};
+
+export { useSwr, useSwrMutation };

@@ -67,7 +67,6 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
       relativePath: file.relativePath,
     },
     lazy: true,
-    noticeWhenSuccess: false,
     disabled: !showImage,
   });
 
