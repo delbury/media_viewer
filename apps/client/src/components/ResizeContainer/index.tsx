@@ -1,3 +1,5 @@
+'use client';
+
 import ResizeContainerItem from './ResizeContainerItem';
 import ResizeContainerWrapper from './ResizeContainerWrapper';
 

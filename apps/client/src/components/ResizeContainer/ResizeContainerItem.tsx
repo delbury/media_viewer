@@ -1,3 +1,5 @@
+'use client';
+
 import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { BoxProps, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';

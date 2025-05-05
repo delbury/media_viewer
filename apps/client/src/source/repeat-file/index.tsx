@@ -1,5 +1,23 @@
-import DirectoryPicker from '#/components/DirectoryPicker';
-import { Box } from '@mui/material';
+'use client';
+
+import { Box, SxProps, Theme } from '@mui/material';
+import dynamic from 'next/dynamic';
+
+const FileBrowser = dynamic(
+  () => import('#/components/DirectoryPicker').then(mod => mod.FileBrowser),
+  {
+    ssr: false,
+  }
+);
+
+const WRAPPER_SX: SxProps<Theme> = {
+  height: 'calc(100vh - 80px)',
+};
+
+const CONTAINER_SX: SxProps<Theme> = {
+  flex: 1,
+  minHeight: 0,
+};
 
 /**
  * 分析处理重复的视频文件
@@ -12,8 +30,8 @@ import { Box } from '@mui/material';
 
 export default function RepeatFile() {
   return (
-    <Box>
-      <DirectoryPicker />
+    <Box sx={WRAPPER_SX}>
+      <FileBrowser containerSx={CONTAINER_SX} />
     </Box>
   );
 }

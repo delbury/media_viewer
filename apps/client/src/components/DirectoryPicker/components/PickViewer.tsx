@@ -97,7 +97,9 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
       >
         <FileBrowser
           ref={fileBrowserRef}
+          containerHeight="60vh"
           onPathNodeChange={setCurrentPathNode}
+          onPathListChange={setPathList}
         />
         {ConfirmDialog}
       </Dialog>

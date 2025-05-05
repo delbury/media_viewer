@@ -1,3 +1,5 @@
+'use client';
+
 import ScrollBox, { ScrollBoxInstance } from '#/components/ScrollBox';
 import { DirectoryInfo } from '#pkgs/apis';
 import { CatchingPokemonOutlined } from '@mui/icons-material';

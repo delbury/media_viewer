@@ -1,3 +1,5 @@
+'use client';
+
 import ScrollBox from '#/components/ScrollBox';
 import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { useMemo } from 'react';

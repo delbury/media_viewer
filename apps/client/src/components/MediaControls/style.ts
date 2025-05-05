@@ -131,7 +131,6 @@ export const StyledProgressContainer = styled(Box)`
   width: 100%;
   font-size: 0;
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
   touch-action: none;
 
   &:hover .${linearProgressClasses.root} {

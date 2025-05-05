@@ -1,3 +1,5 @@
+'use client';
+
 import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { UnfoldMoreOutlined } from '@mui/icons-material';
 import { useMemo } from 'react';

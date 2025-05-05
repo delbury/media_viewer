@@ -1,3 +1,5 @@
+'use client';
+
 import ResizeContainer from '#/components/ResizeContainer';
 import ScrollBox from '#/components/ScrollBox';
 import { GridLayout, VirtualListChildItemProps } from '#/components/ScrollBox/hooks/useVirtualList';
