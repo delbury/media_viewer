@@ -79,7 +79,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
     }
   }, []);
 
-  // 请求视频分段数据接口
+  // 请求视频元信息
   const metadataRequest = useSwr('videoMetadata', {
     params: {
       basePathIndex: file.basePathIndex?.toString() as string,

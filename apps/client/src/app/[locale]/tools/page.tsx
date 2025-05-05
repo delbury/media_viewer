@@ -1,9 +1,16 @@
 import Link from '#/components/Link';
 import { TFunction } from '#/types/i18n';
+import { Theme } from '@emotion/react';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
-import { Box, Card, CardActionArea, CardActions, CardHeader } from '@mui/material';
+import { Box, Card, CardActionArea, CardActions, CardHeader, SxProps } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
+
+const WrapperSx: SxProps<Theme> = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '24px',
+};
 
 const getTools = (t: TFunction) => [
   {
@@ -17,7 +24,7 @@ export default function Tools() {
   const tools = useMemo(() => getTools(t), [t]);
 
   return (
-    <Box>
+    <Box sx={WrapperSx}>
       {tools.map(tool => (
         <Card key={tool.path}>
           <Link

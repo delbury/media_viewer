@@ -111,7 +111,7 @@ export const generatePoster = async (rawFilePath: string, posterFilePath: string
     // 音频类型，生成缩略图命令
     command = await getGenerateAudioPosterCommand(rawFilePath, posterFilePath);
   } else {
-    throw new Error(ERROR_MSG.notAnCorrectFile);
+    throw new Error(ERROR_MSG.notCorrectFile);
   }
 
   try {

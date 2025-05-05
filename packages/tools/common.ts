@@ -8,6 +8,9 @@ import { AUDIO_REG, IMAGE_REG, TEXT_REG, VIDEO_REG } from './constant';
 // 有缩略图的文件类型
 export const ALLOWED_POSTER_FILE_TYPES: FullFileType[] = ['image', 'audio', 'video'];
 
+// 判断是否是媒体文件
+export const isMediaFile = (type: FullFileType) => ALLOWED_POSTER_FILE_TYPES.includes(type);
+
 // 默认的高/宽比
 export const DEFAULT_RATIO = 0.5625;
 

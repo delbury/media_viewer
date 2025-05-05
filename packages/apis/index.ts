@@ -1,4 +1,5 @@
 import { ParsedUrlQuery } from 'querystring';
+import { MediaDetailInfo } from '../shared';
 import {
   DirectoryInfo,
   FileInfo,
@@ -77,6 +78,16 @@ export const API_CONFIGS = {
     url: '/video/segment',
     method: 'get',
   },
+  // 获取视频的字幕文件
+  videoSubtitle: {
+    url: '/video/subtitle',
+    method: 'get',
+  },
+  // 获取媒体文件的 metadata 信息
+  mediaMetadata: {
+    url: '/media/metadata',
+    method: 'get',
+  },
 } satisfies Record<string, ApiConfig>;
 
 export type ApiKeys = keyof typeof API_CONFIGS;
@@ -91,15 +102,17 @@ export type ApiResponseDataTypes<T extends ApiKeys> = T extends 'dirUpdate'
     : T extends 'fileText'
       ? FileTextResponseData
       : T extends 'videoMetadata'
-        ? FileVideoMetadataResponseData
-        : never;
+        ? VideoMetadataResponseData
+        : T extends 'mediaMetadata'
+          ? MediaDetailInfo
+          : never;
 
 // 文件文件直接返回文本数据
 interface FileTextResponseData {
   content: string;
 }
 // 视频文件的 metadata 信息
-interface FileVideoMetadataResponseData {
+interface VideoMetadataResponseData {
   duration: number;
   size: number;
   bitRate: number;
@@ -109,11 +122,11 @@ interface FileVideoMetadataResponseData {
  * 接口请求参数类型，query 上的参数
  */
 export type ApiRequestParamsTypes<T extends ApiKeys> = T extends 'posterGet'
-  ? ApiFilePosterParams
-  : T extends 'fileGet' | 'fileText' | 'videoFallback' | 'videoMetadata'
+  ? ApiPosterGetParams
+  : T extends 'fileGet' | 'fileText' | 'videoFallback' | 'videoMetadata' | 'mediaMetadata'
     ? ApiFileFetchParams
     : T extends 'videoSegment'
-      ? ApiFileVideoSegment
+      ? ApiVideoSegment
       : never;
 
 type ApiRequestParamsBase = ParsedUrlQuery;
@@ -122,11 +135,11 @@ interface ApiFileFetchParams extends ApiRequestParamsBase {
   relativePath: string;
 }
 // 获取缩略图的请求参数
-interface ApiFilePosterParams extends ApiFileFetchParams {
+interface ApiPosterGetParams extends ApiFileFetchParams {
   force?: 'true';
 }
 // 请求 fmp4 分片的请求参数
-interface ApiFileVideoSegment extends ApiFileFetchParams {
+interface ApiVideoSegment extends ApiFileFetchParams {
   // 数字字符串
   start: string;
   // 数字字符串

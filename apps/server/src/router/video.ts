@@ -4,7 +4,7 @@ import Router from '@koa/router';
 import path from 'node:path';
 import { ERROR_MSG } from '../i18n/errorMsg';
 import { getRootDir, returnBody, validateNumberString } from '../util/common';
-import { getVideoDetail, transformVideoStream } from '../util/video';
+import { getMediaDetail, transformVideoStream } from '../util/media';
 
 const videoRouter = new Router();
 
@@ -21,10 +21,10 @@ videoRouter[API_CONFIGS.videoMetadata.method](API_CONFIGS.videoMetadata.url, asy
 
   // 校验文件类型
   const fileType = detectFileType(relativePath);
-  if (fileType !== 'video') throw new Error(ERROR_MSG.notAnVideoFile);
+  if (fileType !== 'video') throw new Error(ERROR_MSG.notVideoFile);
 
   // 获取文件信息
-  const fullMetadata = await getVideoDetail(fullPath, { showStreams: false });
+  const fullMetadata = await getMediaDetail(fullPath, { showStreams: false });
   const fileInfo: ApiResponseDataTypes<'videoMetadata'> | null = fullMetadata
     ? {
         duration: +fullMetadata.format.duration,
@@ -53,7 +53,7 @@ videoRouter[API_CONFIGS.videoSegment.method](API_CONFIGS.videoSegment.url, async
 
   // 校验文件类型
   const fileType = detectFileType(relativePath);
-  if (fileType !== 'video') throw new Error(ERROR_MSG.notAnVideoFile);
+  if (fileType !== 'video') throw new Error(ERROR_MSG.notVideoFile);
 
   transformVideoStream(ctx, fullPath, { start: startNumber, duration: durationNumber });
 });
@@ -71,9 +71,11 @@ videoRouter[API_CONFIGS.videoFallback.method](API_CONFIGS.videoFallback.url, asy
 
   // 校验文件类型
   const fileType = detectFileType(relativePath);
-  if (fileType !== 'video') throw new Error(ERROR_MSG.notAnVideoFile);
+  if (fileType !== 'video') throw new Error(ERROR_MSG.notVideoFile);
 
   transformVideoStream(ctx, fullPath);
 });
+
+// 返回视频的字幕文件
 
 export { videoRouter };

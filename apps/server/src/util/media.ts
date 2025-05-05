@@ -21,7 +21,7 @@ const VIDEO_DETAIL_TASKS: VideoDetailTasks = {};
 const logWarn = switchFnByFlag(RawLogWarn, false);
 
 // 获取视频详细信息
-export const getVideoDetail = async (
+export const getMediaDetail = async (
   filaPath: string,
   {
     forceUpdate,
@@ -113,7 +113,7 @@ export const transformVideoStream = async (
     if (duration === 0) throw new Error(ERROR_MSG.invalid);
     const segArgs = ['-ss', `${start}`, '-t', `${duration}`];
 
-    const metadata = await getVideoDetail(filePath);
+    const metadata = await getMediaDetail(filePath);
     if (metadata?.format.format_name.includes('avi')) {
       // avi 格式，将 -ss 放在 -i 后面，防止报错 first frame is no keyframe
       // TODO 先如此处理 avi 格式的问题，可能有更好的处理方式

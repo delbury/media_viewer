@@ -36,7 +36,9 @@
     "Video": "视频",
     "Text": "文本",
     "Other": "其他",
-    "RequestSuccess": "操作成功"
+    "RequestSuccess": "操作成功",
+    "BaseInfo": "基本信息",
+    "Metadata": "元信息"
   },
   "Btn": {
     "AutoScroll": "自动滚动"

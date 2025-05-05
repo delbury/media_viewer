@@ -1,19 +1,25 @@
 import Dialog from '#/components/Dialog';
 import PosterImage from '#/components/PosterImage';
+import { useSwr } from '#/hooks/useSwr';
 import { formatDate, formatFileSize } from '#/utils';
 import { FullFileType } from '#pkgs/shared';
+import { isMediaFile } from '#pkgs/tools/common';
 import { FileInfo } from '#pkgs/tools/traverseDirectories';
 import { LoopOutlined, PhotoOutlined, PlayCircleOutlineRounded } from '@mui/icons-material';
-import { IconButton, SxProps, Theme } from '@mui/material';
+import { IconButton, SxProps, TabsOwnProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { FULL_FILE_FILTER_MAP } from '../constant';
 import {
+  StyledContentContainer,
   StyledFileDetailLabel,
   StyledFileDetailValue,
   StyledFileDetailWrapper,
   StyledFilePosterInner,
   StyledFilePosterWrapper,
+  StyledJsonContainer,
+  StyledTab,
+  StyledTabs,
 } from '../style/file-detail-dialog';
 
 const getTitleIcon = (fileType: FullFileType, sx?: SxProps<Theme>) => {
@@ -25,6 +31,11 @@ const getTitleIcon = (fileType: FullFileType, sx?: SxProps<Theme>) => {
   return null;
 };
 
+enum InfoType {
+  Base = 'base',
+  Metadata = 'metadata',
+}
+
 interface FileDetailDialogProps {
   file: FileInfo;
   visible: boolean;
@@ -33,8 +44,8 @@ interface FileDetailDialogProps {
 
 const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => {
   const t = useTranslations();
+  const [currentTab, setCurrentTab] = useState<InfoType>(InfoType.Base);
   const [imgKey, setImgKey] = useState(false);
-
   const fileInfos: { label: string; value: string | undefined }[] = useMemo(() => {
     return [
       { label: t('File.Name'), value: file.name },
@@ -46,9 +57,32 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
     ];
   }, [file, t]);
 
-  const showImage = useMemo(() => {
-    return file.fileType === 'image' || file.fileType === 'video' || file.fileType === 'audio';
-  }, [file.fileType]);
+  // 是否展示缩略图
+  const showImage = useMemo(() => isMediaFile(file.fileType), [file.fileType]);
+
+  // 请求视频元信息
+  const metadataRequest = useSwr('mediaMetadata', {
+    params: {
+      basePathIndex: file.basePathIndex?.toString() as string,
+      relativePath: file.relativePath,
+    },
+    lazy: true,
+    noticeWhenSuccess: false,
+    disabled: !showImage,
+  });
+
+  const metadataJson = useMemo(
+    () => JSON.stringify(metadataRequest.data, null, 2),
+    [metadataRequest.data]
+  );
+
+  const handleTabChange = useCallback<NonNullable<TabsOwnProps['onChange']>>(
+    (_, val) => {
+      setCurrentTab(val);
+      if (val === InfoType.Metadata) metadataRequest.mutate();
+    },
+    [metadataRequest]
+  );
 
   return (
     <Dialog
@@ -77,27 +111,57 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
         )
       }
     >
-      <StyledFileDetailWrapper>
-        {fileInfos.map(info => (
-          <React.Fragment key={info.label}>
-            <StyledFileDetailLabel>
-              {info.label}
-              {t(':')}
-            </StyledFileDetailLabel>
-            <StyledFileDetailValue>{info.value || t('-')}</StyledFileDetailValue>
-          </React.Fragment>
-        ))}
-      </StyledFileDetailWrapper>
-      {showImage && (
-        <StyledFilePosterWrapper>
-          <StyledFilePosterInner>
-            <PosterImage
-              file={file}
-              key={imgKey.toString()}
-            />
-          </StyledFilePosterInner>
-        </StyledFilePosterWrapper>
-      )}
+      <StyledTabs
+        value={currentTab}
+        onChange={handleTabChange}
+        centered
+      >
+        <StyledTab
+          value={InfoType.Base}
+          label={t('Common.BaseInfo')}
+        />
+        {showImage && (
+          <StyledTab
+            value={InfoType.Metadata}
+            label={t('Common.Metadata')}
+          />
+        )}
+      </StyledTabs>
+
+      <StyledContentContainer>
+        {currentTab === InfoType.Base && (
+          <>
+            <StyledFileDetailWrapper>
+              {fileInfos.map(info => (
+                <React.Fragment key={info.label}>
+                  <StyledFileDetailLabel>
+                    {info.label}
+                    {t(':')}
+                  </StyledFileDetailLabel>
+                  <StyledFileDetailValue>{info.value || t('-')}</StyledFileDetailValue>
+                </React.Fragment>
+              ))}
+            </StyledFileDetailWrapper>
+
+            {showImage && (
+              <StyledFilePosterWrapper>
+                <StyledFilePosterInner>
+                  <PosterImage
+                    file={file}
+                    key={imgKey.toString()}
+                  />
+                </StyledFilePosterInner>
+              </StyledFilePosterWrapper>
+            )}
+          </>
+        )}
+
+        {showImage && currentTab === InfoType.Metadata && (
+          <StyledJsonContainer>
+            <pre>{metadataJson}</pre>
+          </StyledJsonContainer>
+        )}
+      </StyledContentContainer>
     </Dialog>
   );
 };

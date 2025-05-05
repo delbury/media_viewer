@@ -40,7 +40,7 @@ posterRouter[API_CONFIGS.posterGet.method](API_CONFIGS.posterGet.url, async ctx 
 
   // 校验文件类型
   const fileType = detectFileType(relativePath);
-  if (!ALLOWED_POSTER_FILE_TYPES.includes(fileType)) throw new Error(ERROR_MSG.notAnCorrectFile);
+  if (!ALLOWED_POSTER_FILE_TYPES.includes(fileType)) throw new Error(ERROR_MSG.notCorrectFile);
 
   // 校验文件路径的合法性
   const fullPath = path.posix.join(basePath, relativePath);

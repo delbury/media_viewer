@@ -1,10 +1,5 @@
-import DirectoryPicker from '#/components/DirectoryPicker';
-import { Box } from '@mui/material';
+import RepeatFile from '#/source/repeat-file';
 
-export default function RepeatFile() {
-  return (
-    <Box>
-      <DirectoryPicker />
-    </Box>
-  );
+export default function Page() {
+  return <RepeatFile />;
 }
