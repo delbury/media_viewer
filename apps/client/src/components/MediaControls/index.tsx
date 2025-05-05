@@ -8,7 +8,6 @@ import {
 } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { forwardRef, RefObject, useEffect, useImperativeHandle, useState } from 'react';
-import { calcTimeRanges } from '../VideoViewer/util';
 import AlertInfo from './components/AlertInfo';
 import FullscreenSetting from './components/FullscreenSetting';
 import { MediaProgress } from './components/MediaProgress';
@@ -43,10 +42,9 @@ interface MediaControls {
 const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
   ({ mediaRef, subtitles, onPausedStateChange, onWaitingStateChange, onNext, onPrev }, ref) => {
     const [isPaused, setIsPaused] = useState(true);
-    const [bufferRanges, setBufferRanges] = useState<[number, number][]>([]);
+    const [isWaiting, setIsWaiting] = useState(false);
     const [videoDuration, setVideoDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
-    const [isWaiting, setIsWaiting] = useState(false);
 
     // 是否可全屏
     // 是否是 video
@@ -64,7 +62,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     }, [isWaiting, onWaitingStateChange]);
 
     // handlers
-    const { handleTogglePlay, handleGoTo, handleBack, handleForward, handleGoBy } = useHandlers({
+    const { handleTogglePlay, handleBack, handleForward, handleGoBy } = useHandlers({
       mediaRef,
     });
 
@@ -111,16 +109,8 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           setIsPaused(true);
         });
 
-        // 加载事件
-        const progressController = bindEvent(elm, 'progress', () => {
-          const ranges = calcTimeRanges(elm.buffered);
-          setBufferRanges(ranges);
-        });
-
         // 加载第一帧完成
         bindEventOnce(elm, 'loadeddata', () => {
-          const ranges = calcTimeRanges(elm.buffered);
-          setBufferRanges(ranges);
           setVideoDuration(elm.duration);
         });
 
@@ -142,7 +132,6 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         return () => {
           playController.abort();
           pauseController.abort();
-          progressController.abort();
           timeupdateController.abort();
           waitingController.abort();
           canplayController.abort();
@@ -172,10 +161,9 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
         {/* 进度条 */}
         <MediaProgress
+          mediaRef={mediaRef}
           currentTime={currentTime}
           videoDuration={videoDuration}
-          bufferRanges={bufferRanges}
-          onGoto={handleGoTo}
           previewDiffTime={currentDragDiffTime}
         />
 

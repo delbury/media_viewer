@@ -23,15 +23,6 @@ export const useHandlers = ({ mediaRef }: UseHandlersParams) => {
     }
   }, [mediaRef]);
 
-  // 跳转到对应的进度条时刻
-  const handleGoTo = useCallback(
-    (time: number) => {
-      if (!mediaRef.current) return;
-      mediaRef.current.currentTime = time;
-    },
-    [mediaRef]
-  );
-
   // 跳转相对时间
   const handleGoBy = useCallback(
     (dir: 1 | -1, diff?: number) => {
@@ -62,7 +53,6 @@ export const useHandlers = ({ mediaRef }: UseHandlersParams) => {
 
   return {
     handleTogglePlay,
-    handleGoTo,
     handleBack,
     handleForward,
     handleGoBy,

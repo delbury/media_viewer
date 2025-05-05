@@ -1,10 +1,19 @@
+import { calcTimeRanges } from '#/components/VideoViewer/util';
 import { useCancelAreaContext } from '#/hooks/useCancelAreaContext';
 import { useMove } from '#/hooks/useMove';
 import { formatTime } from '#/utils';
 import { ArrowDropDownRounded, ArrowDropUpRounded } from '@mui/icons-material';
 import { LinearProgress, linearProgressClasses, SxProps } from '@mui/material';
 import { isNil } from 'lodash-es';
-import { MouseEventHandler, useCallback, useMemo, useRef, useState } from 'react';
+import {
+  MouseEventHandler,
+  RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   NEAR_EDGE_MIN_DISTANCE,
   NearType,
@@ -12,15 +21,15 @@ import {
   StyledCursorContainer,
   StyledProgressContainer,
 } from '../style';
+import { bindEvent, bindEventOnce } from '../util';
 
 const BUFFER_BAR_COLOR = 'var(--mui-palette-grey-600)';
 const BUFFER_BAR_COLOR_EMPTY = 'transparent';
 
 interface MediaProgressProps {
+  mediaRef: RefObject<HTMLMediaElement | null>;
   currentTime: number;
   videoDuration: number;
-  bufferRanges: [number, number][];
-  onGoto?: (time: number) => void;
   // 可能要跳转到的时刻预览
   previewDiffTime?: number;
 }
@@ -30,16 +39,15 @@ interface MediaProgressProps {
 // const MOBILE_DRAG_END_TRIGGER_THRESHOLD = 80;
 
 export const MediaProgress = ({
+  mediaRef,
   currentTime,
   videoDuration,
-  bufferRanges,
-  onGoto,
   previewDiffTime,
 }: MediaProgressProps) => {
   const progressBarRef = useRef<HTMLElement>(null);
   const [cursorOffset, setCursorOffset] = useState(0);
   const [showCursor, setShowCursor] = useState(false);
-
+  const [bufferRanges, setBufferRanges] = useState<[number, number][]>([]);
   const realShowCursor = showCursor || !isNil(previewDiffTime);
 
   useMove({
@@ -136,26 +144,48 @@ export const MediaProgress = ({
   }, [bufferRanges, videoDuration]);
 
   // 跳转到对应的进度条时刻
-  const handleGoto = useCallback(
+  const handleGoTo = useCallback(
     (ev: PointerEvent | MouseEvent) => {
+      if (!mediaRef.current) return;
       const { offsetX } = ev;
       const { offsetWidth } = ev.target as HTMLElement;
-      onGoto?.((offsetX / offsetWidth) * videoDuration);
+      const time = (offsetX / offsetWidth) * videoDuration;
+      mediaRef.current.currentTime = time;
     },
-    [onGoto, videoDuration]
+    [mediaRef, videoDuration]
   );
   const handleClick = useCallback<MouseEventHandler>(
     ev => {
-      handleGoto(ev.nativeEvent);
+      handleGoTo(ev.nativeEvent);
     },
-    [handleGoto]
+    [handleGoTo]
   );
 
   // 移动端下，拖到区域内取消拖动进度条操作
   useCancelAreaContext({
     domRef: progressBarRef,
-    onActivatedCallback: handleGoto,
+    onActivatedCallback: handleGoTo,
   });
+
+  useEffect(() => {
+    const elm = mediaRef.current;
+    if (!elm) return;
+    // 加载事件
+    const progressController = bindEvent(elm, 'progress', () => {
+      const ranges = calcTimeRanges(elm.buffered);
+      setBufferRanges(ranges);
+    });
+
+    // 加载第一帧完成
+    bindEventOnce(elm, 'loadeddata', () => {
+      const ranges = calcTimeRanges(elm.buffered);
+      setBufferRanges(ranges);
+    });
+
+    return () => {
+      progressController.abort();
+    };
+  }, [mediaRef]);
 
   return (
     <StyledProgressContainer
