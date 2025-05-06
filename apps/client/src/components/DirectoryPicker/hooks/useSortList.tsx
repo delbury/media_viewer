@@ -49,6 +49,7 @@ interface SortItemParams<T, F extends string> {
   items: T[];
   apiFieldMap: Record<F, keyof T>;
   persistentKeyPrefix?: string;
+  persistentKeySuffix?: string;
   fileSortOptions: { label: string; value: F }[];
 }
 
@@ -57,14 +58,15 @@ export const useSortList = <T, F extends string>({
   apiFieldMap,
   fileSortOptions,
   persistentKeyPrefix,
+  persistentKeySuffix = '',
 }: SortItemParams<T, F>) => {
   const [sortMode, setSortMode] = usePersistentConfig<SortMode | null>(
     DEFAULT_VALUES.sortMode,
-    persistentKeyPrefix ? `${persistentKeyPrefix}SortMode` : void 0
+    persistentKeyPrefix ? `${persistentKeyPrefix}SortMode${persistentKeySuffix}` : void 0
   );
   const [sortField, setSortField] = usePersistentConfig<F[]>(
     DEFAULT_VALUES.sortField,
-    persistentKeyPrefix ? `${persistentKeyPrefix}SortField` : void 0
+    persistentKeyPrefix ? `${persistentKeyPrefix}SortField${persistentKeySuffix}` : void 0
   );
 
   const { ResetBtn: ResetSortBtn } = useResetBtn(() => {

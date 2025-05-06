@@ -153,11 +153,17 @@ const FileItemList = ({ files, storageKeySuffix = '' }: FileItemListProps) => {
 
   const [filterFileType, setFilterFileType] = usePersistentConfig<FileFilterField | null>(
     DEFAULT_VALUES.filterFileType,
-    `directoryPickerFilesFilterFileType${storageKeySuffix}`
+    {
+      prefix: 'directoryPickerFilesFilterFileType',
+      suffix: storageKeySuffix,
+    }
   );
   const [filterFileExts, setFilterFileExts] = usePersistentConfig<string[]>(
     DEFAULT_VALUES.filterFileExts,
-    `directoryPickerFilesFilterFileExts${storageKeySuffix}`
+    {
+      prefix: 'directoryPickerFilesFilterFileExts',
+      suffix: storageKeySuffix,
+    }
   );
   const fileTypeExts = useMemo(() => {
     if (!filterFileType) return [];
@@ -177,6 +183,7 @@ const FileItemList = ({ files, storageKeySuffix = '' }: FileItemListProps) => {
     items: filteredFiles,
     apiFieldMap: FILE_SORT_API_FIELD_MAP,
     persistentKeyPrefix: 'directoryPickerFiles',
+    persistentKeySuffix: storageKeySuffix,
     fileSortOptions: FILE_SORT_OPTIONS,
   });
 

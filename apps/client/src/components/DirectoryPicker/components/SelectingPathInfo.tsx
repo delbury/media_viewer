@@ -17,12 +17,16 @@ import {
 interface DirectoryPathProps {
   pathList: DirectoryInfo[];
   onItemClick?: (index: number) => void;
+  storageKeySuffix?: string;
 }
 
-const DirectoryPath = ({ pathList, onItemClick }: DirectoryPathProps) => {
+const DirectoryPath = ({ pathList, onItemClick, storageKeySuffix = '' }: DirectoryPathProps) => {
   const scrollRef = useRef<ScrollBoxInstance>(null);
   // 布局是否换行
-  const { isWrap, SwitchBtn } = useSwitchWrapBtn(true, 'directoryPickerSelectingSwitchWrapper');
+  const { isWrap, SwitchBtn } = useSwitchWrapBtn(
+    true,
+    `directoryPickerSelectingSwitchWrapper${storageKeySuffix}`
+  );
 
   // 路径变更时，滚动到底部
   useEffect(() => {

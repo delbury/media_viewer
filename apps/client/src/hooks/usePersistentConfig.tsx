@@ -34,8 +34,13 @@ const saveLocalConfig = () => {
 
 export function usePersistentConfig<T = unknown>(
   defaultValue: T,
-  key?: string
+  storageKey?: string | { prefix?: string; suffix?: string }
 ): [T, (val: T) => void] {
+  const key =
+    typeof storageKey === 'object'
+      ? `${storageKey.prefix || ''}${storageKey.suffix || ''}`
+      : storageKey;
+
   const [value, setValue] = useState(
     key ? ((getLocalConfig(key) as T) ?? defaultValue) : defaultValue
   );

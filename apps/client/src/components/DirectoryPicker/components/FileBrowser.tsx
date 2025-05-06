@@ -69,12 +69,14 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
         <SelectingPathInfo
           pathList={pathList}
           onItemClick={setTarget}
+          storageKeySuffix={storageKeySuffix}
         />
         <ResizeContainer.Wrapper>
           {/* 当前文件夹的子文件夹 */}
           <DirectoryItemList
             dirs={currentDirs}
             onClick={handleSelectChild}
+            storageKeySuffix={storageKeySuffix}
           />
           {/* 当前文件夹的文件 */}
           <FileItemList

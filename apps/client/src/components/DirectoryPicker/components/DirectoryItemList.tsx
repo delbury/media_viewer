@@ -14,6 +14,7 @@ import DirectoryItem from './DirectoryItem';
 interface DirectoryItemListProps {
   dirs: DirectoryInfo[];
   onClick?: (dir: DirectoryInfo) => void;
+  storageKeySuffix?: string;
 }
 
 // 行包裹组件
@@ -48,13 +49,14 @@ const ChildItem = (
   );
 };
 
-const DirectoryItemList = ({ dirs, onClick }: DirectoryItemListProps) => {
+const DirectoryItemList = ({ dirs, onClick, storageKeySuffix = '' }: DirectoryItemListProps) => {
   const t = useTranslations();
 
   const { sortedItems, SortToolRow } = useSortList({
     items: dirs,
     apiFieldMap: DIRECTORY_SORT_API_FIELD_MAP,
     persistentKeyPrefix: 'directoryPickerFolders',
+    persistentKeySuffix: storageKeySuffix,
     fileSortOptions: DIRECTORY_SORT_OPTIONS,
   });
 
