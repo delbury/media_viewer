@@ -204,8 +204,6 @@ const FileItemList = ({ files, storageKeySuffix = '' }: FileItemListProps) => {
       <ResizeContainer
         height="20vh"
         // title={t('Tools.CurrentFiles')}
-        emptyText={t('Tools.NoFiles')}
-        isEmpty={!files.length}
         resizePosition="top"
         persistentKey={`directoryPickerFiles${storageKeySuffix}`}
         sx={{ position: 'relative' }}
@@ -243,6 +241,8 @@ const FileItemList = ({ files, storageKeySuffix = '' }: FileItemListProps) => {
           </StyledFileAllCountInfo>
         }
         scrollBoxProps={{
+          emptyText: t('Tools.NoFiles'),
+          isEmpty: !files.length,
           lazyLoadEnabled: true,
           virtualListConfig: {
             childCount: filteredSortedFiles.length,

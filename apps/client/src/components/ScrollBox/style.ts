@@ -1,5 +1,6 @@
 import { h5Max } from '#/style/device';
-import { Box, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Box } from '@mui/material';
 
 export const StyledScrollBoxWrapper = styled(Box)`
   position: relative;
@@ -75,3 +76,9 @@ export const StyledScrollFloatTipBar = styled(Box, {
     },
   };
 });
+
+export const StyledEmptyWrapper = styled(Box)`
+  position: absolute;
+  inset: 0;
+  margin: auto;
+`;

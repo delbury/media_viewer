@@ -7,12 +7,14 @@ import {
 } from '@mui/icons-material';
 import { Box, SxProps, Theme } from '@mui/material';
 import { forwardRef, useCallback, useMemo, useRef } from 'react';
+import Empty from '../Empty';
 import { useEvents } from './hooks/useEvents';
 import { ScrollBoxInstance, useExportHandlers } from './hooks/useExportHandlers';
 import { useScrollStatus } from './hooks/useScrollStatus';
 import { useVirtualList, VirtualListConfig } from './hooks/useVirtualList';
 import {
   BarPosition,
+  StyledEmptyWrapper,
   StyledScrollBoxContent,
   StyledScrollBoxWrapper,
   StyledScrollFloatTipBar,
@@ -30,10 +32,26 @@ export interface ScrollBoxProps {
   lazyLoadEnabled?: boolean;
   // 隐藏滚动条，仍可以滚动
   hideScrollbar?: boolean;
+  ref?: React.Ref<ScrollBoxInstance>;
+  // 无内容
+  emptyText?: string;
+  isEmpty?: boolean;
 }
 
 const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
-  ({ children, sx, floatBarDisabled, virtualListConfig, lazyLoadEnabled, hideScrollbar }, ref) => {
+  (
+    {
+      children,
+      sx,
+      floatBarDisabled,
+      virtualListConfig,
+      lazyLoadEnabled,
+      hideScrollbar,
+      emptyText,
+      isEmpty,
+    },
+    ref
+  ) => {
     const wrapperRef = useRef<HTMLElement>(null);
     const contentRef = useRef<HTMLElement>(null);
 
@@ -140,6 +158,11 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
           ref={wrapperRef}
           hideScrollbar={hideScrollbar}
         >
+          {isEmpty && (
+            <StyledEmptyWrapper>
+              <Empty label={emptyText} />
+            </StyledEmptyWrapper>
+          )}
           <Box ref={contentRef}>
             {enableVirtualList ? (
               CustomVirtualListWrapper ? (

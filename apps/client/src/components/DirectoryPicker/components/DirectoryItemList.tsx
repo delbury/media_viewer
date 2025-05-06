@@ -1,4 +1,5 @@
 import ResizeContainer from '#/components/ResizeContainer';
+import { ScrollBoxProps } from '#/components/ScrollBox';
 import { VirtualListChildItemProps } from '#/components/ScrollBox/hooks/useVirtualList';
 import { DirectoryInfo } from '#pkgs/apis';
 import { List } from '@mui/material';
@@ -15,6 +16,7 @@ interface DirectoryItemListProps {
   dirs: DirectoryInfo[];
   onClick?: (dir: DirectoryInfo) => void;
   storageKeySuffix?: string;
+  scrollBoxProps?: ScrollBoxProps;
 }
 
 // 行包裹组件
@@ -49,7 +51,12 @@ const ChildItem = (
   );
 };
 
-const DirectoryItemList = ({ dirs, onClick, storageKeySuffix = '' }: DirectoryItemListProps) => {
+const DirectoryItemList = ({
+  dirs,
+  onClick,
+  scrollBoxProps,
+  storageKeySuffix = '',
+}: DirectoryItemListProps) => {
   const t = useTranslations();
 
   const { sortedItems, SortToolRow } = useSortList({
@@ -63,10 +70,11 @@ const DirectoryItemList = ({ dirs, onClick, storageKeySuffix = '' }: DirectoryIt
   return (
     <ResizeContainer
       // title={t('Tools.CurrentDirectories')}
-      emptyText={t('Tools.NoDirectories')}
-      isEmpty={!sortedItems.length}
       beforeContentSlot={SortToolRow}
       scrollBoxProps={{
+        ...scrollBoxProps,
+        emptyText: t('Tools.NoDirectories'),
+        isEmpty: !sortedItems.length,
         virtualListConfig: {
           childCount: sortedItems.length,
           childHeight: DIRECTORY_ITEM_HEIGHT,

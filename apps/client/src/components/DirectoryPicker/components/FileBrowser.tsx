@@ -1,13 +1,25 @@
 'use client';
 
 import ResizeContainer from '#/components/ResizeContainer';
+import { ScrollBoxInstance } from '#/components/ScrollBox';
 import { useSwr } from '#/hooks/useSwr';
 import { DirectoryInfo } from '#pkgs/apis';
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { StyledFileBrowserWrapper } from '../style/file-browser';
 import DirectoryItemList from './DirectoryItemList';
 import FileItemList from './FileItemList';
 import SelectingPathInfo from './SelectingPathInfo';
+
+const getScrollCacheKey = (dir: DirectoryInfo) => `${dir.basePathIndex ?? ''}${dir.showPath}`;
 
 export interface FileBrowserInstance {
   updatePathList: (list: DirectoryInfo[]) => void;
@@ -33,7 +45,7 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
     );
 
     // 当前目录下的子文件夹
-    const currentPathNode = useMemo(() => pathList[pathList.length - 1], [pathList]);
+    const currentPathNode = useMemo(() => pathList.at(-1), [pathList]);
     const currentDirs = useMemo(() => currentPathNode?.children ?? [], [currentPathNode]);
     const currentFiles = useMemo(() => currentPathNode?.files ?? [], [currentPathNode]);
 
@@ -55,6 +67,33 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
       [pathList]
     );
 
+    const scrollBoxRef = useRef<ScrollBoxInstance>(null);
+    // 缓存滚动距离
+    const scrollCaches = useRef(new Map<string, number>());
+    // 上一个选中的文件夹节点
+    const lastPathNode = useRef<DirectoryInfo>(null);
+
+    // 设置滚动缓存
+    useLayoutEffect(() => {
+      if (!currentPathNode || !scrollBoxRef.current) return;
+      if (lastPathNode.current) {
+        // 有上一个文件夹，则保存滚动缓存
+        const key = getScrollCacheKey(lastPathNode.current);
+        const offset = scrollBoxRef.current.getScrollPosition()?.top ?? 0;
+        scrollCaches.current.set(key, offset);
+      }
+      lastPathNode.current = currentPathNode;
+    }, [currentPathNode]);
+
+    // 还原滚动距离
+    useEffect(() => {
+      if (!currentPathNode || !scrollBoxRef.current) return;
+      const key = getScrollCacheKey(currentPathNode);
+      const offset = scrollCaches.current.get(key);
+      if (offset) scrollBoxRef.current.scrollTo({ top: offset, behavior: 'instant' });
+    }, [currentPathNode]);
+
+    // 外部强制更新
     useImperativeHandle(
       ref,
       () => ({
@@ -77,6 +116,9 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
             dirs={currentDirs}
             onClick={handleSelectChild}
             storageKeySuffix={storageKeySuffix}
+            scrollBoxProps={{
+              ref: scrollBoxRef,
+            }}
           />
           {/* 当前文件夹的文件 */}
           <FileItemList

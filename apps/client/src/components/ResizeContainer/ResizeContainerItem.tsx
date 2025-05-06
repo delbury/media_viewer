@@ -2,9 +2,7 @@
 
 import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { BoxProps, Typography } from '@mui/material';
-import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import Empty from '../Empty';
 import ScrollBox, { ScrollBoxProps } from '../ScrollBox';
 import { RESIZE_BAR_SIZE } from './constant';
 import ResizeBar, { ResizeBarProps } from './ResizeBar';
@@ -14,8 +12,6 @@ interface ResizeContainerProps {
   children?: React.ReactNode;
   height?: string;
   title?: string;
-  emptyText?: string;
-  isEmpty?: boolean;
   resizePosition?: ResizeBarProps['position'];
   sx?: BoxProps['sx'];
   // 保存拖动 size 本地配置的 key
@@ -29,8 +25,6 @@ const ResizeContainer = ({
   children,
   height,
   title,
-  isEmpty,
-  emptyText,
   resizePosition,
   sx,
   persistentKey,
@@ -38,7 +32,6 @@ const ResizeContainer = ({
   beforeContentSlot,
   afterContentSlot,
 }: ResizeContainerProps) => {
-  const t = useTranslations();
   const resizable = !!resizePosition;
 
   const resizableStyle = useMemo<BoxProps['sx']>(() => {
@@ -72,16 +65,14 @@ const ResizeContainer = ({
         <Typography sx={{ color: 'text.secondary', marginBottom: '4px' }}>{title}</Typography>
       )}
       {beforeContentSlot}
-      {isEmpty ? (
-        <Empty label={emptyText ?? t('Common.Empty')} />
-      ) : (
-        <ScrollBox
-          {...scrollBoxProps}
-          sx={{ flex: 1 }}
-        >
-          {children}
-        </ScrollBox>
-      )}
+
+      <ScrollBox
+        {...scrollBoxProps}
+        sx={{ flex: 1 }}
+      >
+        {children}
+      </ScrollBox>
+
       {afterContentSlot}
       {resizable && (
         <ResizeBar
