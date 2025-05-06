@@ -14,11 +14,6 @@ const WRAPPER_SX: SxProps<Theme> = {
   height: 'calc(100vh - 72px)',
 };
 
-const CONTAINER_SX: SxProps<Theme> = {
-  flex: 1,
-  minHeight: 0,
-};
-
 /**
  * 分析处理重复的视频文件
  * 步骤：
@@ -31,7 +26,7 @@ const CONTAINER_SX: SxProps<Theme> = {
 export default function RepeatFile() {
   return (
     <Box sx={WRAPPER_SX}>
-      <FileBrowser containerSx={CONTAINER_SX} />
+      <FileBrowser storageKeySuffix="RepeatFile" />
     </Box>
   );
 }

@@ -139,6 +139,7 @@ const ChildItem = (
 
 interface FileItemListProps {
   files: FileInfo[];
+  storageKeySuffix?: string;
 }
 
 const DEFAULT_VALUES = {
@@ -146,17 +147,17 @@ const DEFAULT_VALUES = {
   filterFileExts: [] as string[],
 };
 
-const FileItemList = ({ files }: FileItemListProps) => {
+const FileItemList = ({ files, storageKeySuffix = '' }: FileItemListProps) => {
   const t = useTranslations();
   const isH5 = useMediaQuery(h5Max);
 
   const [filterFileType, setFilterFileType] = usePersistentConfig<FileFilterField | null>(
     DEFAULT_VALUES.filterFileType,
-    'directoryPickerFilesFilterFileType'
+    `directoryPickerFilesFilterFileType${storageKeySuffix}`
   );
   const [filterFileExts, setFilterFileExts] = usePersistentConfig<string[]>(
     DEFAULT_VALUES.filterFileExts,
-    'directoryPickerFilesFilterFileExts'
+    `directoryPickerFilesFilterFileExts${storageKeySuffix}`
   );
   const fileTypeExts = useMemo(() => {
     if (!filterFileType) return [];
@@ -199,7 +200,7 @@ const FileItemList = ({ files }: FileItemListProps) => {
         emptyText={t('Tools.NoFiles')}
         isEmpty={!files.length}
         resizePosition="top"
-        persistentKey="directoryPickerFiles"
+        persistentKey={`directoryPickerFiles${storageKeySuffix}`}
         sx={{ position: 'relative' }}
         beforeContentSlot={
           <>

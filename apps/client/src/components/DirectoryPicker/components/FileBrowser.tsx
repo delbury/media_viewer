@@ -3,7 +3,6 @@
 import ResizeContainer from '#/components/ResizeContainer';
 import { useSwr } from '#/hooks/useSwr';
 import { DirectoryInfo } from '#pkgs/apis';
-import { SxProps, Theme } from '@mui/material';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import { StyledFileBrowserWrapper } from '../style/file-browser';
 import DirectoryItemList from './DirectoryItemList';
@@ -15,14 +14,14 @@ export interface FileBrowserInstance {
 }
 
 interface FileBrowserProps {
-  containerHeight?: string;
-  containerSx?: SxProps<Theme>;
+  storageKeySuffix?: string;
+  height?: string;
   onPathNodeChange?: (node?: DirectoryInfo) => void;
   onPathListChange?: (nodes: DirectoryInfo[]) => void;
 }
 
 const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
-  ({ containerHeight, containerSx, onPathNodeChange, onPathListChange }, ref) => {
+  ({ height, storageKeySuffix, onPathNodeChange, onPathListChange }, ref) => {
     // 请求文件夹树
     const dirRequest = useSwr('dirTree', {
       onSuccess: res => {
@@ -65,23 +64,23 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
     );
 
     return (
-      <StyledFileBrowserWrapper>
+      <StyledFileBrowserWrapper height={height || '100%'}>
         {/* 已选文件夹 */}
         <SelectingPathInfo
           pathList={pathList}
           onItemClick={setTarget}
         />
-        <ResizeContainer.Wrapper
-          height={containerHeight}
-          sx={containerSx}
-        >
+        <ResizeContainer.Wrapper>
           {/* 当前文件夹的子文件夹 */}
           <DirectoryItemList
             dirs={currentDirs}
             onClick={handleSelectChild}
           />
           {/* 当前文件夹的文件 */}
-          <FileItemList files={currentFiles} />
+          <FileItemList
+            files={currentFiles}
+            storageKeySuffix={storageKeySuffix}
+          />
         </ResizeContainer.Wrapper>
       </StyledFileBrowserWrapper>
     );
