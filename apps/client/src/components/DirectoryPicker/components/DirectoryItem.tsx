@@ -1,7 +1,7 @@
 import { formatDate } from '#/utils';
 import { DirectoryInfo } from '#pkgs/apis';
 import { FolderOutlined, SourceOutlined } from '@mui/icons-material';
-import { ListItemIcon, ListItemText, SxProps, Theme } from '@mui/material';
+import { ListItemIcon, ListItemText, ListItemTextProps, SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { DIRECTORY_ITEM_HEIGHT } from '../constant';
@@ -12,6 +12,26 @@ interface DirectoryItemProps {
   onClick?: (dir: DirectoryInfo) => void;
   sx?: SxProps<Theme>;
 }
+
+const LIST_ITEM_TEXT_SLOT_PROPS: ListItemTextProps['slotProps'] = {
+  primary: {
+    sx: {
+      overflow: 'hidden',
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis',
+      fontSize: '0.875rem',
+    },
+  },
+  secondary: {
+    sx: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      fontSize: '0.75rem',
+      lineHeight: 1.2,
+    },
+  },
+};
 
 const DirectoryItem = ({ dir, onClick, sx }: DirectoryItemProps) => {
   const t = useTranslations();
@@ -34,8 +54,8 @@ const DirectoryItem = ({ dir, onClick, sx }: DirectoryItemProps) => {
       onClick={() => onClick?.(dir)}
       sx={{ height: `${DIRECTORY_ITEM_HEIGHT}px`, ...sx }}
     >
-      <ListItemIcon sx={{ minWidth: 40 }}>
-        {isEmpty ? <FolderOutlined fontSize="large" /> : <SourceOutlined fontSize="large" />}
+      <ListItemIcon sx={{ minWidth: 36 }}>
+        {isEmpty ? <FolderOutlined /> : <SourceOutlined />}
       </ListItemIcon>
 
       <ListItemText
@@ -49,22 +69,7 @@ const DirectoryItem = ({ dir, onClick, sx }: DirectoryItemProps) => {
         sx={{
           margin: 0,
         }}
-        slotProps={{
-          primary: {
-            sx: {
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-              textOverflow: 'ellipsis',
-            },
-          },
-          secondary: {
-            sx: {
-              display: 'flex',
-              justifyContent: 'space-between',
-              fontSize: '0.8rem',
-            },
-          },
-        }}
+        slotProps={LIST_ITEM_TEXT_SLOT_PROPS}
       />
     </StyledListItemButton>
   );

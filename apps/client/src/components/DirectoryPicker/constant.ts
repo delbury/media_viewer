@@ -28,7 +28,7 @@ export const FILE_TYPE_EXTS = {
 } satisfies Record<FileFilterField, { label: string; value: string }[]>;
 
 // 文件夹信息行的高度
-export const DIRECTORY_ITEM_HEIGHT = 48;
+export const DIRECTORY_ITEM_HEIGHT = 40;
 
 // 文件排序选项
 export type FileSortField = 'name' | 'size' | 'type' | 'updated' | 'created' | 'duration';
