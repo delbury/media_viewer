@@ -4,6 +4,7 @@ import ErrorBoundary from '#/components/ErrorBoundary';
 import ResizeContainer from '#/components/ResizeContainer';
 import { ScrollBoxInstance } from '#/components/ScrollBox';
 import { useSwr } from '#/hooks/useSwr';
+import { createHash } from '#/utils';
 import { DirectoryInfo } from '#pkgs/apis';
 import {
   forwardRef,
@@ -21,6 +22,16 @@ import FileItemList from './FileItemList';
 import SelectingPathInfo from './SelectingPathInfo';
 
 const getScrollCacheKey = (dir: DirectoryInfo) => `${dir.basePathIndex ?? ''}${dir.showPath}`;
+const HASH_KEY = 'hash';
+const insertHistory = (hash: string) => {
+  const params = new URLSearchParams(location.search);
+  if (params.get(HASH_KEY) !== hash) {
+    params.set(HASH_KEY, hash);
+    const search = params.toString();
+    const url = `${window.location.origin}${window.location.pathname}?${search}`;
+    history.pushState({ id: search }, '', url);
+  }
+};
 
 export interface FileBrowserInstance {
   updatePathList: (list: DirectoryInfo[]) => void;
@@ -94,11 +105,38 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
       if (offset) scrollBoxRef.current.scrollTo({ top: offset, behavior: 'instant' });
     }, [currentPathNode]);
 
+    // 拦截浏览器返回事件
+    useEffect(() => {
+      const controller = new AbortController();
+      // 拦截浏览器返回
+      window.addEventListener(
+        'popstate',
+        () => {
+          // 返回上一个文件夹
+          setPathList(curList => {
+            if (curList.length > 1) return curList.slice(0, curList.length - 1);
+            return curList;
+          });
+        },
+        { signal: controller.signal }
+      );
+      return () => {
+        controller.abort();
+      };
+    }, []);
+    useEffect(() => {
+      createHash(currentPathNode?.showPath).then(hash => {
+        insertHistory(hash);
+      });
+    }, [currentPathNode]);
+
     // 外部强制更新
     useImperativeHandle(
       ref,
       () => ({
-        updatePathList: (list: DirectoryInfo[]) => setPathList(list),
+        updatePathList: (list: DirectoryInfo[]) => {
+          setPathList(list);
+        },
       }),
       []
     );

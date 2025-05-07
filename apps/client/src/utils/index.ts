@@ -1,5 +1,6 @@
 import { API_BASE_URL } from '#/request';
 import { FileInfo, joinUrlWithQueryString } from '#pkgs/apis';
+import hashSum from 'hash-sum';
 
 // 格式化日期
 export const formatDate = (v: number) => {
@@ -129,4 +130,10 @@ export const getVideoFileFallbackUrl = (file?: FileInfo) => {
   );
 
   return fallback;
+};
+
+// 生成 hash
+export const createHash = async (text?: string) => {
+  const hash = hashSum(text ?? '');
+  return hash;
 };
