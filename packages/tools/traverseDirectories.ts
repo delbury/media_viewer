@@ -1,7 +1,7 @@
 import { Stats } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { FullFileType } from '../shared';
+import { FullFileType, MediaFileType } from '../shared';
 import { createFileNameRegExp, detectFileType, formatPath } from './common';
 import { IGNORE_FILE_NAME_REG, LYRIC_EXT, SUBTITLES_EXTS, SubtitlesExts } from './constant';
 
@@ -44,6 +44,8 @@ export interface FileInfo extends CommonInfo {
     ext: SubtitlesExts;
   }[];
 }
+// 文件数量统计信息
+type FileCount = { [key in MediaFileType]: number };
 export interface DirectoryInfo extends CommonInfo {
   // 文件列表
   files: FileInfo[];
@@ -53,6 +55,8 @@ export interface DirectoryInfo extends CommonInfo {
   selfFilesCount: number;
   // 当前文件夹和其所有子文件夹的文件数
   totalFilesCount: number;
+  selfMediaFilesCount: FileCount;
+  totalMediaFilesCount: FileCount;
 }
 interface NewInfoParams {
   // 文件根路径
@@ -116,6 +120,16 @@ const newDirectoryInfo = (params?: NewInfoParams): DirectoryInfo => {
     children: [],
     selfFilesCount: 0,
     totalFilesCount: 0,
+    selfMediaFilesCount: {
+      audio: 0,
+      video: 0,
+      image: 0,
+    },
+    totalMediaFilesCount: {
+      audio: 0,
+      video: 0,
+      image: 0,
+    },
   };
 };
 
@@ -210,6 +224,7 @@ export const traverseDirectories = async (
       dirs.push(dirInfo);
       const childDirs = await readdir(fp);
 
+      // 当前文件夹的所有子文件
       const currentFiles: FileInfo[] = [];
       // 将所有文件夹和文件入队
       for (const cd of childDirs) {
@@ -224,11 +239,18 @@ export const traverseDirectories = async (
           // 所有文件信息放入数组
           fileList.push(fileInfo);
 
+          // 统计当前文件夹的子文件类型数量
+          if (fileInfo.fileType in dirInfo.selfMediaFilesCount) {
+            dirInfo.selfMediaFilesCount[fileInfo.fileType as MediaFileType]++;
+          }
+
           // 把当前文件夹的子文件信息集合到一起
           // 后续文件关系判断使用
           currentFiles.push(fileInfo);
         }
       }
+      dirInfo.selfFilesCount = dirInfo.files.length;
+
       resolveFileRelation(currentFiles);
 
       // 所有文件夹信息放入数组
@@ -258,11 +280,18 @@ const dealFilePath = (info: FileInfo | DirectoryInfo) => {
 
 // 递归计算文件数
 const calcFileCount = (dirInfo: DirectoryInfo) => {
-  dirInfo.selfFilesCount = dirInfo.files.length;
   let total = dirInfo.selfFilesCount;
+  let { audio, image, video } = dirInfo.selfMediaFilesCount;
   for (const child of dirInfo.children) {
-    total += calcFileCount(child);
+    const childCount = calcFileCount(child);
+    total += childCount.total;
+    audio += childCount.audio;
+    image += childCount.image;
+    video += childCount.video;
   }
   dirInfo.totalFilesCount = total;
-  return total;
+  dirInfo.totalMediaFilesCount.audio = audio;
+  dirInfo.totalMediaFilesCount.image = image;
+  dirInfo.totalMediaFilesCount.video = video;
+  return { total, audio, image, video };
 };

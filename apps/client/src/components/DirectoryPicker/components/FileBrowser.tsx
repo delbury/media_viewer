@@ -1,5 +1,6 @@
 'use client';
 
+import ErrorBoundary from '#/components/ErrorBoundary';
 import ResizeContainer from '#/components/ResizeContainer';
 import { ScrollBoxInstance } from '#/components/ScrollBox';
 import { useSwr } from '#/hooks/useSwr';
@@ -112,19 +113,24 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
         />
         <ResizeContainer.Wrapper>
           {/* 当前文件夹的子文件夹 */}
-          <DirectoryItemList
-            dirs={currentDirs}
-            onClick={handleSelectChild}
-            storageKeySuffix={storageKeySuffix}
-            scrollBoxProps={{
-              ref: scrollBoxRef,
-            }}
-          />
+          <ErrorBoundary>
+            <DirectoryItemList
+              dirs={currentDirs}
+              onClick={handleSelectChild}
+              storageKeySuffix={storageKeySuffix}
+              scrollBoxProps={{
+                ref: scrollBoxRef,
+              }}
+            />
+          </ErrorBoundary>
+
           {/* 当前文件夹的文件 */}
-          <FileItemList
-            files={currentFiles}
-            storageKeySuffix={storageKeySuffix}
-          />
+          <ErrorBoundary>
+            <FileItemList
+              files={currentFiles}
+              storageKeySuffix={storageKeySuffix}
+            />
+          </ErrorBoundary>
         </ResizeContainer.Wrapper>
       </StyledFileBrowserWrapper>
     );

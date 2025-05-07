@@ -1,12 +1,12 @@
 'use client';
 
 import { FileInfo } from '#pkgs/apis';
-import { FullFileType } from '#pkgs/shared';
+import { MediaFileType } from '#pkgs/shared';
 import { noop } from 'lodash-es';
 import { createContext } from 'react';
 
 export interface MediaContextState {
-  mediaType: Extract<FullFileType, 'audio' | 'video' | 'image'> | null;
+  mediaType: MediaFileType | null;
   file: FileInfo | null;
 }
 

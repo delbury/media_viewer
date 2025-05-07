@@ -1,11 +1,16 @@
 import { formatDate } from '#/utils';
 import { DirectoryInfo } from '#pkgs/apis';
-import { FolderOutlined, SourceOutlined } from '@mui/icons-material';
+import { AlbumRounded, ImageRounded, MovieRounded, PlayCircleRounded } from '@mui/icons-material';
 import { ListItemIcon, ListItemText, ListItemTextProps, SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { DIRECTORY_ITEM_HEIGHT } from '../constant';
-import { StyledListItemButton } from '../style/directory-item';
+import {
+  StyledListItem,
+  StyledListItemButton,
+  StyledSubIcon,
+  StyleIconBtn,
+} from '../style/directory-item';
 
 interface DirectoryItemProps {
   dir: DirectoryInfo;
@@ -33,12 +38,39 @@ const LIST_ITEM_TEXT_SLOT_PROPS: ListItemTextProps['slotProps'] = {
   },
 };
 
+// 播放按钮
+const PlayIconBtn = ({
+  disabled,
+  onClick,
+  children,
+}: {
+  children?: React.ReactNode;
+  disabled?: boolean;
+  onClick?: () => void;
+}) => {
+  return (
+    <StyleIconBtn
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {children}
+      <StyledSubIcon>
+        <PlayCircleRounded />
+      </StyledSubIcon>
+    </StyleIconBtn>
+  );
+};
+
 const DirectoryItem = ({ dir, onClick, sx }: DirectoryItemProps) => {
   const t = useTranslations();
 
-  const isEmpty = useMemo(() => {
-    return !dir.totalFilesCount && !dir.children.length;
-  }, [dir.totalFilesCount, dir.children]);
+  const { noAudio, noImage, noVideo } = useMemo(() => {
+    return {
+      noImage: !dir.totalMediaFilesCount.image,
+      noVideo: !dir.totalMediaFilesCount.video,
+      noAudio: !dir.totalMediaFilesCount.audio,
+    };
+  }, [dir.totalMediaFilesCount]);
 
   const timeInfo = useMemo(
     () => `${t('Tools.UpdatedTime')}${t(':')}${formatDate(dir.updated)}`,
@@ -50,28 +82,37 @@ const DirectoryItem = ({ dir, onClick, sx }: DirectoryItemProps) => {
   );
 
   return (
-    <StyledListItemButton
-      onClick={() => onClick?.(dir)}
-      sx={{ height: `${DIRECTORY_ITEM_HEIGHT}px`, ...sx }}
-    >
-      <ListItemIcon sx={{ minWidth: 36 }}>
-        {isEmpty ? <FolderOutlined /> : <SourceOutlined />}
+    <StyledListItem sx={{ height: `${DIRECTORY_ITEM_HEIGHT}px`, ...sx }}>
+      <ListItemIcon sx={{ gap: '8px' }}>
+        <PlayIconBtn disabled={noVideo}>
+          <MovieRounded />
+        </PlayIconBtn>
+
+        <PlayIconBtn disabled={noAudio}>
+          <AlbumRounded />
+        </PlayIconBtn>
+
+        <PlayIconBtn disabled={noImage}>
+          <ImageRounded />
+        </PlayIconBtn>
       </ListItemIcon>
 
-      <ListItemText
-        primary={dir.name}
-        secondary={
-          <>
-            <span>{timeInfo}</span>
-            <span>{fileInfo}</span>
-          </>
-        }
-        sx={{
-          margin: 0,
-        }}
-        slotProps={LIST_ITEM_TEXT_SLOT_PROPS}
-      />
-    </StyledListItemButton>
+      <StyledListItemButton onClick={() => onClick?.(dir)}>
+        <ListItemText
+          primary={dir.name}
+          secondary={
+            <>
+              <span>{timeInfo}</span>
+              <span>{fileInfo}</span>
+            </>
+          }
+          sx={{
+            margin: 0,
+          }}
+          slotProps={LIST_ITEM_TEXT_SLOT_PROPS}
+        />
+      </StyledListItemButton>
+    </StyledListItem>
   );
 };
 
