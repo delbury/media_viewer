@@ -5,12 +5,19 @@ import { Box } from '@mui/material';
 
 export const StyledHeaderWrapper = styled(Box)`
   display: flex;
-  gap: 24px;
   align-items: center;
+  justify-content: space-between;
   height: 40px;
-  padding: 0 24px;
+  padding: 0 16px;
   font-size: 0;
   background-color: var(--color-bg-dark);
+`;
+
+export const StyledHeaderLinkGroup = styled(Box)`
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  font-size: 0;
 
   svg {
     font-size: 24px;

@@ -1,7 +1,12 @@
 'use client';
 
+import { FileBrowserInstance } from '#/components/DirectoryPicker/components/FileBrowser';
+import { useUpdateOperation } from '#/components/DirectoryPicker/hooks/useUpdateOperation';
+import { HeaderSlot } from '#/components/Header';
+import { StyledHeaderLinkGroup } from '#/components/Header/style';
 import { Box, SxProps, Theme } from '@mui/material';
 import dynamic from 'next/dynamic';
+import { useRef } from 'react';
 
 const FileBrowser = dynamic(
   () => import('#/components/DirectoryPicker').then(mod => mod.FileBrowser),
@@ -14,6 +19,10 @@ const WRAPPER_SX: SxProps<Theme> = {
   height: 'calc(100vh - 72px)',
 };
 
+const HEADER_SLOT_BTN_SX: SxProps<Theme> = {
+  padding: 0,
+};
+
 /**
  * 分析处理重复的视频文件
  * 步骤：
@@ -24,9 +33,29 @@ const WRAPPER_SX: SxProps<Theme> = {
  */
 
 export default function RepeatFile() {
+  const fileBrowserRef = useRef<FileBrowserInstance>(null);
+
+  // 更新 api
+  const { DirUpdateBtn, PosterClearBtn, ConfirmDialog } = useUpdateOperation({
+    fileBrowserRef,
+    btnSx: HEADER_SLOT_BTN_SX,
+  });
+
   return (
     <Box sx={WRAPPER_SX}>
-      <FileBrowser storageKeySuffix="RepeatFile" />
+      <FileBrowser
+        ref={fileBrowserRef}
+        storageKeySuffix="RepeatFile"
+      />
+
+      <HeaderSlot>
+        <StyledHeaderLinkGroup>
+          {DirUpdateBtn}
+          {PosterClearBtn}
+        </StyledHeaderLinkGroup>
+      </HeaderSlot>
+
+      {ConfirmDialog}
     </Box>
   );
 }

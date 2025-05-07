@@ -1,11 +1,8 @@
 import Dialog from '#/components/Dialog';
-import { useConfirmDialogByKeys } from '#/hooks/useConfirmDialog';
-import { useSwr } from '#/hooks/useSwr';
 import { DirectoryInfo } from '#pkgs/apis';
-import { CleaningServicesOutlined, LoopOutlined } from '@mui/icons-material';
-import { IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useRef, useState } from 'react';
+import { useUpdateOperation } from '../hooks/useUpdateOperation';
 import CurrentFilesInfo from './CurrentFilesInfo';
 import FileBrowser, { FileBrowserInstance } from './FileBrowser';
 
@@ -19,34 +16,9 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
   const t = useTranslations();
   const fileBrowserRef = useRef<FileBrowserInstance>(null);
 
-  // 后端强制更新文件信息
-  const updateRequest = useSwr('dirUpdate', {
-    lazy: true,
-    noticeWhenSuccess: true,
-    onSuccess: res => {
-      fileBrowserRef.current?.updatePathList(res.data?.treeNode ? [res.data.treeNode] : []);
-    },
-  });
-
-  // 删除缩略图
-  const clearPosterRequest = useSwr('posterClear', {
-    lazy: true,
-    noticeWhenSuccess: true,
-    data: {
-      // clearAll: true,
-    },
-  });
-
-  // 二次确认是否刷新
-  const { ConfirmDialog, handleOpen: confirmOpen } = useConfirmDialogByKeys({
-    dirUpdate: {
-      onOk: updateRequest.refresh,
-      description: t('Tools.AreYouSureReGenerateDirectoryInfo'),
-    },
-    posterClear: {
-      onOk: clearPosterRequest.refresh,
-      description: t('Tools.AreYouSureClearUselessPoster'),
-    },
+  // 更新 api
+  const { DirUpdateBtn, PosterClearBtn, ConfirmDialog } = useUpdateOperation({
+    fileBrowserRef,
   });
 
   const [currentPathNode, setCurrentPathNode] = useState<DirectoryInfo>();
@@ -80,18 +52,8 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
         }
         leftFooterSlot={
           <>
-            <IconButton
-              loading={updateRequest.isLoading}
-              onClick={() => confirmOpen('dirUpdate')}
-            >
-              <LoopOutlined />
-            </IconButton>
-            <IconButton
-              loading={updateRequest.isLoading}
-              onClick={() => confirmOpen('posterClear')}
-            >
-              <CleaningServicesOutlined />
-            </IconButton>
+            {DirUpdateBtn}
+            {PosterClearBtn}
           </>
         }
       >
