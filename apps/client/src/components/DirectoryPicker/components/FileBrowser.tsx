@@ -165,6 +165,7 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
           {/* 当前文件夹的文件 */}
           <ErrorBoundary>
             <FileItemList
+              dir={currentPathNode}
               files={currentFiles}
               storageKeySuffix={storageKeySuffix}
             />

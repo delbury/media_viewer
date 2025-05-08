@@ -1,9 +1,11 @@
+import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { formatDate } from '#/utils';
 import { DirectoryInfo } from '#pkgs/apis';
+import { MediaFileType } from '#pkgs/shared';
 import { AlbumRounded, ImageRounded, MovieRounded, PlayCircleRounded } from '@mui/icons-material';
 import { ListItemIcon, ListItemText, ListItemTextProps, SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { DIRECTORY_ITEM_HEIGHT } from '../constant';
 import {
   StyledListItem,
@@ -81,18 +83,36 @@ const DirectoryItem = ({ dir, onClick, sx }: DirectoryItemProps) => {
     [t, dir.totalFilesCount]
   );
 
+  // 打开媒体浏览器
+  const { openMediaViewer } = useMediaViewerContext();
+  const handleMediaInfoClick = useCallback(
+    (type: MediaFileType) => {
+      if (dir) openMediaViewer({ dir, mediaType: type });
+    },
+    [dir, openMediaViewer]
+  );
+
   return (
     <StyledListItem sx={{ height: `${DIRECTORY_ITEM_HEIGHT}px`, ...sx }}>
       <ListItemIcon sx={{ gap: '8px' }}>
-        <PlayIconBtn disabled={noVideo}>
+        <PlayIconBtn
+          disabled={noVideo}
+          onClick={() => handleMediaInfoClick('video')}
+        >
           <MovieRounded />
         </PlayIconBtn>
 
-        <PlayIconBtn disabled={noAudio}>
+        <PlayIconBtn
+          disabled={noAudio}
+          onClick={() => handleMediaInfoClick('audio')}
+        >
           <AlbumRounded />
         </PlayIconBtn>
 
-        <PlayIconBtn disabled={noImage}>
+        <PlayIconBtn
+          disabled={noImage}
+          onClick={() => handleMediaInfoClick('image')}
+        >
           <ImageRounded />
         </PlayIconBtn>
       </ListItemIcon>

@@ -1,13 +1,14 @@
 'use client';
 
-import { FileInfo } from '#pkgs/apis';
+import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { MediaFileType } from '#pkgs/shared';
 import { noop } from 'lodash-es';
 import { createContext } from 'react';
 
 export interface MediaContextState {
-  mediaType: MediaFileType | null;
-  file: FileInfo | null;
+  mediaType?: MediaFileType;
+  file?: FileInfo;
+  dir?: DirectoryInfo;
 }
 
 interface MediaContextValue {
@@ -17,8 +18,9 @@ interface MediaContextValue {
 
 export const MediaContext = createContext<MediaContextValue>({
   state: {
-    mediaType: null,
-    file: null,
+    mediaType: void 0,
+    file: void 0,
+    dir: void 0,
   },
   setState: noop,
 });

@@ -3,14 +3,17 @@
 import ResizeContainer from '#/components/ResizeContainer';
 import ScrollBox from '#/components/ScrollBox';
 import { GridLayout, VirtualListChildItemProps } from '#/components/ScrollBox/hooks/useVirtualList';
+import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { h5Max } from '#/style/device';
 import { TFunction } from '#/types/i18n';
-import { FileInfo } from '#pkgs/apis';
-import { FullFileType } from '#pkgs/shared';
+import { DirectoryInfo, FileInfo } from '#pkgs/apis';
+import { FullFileType, MediaFileType } from '#pkgs/shared';
+import { isMediaFile } from '#pkgs/tools/common';
+import { PlayArrowRounded } from '@mui/icons-material';
 import { useMediaQuery } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   FILE_FILTER_OPTIONS,
   FILE_SORT_API_FIELD_MAP,
@@ -22,8 +25,10 @@ import { useResetBtn } from '../hooks/useResetBtn';
 import { useSortList } from '../hooks/useSortList';
 import {
   FILE_GRID_SIZE,
-  StyledFileAllCountInfo,
+  StyledFileCount,
+  StyledFileCountGroup,
   StyledFileGrid,
+  StyledFileInfoRow,
   StyledFileToolRow,
 } from '../style/file-item-list';
 import FileDetailDialog from './FileDetailDialog';
@@ -70,18 +75,21 @@ const calcGridLayout = (isH5: boolean, childCount: number, contentWidth: number)
 
 // 计算文件数量
 const countFileType = (files: FileInfo[], t: TFunction) => {
-  const counts: Record<FullFileType, { label: string; value: number }> = {
-    video: { label: 'Common.Video', value: 0 },
-    audio: { label: 'Common.Audio', value: 0 },
-    image: { label: 'Common.Image', value: 0 },
-    text: { label: 'Common.Text', value: 0 },
-    other: { label: 'Common.Other', value: 0 },
+  const counts: Record<FullFileType, { label: string; value: number; type: FullFileType }> = {
+    video: { label: 'Common.Video', value: 0, type: 'video' },
+    audio: { label: 'Common.Audio', value: 0, type: 'audio' },
+    image: { label: 'Common.Image', value: 0, type: 'image' },
+    text: { label: 'Common.Text', value: 0, type: 'text' },
+    other: { label: 'Common.Other', value: 0, type: 'other' },
   };
   files.forEach(file => {
     if (counts[file.fileType]) counts[file.fileType].value++;
   });
   const result = Object.values(counts).filter(item => item.value > 0);
-  return result.map(item => `${t(item.label)}${t(':')}${item.value}`).join(t(','));
+  return result.map(item => ({
+    showText: `${t(item.label)}${t(':')}${item.value}`,
+    type: item.type,
+  }));
 };
 
 // 文件过滤
@@ -138,6 +146,7 @@ const ChildItem = (
 };
 
 interface FileItemListProps {
+  dir?: DirectoryInfo;
   files: FileInfo[];
   storageKeySuffix?: string;
 }
@@ -147,7 +156,7 @@ const DEFAULT_VALUES = {
   filterFileExts: [] as string[],
 };
 
-const FileItemList = ({ files, storageKeySuffix = '' }: FileItemListProps) => {
+const FileItemList = ({ dir, files, storageKeySuffix = '' }: FileItemListProps) => {
   const t = useTranslations();
   const isH5 = useMediaQuery(h5Max);
 
@@ -199,6 +208,15 @@ const FileItemList = ({ files, storageKeySuffix = '' }: FileItemListProps) => {
 
   const [currentFile, setCurrentFile] = useState<FileInfo | null>(null);
 
+  // 打开媒体浏览器
+  const { openMediaViewer } = useMediaViewerContext();
+  const handleMediaInfoClick = useCallback(
+    (type: MediaFileType) => {
+      if (dir) openMediaViewer({ dir, mediaType: type });
+    },
+    [dir, openMediaViewer]
+  );
+
   return (
     <>
       <ResizeContainer
@@ -233,12 +251,26 @@ const FileItemList = ({ files, storageKeySuffix = '' }: FileItemListProps) => {
           </>
         }
         afterContentSlot={
-          <StyledFileAllCountInfo variant="body2">
-            <span>{fileTypeCountInfo}</span>
+          <StyledFileInfoRow>
+            <StyledFileCountGroup>
+              {fileTypeCountInfo.map(({ showText, type }) => {
+                const isMedia = isMediaFile(type);
+                return (
+                  <StyledFileCount
+                    key={showText}
+                    clickable={isMedia}
+                    onClick={() => handleMediaInfoClick(type as MediaFileType)}
+                  >
+                    {isMedia && <PlayArrowRounded fontSize="inherit" />}
+                    {showText}
+                  </StyledFileCount>
+                );
+              })}
+            </StyledFileCountGroup>
             <span>
-              {files.length} / {filteredSortedFiles.length}
+              {filteredSortedFiles.length} / {files.length}
             </span>
-          </StyledFileAllCountInfo>
+          </StyledFileInfoRow>
         }
         scrollBoxProps={{
           emptyText: t('Tools.NoFiles'),

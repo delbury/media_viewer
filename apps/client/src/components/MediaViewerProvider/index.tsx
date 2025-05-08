@@ -8,8 +8,9 @@ import VideoViewer from '../VideoViewer';
 import { MediaContext, MediaContextState } from './Context';
 
 const INIT_VALUE: MediaContextState = {
-  file: null,
-  mediaType: null,
+  dir: void 0,
+  file: void 0,
+  mediaType: void 0,
 };
 
 const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
