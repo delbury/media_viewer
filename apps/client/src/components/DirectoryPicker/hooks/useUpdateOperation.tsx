@@ -1,5 +1,5 @@
 import { useConfirmDialogByKeys } from '#/hooks/useConfirmDialog';
-import { useSwr } from '#/hooks/useSwr';
+import { useSwrMutation } from '#/hooks/useSwr';
 import { CleaningServicesOutlined, LoopOutlined } from '@mui/icons-material';
 import { IconButton, SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
@@ -15,8 +15,7 @@ export const useUpdateOperation = ({ fileBrowserRef, btnSx }: UseUpdateOperation
   const t = useTranslations();
 
   // 后端强制更新文件信息
-  const updateRequest = useSwr('dirUpdate', {
-    lazy: true,
+  const updateRequest = useSwrMutation('dirUpdate', {
     noticeWhenSuccess: true,
     onSuccess: res => {
       fileBrowserRef.current?.updatePathList(res.data?.treeNode ? [res.data.treeNode] : []);
@@ -24,8 +23,7 @@ export const useUpdateOperation = ({ fileBrowserRef, btnSx }: UseUpdateOperation
   });
 
   // 删除缩略图
-  const clearPosterRequest = useSwr('posterClear', {
-    lazy: true,
+  const clearPosterRequest = useSwrMutation('posterClear', {
     noticeWhenSuccess: true,
     data: {
       // clearAll: true,
@@ -35,11 +33,11 @@ export const useUpdateOperation = ({ fileBrowserRef, btnSx }: UseUpdateOperation
   // 二次确认是否刷新
   const { ConfirmDialog, handleOpen: confirmOpen } = useConfirmDialogByKeys({
     dirUpdate: {
-      onOk: updateRequest.refresh,
+      onOk: updateRequest.trigger,
       description: t('Tools.AreYouSureReGenerateDirectoryInfo'),
     },
     posterClear: {
-      onOk: clearPosterRequest.refresh,
+      onOk: clearPosterRequest.trigger,
       description: t('Tools.AreYouSureClearUselessPoster'),
     },
   });

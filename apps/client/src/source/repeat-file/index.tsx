@@ -16,7 +16,7 @@ const FileBrowser = dynamic(
 );
 
 const WRAPPER_SX: SxProps<Theme> = {
-  height: 'calc(100vh - 72px)',
+  height: 'calc(100dvh - 72px)',
 };
 
 const HEADER_SLOT_BTN_SX: SxProps<Theme> = {

@@ -92,7 +92,7 @@ const useSwr = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
 
 const useSwrMutation = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
   apiKey: T,
-  options?: UseSwrOptions<D, T>
+  options?: Pick<UseSwrOptions<D, T>, 'data' | 'params' | 'onSuccess' | 'noticeWhenSuccess'>
 ) => {
   const { onSuccess, noticeWhenSuccess, params: requestParams, data: requestData } = options ?? {};
   const t = useTranslations();
