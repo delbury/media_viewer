@@ -25,7 +25,7 @@ mediaRouter[API_CONFIGS.mediaMetadata.method](API_CONFIGS.mediaMetadata.url, asy
   if (!isMediaFile(fileType)) throw new Error(ERROR_MSG.notMediaFile);
 
   // 获取文件信息
-  const fullMetadata = await getMediaDetail(fullPath, { showStreams: true });
+  const fullMetadata = await getMediaDetail(fullPath);
   const fileInfo = omit(fullMetadata, ['format.filename']) ?? null;
   ctx.body = returnBody(fileInfo);
 });

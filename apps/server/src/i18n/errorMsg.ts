@@ -14,4 +14,5 @@ export const ERROR_MSG = {
   notANumber: 'param is not a number',
   required: 'param is required',
   invalid: 'param is invalid',
+  notSupportVideoCodec: 'video codec not support',
 } satisfies Record<string, string | ((...args: string[]) => string)>;

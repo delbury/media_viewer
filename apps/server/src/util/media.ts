@@ -1,4 +1,4 @@
-import { MediaDetailInfo } from '#pkgs/shared/index.js';
+import { CodecName, MediaDetailInfo } from '#pkgs/shared/index.js';
 import { logError, logWarn as RawLogWarn, switchFnByFlag } from '#pkgs/tools/common.js';
 import { ParameterizedContext } from 'koa';
 import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
@@ -24,10 +24,8 @@ export const getMediaDetail = async (
   filaPath: string,
   {
     forceUpdate,
-    showStreams,
   }: {
     forceUpdate?: boolean;
-    showStreams?: boolean;
   } = {}
 ) => {
   const task = VIDEO_DETAIL_TASKS[filaPath];
@@ -47,7 +45,7 @@ export const getMediaDetail = async (
         const command = [
           'ffprobe -v error',
           '-print_format json',
-          ...(showStreams ? ['-show_streams'] : []),
+          '-show_streams',
           '-show_format',
           `"${filaPath}"`,
         ].join(' ');
@@ -70,6 +68,28 @@ export const getMediaDetail = async (
   };
 
   return await VIDEO_DETAIL_TASKS[filaPath].promise;
+};
+
+const CODEC_CUVID_MAP = {
+  av1: 'av1_cuvid',
+  h264: 'h264_cuvid',
+  hevc: 'hevc_cuvid',
+  mjpeg: 'mjpeg_cuvid',
+  mpeg1video: 'mpeg1_cuvid',
+  mpeg2video: 'mpeg2_cuvid',
+  mpeg4: 'mpeg4_cuvid',
+  vc1: 'vc1_cuvid',
+  vp8: 'vp8_cuvid',
+  vp9: 'vp9_cuvid',
+} satisfies Record<CodecName, string>;
+
+// 判断源视频的编码格式，选择不同的 cuvid 解码器
+const getVideoFileCuvid = async (filePath: string) => {
+  const metadata = await getMediaDetail(filePath);
+  const codecName = metadata?.streams?.find(s => s.codec_type === 'video')?.codec_name as CodecName;
+  const cuvid = CODEC_CUVID_MAP[codecName];
+  if (!cuvid) throw new Error(ERROR_MSG.notSupportVideoCodec);
+  return { cuvid, metadata };
 };
 
 // 缓存进程信息，暂时只允许同时出现一个进程
@@ -105,21 +125,26 @@ export const transformVideoStream = async (
   killProcess();
   const hash = getFilePathHash(filePath);
 
-  const inputArgs: string[] = ['-i', `${filePath}`];
+  // 根据源文件的编码类型，选择不同的解码器
+  const { metadata, cuvid } = await getVideoFileCuvid(filePath);
+
+  const inputArgs: string[] = ['-c:v', cuvid, '-i', `${filePath}`];
+
   // 处理分片
   if (segOpt) {
     const { start, duration } = segOpt;
     if (duration === 0) throw new Error(ERROR_MSG.invalid);
     const segArgs = ['-ss', `${start}`, '-t', `${duration}`];
 
-    const metadata = await getMediaDetail(filePath);
-    if (metadata?.format.format_name.includes('avi')) {
-      // avi 格式，将 -ss 放在 -i 后面，防止报错 first frame is no keyframe
-      // TODO 先如此处理 avi 格式的问题，可能有更好的处理方式
-      inputArgs.push(...segArgs);
-    } else {
-      inputArgs.unshift(...segArgs);
-    }
+    inputArgs.unshift(...segArgs);
+
+    // if (metadata?.format.format_name.includes('avi')) {
+    //   // avi 格式，将 -ss 放在 -i 后面，防止报错 first frame is no keyframe
+    //   // TODO 先如此处理 avi 格式的问题，可能有更好的处理方式
+    //   inputArgs.push(...segArgs);
+    // } else {
+    //   inputArgs.unshift(...segArgs);
+    // }
   }
 
   // 转码命令
@@ -133,12 +158,11 @@ export const transformVideoStream = async (
     '-filter_hw_device', 'cuda',
     '-hwaccel', 'cuda',
     '-hwaccel_output_format', 'cuda',
-    // '-hwaccel_device', '0',
     '-extra_hw_frames', '4',
 
     // 系统优化
-    '-threads', '0',
-    '-reinit_filter', '0',
+    // '-threads', '0',
+    // '-reinit_filter', '0',
 
     // 输入文件
     ...inputArgs,
@@ -156,6 +180,7 @@ export const transformVideoStream = async (
     ].join(','),
     
     '-c:v', 'h264_nvenc',
+    '-b:v', '3000k',
     '-profile:v', 'high', '-level', '4.0',
     '-preset', 'p4',
     '-tune', 'll',

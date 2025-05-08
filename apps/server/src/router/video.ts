@@ -25,7 +25,7 @@ videoRouter[API_CONFIGS.videoMetadata.method](API_CONFIGS.videoMetadata.url, asy
   if (fileType !== 'video') throw new Error(ERROR_MSG.notVideoFile);
 
   // 获取文件信息
-  const fullMetadata = await getMediaDetail(fullPath, { showStreams: false });
+  const fullMetadata = await getMediaDetail(fullPath);
   const fileInfo: ApiResponseDataTypes<'videoMetadata'> | null = fullMetadata
     ? {
         duration: +fullMetadata.format.duration,
