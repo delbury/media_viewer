@@ -128,7 +128,7 @@ export const transformVideoStream = async (
   const hash = getFilePathHash(filePath);
 
   // 根据源文件的编码类型，选择不同的解码器
-  const { metadata, cuvid } = await getVideoFileCuvid(filePath);
+  const { cuvid } = await getVideoFileCuvid(filePath);
 
   const inputArgs: string[] = ['-c:v', cuvid, '-i', `${filePath}`];
 
@@ -165,8 +165,8 @@ export const transformVideoStream = async (
     '-extra_hw_frames', '4',
 
     // 系统优化
-    // '-threads', '0',
-    // '-reinit_filter', '0',
+    '-threads', '0',
+    '-reinit_filter', '0',
 
     // 输入文件
     ...inputArgs,

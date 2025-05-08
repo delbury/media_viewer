@@ -50,6 +50,12 @@ export const MediaProgress = ({
   const [bufferRanges, setBufferRanges] = useState<[number, number][]>([]);
   const realShowCursor = showCursor || !isNil(previewDiffTime);
 
+  // 禁用跳转拖动
+  const progressDisabled = useMemo(
+    () => !Number.isFinite(videoDuration) || Number.isNaN(videoDuration),
+    [videoDuration]
+  );
+
   useMove({
     domRef: progressBarRef,
     onMove: (pos, size) => {
@@ -146,13 +152,13 @@ export const MediaProgress = ({
   // 跳转到对应的进度条时刻
   const handleGoTo = useCallback(
     (ev: PointerEvent | MouseEvent) => {
-      if (!mediaRef.current || Number.isNaN(videoDuration)) return;
+      if (!mediaRef.current || progressDisabled) return;
       const { offsetX } = ev;
       const { offsetWidth } = ev.target as HTMLElement;
       const time = (offsetX / offsetWidth) * videoDuration;
       mediaRef.current.currentTime = time;
     },
-    [mediaRef, videoDuration]
+    [mediaRef, progressDisabled, videoDuration]
   );
   const handleClick = useCallback<MouseEventHandler>(
     ev => {
@@ -191,6 +197,9 @@ export const MediaProgress = ({
     <StyledProgressContainer
       ref={progressBarRef}
       onClick={handleClick}
+      sx={{
+        cursor: progressDisabled ? 'not-allowed' : void 0,
+      }}
     >
       <LinearProgress
         variant="buffer"

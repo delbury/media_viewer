@@ -24,15 +24,16 @@ import {
   waitUpdateend,
 } from './util';
 
+const CAN_DIRECT_PLAY_EXTS = ['mp4', 'webm'];
+
 interface UseMediaSourceParams {
   mediaRef: RefObject<HTMLMediaElement | null>;
   file: FileInfo;
 }
 
-// hook
+type SrcType = 'raw' | 'source' | null;
+
 export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
-  // 原始视频格式不支持播放时，降级播放地址
-  const [enabled, setEnabled] = useState(false);
   // 当前视频分片请求的 offset
   const currentSegmentOffset = useRef(0);
   // 视频总时长
@@ -49,6 +50,10 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
   const [isLoading, setIsLoading] = useState(false);
   // 真正的可以播放，完成降级处理后
   const [isCanplay, setIsCanplay] = useState(false);
+  // 视频资源的类型
+  const [srcType, setSrcType] = useState<SrcType>(null);
+  const isSource = srcType === 'source';
+  const isRaw = srcType === 'raw';
 
   // 视频报错事件
   const handleError = useCallback<ReactEventHandler<HTMLVideoElement>>(
@@ -57,15 +62,15 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
       // 判断错误类型，如果是浏览器不支持播放的视频，则降级为服务端转码
       if (
         err &&
-        !enabled &&
+        isRaw &&
         (err.code === err.MEDIA_ERR_DECODE || err.code === err.MEDIA_ERR_SRC_NOT_SUPPORTED)
       ) {
-        setEnabled(true);
+        setSrcType('source');
       } else {
         logError(err);
       }
     },
-    [enabled]
+    [isRaw]
   );
 
   // 视频可播放事件，防止只有音频可以播放，视频无法播放
@@ -73,7 +78,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
     const target = ev.target as HTMLVideoElement;
 
     if (!target.videoHeight && !target.videoWidth) {
-      setEnabled(true);
+      setSrcType('source');
     } else {
       setIsCanplay(true);
     }
@@ -86,7 +91,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
       relativePath: file.relativePath,
     },
     lazy: true,
-    disabled: !enabled,
+    disabled: !isSource,
   });
 
   // 动态懒加载视频分片
@@ -219,7 +224,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
     ev => {
       const buffer = sourceBuffer.current;
       const source = mediaSource.current;
-      if (!enabled || !buffer || !source) return;
+      if (!isSource || !buffer || !source) return;
 
       const currentTime = (ev.target as HTMLMediaElement).currentTime;
 
@@ -230,7 +235,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
         lazyLoadSegmentDebounce();
       }
     },
-    [enabled, lazyLoadSegmentDebounce]
+    [isSource, lazyLoadSegmentDebounce]
   );
 
   // 拖动进度条事件
@@ -238,7 +243,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
     ev => {
       const elm = mediaRef.current;
       const buffer = sourceBuffer.current;
-      if (!enabled || !buffer || !elm) return;
+      if (!isSource || !buffer || !elm) return;
 
       const currentTime = (ev.target as HTMLMediaElement).currentTime;
 
@@ -273,37 +278,43 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
 
       lazyLoadSegmentDebounce(true);
     },
-    [enabled, lazyLoadSegmentDebounce, mediaRef]
+    [isSource, lazyLoadSegmentDebounce, mediaRef]
   );
 
   // 播放结束事件
   const handleEnded = useCallback<ReactEventHandler<HTMLVideoElement>>(() => {
-    if (!enabled) return;
-  }, [enabled]);
+    if (!isSource) return;
+  }, [isSource]);
+
+  useEffect(() => {
+    if (file && CAN_DIRECT_PLAY_EXTS.includes(file.nameExtPure)) {
+      setSrcType('raw');
+    } else {
+      setSrcType('source');
+    }
+  }, [file]);
 
   useEffect(() => {
     const elm = mediaRef.current;
     if (!elm) return;
 
-    let url = null;
-    if (enabled) {
+    if (isSource) {
       const res = createSource();
-      url = res?.url;
-    } else {
+
+      return () => {
+        stopStream(mediaSource.current, sourceBuffer.current);
+        abortController.current?.abort();
+        videoDuration.current = 0;
+        currentSegmentOffset.current = 0;
+        sourceBuffer.current = null;
+        mediaSource.current = null;
+        isLoadDone.current = false;
+        if (res?.url) URL.revokeObjectURL(res?.url);
+      };
+    } else if (isRaw) {
       elm.src = getFileSourceUrl(file);
     }
-
-    return () => {
-      stopStream(mediaSource.current, sourceBuffer.current);
-      abortController.current?.abort();
-      videoDuration.current = 0;
-      currentSegmentOffset.current = 0;
-      sourceBuffer.current = null;
-      mediaSource.current = null;
-      isLoadDone.current = false;
-      if (url) URL.revokeObjectURL(url);
-    };
-  }, [enabled]);
+  }, [srcType]);
 
   return {
     isCanplay,
