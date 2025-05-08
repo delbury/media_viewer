@@ -111,6 +111,8 @@ const killProcess = () => {
   CACHED_INFO.hash = null;
 };
 
+const SEGMENT_START_TIME_THRESHOLD = 5;
+
 interface SegmentOptions {
   start: number;
   duration: number;
@@ -134,17 +136,19 @@ export const transformVideoStream = async (
   if (segOpt) {
     const { start, duration } = segOpt;
     if (duration === 0) throw new Error(ERROR_MSG.invalid);
-    const segArgs = ['-ss', `${start}`, '-t', `${duration}`];
+    // 将时间跳转分为两个部分，用于粗略和精确定位
 
-    inputArgs.unshift(...segArgs);
+    let restTime = start;
+    if (restTime > SEGMENT_START_TIME_THRESHOLD) {
+      const preTime = start - SEGMENT_START_TIME_THRESHOLD;
+      restTime = SEGMENT_START_TIME_THRESHOLD;
 
-    // if (metadata?.format.format_name.includes('avi')) {
-    //   // avi 格式，将 -ss 放在 -i 后面，防止报错 first frame is no keyframe
-    //   // TODO 先如此处理 avi 格式的问题，可能有更好的处理方式
-    //   inputArgs.push(...segArgs);
-    // } else {
-    //   inputArgs.unshift(...segArgs);
-    // }
+      const preSegArgs = ['-ss', `${preTime}`];
+      inputArgs.unshift(...preSegArgs);
+    }
+
+    const segArgs = ['-ss', `${restTime}`, '-t', `${duration}`];
+    inputArgs.push(...segArgs);
   }
 
   // 转码命令
