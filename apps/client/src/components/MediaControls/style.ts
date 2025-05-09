@@ -37,7 +37,7 @@ export const StyledBtnsContainer = styled(Box)`
 `;
 export const StyledBtnsGroup = styled(Box)`
   display: flex;
-  gap: 12px;
+  gap: 8px;
 `;
 
 // 播放时间/总时间信息

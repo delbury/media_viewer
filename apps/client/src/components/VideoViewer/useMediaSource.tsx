@@ -285,18 +285,16 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
   }, [isSource]);
 
   useEffect(() => {
-    if (file && CAN_DIRECT_PLAY_EXTS.includes(file.nameExtPure)) {
-      setSrcType('raw');
-    } else {
-      setSrcType('source');
-    }
-  }, [file]);
-
-  useEffect(() => {
     const elm = mediaRef.current;
-    if (!elm) return;
+    if (!elm || !file) return;
 
-    if (isSource) {
+    let type: SrcType = 'source';
+    if (file && CAN_DIRECT_PLAY_EXTS.includes(file.nameExtPure)) {
+      type = 'raw';
+    }
+    setSrcType(type);
+
+    if (type === 'source') {
       const res = createSource();
 
       return () => {
@@ -309,10 +307,10 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
         isLoadDone.current = false;
         if (res?.url) URL.revokeObjectURL(res?.url);
       };
-    } else if (isRaw) {
+    } else if (type === 'raw') {
       elm.src = getFileSourceUrl(file);
     }
-  }, [srcType]);
+  }, [file]);
 
   return {
     isCanplay,

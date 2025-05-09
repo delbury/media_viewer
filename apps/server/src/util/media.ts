@@ -180,7 +180,7 @@ export const transformVideoStream = async (
         'force_original_aspect_ratio=decrease',
         'format=nv12',
       ].join(':'),
-      'hwupload',
+      'hwupload=derive_device=cuda',
     ].join(','),
     
     '-c:v', 'h264_nvenc',
