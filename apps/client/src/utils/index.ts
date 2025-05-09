@@ -133,7 +133,7 @@ export const getVideoFileFallbackUrl = (file?: FileInfo) => {
 };
 
 // 生成 hash
-export const createHash = async (text?: string) => {
+export const createHash = (text?: string) => {
   const hash = hashSum(text ?? '');
   return hash;
 };

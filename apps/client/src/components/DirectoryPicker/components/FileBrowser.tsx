@@ -21,16 +21,24 @@ import DirectoryItemList from './DirectoryItemList';
 import FileItemList from './FileItemList';
 import SelectingPathInfo from './SelectingPathInfo';
 
-const getScrollCacheKey = (dir: DirectoryInfo) => `${dir.basePathIndex ?? ''}${dir.showPath}`;
+const createKey = (dir?: DirectoryInfo) => createHash(dir?.showPath);
 const HASH_KEY = 'hash';
-const insertHistory = (hash: string) => {
+const createHistoryParams = (hash: string) => {
   const params = new URLSearchParams(location.search);
   if (params.get(HASH_KEY) !== hash) {
     params.set(HASH_KEY, hash);
     const search = params.toString();
     const url = `${window.location.origin}${window.location.pathname}?${search}`;
-    history.pushState({ id: search }, '', url);
+    return url;
   }
+};
+const pushHistory = (hash: string) => {
+  const url = createHistoryParams(hash);
+  if (url) history.pushState({ [HASH_KEY]: hash }, '', url);
+};
+const replaceHistory = (hash: string) => {
+  const url = createHistoryParams(hash);
+  if (url) history.replaceState({ [HASH_KEY]: hash }, '', url);
 };
 
 export interface FileBrowserInstance {
@@ -79,6 +87,7 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
       [pathList]
     );
 
+    // 滚动容器元素
     const scrollBoxRef = useRef<ScrollBoxInstance>(null);
     // 缓存滚动距离
     const scrollCaches = useRef(new Map<string, number>());
@@ -90,7 +99,7 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
       if (!currentPathNode || !scrollBoxRef.current) return;
       if (lastPathNode.current) {
         // 有上一个文件夹，则保存滚动缓存
-        const key = getScrollCacheKey(lastPathNode.current);
+        const key = createKey(lastPathNode.current);
         const offset = scrollBoxRef.current.getScrollPosition()?.top ?? 0;
         scrollCaches.current.set(key, offset);
       }
@@ -100,7 +109,8 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
     // 还原滚动距离
     useEffect(() => {
       if (!currentPathNode || !scrollBoxRef.current) return;
-      const key = getScrollCacheKey(currentPathNode);
+
+      const key = createKey(currentPathNode);
       const offset = scrollCaches.current.get(key);
       if (offset) scrollBoxRef.current.scrollTo({ top: offset, behavior: 'instant' });
     }, [currentPathNode]);
@@ -111,10 +121,18 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
       // 拦截浏览器返回
       window.addEventListener(
         'popstate',
-        () => {
+        ev => {
           // 返回上一个文件夹
           setPathList(curList => {
-            if (curList.length > 1) return curList.slice(0, curList.length - 1);
+            const historyHash = ev.state[HASH_KEY];
+            const prevHash = curList.length > 1 ? createKey(curList.at(-2)) : null;
+            // 只有不为根目录，且为后退操作时，才返回上一级
+            if (historyHash === prevHash) {
+              return curList.slice(0, curList.length - 1);
+            } else {
+              const currentHash = createKey(curList.at(-1));
+              if (history.state[HASH_KEY] !== currentHash) history.go(-1);
+            }
             return curList;
           });
         },
@@ -124,10 +142,13 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
         controller.abort();
       };
     }, []);
+
+    // 插入 history
     useEffect(() => {
-      createHash(currentPathNode?.showPath).then(hash => {
-        insertHistory(hash);
-      });
+      const hash = createKey(currentPathNode);
+      if (history.state[HASH_KEY] !== hash) {
+        pushHistory(hash);
+      }
     }, [currentPathNode]);
 
     // 外部强制更新
