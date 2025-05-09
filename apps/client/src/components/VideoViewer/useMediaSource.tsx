@@ -1,5 +1,5 @@
 import { useDebounce } from '#/hooks/useDebounce';
-import { useSwr } from '#/hooks/useSwr';
+import { useSwrMutation } from '#/hooks/useSwr';
 import { fetchData } from '#/request';
 import { getFileSourceUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
@@ -28,7 +28,7 @@ const CAN_DIRECT_PLAY_EXTS = ['mp4', 'webm'];
 
 interface UseMediaSourceParams {
   mediaRef: RefObject<HTMLMediaElement | null>;
-  file: FileInfo;
+  file?: FileInfo;
 }
 
 type SrcType = 'raw' | 'source' | null;
@@ -85,20 +85,18 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
   }, []);
 
   // 请求视频元信息
-  const metadataRequest = useSwr('videoMetadata', {
+  const metadataRequest = useSwrMutation('videoMetadata', {
     params: {
-      basePathIndex: file.basePathIndex?.toString() as string,
-      relativePath: file.relativePath,
+      basePathIndex: file?.basePathIndex?.toString() as string,
+      relativePath: file?.relativePath as string,
     },
-    lazy: true,
-    disabled: !isSource,
   });
 
   // 动态懒加载视频分片
   const lazyLoadSegment = useCallback(
     async (force: boolean = false) => {
       // 正在请求或者已经完成，直接返回
-      if ((isLoading && !force) || isLoadDone.current) return;
+      if ((isLoading && !force) || isLoadDone.current || !file) return;
 
       const buffer = sourceBuffer.current;
       const source = mediaSource.current;
@@ -168,7 +166,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
         setIsLoading(false);
       }
     },
-    [file.basePathIndex, file.relativePath, isLoading]
+    [file, isLoading]
   );
   const lazyLoadSegmentDebounce = useDebounce(lazyLoadSegment, 200);
 
@@ -187,7 +185,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
         'sourceopen',
         async () => {
           // 获取视频的总长度
-          const metadataInfo = await metadataRequest.mutate();
+          const metadataInfo = await metadataRequest.trigger();
           const totalDuration = metadataInfo?.data?.duration;
           videoDuration.current = totalDuration;
 

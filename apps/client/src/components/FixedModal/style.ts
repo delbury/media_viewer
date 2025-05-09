@@ -1,4 +1,4 @@
-import { Box, styled } from '@mui/material';
+import { Box, buttonBaseClasses, styled } from '@mui/material';
 
 const FIXED_MODAL_Z_INDEX = 1400;
 
@@ -47,12 +47,12 @@ export const StyledFixedContent = styled(Box)`
 export const StyledFooterWrapper = styled(Box)`
   z-index: 1;
 
-  /* :fullscreen {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(2px);
-  } */
+  & .${buttonBaseClasses.root} {
+    color: inherit;
+    padding: 4px;
+  }
+
+  && .${buttonBaseClasses.disabled} {
+    color: ${({ theme }) => theme.palette.grey[700]};
+  }
 `;

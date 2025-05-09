@@ -1,4 +1,4 @@
-import { Box, styled } from '@mui/material';
+import { Box, buttonBaseClasses, styled } from '@mui/material';
 
 export const StyledImageWrapper = styled(Box)`
   position: relative;
@@ -43,7 +43,8 @@ export const StyledImageToolbar = styled(Box)`
   justify-content: center;
   gap: 8px;
 
-  > button {
+  & .${buttonBaseClasses.root} {
     color: inherit;
+    padding: 4px;
   }
 `;

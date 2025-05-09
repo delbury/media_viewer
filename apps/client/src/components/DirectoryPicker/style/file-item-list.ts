@@ -72,10 +72,3 @@ export const StyledToggleButtonGroup = styled(ToggleButtonGroup)`
   display: flex;
   /* align-self: flex-start; */
 `;
-
-export const StyledFileCoverWrapper = styled(Box)`
-  position: relative;
-  flex: 1;
-  min-height: 0;
-  word-break: break-all;
-`;

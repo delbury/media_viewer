@@ -7,13 +7,13 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
 import {
   StyledFileCardWrapper,
+  StyledFileCoverWrapper,
   StyledFileMoreInfo,
   StyledFileMoreInfoExt,
   StyledFileMoreInfoSize,
   StyledFileName,
   StyledFileTitle,
 } from '../style/file-item';
-import { StyledFileCoverWrapper } from '../style/file-item-list';
 
 interface FileItemProps {
   file: FileInfo;

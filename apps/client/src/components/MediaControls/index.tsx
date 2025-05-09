@@ -1,13 +1,15 @@
 import { useShortcut } from '#/hooks/useShortcut';
 import { FileInfo } from '#pkgs/apis';
 import {
+  FormatListNumberedRtlRounded,
   PauseRounded,
   PlayArrowRounded,
+  ShuffleRounded,
   SkipNextRounded,
   SkipPreviousRounded,
 } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
-import { forwardRef, RefObject, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, RefObject, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import AlertInfo from './components/AlertInfo';
 import FullscreenSetting from './components/FullscreenSetting';
 import { MediaProgress } from './components/MediaProgress';
@@ -32,15 +34,35 @@ export interface MediaControlsInstance {
 
 interface MediaControls {
   mediaRef: RefObject<HTMLMediaElement | null>;
-  subtitles?: FileInfo['subtitles'];
+  file?: FileInfo;
   onPausedStateChange?: (paused: boolean) => void;
   onWaitingStateChange?: (waiting: boolean) => void;
   onNext?: () => void;
   onPrev?: () => void;
+  isList?: boolean;
+  firstDisabled?: boolean;
+  lastDisabled?: boolean;
+  isRandomPlay?: boolean;
+  onToggleRandom?: () => void;
 }
 
 const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
-  ({ mediaRef, subtitles, onPausedStateChange, onWaitingStateChange, onNext, onPrev }, ref) => {
+  (
+    {
+      file,
+      mediaRef,
+      onPausedStateChange,
+      onWaitingStateChange,
+      onNext,
+      onPrev,
+      isList,
+      onToggleRandom,
+      isRandomPlay,
+      firstDisabled,
+      lastDisabled,
+    },
+    ref
+  ) => {
     const [isPaused, setIsPaused] = useState(true);
     const [isWaiting, setIsWaiting] = useState(false);
     const [videoDuration, setVideoDuration] = useState(0);
@@ -48,9 +70,6 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
     // 是否是 video
     const [isVideo, setIsVideo] = useState(false);
-    // 是否展示前进/后退按钮
-    const showPrevBtn = !!onPrev;
-    const showNextBtn = !!onNext;
 
     useEffect(() => {
       onPausedStateChange?.(isPaused);
@@ -60,15 +79,21 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       onWaitingStateChange?.(isWaiting);
     }, [isWaiting, onWaitingStateChange]);
 
+    const subtitles = useMemo(() => file?.subtitles, [file]);
+
     // handlers
-    const { handleTogglePlay, handleBack, handleForward, handleGoBy } = useHandlers({
-      mediaRef,
-    });
+    const { handleTogglePlay, handleBack, handleForward, handleGoBy, handleNext, handlePrev } =
+      useHandlers({
+        mediaRef,
+        isPaused,
+        onPrev,
+        onNext,
+      });
 
     // 快捷键
     useShortcut({
-      onUpPressed: onPrev,
-      onDownPressed: onNext,
+      onUpPressed: handlePrev,
+      onDownPressed: handleNext,
       onLeftPressed: handleBack,
       onRightPressed: handleForward,
       onSpacePressed: handleTogglePlay,
@@ -175,6 +200,13 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
           <StyledBtnsContainer>
             <StyledBtnsGroup>
+              {/* 播放模式 */}
+              {isList && onToggleRandom && (
+                <IconButton onClick={onToggleRandom}>
+                  {isRandomPlay ? <ShuffleRounded /> : <FormatListNumberedRtlRounded />}
+                </IconButton>
+              )}
+
               {/* 倍速 */}
               <RateSetting mediaRef={mediaRef} />
 
@@ -184,8 +216,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
             <StyledBtnsGroup>
               {/* 上一个 */}
-              {showPrevBtn && (
-                <IconButton onClick={onPrev}>
+              {isList && (
+                <IconButton
+                  onClick={handlePrev}
+                  disabled={firstDisabled}
+                >
                   <SkipPreviousRounded />
                 </IconButton>
               )}
@@ -196,8 +231,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
               </IconButton>
 
               {/* 下一个 */}
-              {showNextBtn && (
-                <IconButton onClick={onNext}>
+              {isList && (
+                <IconButton
+                  onClick={handleNext}
+                  disabled={lastDisabled}
+                >
                   <SkipNextRounded />
                 </IconButton>
               )}

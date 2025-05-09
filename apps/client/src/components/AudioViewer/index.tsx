@@ -21,7 +21,14 @@ import {
 import { findLyricIndex, useLyric } from './useLyric';
 
 type AudioViewerProps = {
-  file: FileInfo;
+  file?: FileInfo;
+  isList?: boolean;
+  firstDisabled?: boolean;
+  lastDisabled?: boolean;
+  isRandomPlay?: boolean;
+  onPrev?: () => void;
+  onNext?: () => void;
+  onToggleRandom?: () => void;
 } & Omit<FixedModalProps, 'children'>;
 
 const MEDIA_BTN_SX: SxProps<Theme> = {
@@ -35,7 +42,18 @@ const MEDIA_ICON_SX: SxProps<Theme> = {
   height: '100%',
 };
 
-const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
+const AudioViewer = ({
+  visible,
+  onClose,
+  file,
+  lastDisabled,
+  firstDisabled,
+  isList,
+  isRandomPlay,
+  onNext,
+  onPrev,
+  onToggleRandom,
+}: AudioViewerProps) => {
   const t = useTranslations();
   const audioRef = useRef<HTMLAudioElement>(null);
   const controlsRef = useRef<MediaControlsInstance>(null);
@@ -102,7 +120,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
     <FixedModal
       visible={visible}
       onClose={onClose}
-      title={file.name}
+      title={file?.name}
       footerSlot={
         // 工具栏
         <MediaControls
@@ -110,6 +128,14 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
           mediaRef={audioRef}
           onPausedStateChange={setIsPaused}
           onWaitingStateChange={setIsWaiting}
+          file={file}
+          lastDisabled={lastDisabled}
+          firstDisabled={firstDisabled}
+          isList={isList}
+          isRandomPlay={isRandomPlay}
+          onNext={onNext}
+          onPrev={onPrev}
+          onToggleRandom={onToggleRandom}
         />
       }
     >
@@ -118,7 +144,7 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
           {!!posterUrl && (
             <img
               src={posterUrl}
-              alt={file.name}
+              alt={file?.name}
             />
           )}
           <StyledCoverBtnWrapper>
@@ -181,14 +207,12 @@ const AudioViewer = ({ visible, onClose, file }: AudioViewerProps) => {
           )}
         </StyledLyricArea>
 
-        {!!sourceUrl && (
-          <audio
-            ref={audioRef}
-            src={sourceUrl}
-            // controls
-            onTimeUpdate={handleTimeUpdateThrottle}
-          />
-        )}
+        <audio
+          ref={audioRef}
+          src={sourceUrl || 'null'}
+          // controls
+          onTimeUpdate={handleTimeUpdateThrottle}
+        />
       </StyledContentWrapper>
     </FixedModal>
   );

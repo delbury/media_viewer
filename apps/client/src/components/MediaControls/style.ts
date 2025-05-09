@@ -2,7 +2,6 @@ import { h5Max } from '#/style/device';
 import styled from '@emotion/styled';
 import {
   Box,
-  buttonBaseClasses,
   linearProgressClasses,
   Slider,
   sliderClasses,
@@ -35,33 +34,10 @@ export const StyledBtnsContainer = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  /* @media ${h5Max} {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    > *:nth-child(1) {
-      justify-content: flex-start;
-    }
-    > *:nth-child(2) {
-      justify-content: center;
-    }
-    > *:nth-child(3) {
-      justify-content: flex-end;
-    }
-  } */
 `;
 export const StyledBtnsGroup = styled(Box)`
   display: flex;
   gap: 12px;
-
-  & .${buttonBaseClasses.root} {
-    color: inherit;
-    padding: 4px;
-  }
-  & .${buttonBaseClasses.disabled} {
-    color: ${({ theme }) => theme.palette.grey[600]};
-  }
 `;
 
 // 播放时间/总时间信息

@@ -84,15 +84,15 @@ export const findLyricIndex = (currentTime: number, lyrics: LyricRow[], currentI
 };
 
 // 解析歌词文件
-export const useLyric = (file: FileInfo) => {
+export const useLyric = (file?: FileInfo) => {
   const [lyrics, setLyrics] = useState<LyricRow[]>([]);
   const [meta, setMeta] = useState<LydicMeta>({});
 
   const lyricRequest = useSwr('fileText', {
-    disabled: !file.lrcPath,
+    disabled: !file?.lrcPath,
     params: {
-      basePathIndex: file.basePathIndex?.toString() as string,
-      relativePath: file.lrcPath as string,
+      basePathIndex: file?.basePathIndex?.toString() as string,
+      relativePath: file?.lrcPath as string,
     },
   });
 

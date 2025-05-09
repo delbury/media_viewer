@@ -10,9 +10,12 @@ const GO_BY_MAX_DIFF_SHORT = 2;
 
 interface UseHandlersParams {
   mediaRef: RefObject<HTMLMediaElement | null>;
+  isPaused: boolean;
+  onPrev?: () => void;
+  onNext?: () => void;
 }
 
-export const useHandlers = ({ mediaRef }: UseHandlersParams) => {
+export const useHandlers = ({ mediaRef, isPaused, onPrev, onNext }: UseHandlersParams) => {
   // 播放切换
   const handleTogglePlay = useCallback(() => {
     if (!mediaRef.current) return;
@@ -44,17 +47,47 @@ export const useHandlers = ({ mediaRef }: UseHandlersParams) => {
     },
     [mediaRef]
   );
+
   const handleBack = useCallback(() => {
     handleGoBy(-1);
   }, [handleGoBy]);
+
   const handleForward = useCallback(() => {
     handleGoBy(1);
   }, [handleGoBy]);
+
+  const handlePrev = useCallback(() => {
+    onPrev?.();
+    if (!isPaused && mediaRef.current) {
+      mediaRef.current.addEventListener(
+        'canplay',
+        () => {
+          mediaRef.current?.play();
+        },
+        { once: true }
+      );
+    }
+  }, [isPaused, mediaRef, onPrev]);
+
+  const handleNext = useCallback(() => {
+    onNext?.();
+    if (!isPaused && mediaRef.current) {
+      mediaRef.current.addEventListener(
+        'canplay',
+        () => {
+          mediaRef.current?.play();
+        },
+        { once: true }
+      );
+    }
+  }, [isPaused, mediaRef, onNext]);
 
   return {
     handleTogglePlay,
     handleBack,
     handleForward,
     handleGoBy,
+    handlePrev,
+    handleNext,
   };
 };

@@ -3,17 +3,22 @@ import { useGesture } from '#/hooks/useGesture';
 import { useResizeObserver } from '#/hooks/useResizeObserver';
 import { useRotateState } from '#/hooks/useRotateState';
 import { UserZoomParams, useZoom } from '#/hooks/useZoom';
+import { h5Max } from '#/style/device';
 import { getFileSourceUrl, preventDefault } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import {
+  ArrowBackRounded,
+  ArrowForwardRounded,
   AutorenewRounded,
+  FormatListNumberedRtlRounded,
   RotateLeftRounded,
   RotateRightRounded,
+  ShuffleRounded,
   WallpaperRounded,
   ZoomInRounded,
   ZoomOutRounded,
 } from '@mui/icons-material';
-import { IconButton } from '@mui/material';
+import { IconButton, useMediaQuery } from '@mui/material';
 import {
   CSSProperties,
   PointerEventHandler,
@@ -41,12 +46,29 @@ const SCALE_LIMIT = {
 };
 
 type ImageViewerProps = {
-  file: FileInfo;
+  file?: FileInfo;
+  isList?: boolean;
+  firstDisabled?: boolean;
+  lastDisabled?: boolean;
+  isRandomPlay?: boolean;
+  onPrev?: () => void;
+  onNext?: () => void;
+  onToggleRandom?: () => void;
 } & Omit<FixedModalProps, 'children'>;
 
-const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
+const ImageViewer = ({
+  visible,
+  onClose,
+  file,
+  lastDisabled,
+  firstDisabled,
+  isList,
+  isRandomPlay,
+  onNext,
+  onPrev,
+  onToggleRandom,
+}: ImageViewerProps) => {
   const [isLoading, setIsLoading] = useState(true);
-  const sourceUrl = useMemo(() => getFileSourceUrl(file), [file]);
   const imageRef = useRef<HTMLImageElement>(null);
   const imageContainerRef = useRef<HTMLElement>(null);
   // 偏移值，用于拖拽
@@ -58,11 +80,17 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
     defaultDegree: INIT_STATE.degree,
     domRef: imageRef,
   });
-
   // 监听容器大小改变
   const { size: imageContainerSize } = useResizeObserver({
     domRef: imageContainerRef,
   });
+
+  // 是否显示 zoom 按钮
+  const isH5 = useMediaQuery(h5Max);
+  const showZoomBtn = !(isH5 && isList);
+
+  // 加载资源
+  const sourceUrl = useMemo(() => getFileSourceUrl(file), [file]);
 
   // 图片位置、缩放、旋转样式
   const imageStyle = useMemo<CSSProperties>(() => {
@@ -238,18 +266,56 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
     <FixedModal
       visible={visible}
       onClose={onClose}
-      title={file.name}
+      title={file?.name}
       footerSlot={
         // 工具栏
         <StyledImageToolbar>
+          {/* 列表模式下隐藏 zoom 按钮，节省空间 */}
+
           {/* 缩小 */}
-          <IconButton onClick={handleZoomOut}>
-            <ZoomOutRounded />
-          </IconButton>
+          {showZoomBtn && (
+            <IconButton onClick={handleZoomOut}>
+              <ZoomOutRounded />
+            </IconButton>
+          )}
 
           {/* 放大 */}
-          <IconButton onClick={handleZoomIn}>
-            <ZoomInRounded />
+          {showZoomBtn && (
+            <IconButton onClick={handleZoomIn}>
+              <ZoomInRounded />
+            </IconButton>
+          )}
+
+          {/* 播放模式 */}
+          {isList && onToggleRandom && (
+            <IconButton onClick={onToggleRandom}>
+              {isRandomPlay ? <ShuffleRounded /> : <FormatListNumberedRtlRounded />}
+            </IconButton>
+          )}
+
+          {/* 上一个 */}
+          {isList && onPrev && (
+            <IconButton
+              onClick={onPrev}
+              disabled={firstDisabled}
+            >
+              <ArrowBackRounded />
+            </IconButton>
+          )}
+
+          {/* 下一个 */}
+          {isList && onNext && (
+            <IconButton
+              onClick={onNext}
+              disabled={lastDisabled}
+            >
+              <ArrowForwardRounded />
+            </IconButton>
+          )}
+
+          {/* 只重置缩放和偏移 */}
+          <IconButton onClick={handleResetOffsetAndScale}>
+            <WallpaperRounded />
           </IconButton>
 
           {/* 重置所有 */}
@@ -257,19 +323,14 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
             <AutorenewRounded />
           </IconButton>
 
-          {/* 只重置缩放和偏移 */}
-          <IconButton onClick={handleResetOffsetAndScale}>
-            <WallpaperRounded />
+          {/* 顺时针旋转 */}
+          <IconButton onClick={handleRotateClockwise}>
+            <RotateRightRounded />
           </IconButton>
 
           {/* 逆时针旋转 */}
           <IconButton onClick={handleRotateAnticlockwise}>
             <RotateLeftRounded />
-          </IconButton>
-
-          {/* 顺时针旋转 */}
-          <IconButton onClick={handleRotateClockwise}>
-            <RotateRightRounded />
           </IconButton>
         </StyledImageToolbar>
       }
@@ -282,7 +343,7 @@ const ImageViewer = ({ visible, onClose, file }: ImageViewerProps) => {
           <img
             ref={imageRef}
             src={sourceUrl}
-            alt={file.name}
+            alt={file?.name}
             draggable="false"
             onError={() => {
               setIsLoading(false);

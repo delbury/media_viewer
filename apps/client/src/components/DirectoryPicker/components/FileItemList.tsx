@@ -10,7 +10,6 @@ import { TFunction } from '#/types/i18n';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { FullFileType, MediaFileType } from '#pkgs/shared';
 import { isMediaFile } from '#pkgs/tools/common';
-import { PlayArrowRounded } from '@mui/icons-material';
 import { useMediaQuery } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
@@ -212,7 +211,15 @@ const FileItemList = ({ dir, files, storageKeySuffix = '' }: FileItemListProps) 
   const { openMediaViewer } = useMediaViewerContext();
   const handleMediaInfoClick = useCallback(
     (type: MediaFileType) => {
-      if (dir) openMediaViewer({ dir, mediaType: type });
+      if (dir)
+        openMediaViewer({
+          dir: {
+            ...dir,
+            // 只播放当前文件夹下的文件，排除子文件夹
+            children: [],
+          },
+          mediaType: type,
+        });
     },
     [dir, openMediaViewer]
   );
@@ -261,7 +268,7 @@ const FileItemList = ({ dir, files, storageKeySuffix = '' }: FileItemListProps) 
                     clickable={isMedia}
                     onClick={() => handleMediaInfoClick(type as MediaFileType)}
                   >
-                    {isMedia && <PlayArrowRounded fontSize="inherit" />}
+                    {/* {isMedia && <PlayArrowRounded fontSize="inherit" />} */}
                     {showText}
                   </StyledFileCount>
                 );

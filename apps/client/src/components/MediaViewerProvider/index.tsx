@@ -1,11 +1,11 @@
 'use client';
 
-import { FileInfo } from '#pkgs/apis';
 import React, { useMemo, useState } from 'react';
 import AudioViewer from '../AudioViewer';
 import ImageViewer from '../ImageViewer';
 import VideoViewer from '../VideoViewer';
 import { INIT_VALUE, MediaContext, MediaContextState } from './Context';
+import { useFileOrDirectory } from './useFileOrDirectory';
 
 const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
   const [state, setState] = useState(INIT_VALUE);
@@ -20,10 +20,25 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
 
   const show = useMemo(() => {
     const flags: Partial<Record<NonNullable<MediaContextState['mediaType']>, boolean>> = {};
-    if (!state.file) return flags;
+    if (!state.file && !state.dir) return flags;
     if (state.mediaType) flags[state.mediaType] = true;
     return flags;
-  }, [state.file, state.mediaType]);
+  }, [state.dir, state.file, state.mediaType]);
+
+  const {
+    currentFile,
+    isList,
+    goNextFile,
+    goPrevFile,
+    lastDisabled,
+    firstDisabled,
+    toggleRandom,
+    isRandomPlay,
+  } = useFileOrDirectory({
+    file: state.file,
+    dir: state.dir,
+    mediaType: state.mediaType,
+  });
 
   return (
     <MediaContext.Provider value={value}>
@@ -32,7 +47,14 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
       {show.image && (
         <ImageViewer
           visible
-          file={state.file as FileInfo}
+          file={currentFile}
+          isList={isList}
+          lastDisabled={lastDisabled}
+          firstDisabled={firstDisabled}
+          isRandomPlay={isRandomPlay}
+          onNext={goNextFile}
+          onPrev={goPrevFile}
+          onToggleRandom={toggleRandom}
           onClose={() => setState(INIT_VALUE)}
         />
       )}
@@ -40,7 +62,14 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
       {show.audio && (
         <AudioViewer
           visible
-          file={state.file as FileInfo}
+          file={currentFile}
+          isList={isList}
+          lastDisabled={lastDisabled}
+          firstDisabled={firstDisabled}
+          isRandomPlay={isRandomPlay}
+          onNext={goNextFile}
+          onPrev={goPrevFile}
+          onToggleRandom={toggleRandom}
           onClose={() => setState(INIT_VALUE)}
         />
       )}
@@ -48,7 +77,14 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
       {show.video && (
         <VideoViewer
           visible
-          file={state.file as FileInfo}
+          file={currentFile}
+          isList={isList}
+          lastDisabled={lastDisabled}
+          firstDisabled={firstDisabled}
+          isRandomPlay={isRandomPlay}
+          onNext={goNextFile}
+          onPrev={goPrevFile}
+          onToggleRandom={toggleRandom}
           onClose={() => setState(INIT_VALUE)}
         />
       )}

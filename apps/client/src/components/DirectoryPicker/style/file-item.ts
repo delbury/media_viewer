@@ -3,6 +3,8 @@ import { Box, Card, styled, Typography } from '@mui/material';
 
 export const StyledFileCardWrapper = styled(Card)`
   padding: 8px;
+  height: 100%;
+  width: 100%;
   font-size: 1rem;
   height: 100%;
   width: 100%;
@@ -56,4 +58,11 @@ export const StyledFileTitle = styled(Box)`
   &:hover * {
     color: ${({ theme }) => theme.palette.primary.main};
   }
+`;
+
+export const StyledFileCoverWrapper = styled(Box)`
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  word-break: break-all;
 `;

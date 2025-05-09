@@ -1,6 +1,5 @@
 import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
-import { noop } from 'lodash-es';
 import { useMemo, useRef, useState } from 'react';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
@@ -9,10 +8,28 @@ import { StyledLoadingWrapper, StyledVideoWrapper } from './style';
 import { useMediaSource } from './useMediaSource';
 
 type VideoViewerProps = {
-  file: FileInfo;
+  file?: FileInfo;
+  isList?: boolean;
+  firstDisabled?: boolean;
+  lastDisabled?: boolean;
+  isRandomPlay?: boolean;
+  onPrev?: () => void;
+  onNext?: () => void;
+  onToggleRandom?: () => void;
 } & Omit<FixedModalProps, 'children'>;
 
-const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
+const VideoViewer = ({
+  visible,
+  onClose,
+  file,
+  lastDisabled,
+  firstDisabled,
+  isList,
+  isRandomPlay,
+  onNext,
+  onPrev,
+  onToggleRandom,
+}: VideoViewerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   // 链接
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
@@ -29,15 +46,20 @@ const VideoViewer = ({ visible, onClose, file }: VideoViewerProps) => {
     <FixedModal
       visible={visible}
       onClose={onClose}
-      title={file.name}
+      title={file?.name}
       footerSlot={
         // 工具栏
         <MediaControls
           mediaRef={videoRef}
-          subtitles={file.subtitles}
           onWaitingStateChange={setIsWaiting}
-          onNext={noop}
-          onPrev={noop}
+          file={file}
+          lastDisabled={lastDisabled}
+          firstDisabled={firstDisabled}
+          isList={isList}
+          isRandomPlay={isRandomPlay}
+          onNext={onNext}
+          onPrev={onPrev}
+          onToggleRandom={onToggleRandom}
         />
       }
     >
