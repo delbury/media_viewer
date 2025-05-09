@@ -5,6 +5,12 @@ import { MediaFileType } from '#pkgs/shared';
 import { noop } from 'lodash-es';
 import { createContext } from 'react';
 
+export const INIT_VALUE: MediaContextState = {
+  dir: void 0,
+  file: void 0,
+  mediaType: void 0,
+};
+
 export interface MediaContextState {
   mediaType?: MediaFileType;
   file?: FileInfo;
@@ -18,9 +24,7 @@ interface MediaContextValue {
 
 export const MediaContext = createContext<MediaContextValue>({
   state: {
-    mediaType: void 0,
-    file: void 0,
-    dir: void 0,
+    ...INIT_VALUE,
   },
   setState: noop,
 });

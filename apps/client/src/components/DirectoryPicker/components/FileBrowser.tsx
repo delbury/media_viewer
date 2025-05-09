@@ -3,6 +3,7 @@
 import ErrorBoundary from '#/components/ErrorBoundary';
 import ResizeContainer from '#/components/ResizeContainer';
 import { ScrollBoxInstance } from '#/components/ScrollBox';
+import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { useSwr } from '#/hooks/useSwr';
 import { createHash } from '#/utils';
 import { DirectoryInfo } from '#pkgs/apis';
@@ -36,10 +37,10 @@ const pushHistory = (hash: string) => {
   const url = createHistoryParams(hash);
   if (url) history.pushState({ [HASH_KEY]: hash }, '', url);
 };
-const replaceHistory = (hash: string) => {
-  const url = createHistoryParams(hash);
-  if (url) history.replaceState({ [HASH_KEY]: hash }, '', url);
-};
+// const replaceHistory = (hash: string) => {
+//   const url = createHistoryParams(hash);
+//   if (url) history.replaceState({ [HASH_KEY]: hash }, '', url);
+// };
 
 export interface FileBrowserInstance {
   updatePathList: (list: DirectoryInfo[]) => void;
@@ -115,23 +116,20 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
       if (offset) scrollBoxRef.current.scrollTo({ top: offset, behavior: 'instant' });
     }, [currentPathNode]);
 
+    const { closeMediaViewer } = useMediaViewerContext();
     // 拦截浏览器返回事件
     useEffect(() => {
       const controller = new AbortController();
       // 拦截浏览器返回
       window.addEventListener(
         'popstate',
-        ev => {
+        () => {
           // 返回上一个文件夹
           setPathList(curList => {
-            const historyHash = ev.state[HASH_KEY];
-            const prevHash = curList.length > 1 ? createKey(curList.at(-2)) : null;
-            // 只有不为根目录，且为后退操作时，才返回上一级
-            if (historyHash === prevHash) {
+            // 不为根目录，返回上一级
+            if (curList.length > 1) {
+              closeMediaViewer();
               return curList.slice(0, curList.length - 1);
-            } else {
-              const currentHash = createKey(curList.at(-1));
-              if (history.state[HASH_KEY] !== currentHash) history.go(-1);
             }
             return curList;
           });
@@ -141,7 +139,7 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
       return () => {
         controller.abort();
       };
-    }, []);
+    }, [closeMediaViewer]);
 
     // 插入 history
     useEffect(() => {

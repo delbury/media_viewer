@@ -5,13 +5,7 @@ import React, { useMemo, useState } from 'react';
 import AudioViewer from '../AudioViewer';
 import ImageViewer from '../ImageViewer';
 import VideoViewer from '../VideoViewer';
-import { MediaContext, MediaContextState } from './Context';
-
-const INIT_VALUE: MediaContextState = {
-  dir: void 0,
-  file: void 0,
-  mediaType: void 0,
-};
+import { INIT_VALUE, MediaContext, MediaContextState } from './Context';
 
 const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
   const [state, setState] = useState(INIT_VALUE);
