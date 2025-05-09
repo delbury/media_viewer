@@ -26,7 +26,7 @@ import {
   StyledMediaControlsWrapper,
   StyledToolsRow,
 } from './style';
-import { bindEvent, bindEventOnce } from './util';
+import { bindEvent } from './util';
 
 export interface MediaControlsInstance {
   togglePlay: () => void;
@@ -135,7 +135,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         });
 
         // 加载第一帧完成
-        bindEventOnce(elm, 'loadeddata', () => {
+        const loadeddataController = bindEvent(elm, 'loadeddata', () => {
           setVideoDuration(elm.duration);
         });
 
@@ -154,9 +154,15 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           setIsWaiting(false);
         });
 
+        const loadstartController = bindEvent(elm, 'loadstart', () => {
+          setIsWaiting(true);
+        });
+
         return () => {
+          loadstartController.abort();
           playController.abort();
           pauseController.abort();
+          loadeddataController.abort();
           timeupdateController.abort();
           waitingController.abort();
           canplayController.abort();
@@ -226,7 +232,10 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
               )}
 
               {/* 播放 */}
-              <IconButton onClick={handleTogglePlay}>
+              <IconButton
+                onClick={handleTogglePlay}
+                disabled={isWaiting}
+              >
                 {isPaused ? <PlayArrowRounded /> : <PauseRounded />}
               </IconButton>
 
