@@ -1,7 +1,12 @@
 'use client';
 
 import { useCustomEvent } from '#/hooks/useCustomEvent';
-import { DIALOG_IN_FIXED_MODAL_Z_INDEX } from '#/utils/constant';
+import { generateUrlWithSearch } from '#/utils';
+import {
+  DIALOG_IN_FIXED_MODAL_Z_INDEX,
+  VIEWER_QUERY_KEY,
+  ViewerQueryValue,
+} from '#/utils/constant';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import AudioViewer from '../AudioViewer';
 import FileDetailDialog from '../DirectoryPicker/components/FileDetailDialog';
@@ -45,7 +50,34 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
 
   const [detailVisible, setDetailVisible] = useState(false);
   useEffect(() => {
-    if (!show.audio && !show.image && !show.video) setDetailVisible(false);
+    const params = new URLSearchParams(window.location.search);
+    if (!show.audio && !show.image && !show.video) {
+      // 关闭时
+      setDetailVisible(false);
+      params.delete(VIEWER_QUERY_KEY);
+      // 如果是正常关闭，则需要移除这条历史
+      if (window.history.state[VIEWER_QUERY_KEY] === ViewerQueryValue.Current) {
+        window.history.go(-1);
+      }
+    } else {
+      // 打开时
+      params.set(VIEWER_QUERY_KEY, 'true');
+      // 替换当前记录，标记为打开过 viewer
+      window.history.replaceState(
+        { ...window.history.state, [VIEWER_QUERY_KEY]: ViewerQueryValue.Prev },
+        '',
+        window.location.href
+      );
+      // viewer 打开，插入一条新纪录
+      window.history.pushState(
+        {
+          ...window.history.state,
+          [VIEWER_QUERY_KEY]: ViewerQueryValue.Current,
+        },
+        '',
+        generateUrlWithSearch(params)
+      );
+    }
   }, [show]);
 
   // 标题点击

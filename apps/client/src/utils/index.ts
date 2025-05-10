@@ -137,3 +137,7 @@ export const createHash = (text?: string) => {
   const hash = hashSum(text ?? '');
   return hash;
 };
+
+// 生成 url
+export const generateUrlWithSearch = (params: URLSearchParams) =>
+  `${window.location.origin}${window.location.pathname}?${params.toString()}`;

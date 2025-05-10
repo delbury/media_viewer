@@ -6,7 +6,8 @@ import { ScrollBoxInstance } from '#/components/ScrollBox';
 import { useCustomEvent } from '#/hooks/useCustomEvent';
 import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { useSwr } from '#/hooks/useSwr';
-import { createHash } from '#/utils';
+import { createHash, generateUrlWithSearch } from '#/utils';
+import { HASH_QUERY_KEY, VIEWER_QUERY_KEY } from '#/utils/constant';
 import { DirectoryInfo } from '#pkgs/apis';
 import {
   forwardRef,
@@ -24,24 +25,17 @@ import FileItemList from './FileItemList';
 import SelectingPathInfo from './SelectingPathInfo';
 
 const createKey = (dir?: DirectoryInfo) => createHash(dir?.showPath);
-const HASH_KEY = 'hash';
 const createHistoryParams = (hash: string) => {
-  const params = new URLSearchParams(location.search);
-  if (params.get(HASH_KEY) !== hash) {
-    params.set(HASH_KEY, hash);
-    const search = params.toString();
-    const url = `${window.location.origin}${window.location.pathname}?${search}`;
-    return url;
+  const params = new URLSearchParams(window.location.search);
+  if (params.get(HASH_QUERY_KEY) !== hash) {
+    params.set(HASH_QUERY_KEY, hash);
+    return generateUrlWithSearch(params);
   }
 };
 const pushHistory = (hash: string) => {
   const url = createHistoryParams(hash);
-  if (url) history.pushState({ [HASH_KEY]: hash }, '', url);
+  if (url) window.history.pushState({ [HASH_QUERY_KEY]: hash }, '', url);
 };
-// const replaceHistory = (hash: string) => {
-//   const url = createHistoryParams(hash);
-//   if (url) history.replaceState({ [HASH_KEY]: hash }, '', url);
-// };
 
 export interface FileBrowserInstance {
   updatePathList: (list: DirectoryInfo[]) => void;
@@ -155,6 +149,19 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
       window.addEventListener(
         'popstate',
         () => {
+          // 关闭 viewer
+          if (window.history.state[VIEWER_QUERY_KEY]) {
+            window.history.replaceState(
+              {
+                ...window.history.state,
+                [VIEWER_QUERY_KEY]: void 0,
+              },
+              '',
+              window.location.href
+            );
+            return closeMediaViewer();
+          }
+
           // 返回上一个文件夹
           setPathList(curList => {
             // 不为根目录，返回上一级
@@ -177,7 +184,7 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
     // 插入 history
     useEffect(() => {
       const hash = createKey(currentPathNode);
-      if (history.state[HASH_KEY] !== hash) {
+      if (window.history.state[HASH_QUERY_KEY] !== hash) {
         pushHistory(hash);
       }
     }, [currentPathNode]);
