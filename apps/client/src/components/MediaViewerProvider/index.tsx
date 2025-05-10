@@ -2,7 +2,7 @@
 
 import { useCustomEvent } from '#/hooks/useCustomEvent';
 import { DIALOG_IN_FIXED_MODAL_Z_INDEX } from '#/utils/constant';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import AudioViewer from '../AudioViewer';
 import FileDetailDialog from '../DirectoryPicker/components/FileDetailDialog';
 import ImageViewer from '../ImageViewer';
@@ -44,6 +44,11 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
   });
 
   const [detailVisible, setDetailVisible] = useState(false);
+  useEffect(() => {
+    if (!show.audio && !show.image && !show.video) setDetailVisible(false);
+  }, [show]);
+
+  // 标题点击
   const handleTitleClick = useCallback(() => {
     setDetailVisible(true);
   }, []);
