@@ -12,6 +12,7 @@ export const StyledTextContent = styled(Box)`
   width: fit-content;
   font-weight: 700;
   font-size: 1.125rem;
+  line-height: 1.2em;
   text-decoration: underline;
   text-underline-offset: 4px;
 `;

@@ -1,3 +1,4 @@
+import { useFileSecondaryTitle } from '#/hooks/useFileSecondaryTitle';
 import { useThrottle } from '#/hooks/useThrottle';
 import { getFilePosterUrl, getFileSourceUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
@@ -75,6 +76,9 @@ const AudioViewer = ({
   const [currentLyricIndex, setCurrentLyricIndex] = useState(0);
   const { lyrics, isLoading, hasLyric } = useLyric(file);
 
+  // 标题
+  const { title, secondaryTitle } = useFileSecondaryTitle(file);
+
   // 播放回调
   const handleTimeUpdate = useCallback(
     (ev: SyntheticEvent<HTMLAudioElement, Event>) => {
@@ -121,7 +125,8 @@ const AudioViewer = ({
     <FixedModal
       visible={visible}
       onClose={onClose}
-      title={file?.name}
+      title={title}
+      secondaryTitle={secondaryTitle}
       headerLeftSlot={isList && <FileListPreviewer />}
       footerSlot={
         // 工具栏
@@ -146,7 +151,7 @@ const AudioViewer = ({
           {!!posterUrl && (
             <img
               src={posterUrl}
-              alt={file?.name}
+              alt={title}
             />
           )}
           <StyledCoverBtnWrapper>

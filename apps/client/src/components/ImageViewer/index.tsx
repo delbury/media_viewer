@@ -1,4 +1,5 @@
 import { useDrag } from '#/hooks/useDrag';
+import { useFileSecondaryTitle } from '#/hooks/useFileSecondaryTitle';
 import { useGesture } from '#/hooks/useGesture';
 import { useResizeObserver } from '#/hooks/useResizeObserver';
 import { useRotateState } from '#/hooks/useRotateState';
@@ -85,6 +86,9 @@ const ImageViewer = ({
   const { size: imageContainerSize } = useResizeObserver({
     domRef: imageContainerRef,
   });
+
+  // 标题
+  const { title, secondaryTitle } = useFileSecondaryTitle(file);
 
   // 是否显示 zoom 按钮
   const isH5 = useMediaQuery(h5Max);
@@ -267,7 +271,8 @@ const ImageViewer = ({
     <FixedModal
       visible={visible}
       onClose={onClose}
-      title={file?.name}
+      title={title}
+      secondaryTitle={secondaryTitle}
       headerLeftSlot={isList && <FileListPreviewer />}
       footerSlot={
         // 工具栏
@@ -345,7 +350,7 @@ const ImageViewer = ({
           <img
             ref={imageRef}
             src={sourceUrl}
-            alt={file?.name}
+            alt={title}
             draggable="false"
             onError={() => {
               setIsLoading(false);

@@ -1,7 +1,7 @@
 import { useShortcut } from '#/hooks/useShortcut';
 import { stopPropagation } from '#/utils';
 import { CloseRounded } from '@mui/icons-material';
-import { IconButton } from '@mui/material';
+import { Box, IconButton, SxProps, Theme } from '@mui/material';
 import { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import RollingText from '../RollingText';
@@ -18,6 +18,12 @@ export enum RootType {
   Media = 'media',
 }
 
+const SUB_TITLE_SX: SxProps<Theme> = {
+  textDecoration: 'none',
+  fontWeight: 'normal',
+  fontSize: '0.8rem',
+};
+
 export interface FixedModalProps {
   visible?: boolean;
   onClose?: () => void;
@@ -25,6 +31,7 @@ export interface FixedModalProps {
   // 点击空白处关闭
   closeWhenClickBlank?: boolean;
   title?: string;
+  secondaryTitle?: string;
   // 放在底部的元素
   footerSlot?: React.ReactNode;
   // 放在 header 左侧的元素
@@ -37,6 +44,7 @@ const FixedModal = ({
   onClose,
   closeWhenClickBlank,
   title,
+  secondaryTitle,
   footerSlot,
   headerLeftSlot,
 }: FixedModalProps) => {
@@ -56,9 +64,19 @@ const FixedModal = ({
         }}
       >
         <StyledFixedModalHeader>
-          <StyledFixedToolbar>{headerLeftSlot}</StyledFixedToolbar>
+          {headerLeftSlot && <StyledFixedToolbar>{headerLeftSlot}</StyledFixedToolbar>}
 
-          <StyledFixedTitle>{title && <RollingText text={title} />}</StyledFixedTitle>
+          <StyledFixedTitle>
+            <Box>{title && <RollingText text={title} />}</Box>
+            <Box>
+              {secondaryTitle && (
+                <RollingText
+                  sx={SUB_TITLE_SX}
+                  text={secondaryTitle}
+                />
+              )}
+            </Box>
+          </StyledFixedTitle>
 
           <StyledFixedToolbar>
             <IconButton

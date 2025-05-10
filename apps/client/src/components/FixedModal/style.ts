@@ -1,4 +1,5 @@
-import { Box, buttonBaseClasses, iconButtonClasses, styled } from '@mui/material';
+import { h5Max } from '#/style/device';
+import { Box, buttonBaseClasses, iconButtonClasses, styled, svgIconClasses } from '@mui/material';
 
 const FIXED_MODAL_Z_INDEX = 1400;
 
@@ -22,12 +23,21 @@ export const StyledFixedModalHeader = styled(Box)`
   justify-content: space-between;
   gap: 16px;
 
+  @media ${h5Max} {
+    flex-direction: row-reverse;
+  }
+
   & .${iconButtonClasses.root} {
     color: inherit;
   }
 `;
 
 export const StyledFixedTitle = styled(Box)`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
   flex: 1;
   min-width: 0;
 `;
@@ -38,6 +48,10 @@ export const StyledFixedToolbar = styled(Box)`
     &:hover {
       color: ${({ theme }) => theme.palette.common.white};
     }
+  }
+
+  & .${svgIconClasses.root} {
+    font-size: 2rem;
   }
 `;
 

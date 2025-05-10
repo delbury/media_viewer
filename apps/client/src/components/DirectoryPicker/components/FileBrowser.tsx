@@ -128,7 +128,9 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
           setPathList(curList => {
             // 不为根目录，返回上一级
             if (curList.length > 1) {
-              closeMediaViewer();
+              window.setTimeout(() => {
+                closeMediaViewer();
+              });
               return curList.slice(0, curList.length - 1);
             }
             return curList;

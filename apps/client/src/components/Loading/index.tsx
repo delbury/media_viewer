@@ -13,7 +13,7 @@ const Loading = ({ color, size, lazy }: LoadingProps) => {
 
   useEffect(() => {
     if (lazy) {
-      setTimeout(
+      window.setTimeout(
         () => {
           setVisible(true);
         },

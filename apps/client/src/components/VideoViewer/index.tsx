@@ -1,3 +1,4 @@
+import { useFileSecondaryTitle } from '#/hooks/useFileSecondaryTitle';
 import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { useMemo, useRef, useState } from 'react';
@@ -43,11 +44,15 @@ const VideoViewer = ({
     mediaRef: videoRef,
   });
 
+  // 标题
+  const { title, secondaryTitle } = useFileSecondaryTitle(file);
+
   return (
     <FixedModal
       visible={visible}
       onClose={onClose}
-      title={file?.name}
+      title={title}
+      secondaryTitle={secondaryTitle}
       headerLeftSlot={isList && <FileListPreviewer />}
       footerSlot={
         // 工具栏
