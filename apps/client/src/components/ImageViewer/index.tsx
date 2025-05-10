@@ -28,6 +28,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import FileListPreviewer from '../FileListPreviewer';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
 import { StyledImageToolbar, StyledImageWrapper, StyledLoadingWrapper } from './style';
@@ -267,6 +268,7 @@ const ImageViewer = ({
       visible={visible}
       onClose={onClose}
       title={file?.name}
+      headerLeftSlot={isList && <FileListPreviewer />}
       footerSlot={
         // 工具栏
         <StyledImageToolbar>

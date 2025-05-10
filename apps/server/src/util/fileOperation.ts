@@ -1,7 +1,37 @@
+import { logInfo } from '#pkgs/tools/common';
+import { IGNORE_FILE_NAME_PREFIX, IGNORE_FILE_NAME_REG } from '#pkgs/tools/constant';
+import { Decoder, Encoder } from '@msgpack/msgpack';
 import { access, constants, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { logInfo } from './common.js';
-import { IGNORE_FILE_NAME_PREFIX, IGNORE_FILE_NAME_REG } from './constant.js';
+
+const encoder = new Encoder();
+const decoder = new Decoder();
+
+// 读文件，使用 msgpack
+export const readDataFromFileByMsgPack = async (fullFilePath: string) => {
+  try {
+    await access(fullFilePath, constants.F_OK);
+  } catch {
+    return null;
+  }
+
+  const dataBuffer = await readFile(fullFilePath);
+  const data = decoder.decode(dataBuffer);
+  return data as Record<string, unknown>;
+};
+
+// 写文件，使用 msgpack
+export const writeDataToFileByMsgPack = async (
+  fullFilePath: string,
+  data?: Record<string, unknown>
+) => {
+  logInfo('start writing file');
+
+  const dataBuffer = encoder.encode(data ?? {});
+  await writeFile(fullFilePath, dataBuffer);
+
+  logInfo('written file successfully');
+};
 
 // 读文件
 export const readDataFromFile = async (fullFilePath: string) => {
@@ -16,7 +46,7 @@ export const readDataFromFile = async (fullFilePath: string) => {
 };
 
 // 写文件
-export const writeDataToFile = async (fullFilePath: string, data: Record<string, unknown>) => {
+export const writeDataToFile = async (fullFilePath: string, data?: Record<string, unknown>) => {
   logInfo('start writing file');
 
   const jsonString = JSON.stringify(data ?? {});

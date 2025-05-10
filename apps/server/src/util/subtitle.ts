@@ -1,6 +1,6 @@
+import { readDataFromFile } from '#/util/fileOperation';
 import { ApiResponseDataTypes } from '#pkgs/apis/index.js';
 import { logError, logSuccess } from '#pkgs/tools/common.js';
-import { readDataFromFile } from '#pkgs/tools/fileOperation.js';
 import { ParameterizedContext } from 'koa';
 import { spawn } from 'node:child_process';
 import path from 'node:path';

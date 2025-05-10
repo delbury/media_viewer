@@ -169,6 +169,9 @@ importers:
       '@koa/router':
         specifier: ^13.1.0
         version: 13.1.0
+      '@msgpack/msgpack':
+        specifier: ^3.1.1
+        version: 3.1.1
       command-exists:
         specifier: ^1.2.9
         version: 1.2.9
@@ -928,6 +931,10 @@ packages:
 
   '@koa/router@13.1.0':
     resolution: {integrity: sha512-mNVu1nvkpSd8Q8gMebGbCkDWJ51ODetrFvLKYusej+V0ByD4btqHYnPIzTBLXnQMVUlm/oxVwqmWBY3zQfZilw==}
+    engines: {node: '>= 18'}
+
+  '@msgpack/msgpack@3.1.1':
+    resolution: {integrity: sha512-DnBpqkMOUGayNVKyTLlkM6ILmU/m/+VUxGkuQlPQVAcvreLz5jn1OlQnWd8uHKL/ZSiljpM12rjRhr51VtvJUQ==}
     engines: {node: '>= 18'}
 
   '@mui/base@5.0.0-beta.68':
@@ -4101,6 +4108,8 @@ snapshots:
       http-errors: 2.0.0
       koa-compose: 4.1.0
       path-to-regexp: 6.3.0
+
+  '@msgpack/msgpack@3.1.1': {}
 
   '@mui/base@5.0.0-beta.68(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:

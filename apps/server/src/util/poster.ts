@@ -101,6 +101,7 @@ export const generatePoster = async (rawFilePath: string, posterFilePath: string
       basePosterCommandParam,
       `-i "${rawFilePath}"`,
       scalePosterCommandParam,
+      '-vframes 1',
       webpCommandParam,
       `"${posterFilePath}"`,
     ];

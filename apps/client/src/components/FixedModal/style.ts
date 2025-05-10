@@ -1,4 +1,4 @@
-import { Box, buttonBaseClasses, styled } from '@mui/material';
+import { Box, buttonBaseClasses, iconButtonClasses, styled } from '@mui/material';
 
 const FIXED_MODAL_Z_INDEX = 1400;
 
@@ -20,10 +20,14 @@ export const StyledFixedModalHeader = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
+
+  & .${iconButtonClasses.root} {
+    color: inherit;
+  }
 `;
 
 export const StyledFixedTitle = styled(Box)`
-  padding: 0 24px;
   flex: 1;
   min-width: 0;
 `;

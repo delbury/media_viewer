@@ -1,4 +1,5 @@
 import { ApiResponseDataTypes } from '#pkgs/apis';
+import { ERROR_MSG } from '../i18n/errorMsg';
 
 interface BaseTask<T = unknown> {
   loading: boolean;
@@ -26,7 +27,7 @@ export const getTask = <T extends TaskName>(name: T) => {
   return {
     task,
     start: () => {
-      if (task.loading) throw new Error('task in progress');
+      if (task.loading) throw new Error(ERROR_MSG.taskInProgress);
       task.loading = true;
     },
     end: () => {

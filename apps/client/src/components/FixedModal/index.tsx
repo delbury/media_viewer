@@ -27,6 +27,8 @@ export interface FixedModalProps {
   title?: string;
   // 放在底部的元素
   footerSlot?: React.ReactNode;
+  // 放在 header 左侧的元素
+  headerLeftSlot?: React.ReactNode;
 }
 
 const FixedModal = ({
@@ -36,6 +38,7 @@ const FixedModal = ({
   closeWhenClickBlank,
   title,
   footerSlot,
+  headerLeftSlot,
 }: FixedModalProps) => {
   const contentRef = useRef<HTMLElement>(null);
 
@@ -53,18 +56,18 @@ const FixedModal = ({
         }}
       >
         <StyledFixedModalHeader>
+          <StyledFixedToolbar>{headerLeftSlot}</StyledFixedToolbar>
+
           <StyledFixedTitle>{title && <RollingText text={title} />}</StyledFixedTitle>
 
           <StyledFixedToolbar>
             <IconButton
-              color="inherit"
-              size="large"
               onClick={ev => {
                 stopPropagation(ev);
                 onClose?.();
               }}
             >
-              <CloseRounded fontSize="large" />
+              <CloseRounded />
             </IconButton>
           </StyledFixedToolbar>
         </StyledFixedModalHeader>

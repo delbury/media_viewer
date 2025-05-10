@@ -6,6 +6,7 @@ import { Button, IconButton, SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { SyntheticEvent, useCallback, useMemo, useRef, useState } from 'react';
 import Empty from '../Empty';
+import FileListPreviewer from '../FileListPreviewer';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
 import MediaControls, { MediaControlsInstance } from '../MediaControls';
@@ -121,6 +122,7 @@ const AudioViewer = ({
       visible={visible}
       onClose={onClose}
       title={file?.name}
+      headerLeftSlot={isList && <FileListPreviewer />}
       footerSlot={
         // 工具栏
         <MediaControls

@@ -6,6 +6,7 @@ import {
   POSTER_FILE_NAME_PREFIX,
   RAW_IMAGE_FOR_POSTER_MAX_SIZE,
 } from '#/config';
+import { walkFromRootDirs } from '#/util/fileOperation';
 import { API_CONFIGS, ApiRequestParamsTypes } from '#pkgs/apis';
 import {
   ALLOWED_POSTER_FILE_TYPES,
@@ -13,7 +14,6 @@ import {
   detectFileType,
   logSuccess,
 } from '#pkgs/tools/common';
-import { walkFromRootDirs } from '#pkgs/tools/fileOperation';
 import Router from '@koa/router';
 import send from 'koa-send';
 import { noop } from 'lodash-es';

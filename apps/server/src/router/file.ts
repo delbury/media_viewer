@@ -1,6 +1,6 @@
 import { POSTER_CACHE_MAX_AGE, TEXT_FILE_SIZE_LIMIT } from '#/config';
+import { readDataFromFile } from '#/util/fileOperation';
 import { API_CONFIGS, ApiRequestParamsTypes, ApiResponseDataTypes } from '#pkgs/apis';
-import { readDataFromFile } from '#pkgs/tools/fileOperation';
 import Router from '@koa/router';
 import send from 'koa-send';
 import { stat } from 'node:fs/promises';
