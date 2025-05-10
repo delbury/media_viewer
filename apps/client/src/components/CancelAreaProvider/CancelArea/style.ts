@@ -1,7 +1,5 @@
+import { CANCEL_MODAL_Z_INDEX } from '#/utils/constant';
 import { Box, styled } from '@mui/material';
-
-// 取消区域相关
-const CANCEL_MODAL_Z_INDEX = 1500;
 
 export const CancelAreaWrapper = styled(Box, {
   shouldForwardProp: prop => prop !== 'activated',

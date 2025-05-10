@@ -1,5 +1,6 @@
 'use client';
 
+import { NOTIFICATION_Z_INDEX } from '#/utils/constant';
 import { NotificationsProvider } from '@toolpad/core/useNotifications';
 import CancelAreaProvider from '../CancelAreaProvider';
 import MediaViewerProvider from '../MediaViewerProvider';
@@ -14,7 +15,7 @@ const Layout = ({
       slotProps={{
         snackbar: {
           sx: {
-            zIndex: 4000,
+            zIndex: NOTIFICATION_Z_INDEX,
             top: '8px',
             bottom: 'unset',
           },

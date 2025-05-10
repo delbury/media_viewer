@@ -1,5 +1,6 @@
 'use client';
 
+import { DIALOG_IN_FIXED_MODAL_Z_INDEX } from '#/utils/constant';
 import React, { useCallback, useMemo, useState } from 'react';
 import AudioViewer from '../AudioViewer';
 import FileDetailDialog from '../DirectoryPicker/components/FileDetailDialog';
@@ -104,7 +105,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           visible
           onClose={() => setDetailVisible(false)}
           hidePoster
-          zIndex={1500}
+          zIndex={DIALOG_IN_FIXED_MODAL_Z_INDEX}
         />
       )}
     </MediaContext.Provider>
