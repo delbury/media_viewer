@@ -1,7 +1,7 @@
 import { useCancelAreaContext } from '#/hooks/useCancelAreaContext';
 import { useDrag } from '#/hooks/useDrag';
 import { useGesture } from '#/hooks/useGesture';
-import { formatTime } from '#/utils';
+import { formatTime, preventDefault } from '#/utils';
 import { SxProps, Theme } from '@mui/material';
 import { isNil } from 'lodash-es';
 import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -101,10 +101,17 @@ export const useMobileDrag = ({ mediaRef, handleGoBy }: UseMobileDragParams) => 
     if (!elm) return;
     const isVideoMedia = elm instanceof HTMLVideoElement;
 
+    // 禁用菜单
+    const contextmenuController = bindEvent(elm, 'contextmenu', preventDefault);
+
+    // 阻止长按触发下载菜单
+    const touchstartController = bindEvent(elm, 'touchstart', preventDefault);
+
     // 指针按下
     const pointerDownController = isVideoMedia
       ? bindEvent(elm, 'pointerdown', async ev => {
           if (ev.pointerType === 'mouse') return;
+          // preventDefault(ev);
           // 当触摸开始时一段时间内命中了某个手势操作后，则不进入 drag 操作
           const gesture = await detectGesture(ev);
           // 未完成手势，跳过
@@ -123,6 +130,7 @@ export const useMobileDrag = ({ mediaRef, handleGoBy }: UseMobileDragParams) => 
     const pointerUpController = isVideoMedia
       ? bindEvent(elm, 'pointerup', async ev => {
           if (ev.pointerType === 'mouse') return;
+          // preventDefault(ev);
           detectGesture(ev);
 
           if (!isNil(lastRate.current)) {
@@ -136,11 +144,14 @@ export const useMobileDrag = ({ mediaRef, handleGoBy }: UseMobileDragParams) => 
     const pointerMoveController = isVideoMedia
       ? bindEvent(elm, 'pointermove', async ev => {
           if (ev.pointerType === 'mouse') return;
+          // preventDefault(ev);
           detectGesture(ev);
         })
       : null;
 
     return () => {
+      contextmenuController.abort();
+      touchstartController.abort();
       pointerDownController?.abort();
       pointerUpController?.abort();
       pointerMoveController?.abort();

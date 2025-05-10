@@ -18,6 +18,7 @@ import {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import TooltipSetting from '../TooltipSetting';
@@ -125,6 +126,9 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       handleGoBy,
     });
 
+    // 在模拟双击播放时，记录第一次播放
+    const videoFirstClicked = useRef(false);
+
     // 初始化
     useEffect(() => {
       const elm = mediaRef.current;
@@ -136,10 +140,15 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         setVideoDuration(elm.duration);
         setCurrentTime(elm.currentTime);
 
-        // 双击播放
+        // 模拟双击播放
         const dblclickController = isVideoMedia
-          ? bindEvent(elm, 'dblclick', () => {
-              handleTogglePlay();
+          ? bindEvent(elm, 'click', () => {
+              if (videoFirstClicked.current) {
+                handleTogglePlay();
+              } else {
+                videoFirstClicked.current = true;
+                window.setTimeout(() => (videoFirstClicked.current = false), 300);
+              }
             })
           : null;
 

@@ -21,6 +21,7 @@ export const StyledVideoWrapper = styled(Box)`
     transition-duration: ${({ theme }) => theme.transitions.duration.shorter}ms;
     cursor: pointer;
     touch-action: none;
+    user-select: none;
 
     ::cue {
       color: ${({ theme }) => theme.palette.common.white};
