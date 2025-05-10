@@ -64,3 +64,15 @@ export const StyledJsonContainer = styled(Box)`
   color: ${({ theme }) => theme.palette.common.white};
   scrollbar-width: thin;
 `;
+
+export const StyledPathItem = styled('span')`
+  padding: 0 4px;
+  color: ${({ theme }) => theme.palette.primary.light};
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+`;
+
+export const StyledFileItem = styled('span')`
+  padding: 0 4px;
+`;

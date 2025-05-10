@@ -1,5 +1,6 @@
 'use client';
 
+import { useCustomEvent } from '#/hooks/useCustomEvent';
 import { DIALOG_IN_FIXED_MODAL_Z_INDEX } from '#/utils/constant';
 import React, { useCallback, useMemo, useState } from 'react';
 import AudioViewer from '../AudioViewer';
@@ -46,6 +47,15 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
   const handleTitleClick = useCallback(() => {
     setDetailVisible(true);
   }, []);
+
+  const { emit } = useCustomEvent();
+  // 文件详情的路径点击
+  const handleDetailPathClick = useCallback(
+    (paths: string[]) => {
+      emit('customFilePathChange', paths);
+    },
+    [emit]
+  );
 
   return (
     <MediaContext.Provider value={value}>
@@ -106,6 +116,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           onClose={() => setDetailVisible(false)}
           hidePoster
           zIndex={DIALOG_IN_FIXED_MODAL_Z_INDEX}
+          onPathClick={handleDetailPathClick}
         />
       )}
     </MediaContext.Provider>

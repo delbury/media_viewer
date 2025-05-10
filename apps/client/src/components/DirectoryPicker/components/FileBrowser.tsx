@@ -3,6 +3,7 @@
 import ErrorBoundary from '#/components/ErrorBoundary';
 import ResizeContainer from '#/components/ResizeContainer';
 import { ScrollBoxInstance } from '#/components/ScrollBox';
+import { useCustomEvent } from '#/hooks/useCustomEvent';
 import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { useSwr } from '#/hooks/useSwr';
 import { createHash } from '#/utils';
@@ -116,7 +117,37 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
       if (offset) scrollBoxRef.current.scrollTo({ top: offset, behavior: 'instant' });
     }, [currentPathNode]);
 
+    // 媒体浏览器
     const { closeMediaViewer } = useMediaViewerContext();
+
+    // 绑定全局自定义事件
+    const { on } = useCustomEvent();
+    useEffect(() => {
+      return on('customFilePathChange', evData => {
+        if (!evData) return;
+        // 当前的文件夹
+        const currentDir = dirRequest.data;
+        const newPathList: DirectoryInfo[] = [];
+        // 查找新路径
+        for (const dirName of evData) {
+          const pathNode = currentDir?.children.find(c => c.name === dirName);
+          if (pathNode) newPathList.push(pathNode);
+          else return closeMediaViewer();
+        }
+        setPathList(curPathList => {
+          closeMediaViewer();
+          // 判断是否和现在的路径不相同
+          if (
+            curPathList.length !== newPathList.length ||
+            newPathList.some((npl, i) => npl.name !== curPathList[i].name)
+          ) {
+            return newPathList;
+          }
+          return curPathList;
+        });
+      });
+    }, [closeMediaViewer, dirRequest, on]);
+
     // 拦截浏览器返回事件
     useEffect(() => {
       const controller = new AbortController();

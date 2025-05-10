@@ -6,7 +6,7 @@ import { FullFileType } from '#pkgs/shared';
 import { isMediaFile } from '#pkgs/tools/common';
 import { FileInfo } from '#pkgs/tools/traverseDirectories';
 import { LoopOutlined, PhotoOutlined, PlayCircleOutlineRounded } from '@mui/icons-material';
-import { IconButton, SxProps, TabsOwnProps, Theme } from '@mui/material';
+import { Box, IconButton, SxProps, TabsOwnProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FULL_FILE_FILTER_MAP } from '../constant';
@@ -15,9 +15,11 @@ import {
   StyledFileDetailLabel,
   StyledFileDetailValue,
   StyledFileDetailWrapper,
+  StyledFileItem,
   StyledFilePosterInner,
   StyledFilePosterWrapper,
   StyledJsonContainer,
+  StyledPathItem,
   StyledTab,
   StyledTabs,
 } from '../style/file-detail-dialog';
@@ -31,6 +33,30 @@ const getTitleIcon = (fileType: FullFileType, sx?: SxProps<Theme>) => {
   return null;
 };
 
+// 渲染路径信息
+const renderPathInfo = (
+  file: FileInfo,
+  onPathClick?: (paths: string[]) => void
+): React.ReactNode => {
+  const paths = file.showPath.split('/').filter(it => !!it);
+  return (
+    <Box>
+      {paths.map((p, i) => (
+        <span key={`${p}/${i}`}>
+          /
+          {i === paths.length - 1 || !onPathClick ? (
+            <StyledFileItem>{p}</StyledFileItem>
+          ) : (
+            <StyledPathItem onClick={() => onPathClick?.(paths.slice(0, i + 1))}>
+              {p}
+            </StyledPathItem>
+          )}
+        </span>
+      ))}
+    </Box>
+  );
+};
+
 enum InfoType {
   Base = 'base',
   Metadata = 'metadata',
@@ -42,6 +68,7 @@ interface FileDetailDialogProps {
   onClose: () => void;
   hidePoster?: boolean;
   zIndex?: number;
+  onPathClick?: (paths: string[]) => void;
 }
 
 const FileDetailDialog = ({
@@ -50,14 +77,15 @@ const FileDetailDialog = ({
   onClose,
   hidePoster,
   zIndex,
+  onPathClick,
 }: FileDetailDialogProps) => {
   const t = useTranslations();
   const [currentTab, setCurrentTab] = useState<InfoType>(InfoType.Base);
   const [imgKey, setImgKey] = useState(false);
-  const fileInfos: { label: string; value: string | undefined }[] = useMemo(() => {
+  const fileInfos: { label: string; value: React.ReactNode }[] = useMemo(() => {
     return [
       { label: t('File.Name'), value: file.name },
-      { label: t('File.Path'), value: file.showPath },
+      { label: t('File.Path'), value: renderPathInfo(file, onPathClick) },
       { label: t('File.Type'), value: t(FULL_FILE_FILTER_MAP[file.fileType]) },
       { label: t('File.Size'), value: formatFileSize(file.size) },
       { label: t('File.Created'), value: formatDate(file.created) },
