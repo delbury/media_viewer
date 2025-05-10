@@ -1,15 +1,26 @@
 import { useShortcut } from '#/hooks/useShortcut';
+import { h5Max } from '#/style/device';
 import { FileInfo } from '#pkgs/apis';
 import {
   FormatListNumberedRtlRounded,
+  MoreVertRounded,
   PauseRounded,
   PlayArrowRounded,
   ShuffleRounded,
   SkipNextRounded,
   SkipPreviousRounded,
 } from '@mui/icons-material';
-import { IconButton } from '@mui/material';
-import { forwardRef, RefObject, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import { IconButton, useMediaQuery } from '@mui/material';
+import {
+  forwardRef,
+  RefObject,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from 'react';
+import TooltipSetting from '../TooltipSetting';
 import AlertInfo from './components/AlertInfo';
 import FullscreenSetting from './components/FullscreenSetting';
 import { MediaProgress } from './components/MediaProgress';
@@ -68,8 +79,16 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [videoDuration, setVideoDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
 
+    // 是否是 h5
+    const isH5 = useMediaQuery(h5Max);
+
     // 是否是 video
     const [isVideo, setIsVideo] = useState(false);
+
+    // 隐藏部分按钮到更多中
+    const showMore = isH5 && isVideo;
+    const [moreOpen, setMoreOpen] = useState(false);
+    const handleToggleMoreOpen = useCallback(() => setMoreOpen(v => !v), []);
 
     useEffect(() => {
       onPausedStateChange?.(isPaused);
@@ -252,18 +271,38 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
             <StyledBtnsGroup>
               {/* 字幕 */}
-              {isVideo && (
+              {!showMore && (
                 <SubtitleSetting
                   mediaRef={mediaRef}
                   subtitleOptions={subtitles}
                 />
               )}
 
-              {/* 静音 */}
-              <VolumeSetting mediaRef={mediaRef} />
+              {/* 音量 */}
+              {!showMore && <VolumeSetting mediaRef={mediaRef} />}
 
               {/* 全屏 */}
               {isVideo && <FullscreenSetting mediaRef={mediaRef} />}
+
+              {/* 更多 */}
+              {showMore && (
+                <TooltipSetting
+                  open={moreOpen}
+                  tooltipContent={
+                    <StyledBtnsGroup>
+                      <SubtitleSetting
+                        mediaRef={mediaRef}
+                        subtitleOptions={subtitles}
+                      />
+                      <VolumeSetting mediaRef={mediaRef} />
+                    </StyledBtnsGroup>
+                  }
+                >
+                  <IconButton onClick={handleToggleMoreOpen}>
+                    <MoreVertRounded />
+                  </IconButton>
+                </TooltipSetting>
+              )}
             </StyledBtnsGroup>
           </StyledBtnsContainer>
         </StyledToolsRow>

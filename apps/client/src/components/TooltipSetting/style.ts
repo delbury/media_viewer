@@ -8,5 +8,6 @@ export const StyledSettingTooltipWrapper = styled(Box)`
     margin: 0 0 12px !important;
     padding: 0 !important;
     font-size: 0.875rem !important;
+    background-color: rgba(0, 0, 0, 0.5);
   }
 `;

@@ -1,5 +1,13 @@
 import { PopperProps, Tooltip } from '@mui/material';
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { StyledSettingTooltipWrapper } from './style';
 
 interface TooltipSettingProps {
@@ -7,6 +15,7 @@ interface TooltipSettingProps {
   forceOpen?: boolean;
   children: React.ReactElement;
   tooltipContent?: React.ReactElement;
+  open?: boolean;
 }
 
 export interface TooltipSettingInstance {
@@ -30,7 +39,7 @@ const TOOLTIP_MODIFIERS: PopperProps['modifiers'] = [
 ];
 
 const TooltipSetting = forwardRef<TooltipSettingInstance, TooltipSettingProps>(
-  ({ children, tooltipContent, forceOpen }, ref) => {
+  ({ children, tooltipContent, ...restProps }, ref) => {
     const wrapperRef = useRef<HTMLElement>(null);
     // tooltip 是否打开
     const [open, setOpen] = useState(false);
@@ -46,6 +55,12 @@ const TooltipSetting = forwardRef<TooltipSettingInstance, TooltipSettingProps>(
     const lock = useCallback(() => {
       lockOpen.current = true;
     }, []);
+
+    const innerOpen = useMemo(() => {
+      if ('open' in restProps) return restProps.open;
+      if ('forceOpen' in restProps) return restProps.forceOpen;
+      return open;
+    }, [open, restProps]);
 
     useEffect(() => {
       const controller = new AbortController();
@@ -87,7 +102,7 @@ const TooltipSetting = forwardRef<TooltipSettingInstance, TooltipSettingProps>(
               modifiers: TOOLTIP_MODIFIERS,
             },
           }}
-          open={open || !!forceOpen}
+          open={innerOpen}
           onOpen={handleOpen}
           onClose={handleClose}
         >
