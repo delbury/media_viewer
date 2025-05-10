@@ -4,7 +4,7 @@ import { logError, logSuccess } from '#pkgs/tools/common.js';
 import { ParameterizedContext } from 'koa';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
-import { getFilePathHash, returnBody } from './common';
+import { generateHash, returnBody } from './common';
 
 const VTT_EXT = '.vtt';
 
@@ -53,7 +53,7 @@ export const transformSubtitleToVtt = async (ctx: ParameterizedContext, filePath
       // 监听进程结束
       progress.on('close', code => {
         if (code === 0) {
-          const hash = getFilePathHash(filePath);
+          const hash = generateHash(filePath);
           logSuccess(`${hash}: transform vtt subtitle successfully`);
           resolve(tempData);
         } else {

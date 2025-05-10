@@ -70,6 +70,6 @@ export const getRootDir = (index: number | string) => {
   return basePath;
 };
 
-// 生成文件路径 hash
-export const getFilePathHash = (filePath: string) =>
-  createHash('md5').update(filePath).digest('hex').substring(0, 8);
+// 生成 hash
+export const generateHash = (text: string) =>
+  createHash('md5').update(text).digest('hex').substring(0, 8);

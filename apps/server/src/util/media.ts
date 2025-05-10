@@ -4,7 +4,7 @@ import { ParameterizedContext } from 'koa';
 import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { VIDEO_TRANSFORM_MAX_HEIGHT, VIDEO_TRANSFORM_MAX_WIDTH } from '../config';
 import { ERROR_MSG } from '../i18n/errorMsg';
-import { execCommand, getFilePathHash } from './common';
+import { execCommand, generateHash } from './common';
 import { logCommand } from './debug';
 
 interface VideoDetailTasks {
@@ -125,7 +125,7 @@ export const transformVideoStream = async (
 ) => {
   // 关闭之前的进程
   killProcess();
-  const hash = getFilePathHash(filePath);
+  const hash = generateHash(filePath);
 
   // 根据源文件的编码类型，选择不同的解码器
   const { cuvid } = await getVideoFileCuvid(filePath);
