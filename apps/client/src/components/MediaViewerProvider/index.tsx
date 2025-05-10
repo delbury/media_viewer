@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import AudioViewer from '../AudioViewer';
+import FileDetailDialog from '../DirectoryPicker/components/FileDetailDialog';
 import ImageViewer from '../ImageViewer';
 import VideoViewer from '../VideoViewer';
 import { INIT_VALUE, MediaContext, MediaContextState } from './Context';
@@ -40,6 +41,11 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     mediaType: state.mediaType,
   });
 
+  const [detailVisible, setDetailVisible] = useState(false);
+  const handleTitleClick = useCallback(() => {
+    setDetailVisible(true);
+  }, []);
+
   return (
     <MediaContext.Provider value={value}>
       {children}
@@ -56,6 +62,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           onPrev={goPrevFile}
           onToggleRandom={toggleRandom}
           onClose={() => setState(INIT_VALUE)}
+          onTitleClick={handleTitleClick}
         />
       )}
 
@@ -71,6 +78,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           onPrev={goPrevFile}
           onToggleRandom={toggleRandom}
           onClose={() => setState(INIT_VALUE)}
+          onTitleClick={handleTitleClick}
         />
       )}
 
@@ -86,6 +94,17 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           onPrev={goPrevFile}
           onToggleRandom={toggleRandom}
           onClose={() => setState(INIT_VALUE)}
+          onTitleClick={handleTitleClick}
+        />
+      )}
+
+      {detailVisible && currentFile && (
+        <FileDetailDialog
+          file={currentFile}
+          visible
+          onClose={() => setDetailVisible(false)}
+          hidePoster
+          zIndex={1500}
         />
       )}
     </MediaContext.Provider>

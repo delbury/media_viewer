@@ -56,6 +56,7 @@ type ImageViewerProps = {
   onPrev?: () => void;
   onNext?: () => void;
   onToggleRandom?: () => void;
+  onTitleClick?: () => void;
 } & Omit<FixedModalProps, 'children'>;
 
 const ImageViewer = ({
@@ -69,6 +70,7 @@ const ImageViewer = ({
   onNext,
   onPrev,
   onToggleRandom,
+  onTitleClick,
 }: ImageViewerProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -271,6 +273,7 @@ const ImageViewer = ({
     <FixedModal
       visible={visible}
       onClose={onClose}
+      onTitleClick={onTitleClick}
       title={title}
       secondaryTitle={secondaryTitle}
       headerLeftSlot={isList && <FileListPreviewer />}

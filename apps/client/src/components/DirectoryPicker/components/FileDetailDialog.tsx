@@ -40,9 +40,17 @@ interface FileDetailDialogProps {
   file: FileInfo;
   visible: boolean;
   onClose: () => void;
+  hidePoster?: boolean;
+  zIndex?: number;
 }
 
-const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => {
+const FileDetailDialog = ({
+  file,
+  visible,
+  onClose,
+  hidePoster,
+  zIndex,
+}: FileDetailDialogProps) => {
   const t = useTranslations();
   const [currentTab, setCurrentTab] = useState<InfoType>(InfoType.Base);
   const [imgKey, setImgKey] = useState(false);
@@ -58,7 +66,7 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
   }, [file, t]);
 
   // 是否展示缩略图
-  const showImage = useMemo(() => isMediaFile(file.fileType), [file.fileType]);
+  const isMedia = useMemo(() => isMediaFile(file.fileType), [file.fileType]);
 
   // 请求视频元信息
   const metadataRequest = useSwr('mediaMetadata', {
@@ -67,7 +75,7 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
       relativePath: file.relativePath,
     },
     lazy: true,
-    disabled: !showImage,
+    disabled: !isMedia,
   });
 
   const metadataJson = useMemo(
@@ -96,9 +104,12 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
       onlyClose
       dialogProps={{
         maxWidth: 'xs',
+        sx: {
+          zIndex,
+        },
       }}
       leftFooterSlot={
-        showImage && (
+        isMedia && (
           <IconButton
             onClick={() => {
               // 刷新图片
@@ -119,7 +130,7 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
           value={InfoType.Base}
           label={t('Common.BaseInfo')}
         />
-        {showImage && (
+        {isMedia && (
           <StyledTab
             value={InfoType.Metadata}
             label={t('Common.Metadata')}
@@ -142,7 +153,7 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
               ))}
             </StyledFileDetailWrapper>
 
-            {showImage && (
+            {isMedia && !hidePoster && (
               <StyledFilePosterWrapper>
                 <StyledFilePosterInner>
                   <PosterImage
@@ -155,7 +166,7 @@ const FileDetailDialog = ({ file, visible, onClose }: FileDetailDialogProps) => 
           </>
         )}
 
-        {showImage && currentTab === InfoType.Metadata && (
+        {isMedia && currentTab === InfoType.Metadata && (
           <StyledJsonContainer>
             <pre>{metadataJson}</pre>
           </StyledJsonContainer>

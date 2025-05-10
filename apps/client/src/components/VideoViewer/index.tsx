@@ -18,6 +18,7 @@ type VideoViewerProps = {
   onPrev?: () => void;
   onNext?: () => void;
   onToggleRandom?: () => void;
+  onTitleClick?: () => void;
 } & Omit<FixedModalProps, 'children'>;
 
 const VideoViewer = ({
@@ -31,6 +32,7 @@ const VideoViewer = ({
   onNext,
   onPrev,
   onToggleRandom,
+  onTitleClick,
 }: VideoViewerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   // 链接
@@ -51,6 +53,7 @@ const VideoViewer = ({
     <FixedModal
       visible={visible}
       onClose={onClose}
+      onTitleClick={onTitleClick}
       title={title}
       secondaryTitle={secondaryTitle}
       headerLeftSlot={isList && <FileListPreviewer />}

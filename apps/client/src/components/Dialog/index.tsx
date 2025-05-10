@@ -62,6 +62,7 @@ const CompDialog = (props: DialogProps) => {
       onClose={onClose}
       fullWidth
       sx={{
+        ...dialogProps?.sx,
         [`& .${dialogClasses.paper}`]: {
           margin: '0 16px',
           width: 'calc(100% - 32px)',

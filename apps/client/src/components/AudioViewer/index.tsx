@@ -31,6 +31,7 @@ type AudioViewerProps = {
   onPrev?: () => void;
   onNext?: () => void;
   onToggleRandom?: () => void;
+  onTitleClick?: () => void;
 } & Omit<FixedModalProps, 'children'>;
 
 const MEDIA_BTN_SX: SxProps<Theme> = {
@@ -55,6 +56,7 @@ const AudioViewer = ({
   onNext,
   onPrev,
   onToggleRandom,
+  onTitleClick,
 }: AudioViewerProps) => {
   const t = useTranslations();
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -125,6 +127,7 @@ const AudioViewer = ({
     <FixedModal
       visible={visible}
       onClose={onClose}
+      onTitleClick={onTitleClick}
       title={title}
       secondaryTitle={secondaryTitle}
       headerLeftSlot={isList && <FileListPreviewer />}

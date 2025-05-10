@@ -27,6 +27,7 @@ const SUB_TITLE_SX: SxProps<Theme> = {
 export interface FixedModalProps {
   visible?: boolean;
   onClose?: () => void;
+  onTitleClick?: () => void;
   children?: React.ReactNode;
   // 点击空白处关闭
   closeWhenClickBlank?: boolean;
@@ -42,6 +43,7 @@ const FixedModal = ({
   children,
   visible,
   onClose,
+  onTitleClick,
   closeWhenClickBlank,
   title,
   secondaryTitle,
@@ -64,9 +66,12 @@ const FixedModal = ({
         }}
       >
         <StyledFixedModalHeader>
-          {headerLeftSlot && <StyledFixedToolbar>{headerLeftSlot}</StyledFixedToolbar>}
+          <StyledFixedToolbar>{headerLeftSlot}</StyledFixedToolbar>
 
-          <StyledFixedTitle>
+          <StyledFixedTitle
+            onClick={onTitleClick}
+            sx={{ cursor: onTitleClick ? 'pointer' : void 0 }}
+          >
             <Box>{title && <RollingText text={title} />}</Box>
             <Box>
               {secondaryTitle && (
