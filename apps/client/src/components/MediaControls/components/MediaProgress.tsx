@@ -8,9 +8,11 @@ import { isNil } from 'lodash-es';
 import {
   MouseEventHandler,
   RefObject,
+  startTransition,
   useCallback,
   useEffect,
   useMemo,
+  useOptimistic,
   useRef,
   useState,
 } from 'react';
@@ -32,6 +34,7 @@ interface MediaProgressProps {
   videoDuration: number;
   // 可能要跳转到的时刻预览
   previewDiffTime?: number;
+  onGoTo?: () => void;
 }
 
 // 在移动端拖拽进度条结束时
@@ -40,15 +43,23 @@ interface MediaProgressProps {
 
 export const MediaProgress = ({
   mediaRef,
-  currentTime,
+  currentTime: rawCurrentTime,
   videoDuration,
   previewDiffTime,
+  onGoTo,
 }: MediaProgressProps) => {
   const progressBarRef = useRef<HTMLElement>(null);
   const [cursorOffset, setCursorOffset] = useState(0);
   const [showCursor, setShowCursor] = useState(false);
   const [bufferRanges, setBufferRanges] = useState<[number, number][]>([]);
   const realShowCursor = showCursor || !isNil(previewDiffTime);
+
+  const [currentTime, addCurrentTimeInstant] = useOptimistic<number, number>(
+    rawCurrentTime,
+    (_, instantVal) => {
+      return instantVal;
+    }
+  );
 
   // 禁用跳转拖动
   const progressDisabled = useMemo(
@@ -151,14 +162,23 @@ export const MediaProgress = ({
 
   // 跳转到对应的进度条时刻
   const handleGoTo = useCallback(
-    (ev: PointerEvent | MouseEvent) => {
+    async (ev: PointerEvent | MouseEvent) => {
       if (!mediaRef.current || progressDisabled) return;
       const { offsetX } = ev;
       const { offsetWidth } = ev.target as HTMLElement;
       const time = (offsetX / offsetWidth) * videoDuration;
       mediaRef.current.currentTime = time;
+      onGoTo?.();
+
+      startTransition(async () => {
+        addCurrentTimeInstant(time);
+        await new Promise(resolve => {
+          if (!mediaRef.current) return resolve(void 0);
+          bindEventOnce(mediaRef.current, 'timeupdate', resolve);
+        });
+      });
     },
-    [mediaRef, progressDisabled, videoDuration]
+    [mediaRef, progressDisabled, addCurrentTimeInstant, videoDuration]
   );
   const handleClick = useCallback<MouseEventHandler>(
     ev => {

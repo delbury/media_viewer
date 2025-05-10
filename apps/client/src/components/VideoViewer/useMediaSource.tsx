@@ -16,6 +16,7 @@ import {
 } from 'react';
 import {
   calcVideoSegmentParams,
+  CAN_DIRECT_PLAY_EXTS,
   FILE_CODECS,
   hitCacheRange,
   stopStream,
@@ -23,8 +24,6 @@ import {
   VIDEO_LAZY_LOAD_THRESHOLD,
   waitUpdateend,
 } from './util';
-
-const CAN_DIRECT_PLAY_EXTS = ['mp4', 'webm'];
 
 interface UseMediaSourceParams {
   mediaRef: RefObject<HTMLMediaElement | null>;

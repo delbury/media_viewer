@@ -77,13 +77,14 @@ export const useCancelAreaContext = ({
   // 结束事件
   const handleLostPointerCapture = useCallback(
     (ev: PointerEvent) => {
+      if (!visible) return;
       if (!detectIfActivated([ev.clientX, ev.clientY])) {
         onActivatedCallback?.(ev);
       }
       closeCancelArea();
       onFinal?.();
     },
-    [closeCancelArea, detectIfActivated, onActivatedCallback, onFinal]
+    [closeCancelArea, detectIfActivated, onActivatedCallback, onFinal, visible]
   );
 
   useEffect(() => {

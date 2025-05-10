@@ -7,7 +7,7 @@ export const VIDEO_ENDED_THRESHOLD = 0.1;
 export const FILE_CODECS = 'video/mp4; codecs="avc1.640028, mp4a.40.2"';
 
 // 视频分片的长度，单位 s
-const VIDEO_SEGMENT_DURATION = 8;
+const VIDEO_SEGMENT_DURATION = 10;
 
 // 继续加载视频分片的最小剩余时间
 export const VIDEO_LAZY_LOAD_THRESHOLD = 30;
@@ -16,6 +16,9 @@ export const VIDEO_LAZY_LOAD_THRESHOLD = 30;
 // 如果最后一个分片的长度小于 VIDEO_LAST_DURATION_MIN_THRESHOLD，
 // 则最后一个分片与上一个完整的分片合并，否则则作为单独的一个分片
 const VIDEO_LAST_SEGMENT_THRESHOLD = Big(0.5).mul(VIDEO_SEGMENT_DURATION);
+
+// 可以直接播放的视频后缀名
+export const CAN_DIRECT_PLAY_EXTS = ['mp4', 'webm'];
 
 /**
  * 阈值：VIDEO_LAST_DURATION_MIN_THRESHOLD

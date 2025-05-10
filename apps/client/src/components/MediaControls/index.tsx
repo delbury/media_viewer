@@ -224,6 +224,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           currentTime={currentTime}
           videoDuration={videoDuration}
           previewDiffTime={currentDragDiffTime}
+          onGoTo={() => setIsWaiting(true)}
         />
 
         <StyledToolsRow>
