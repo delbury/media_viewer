@@ -70,24 +70,27 @@ const CompDialog = (props: DialogProps) => {
       }}
       aria-modal={false}
     >
-      <StyledDialogTitleRow>
-        <DialogTitle
-          sx={{
-            padding: 0,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            maxWidth: '100%',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          {title}
-        </DialogTitle>
-        {titleRightSlot}
-      </StyledDialogTitleRow>
+      {!!title && (
+        <StyledDialogTitleRow>
+          <DialogTitle
+            sx={{
+              padding: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              maxWidth: '100%',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            {title}
+          </DialogTitle>
 
-      <Divider />
+          {titleRightSlot}
+        </StyledDialogTitleRow>
+      )}
+
+      {!!title && <Divider />}
 
       <DialogContent sx={{ padding: '12px 16px' }}>{children}</DialogContent>
 

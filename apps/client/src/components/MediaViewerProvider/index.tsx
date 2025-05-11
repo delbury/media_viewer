@@ -2,11 +2,7 @@
 
 import { useCustomEvent } from '#/hooks/useCustomEvent';
 import { generateUrlWithSearch } from '#/utils';
-import {
-  DIALOG_IN_FIXED_MODAL_Z_INDEX,
-  VIEWER_QUERY_KEY,
-  ViewerQueryValue,
-} from '#/utils/constant';
+import { VIEWER_QUERY_KEY, ViewerQueryValue } from '#/utils/constant';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import AudioViewer from '../AudioViewer';
 import FileDetailDialog from '../DirectoryPicker/components/FileDetailDialog';
@@ -156,7 +152,6 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           visible
           onClose={() => setDetailVisible(false)}
           hidePoster
-          zIndex={DIALOG_IN_FIXED_MODAL_Z_INDEX}
           onPathClick={handleDetailPathClick}
         />
       )}

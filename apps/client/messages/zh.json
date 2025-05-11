@@ -14,7 +14,8 @@
     "CurrentPath": "当前文件夹",
     "RootDirectory": "根目录",
     "AreYouSureReGenerateDirectoryInfo": "确定重新生成文件目录数据？",
-    "AreYouSureClearUselessPoster": "确定删除无用的封面缩略图？"
+    "AreYouSureClearUselessPoster": "确定删除无用的封面缩略图？",
+    "FileListPreviewer": "文件列表预览"
   },
   "Common": {
     "AreYouSure": "确定？",

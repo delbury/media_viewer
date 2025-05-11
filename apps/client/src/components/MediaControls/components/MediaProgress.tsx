@@ -178,7 +178,7 @@ export const MediaProgress = ({
         });
       });
     },
-    [mediaRef, progressDisabled, addCurrentTimeInstant, videoDuration]
+    [mediaRef, progressDisabled, videoDuration, onGoTo, addCurrentTimeInstant]
   );
   const handleClick = useCallback<MouseEventHandler>(
     ev => {

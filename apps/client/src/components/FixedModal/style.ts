@@ -1,5 +1,5 @@
 import { h5Max } from '#/style/device';
-import { FIXED_MODAL_Z_INDEX } from '#/utils/constant';
+import { FIXED_MODAL_Z_INDEX } from '#/style/theme';
 import { Box, buttonBaseClasses, iconButtonClasses, styled, svgIconClasses } from '@mui/material';
 
 export const StyledFixedModalWrapper = styled(Box)`

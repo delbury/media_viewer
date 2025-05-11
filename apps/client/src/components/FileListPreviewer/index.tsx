@@ -1,7 +1,9 @@
 import { FileInfo } from '#pkgs/apis';
 import { FormatListBulletedRounded } from '@mui/icons-material';
 import { Badge, IconButton } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
+import Dialog from '../Dialog';
 import { StyledListPreviewerWrapper } from './style';
 
 interface FileListPreviewerProps {
@@ -9,6 +11,7 @@ interface FileListPreviewerProps {
 }
 
 const FileListPreviewer = ({ files }: FileListPreviewerProps) => {
+  const t = useTranslations();
   const [visible, setVisible] = useState(false);
   const fileCount = useMemo(() => files?.length ?? 0, [files]);
 
@@ -25,6 +28,14 @@ const FileListPreviewer = ({ files }: FileListPreviewerProps) => {
           <FormatListBulletedRounded />
         </Badge>
       </IconButton>
+
+      <Dialog
+        title={t('Tools.FileListPreviewer')}
+        open={visible}
+        onClose={handleClose}
+      >
+        xxx
+      </Dialog>
     </StyledListPreviewerWrapper>
   );
 };
