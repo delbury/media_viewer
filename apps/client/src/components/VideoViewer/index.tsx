@@ -1,4 +1,4 @@
-import { useFileSecondaryTitle } from '#/hooks/useFileSecondaryTitle';
+import { useFileTitle } from '#/hooks/useFileTitle';
 import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -55,7 +55,7 @@ const VideoViewer = ({
   });
 
   // 标题
-  const { title, secondaryTitle } = useFileSecondaryTitle(file);
+  const { title, secondaryTitle } = useFileTitle({ file });
 
   return (
     <FixedModal

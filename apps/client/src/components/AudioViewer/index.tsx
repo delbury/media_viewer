@@ -1,4 +1,4 @@
-import { useFileSecondaryTitle } from '#/hooks/useFileSecondaryTitle';
+import { useFileTitle } from '#/hooks/useFileTitle';
 import { useThrottle } from '#/hooks/useThrottle';
 import { getFilePosterUrl, getFileSourceUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
@@ -79,7 +79,7 @@ const AudioViewer = ({
   const { lyrics, isLoading, hasLyric } = useLyric(file);
 
   // 标题
-  const { title, secondaryTitle } = useFileSecondaryTitle(file);
+  const { title, secondaryTitle } = useFileTitle({ file });
 
   // 播放回调
   const handleTimeUpdate = useCallback(

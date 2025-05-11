@@ -1,5 +1,5 @@
 import { useDrag } from '#/hooks/useDrag';
-import { useFileSecondaryTitle } from '#/hooks/useFileSecondaryTitle';
+import { useFileTitle } from '#/hooks/useFileTitle';
 import { useGesture } from '#/hooks/useGesture';
 import { useResizeObserver } from '#/hooks/useResizeObserver';
 import { useRotateState } from '#/hooks/useRotateState';
@@ -90,7 +90,7 @@ const ImageViewer = ({
   });
 
   // 标题
-  const { title, secondaryTitle } = useFileSecondaryTitle(file);
+  const { title, secondaryTitle } = useFileTitle({ file });
 
   // 是否显示 zoom 按钮
   const isH5 = useMediaQuery(h5Max);
