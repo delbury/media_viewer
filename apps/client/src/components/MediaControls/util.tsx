@@ -2,10 +2,11 @@
 export const bindEvent = <T extends keyof HTMLMediaElementEventMap>(
   elm: HTMLMediaElement,
   eventName: T,
-  cb: (ev: HTMLMediaElementEventMap[T]) => void
+  cb: (ev: HTMLMediaElementEventMap[T]) => void,
+  options?: AddEventListenerOptions
 ) => {
   const controller = new AbortController();
-  elm.addEventListener(eventName, cb, { signal: controller.signal });
+  elm.addEventListener(eventName, cb, { ...options, signal: controller.signal });
   return controller;
 };
 
@@ -13,7 +14,8 @@ export const bindEvent = <T extends keyof HTMLMediaElementEventMap>(
 export const bindEventOnce = <T extends keyof HTMLMediaElementEventMap>(
   elm: HTMLMediaElement,
   eventName: T,
-  cb: (ev: HTMLMediaElementEventMap[T]) => void
+  cb: (ev: HTMLMediaElementEventMap[T]) => void,
+  options?: AddEventListenerOptions
 ) => {
-  elm.addEventListener(eventName, cb, { once: true });
+  elm.addEventListener(eventName, cb, { ...options, once: true });
 };

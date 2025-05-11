@@ -31,7 +31,7 @@ import RotateSetting from './components/RotateSetting';
 import SubtitleSetting from './components/SubtitleSetting';
 import VolumeSetting from './components/VolumeSetting';
 import { useHandlers } from './hooks/useHandlers';
-import { useMobileDrag } from './hooks/useMobileDrag';
+import { useMobileGesture } from './hooks/useMobileGesture';
 import {
   StyledBtnsContainer,
   StyledBtnsGroup,
@@ -121,13 +121,15 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     });
 
     // 移动端，手势拖拽的操作
-    const { skipTimeText, currentDragDiffTime } = useMobileDrag({
+    const { skipTimeText, currentDragDiffTime } = useMobileGesture({
       mediaRef,
       handleGoBy,
     });
 
-    // 在模拟双击播放时，记录第一次播放
-    const videoFirstClicked = useRef(false);
+    // 在模拟双击播放时，记录处于的阶段
+    // 0: 未开始，1: 第一次按下，2: 第一次抬起，3: 第二次按下
+    const dblClickStage = useRef(0);
+    const dblTimer = useRef<number>(null);
 
     // 初始化
     useEffect(() => {
@@ -141,13 +143,31 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         setCurrentTime(elm.currentTime);
 
         // 模拟双击播放
-        const dblclickController = isVideoMedia
-          ? bindEvent(elm, 'click', () => {
-              if (videoFirstClicked.current) {
+        const pointerdownController = isVideoMedia
+          ? bindEvent(elm, 'pointerdown', () => {
+              if (!dblClickStage.current) {
+                // 超时重置
+                window.setTimeout(() => {
+                  dblClickStage.current = 0;
+                  dblTimer.current = null;
+                }, 300);
+                dblClickStage.current++;
+              } else if (dblClickStage.current === 2) {
+                dblClickStage.current++;
+              }
+            })
+          : null;
+        const pointerupController = isVideoMedia
+          ? bindEvent(elm, 'pointerup', () => {
+              if (dblClickStage.current === 3) {
                 handleTogglePlay();
-              } else {
-                videoFirstClicked.current = true;
-                window.setTimeout(() => (videoFirstClicked.current = false), 300);
+                dblClickStage.current = 0;
+                if (dblTimer.current) {
+                  clearTimeout(dblTimer.current);
+                  dblTimer.current = null;
+                }
+              } else if (dblClickStage.current === 1) {
+                dblClickStage.current++;
               }
             })
           : null;
@@ -187,6 +207,8 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         });
 
         return () => {
+          pointerdownController?.abort();
+          pointerupController?.abort();
           loadstartController.abort();
           playController.abort();
           pauseController.abort();
@@ -194,7 +216,6 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           timeupdateController.abort();
           waitingController.abort();
           canplayController.abort();
-          dblclickController?.abort();
         };
       }
     }, [handleTogglePlay, mediaRef]);

@@ -11,6 +11,9 @@ interface GesturePointerInfos {
   };
 }
 
+// 判断是否移动的防抖距离
+const MOVE_DEBOUNCE_OFFSET = 1;
+
 type GestureType = 'single-down' | 'single-click' | 'single-move' | 'double-down' | 'unknown';
 export interface DetectGestureResult {
   pointerInfos: GesturePointerInfos;
@@ -23,7 +26,16 @@ const resolveGestureType = (infos: GesturePointerInfos): GestureType => {
   if (keys.length === 1) {
     // click
     if (infos[keys[0]].up) return 'single-click';
-    if (infos[keys[0]].moves?.length) return 'single-move';
+    // 按下并移动
+    if (infos[keys[0]].moves?.length) {
+      // 防抖
+      const start = infos[keys[0]].down;
+      const isMoved = infos[keys[0]].moves?.some(it => {
+        const diff = Math.sqrt((start[0] - it[0]) ** 2 + (start[1] - it[1]) ** 2);
+        return diff >= MOVE_DEBOUNCE_OFFSET;
+      });
+      if (isMoved) return 'single-move';
+    }
     // 只是按下
     return 'single-down';
   }
@@ -37,7 +49,7 @@ const resolveGestureType = (infos: GesturePointerInfos): GestureType => {
 };
 
 // 默认防抖时间
-const DEFAULT_DEBOUNCE_TIME = 50;
+const DEFAULT_DEBOUNCE_TIME = 100;
 
 export const useGesture = () => {
   // 手势开始

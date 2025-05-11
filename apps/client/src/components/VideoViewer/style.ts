@@ -22,6 +22,7 @@ export const StyledVideoWrapper = styled(Box)`
     cursor: pointer;
     touch-action: none;
     user-select: none;
+    -webkit-touch-callout: none;
 
     ::cue {
       color: ${({ theme }) => theme.palette.common.white};

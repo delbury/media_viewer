@@ -22,7 +22,7 @@ interface UseMobileDragParams {
   handleGoBy: (dir: 1 | -1, diff?: number) => void;
 }
 
-export const useMobileDrag = ({ mediaRef, handleGoBy }: UseMobileDragParams) => {
+export const useMobileGesture = ({ mediaRef, handleGoBy }: UseMobileDragParams) => {
   // 拖拽方向
   const currentDragDirection = useRef<'x' | 'y' | null>(null);
   // 判断当前拖拽距离
@@ -105,7 +105,7 @@ export const useMobileDrag = ({ mediaRef, handleGoBy }: UseMobileDragParams) => 
     const contextmenuController = bindEvent(elm, 'contextmenu', preventDefault);
 
     // 阻止长按触发下载菜单
-    const touchstartController = bindEvent(elm, 'touchstart', preventDefault);
+    const touchstartController = bindEvent(elm, 'touchstart', preventDefault, { passive: false });
 
     // 指针按下
     const pointerDownController = isVideoMedia
@@ -132,7 +132,6 @@ export const useMobileDrag = ({ mediaRef, handleGoBy }: UseMobileDragParams) => 
           if (ev.pointerType === 'mouse') return;
           // preventDefault(ev);
           detectGesture(ev);
-
           if (!isNil(lastRate.current)) {
             elm.playbackRate = lastRate.current;
             lastRate.current = null;
