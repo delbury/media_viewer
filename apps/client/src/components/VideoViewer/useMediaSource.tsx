@@ -28,11 +28,12 @@ import {
 interface UseMediaSourceParams {
   mediaRef: RefObject<HTMLMediaElement | null>;
   file?: FileInfo;
+  forceSource?: boolean;
 }
 
 type SrcType = 'raw' | 'source' | null;
 
-export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
+export const useMediaSource = ({ mediaRef, file, forceSource }: UseMediaSourceParams) => {
   // 当前视频分片请求的 offset
   const currentSegmentOffset = useRef(0);
   // 视频总时长
@@ -288,7 +289,7 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
     if (!elm || !file) return;
 
     let type: SrcType = 'source';
-    if (file && CAN_DIRECT_PLAY_EXTS.includes(file.nameExtPure)) {
+    if (!forceSource && file && CAN_DIRECT_PLAY_EXTS.includes(file.nameExtPure)) {
       type = 'raw';
     }
     setSrcType(type);
@@ -309,11 +310,15 @@ export const useMediaSource = ({ mediaRef, file }: UseMediaSourceParams) => {
     } else if (type === 'raw') {
       elm.src = getFileSourceUrl(file);
     }
-  }, [file]);
+  }, [file, forceSource]);
 
   return {
     isCanplay,
     isLoading,
+    // 默认判断就是为 source 类型的资源
+    isRawSource: !forceSource && isSource,
+    // 是否是手动转换为 source 类型
+    isForced: !!forceSource,
     events: {
       onTimeUpdate: handleTimeUpdate,
       onEnded: handleEnded,

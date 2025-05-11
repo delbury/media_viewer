@@ -28,6 +28,7 @@ import { MediaProgress } from './components/MediaProgress';
 import ProgressInfo from './components/ProgressInfo';
 import RateSetting from './components/RateSetting';
 import RotateSetting from './components/RotateSetting';
+import SourceSetting from './components/SourceSetting';
 import SubtitleSetting from './components/SubtitleSetting';
 import VolumeSetting from './components/VolumeSetting';
 import { useHandlers } from './hooks/useHandlers';
@@ -56,6 +57,9 @@ interface MediaControls {
   lastDisabled?: boolean;
   isRandomPlay?: boolean;
   onToggleRandom?: () => void;
+  isRawSource?: boolean;
+  useSource?: boolean;
+  onUseSourceChange?: (v: boolean) => void;
 }
 
 const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
@@ -72,6 +76,9 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       isRandomPlay,
       firstDisabled,
       lastDisabled,
+      isRawSource,
+      useSource,
+      onUseSourceChange,
     },
     ref
   ) => {
@@ -88,6 +95,9 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
     // 隐藏部分按钮到更多中
     const showMore = isH5 && isVideo;
+    const showSubtitle = !isH5 && isVideo;
+    const showSource = !isH5 && isVideo;
+    const showVolume = !isVideo || !isH5;
     const [moreOpen, setMoreOpen] = useState(false);
     const handleToggleMoreOpen = useCallback(() => setMoreOpen(v => !v), []);
 
@@ -202,6 +212,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           setIsWaiting(false);
         });
 
+        // 开始加载
         const loadstartController = bindEvent(elm, 'loadstart', () => {
           setIsWaiting(true);
         });
@@ -302,21 +313,30 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
             <StyledBtnsGroup>
               {/* 字幕 */}
-              {!showMore && (
+              {showSubtitle && (
                 <SubtitleSetting
                   mediaRef={mediaRef}
                   subtitleOptions={subtitles}
                 />
               )}
 
+              {/* 手动转码 */}
+              {showSource && (
+                <SourceSetting
+                  isAuto={isRawSource}
+                  useSource={useSource}
+                  onUseSourceChange={onUseSourceChange}
+                />
+              )}
+
               {/* 音量 */}
-              {!showMore && <VolumeSetting mediaRef={mediaRef} />}
+              {showVolume && <VolumeSetting mediaRef={mediaRef} />}
 
               {/* 全屏 */}
               {isVideo && <FullscreenSetting mediaRef={mediaRef} />}
 
               {/* 更多 */}
-              {showMore && (
+              {showMore && isVideo && (
                 <TooltipSetting
                   open={moreOpen}
                   tooltipContent={
@@ -324,6 +344,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
                       <SubtitleSetting
                         mediaRef={mediaRef}
                         subtitleOptions={subtitles}
+                      />
+                      <SourceSetting
+                        isAuto={isRawSource}
+                        useSource={useSource}
+                        onUseSourceChange={onUseSourceChange}
                       />
                       <VolumeSetting mediaRef={mediaRef} />
                     </StyledBtnsGroup>

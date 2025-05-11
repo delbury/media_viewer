@@ -1,7 +1,7 @@
 import { useFileSecondaryTitle } from '#/hooks/useFileSecondaryTitle';
 import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import FileListPreviewer from '../FileListPreviewer';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
@@ -39,11 +39,19 @@ const VideoViewer = ({
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
   // 等待中
   const [isWaiting, setIsWaiting] = useState(false);
+  // 强制转码
+  const [forceSource, setForceSource] = useState(false);
+  useEffect(() => setForceSource(false), [file]);
 
   // 自定义流媒体控制
-  const { events: progressEvents } = useMediaSource({
+  const {
+    events: progressEvents,
+    isRawSource,
+    isForced,
+  } = useMediaSource({
     file,
     mediaRef: videoRef,
+    forceSource,
   });
 
   // 标题
@@ -70,6 +78,9 @@ const VideoViewer = ({
           onNext={onNext}
           onPrev={onPrev}
           onToggleRandom={onToggleRandom}
+          useSource={isForced}
+          isRawSource={isRawSource}
+          onUseSourceChange={setForceSource}
         />
       }
     >
