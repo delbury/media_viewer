@@ -24,6 +24,7 @@ import { findLyricIndex, useLyric } from './useLyric';
 
 type AudioViewerProps = {
   file?: FileInfo;
+  files?: FileInfo[];
   isList?: boolean;
   firstDisabled?: boolean;
   lastDisabled?: boolean;
@@ -49,6 +50,7 @@ const AudioViewer = ({
   visible,
   onClose,
   file,
+  files,
   lastDisabled,
   firstDisabled,
   isList,
@@ -130,7 +132,7 @@ const AudioViewer = ({
       onTitleClick={onTitleClick}
       title={title}
       secondaryTitle={secondaryTitle}
-      headerLeftSlot={isList && <FileListPreviewer />}
+      headerLeftSlot={isList && <FileListPreviewer files={files} />}
       footerSlot={
         // 工具栏
         <MediaControls

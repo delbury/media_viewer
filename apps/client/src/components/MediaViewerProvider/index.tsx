@@ -34,6 +34,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
   }, [state.dir, state.file, state.mediaType]);
 
   const {
+    fileList,
     currentFile,
     isList,
     goNextFile,
@@ -47,8 +48,8 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     dir: state.dir,
     mediaType: state.mediaType,
   });
-
   const [detailVisible, setDetailVisible] = useState(false);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (!show.audio && !show.image && !show.video) {
@@ -102,6 +103,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
         <ImageViewer
           visible
           file={currentFile}
+          files={fileList}
           isList={isList}
           lastDisabled={lastDisabled}
           firstDisabled={firstDisabled}
@@ -118,6 +120,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
         <AudioViewer
           visible
           file={currentFile}
+          files={fileList}
           isList={isList}
           lastDisabled={lastDisabled}
           firstDisabled={firstDisabled}
@@ -134,6 +137,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
         <VideoViewer
           visible
           file={currentFile}
+          files={fileList}
           isList={isList}
           lastDisabled={lastDisabled}
           firstDisabled={firstDisabled}

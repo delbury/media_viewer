@@ -42,7 +42,7 @@ export const StyledFixedTitle = styled(Box)`
 `;
 
 export const StyledFixedToolbar = styled(Box)`
-  & > * {
+  & .${iconButtonClasses.root} {
     color: ${({ theme }) => theme.palette.grey[600]};
     &:hover {
       color: ${({ theme }) => theme.palette.common.white};
