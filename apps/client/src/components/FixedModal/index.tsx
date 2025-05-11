@@ -2,7 +2,6 @@ import { useShortcut } from '#/hooks/useShortcut';
 import { stopPropagation } from '#/utils';
 import { CloseRounded } from '@mui/icons-material';
 import { Box, IconButton, SxProps, Theme } from '@mui/material';
-import { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import RollingText from '../RollingText';
 import {
@@ -50,9 +49,8 @@ const FixedModal = ({
   footerSlot,
   headerLeftSlot,
 }: FixedModalProps) => {
-  const contentRef = useRef<HTMLElement>(null);
-
   useShortcut({
+    bindTrigger: visible,
     onEscPressed: onClose,
   });
 
@@ -96,7 +94,6 @@ const FixedModal = ({
         </StyledFixedModalHeader>
 
         <StyledFixedContent
-          ref={contentRef}
           // 标记为媒体元素的根元素，用于 video 全屏时选择的元素
           data-root={RootType.Media}
         >

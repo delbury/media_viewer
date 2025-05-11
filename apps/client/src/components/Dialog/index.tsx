@@ -1,5 +1,6 @@
 'use client';
 
+import { useShortcut } from '#/hooks/useShortcut';
 import {
   Box,
   Button,
@@ -55,6 +56,11 @@ const CompDialog = (props: DialogProps) => {
     setLoading(false);
   }, [onOk]);
 
+  useShortcut({
+    bindTrigger: open,
+    onEscPressed: onClose,
+  });
+
   return (
     <Dialog
       {...dialogProps}
@@ -69,6 +75,7 @@ const CompDialog = (props: DialogProps) => {
         },
       }}
       aria-modal={false}
+      disableEscapeKeyDown
     >
       {!!title && (
         <StyledDialogTitleRow>

@@ -1,4 +1,5 @@
 import { stopPropagation } from '#/utils';
+import { isNil } from 'lodash-es';
 import { useCallback, useEffect, useRef } from 'react';
 
 enum KEY {
@@ -14,8 +15,8 @@ enum KEY {
 interface UseShortcutParams {
   // 当命中快捷键时，阻止冒泡
   stopPropagationWhenHit?: boolean;
-  // 在组件挂载时不绑定事件
-  lazyMount?: boolean;
+  // 绑定/解绑的触发器，不设置则在 mount 时绑定，在 unmount 时解绑
+  bindTrigger?: boolean;
   onEscPressed?: (ev: KeyboardEvent) => void;
   onLeftPressed?: (ev: KeyboardEvent) => void;
   onRightPressed?: (ev: KeyboardEvent) => void;
@@ -27,7 +28,6 @@ interface UseShortcutParams {
 
 export const useShortcut = ({
   stopPropagationWhenHit = true,
-  lazyMount,
   onEscPressed,
   onLeftPressed,
   onRightPressed,
@@ -35,6 +35,7 @@ export const useShortcut = ({
   onDownPressed,
   onSpacePressed,
   onEnterPressed,
+  ...restProps
 }: UseShortcutParams = {}) => {
   const keydownController = useRef<AbortController>(null);
 
@@ -54,34 +55,31 @@ export const useShortcut = ({
     window.addEventListener(
       'keydown',
       ev => {
-        let flag = false;
         if (ev.code === KEY.Escape && onEscPressed) {
           onEscPressed(ev);
-          flag = true;
+          if (stopPropagationWhenHit) stopPropagation(ev);
         } else if (ev.code === KEY.ArrowUp && onUpPressed) {
           onUpPressed(ev);
-          flag = true;
+          if (stopPropagationWhenHit) stopPropagation(ev);
         } else if (ev.code === KEY.ArrowDown && onDownPressed) {
           onDownPressed(ev);
-          flag = true;
+          if (stopPropagationWhenHit) stopPropagation(ev);
         } else if (ev.code === KEY.ArrowLeft && onLeftPressed) {
           onLeftPressed(ev);
-          flag = true;
+          if (stopPropagationWhenHit) stopPropagation(ev);
         } else if (ev.code === KEY.ArrowRight && onRightPressed) {
           onRightPressed(ev);
-          flag = true;
+          if (stopPropagationWhenHit) stopPropagation(ev);
         } else if (ev.code === KEY.Space && onSpacePressed) {
           onSpacePressed(ev);
-          flag = true;
+          if (stopPropagationWhenHit) stopPropagation(ev);
         } else if (ev.code === KEY.Enter && onEnterPressed) {
           onEnterPressed(ev);
-          flag = true;
+          if (stopPropagationWhenHit) stopPropagation(ev);
         }
-        // 阻止冒泡
-        if (stopPropagationWhenHit && flag) stopPropagation(ev);
       },
       // 防止触发 dialog 的关闭事件
-      { signal: controller.signal, capture: true }
+      { signal: controller.signal, capture: false }
     );
 
     return unbind;
@@ -98,10 +96,16 @@ export const useShortcut = ({
   ]);
 
   useEffect(() => {
-    if (!lazyMount) {
+    const bindTrigger = restProps.bindTrigger;
+    if (isNil(bindTrigger)) {
+      // 直接绑定
       return bind();
+    } else {
+      // 外部触发绑定
+      if (bindTrigger) return bind();
+      else unbind();
     }
-  }, [bind, lazyMount]);
+  }, [bind, restProps.bindTrigger, unbind]);
 
   return {
     bind,
