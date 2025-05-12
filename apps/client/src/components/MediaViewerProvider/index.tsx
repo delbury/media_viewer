@@ -32,6 +32,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
   const {
     fileList,
     currentFile,
+    currentFileIndex,
     isList,
     goNextFile,
     goPrevFile,
@@ -100,6 +101,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           visible
           file={currentFile}
           files={fileList}
+          fileIndex={currentFileIndex}
           isList={isList}
           lastDisabled={lastDisabled}
           firstDisabled={firstDisabled}
@@ -117,6 +119,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           visible
           file={currentFile}
           files={fileList}
+          fileIndex={currentFileIndex}
           isList={isList}
           lastDisabled={lastDisabled}
           firstDisabled={firstDisabled}
@@ -134,6 +137,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           visible
           file={currentFile}
           files={fileList}
+          fileIndex={currentFileIndex}
           isList={isList}
           lastDisabled={lastDisabled}
           firstDisabled={firstDisabled}

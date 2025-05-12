@@ -109,6 +109,7 @@ export const useFileOrDirectory = ({
 
   return {
     fileList,
+    currentFileIndex,
     currentFile: fileList[currentFileIndex] as FileInfo | undefined,
     isList: fileList.length > 1,
     firstDisabled: isRandomPlay || (!isRandomPlay && currentFileIndex === 0),

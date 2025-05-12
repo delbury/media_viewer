@@ -12,6 +12,7 @@ import { useMediaSource } from './useMediaSource';
 type VideoViewerProps = {
   file?: FileInfo;
   files?: FileInfo[];
+  fileIndex?: number;
   isList?: boolean;
   firstDisabled?: boolean;
   lastDisabled?: boolean;
@@ -27,6 +28,7 @@ const VideoViewer = ({
   onClose,
   file,
   files,
+  fileIndex,
   lastDisabled,
   firstDisabled,
   isList,
@@ -66,7 +68,14 @@ const VideoViewer = ({
       onTitleClick={onTitleClick}
       title={title}
       secondaryTitle={secondaryTitle}
-      headerLeftSlot={isList && <FileListPreviewer files={files} />}
+      headerLeftSlot={
+        isList && (
+          <FileListPreviewer
+            files={files}
+            currentFileIndex={fileIndex}
+          />
+        )
+      }
       footerSlot={
         // 工具栏
         <MediaControls

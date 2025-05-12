@@ -1,4 +1,5 @@
-import { badgeClasses, Box, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { badgeClasses, Box } from '@mui/material';
 
 export const FILE_ITEM_ROW_HEIGHT = 48;
 
@@ -22,18 +23,6 @@ export const StyleFilesContainer = styled(Box)`
   height: 65dvh;
 `;
 
-export const StyledChildItem = styled(Box)`
-  height: ${FILE_ITEM_ROW_HEIGHT}px;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  :hover {
-    background-color: ${({ theme }) => theme.palette.action.hover};
-  }
-`;
-
 export const StyleChildItemImage = styled(Box)`
   height: 100%;
   aspect-ratio: 16 / 9;
@@ -54,4 +43,25 @@ export const StyleChildItemName = styled(Box)`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   word-break: break-all;
+`;
+
+export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !== 'activated' })<{
+  activated?: boolean;
+}>`
+  height: ${FILE_ITEM_ROW_HEIGHT}px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 4px;
+  border-top: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+  background-clip: padding-box;
+
+  ${({ activated, theme }) =>
+    activated ? `background-color: ${theme.palette.action.selected}` : ''};
+
+  :hover {
+    background-color: ${({ theme }) => theme.palette.action.hover};
+  }
 `;

@@ -50,6 +50,7 @@ const SCALE_LIMIT = {
 type ImageViewerProps = {
   file?: FileInfo;
   files?: FileInfo[];
+  fileIndex?: number;
   isList?: boolean;
   firstDisabled?: boolean;
   lastDisabled?: boolean;
@@ -65,6 +66,7 @@ const ImageViewer = ({
   onClose,
   file,
   files,
+  fileIndex,
   lastDisabled,
   firstDisabled,
   isList,
@@ -278,7 +280,14 @@ const ImageViewer = ({
       onTitleClick={onTitleClick}
       title={title}
       secondaryTitle={secondaryTitle}
-      headerLeftSlot={isList && <FileListPreviewer files={files} />}
+      headerLeftSlot={
+        isList && (
+          <FileListPreviewer
+            files={files}
+            currentFileIndex={fileIndex}
+          />
+        )
+      }
       footerSlot={
         // 工具栏
         <StyledImageToolbar>

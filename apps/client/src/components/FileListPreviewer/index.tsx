@@ -17,16 +17,18 @@ import {
 } from './style';
 
 interface FileListPreviewerProps {
+  currentFileIndex?: number;
   files?: FileInfo[];
 }
 
-const ChildItem = (props: { files?: FileInfo[] } & VirtualListChildItemProps) => {
-  const { index, files } = props;
+const ChildItem = (props: FileListPreviewerProps & VirtualListChildItemProps) => {
+  const { index, files, currentFileIndex } = props;
   const file = files?.[index];
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
+  const activated = index === currentFileIndex;
 
   return (
-    <StyledChildItem>
+    <StyledChildItem activated={activated}>
       <StyleChildItemImage>
         <img
           src={posterUrl}
@@ -38,7 +40,7 @@ const ChildItem = (props: { files?: FileInfo[] } & VirtualListChildItemProps) =>
   );
 };
 
-const FileListPreviewer = ({ files }: FileListPreviewerProps) => {
+const FileListPreviewer = ({ files, currentFileIndex }: FileListPreviewerProps) => {
   const t = useTranslations();
   const [visible, setVisible] = useState(false);
   const fileCount = useMemo(() => files?.length ?? 0, [files]);
@@ -75,6 +77,7 @@ const FileListPreviewer = ({ files }: FileListPreviewerProps) => {
                 getChildProps: (index: number) => ({
                   key: files?.[index]?.relativePath ?? '',
                   files,
+                  currentFileIndex,
                 }),
               }}
             >
