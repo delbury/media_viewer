@@ -206,6 +206,9 @@ const FileItemList = ({ dir, files, storageKeySuffix = '' }: FileItemListProps) 
   });
 
   const [currentFile, setCurrentFile] = useState<FileInfo | null>(null);
+  const handleCloseDetail = useCallback(() => {
+    setCurrentFile(null);
+  }, []);
 
   // 打开媒体浏览器
   const { openMediaViewer } = useMediaViewerContext();
@@ -301,7 +304,7 @@ const FileItemList = ({ dir, files, storageKeySuffix = '' }: FileItemListProps) 
         <FileDetailDialog
           file={currentFile}
           visible
-          onClose={() => setCurrentFile(null)}
+          onClose={handleCloseDetail}
         />
       )}
     </>

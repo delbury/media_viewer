@@ -1,8 +1,7 @@
 import { stopPropagation } from '#/utils';
-import { isNil } from 'lodash-es';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
-enum KEY {
+enum BoardKey {
   Escape = 'Escape',
   ArrowLeft = 'ArrowLeft',
   ArrowRight = 'ArrowRight',
@@ -13,10 +12,6 @@ enum KEY {
 }
 
 interface UseShortcutParams {
-  // 当命中快捷键时，阻止冒泡
-  stopPropagationWhenHit?: boolean;
-  // 绑定/解绑的触发器，不设置则在 mount 时绑定，在 unmount 时解绑
-  bindTrigger?: boolean;
   onEscPressed?: (ev: KeyboardEvent) => void;
   onLeftPressed?: (ev: KeyboardEvent) => void;
   onRightPressed?: (ev: KeyboardEvent) => void;
@@ -24,10 +19,70 @@ interface UseShortcutParams {
   onDownPressed?: (ev: KeyboardEvent) => void;
   onSpacePressed?: (ev: KeyboardEvent) => void;
   onEnterPressed?: (ev: KeyboardEvent) => void;
+  eventOption?: EventItem['option'];
 }
 
+// 单例
+interface EventItem {
+  callback: (ev: KeyboardEvent) => void;
+  option?: { stopWhenFirstCalled?: boolean };
+}
+const GLOBAL_STATE = {
+  eventController: null as AbortController | null,
+  events: {} as Record<BoardKey, Set<EventItem>>,
+};
+
+// 全局回调
+const keyboardCallback = (ev: KeyboardEvent) => {
+  const events = GLOBAL_STATE.events[ev.code as BoardKey];
+  if (events?.size) {
+    stopPropagation(ev);
+    const list = [...events];
+    // 先绑定后执行
+    for (let i = list.length - 1; i >= 0; i--) {
+      const item = list[i];
+      item.callback(ev);
+      if (item.option?.stopWhenFirstCalled) break;
+    }
+  }
+};
+
+const removeGlobalListener = () => {
+  // 无事件后，移除
+  if (Object.values(GLOBAL_STATE.events).every(v => !v.size)) {
+    GLOBAL_STATE.eventController?.abort();
+    GLOBAL_STATE.eventController = null;
+  }
+};
+
+const useBindKeyEvent = (
+  key: BoardKey,
+  cb?: (ev: KeyboardEvent) => void,
+  { lazyMount, eventOption }: { lazyMount?: boolean; eventOption?: EventItem['option'] } = {}
+) => {
+  useEffect(() => {
+    if (!cb || lazyMount) return;
+
+    // 添加事件回调
+    if (!GLOBAL_STATE.events[key]) GLOBAL_STATE.events[key] = new Set();
+
+    const item: EventItem = {
+      callback: cb,
+      option: {
+        stopWhenFirstCalled: eventOption?.stopWhenFirstCalled,
+      },
+    };
+    GLOBAL_STATE.events[key].add(item);
+
+    return () => {
+      // 移除
+      GLOBAL_STATE.events[key].delete(item);
+      removeGlobalListener();
+    };
+  }, [key, cb, lazyMount, eventOption?.stopWhenFirstCalled]);
+};
+
 export const useShortcut = ({
-  stopPropagationWhenHit = true,
   onEscPressed,
   onLeftPressed,
   onRightPressed,
@@ -35,80 +90,28 @@ export const useShortcut = ({
   onDownPressed,
   onSpacePressed,
   onEnterPressed,
-  ...restProps
+  eventOption,
 }: UseShortcutParams = {}) => {
-  const keydownController = useRef<AbortController>(null);
+  // 初始化，单例模式
+  useEffect(() => {
+    if (!GLOBAL_STATE.eventController) {
+      const controller = new AbortController();
+      window.addEventListener(
+        'keydown',
+        keyboardCallback,
+        // 防止触发 dialog 的关闭事件
+        { signal: controller.signal, capture: false }
+      );
 
-  // 解绑
-  const unbind = useCallback(() => {
-    keydownController.current?.abort();
-    keydownController.current = null;
+      GLOBAL_STATE.eventController = controller;
+    }
   }, []);
 
-  // 绑定
-  const bind = useCallback(() => {
-    unbind();
-
-    const controller = new AbortController();
-    keydownController.current = controller;
-
-    window.addEventListener(
-      'keydown',
-      ev => {
-        if (ev.code === KEY.Escape && onEscPressed) {
-          onEscPressed(ev);
-          if (stopPropagationWhenHit) stopPropagation(ev);
-        } else if (ev.code === KEY.ArrowUp && onUpPressed) {
-          onUpPressed(ev);
-          if (stopPropagationWhenHit) stopPropagation(ev);
-        } else if (ev.code === KEY.ArrowDown && onDownPressed) {
-          onDownPressed(ev);
-          if (stopPropagationWhenHit) stopPropagation(ev);
-        } else if (ev.code === KEY.ArrowLeft && onLeftPressed) {
-          onLeftPressed(ev);
-          if (stopPropagationWhenHit) stopPropagation(ev);
-        } else if (ev.code === KEY.ArrowRight && onRightPressed) {
-          onRightPressed(ev);
-          if (stopPropagationWhenHit) stopPropagation(ev);
-        } else if (ev.code === KEY.Space && onSpacePressed) {
-          onSpacePressed(ev);
-          if (stopPropagationWhenHit) stopPropagation(ev);
-        } else if (ev.code === KEY.Enter && onEnterPressed) {
-          onEnterPressed(ev);
-          if (stopPropagationWhenHit) stopPropagation(ev);
-        }
-      },
-      // 防止触发 dialog 的关闭事件
-      { signal: controller.signal, capture: false }
-    );
-
-    return unbind;
-  }, [
-    onDownPressed,
-    onEnterPressed,
-    onEscPressed,
-    onLeftPressed,
-    onRightPressed,
-    onSpacePressed,
-    onUpPressed,
-    stopPropagationWhenHit,
-    unbind,
-  ]);
-
-  useEffect(() => {
-    const bindTrigger = restProps.bindTrigger;
-    if (isNil(bindTrigger)) {
-      // 直接绑定
-      return bind();
-    } else {
-      // 外部触发绑定
-      if (bindTrigger) return bind();
-      else unbind();
-    }
-  }, [bind, restProps.bindTrigger, unbind]);
-
-  return {
-    bind,
-    unbind,
-  };
+  useBindKeyEvent(BoardKey.Escape, onEscPressed, { eventOption });
+  useBindKeyEvent(BoardKey.ArrowLeft, onLeftPressed, { eventOption });
+  useBindKeyEvent(BoardKey.ArrowRight, onRightPressed, { eventOption });
+  useBindKeyEvent(BoardKey.ArrowUp, onUpPressed, { eventOption });
+  useBindKeyEvent(BoardKey.ArrowDown, onDownPressed, { eventOption });
+  useBindKeyEvent(BoardKey.Space, onSpacePressed, { eventOption });
+  useBindKeyEvent(BoardKey.Enter, onEnterPressed, { eventOption });
 };

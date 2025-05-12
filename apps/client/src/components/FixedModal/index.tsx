@@ -50,8 +50,8 @@ const FixedModal = ({
   headerLeftSlot,
 }: FixedModalProps) => {
   useShortcut({
-    bindTrigger: visible,
     onEscPressed: onClose,
+    eventOption: { stopWhenFirstCalled: true },
   });
 
   return (

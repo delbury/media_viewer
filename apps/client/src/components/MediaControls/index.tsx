@@ -122,8 +122,8 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
     // 快捷键
     useShortcut({
-      onUpPressed: handlePrev,
-      onDownPressed: handleNext,
+      onUpPressed: isList ? handlePrev : void 0,
+      onDownPressed: isList ? handleNext : void 0,
       onLeftPressed: handleBack,
       onRightPressed: handleForward,
       onSpacePressed: handleTogglePlay,

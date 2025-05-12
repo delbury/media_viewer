@@ -57,7 +57,9 @@ export const useHandlers = ({ mediaRef, isPaused, onPrev, onNext }: UseHandlersP
   }, [handleGoBy]);
 
   const handlePrev = useCallback(() => {
-    onPrev?.();
+    if (!onPrev) return;
+
+    onPrev();
     if (!isPaused && mediaRef.current) {
       mediaRef.current.addEventListener(
         'canplay',
@@ -70,7 +72,9 @@ export const useHandlers = ({ mediaRef, isPaused, onPrev, onNext }: UseHandlersP
   }, [isPaused, mediaRef, onPrev]);
 
   const handleNext = useCallback(() => {
-    onNext?.();
+    if (!onNext) return;
+
+    onNext();
     if (!isPaused && mediaRef.current) {
       mediaRef.current.addEventListener(
         'canplay',

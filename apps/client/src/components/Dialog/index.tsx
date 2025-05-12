@@ -57,8 +57,8 @@ const CompDialog = (props: DialogProps) => {
   }, [onOk]);
 
   useShortcut({
-    bindTrigger: open,
     onEscPressed: onClose,
+    eventOption: { stopWhenFirstCalled: true },
   });
 
   return (
