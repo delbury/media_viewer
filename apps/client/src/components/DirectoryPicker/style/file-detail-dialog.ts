@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 
 export const StyledContentContainer = styled(Box)`
   width: 100%;
-  height: 60vh;
+  height: 60dvh;
 `;
 
 export const StyledFileDetailWrapper = styled(Box)`

@@ -34,7 +34,7 @@ export const StyledImgContainer = styled(Box)`
 const CONTENT_HEIGHT_PERCENT = 32;
 export const StyledLyricArea = styled(Box)`
   position: relative;
-  height: ${CONTENT_HEIGHT_PERCENT}vh;
+  height: ${CONTENT_HEIGHT_PERCENT}dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -43,7 +43,7 @@ export const StyledLyricArea = styled(Box)`
 `;
 
 export const StyledLyricContent = styled(Box)`
-  padding: ${CONTENT_HEIGHT_PERCENT / 2}vh 0;
+  padding: ${CONTENT_HEIGHT_PERCENT / 2}dvh 0;
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-width: none;

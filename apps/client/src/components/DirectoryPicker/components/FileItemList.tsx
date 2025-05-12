@@ -230,7 +230,7 @@ const FileItemList = ({ dir, files, storageKeySuffix = '' }: FileItemListProps) 
   return (
     <>
       <ResizeContainer
-        height="20vh"
+        height="20dvh"
         // title={t('Tools.CurrentFiles')}
         resizePosition="top"
         persistentKey={`directoryPickerFiles${storageKeySuffix}`}

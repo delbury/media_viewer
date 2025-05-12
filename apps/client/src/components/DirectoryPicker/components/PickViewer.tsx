@@ -59,7 +59,7 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
       >
         <FileBrowser
           ref={fileBrowserRef}
-          height="65vh"
+          height="65dvh"
           onPathNodeChange={setCurrentPathNode}
           onPathListChange={setPathList}
         />

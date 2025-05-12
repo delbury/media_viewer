@@ -36,7 +36,7 @@ const DirectoryPath = ({ pathList, onItemClick, storageKeySuffix = '' }: Directo
   return (
     <ScrollBox
       ref={scrollRef}
-      sx={{ maxHeight: '10vh', display: 'flex', flexDirection: 'column', mb: '4px' }}
+      sx={{ maxHeight: '10dvh', display: 'flex', flexDirection: 'column', mb: '4px' }}
     >
       <StyledPathWrapper isWrap={isWrap}>
         {SwitchBtn}
