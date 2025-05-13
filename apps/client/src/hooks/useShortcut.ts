@@ -58,10 +58,10 @@ const removeGlobalListener = () => {
 const useBindKeyEvent = (
   key: BoardKey,
   cb?: (ev: KeyboardEvent) => void,
-  { lazyMount, eventOption }: { lazyMount?: boolean; eventOption?: EventItem['option'] } = {}
+  { eventOption }: { eventOption?: EventItem['option'] } = {}
 ) => {
   useEffect(() => {
-    if (!cb || lazyMount) return;
+    if (!cb) return;
 
     // 添加事件回调
     if (!GLOBAL_STATE.events[key]) GLOBAL_STATE.events[key] = new Set();
@@ -79,7 +79,7 @@ const useBindKeyEvent = (
       GLOBAL_STATE.events[key].delete(item);
       removeGlobalListener();
     };
-  }, [key, cb, lazyMount, eventOption?.stopWhenFirstCalled]);
+  }, [key, cb, eventOption?.stopWhenFirstCalled]);
 };
 
 export const useShortcut = ({

@@ -94,6 +94,10 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     [emit]
   );
 
+  const handleClose = useCallback(() => {
+    setState(INIT_VALUE);
+  }, []);
+
   return (
     <MediaContext.Provider value={value}>
       {children}
@@ -109,7 +113,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           onNext={goNextFile}
           onPrev={goPrevFile}
           onToggleRandom={toggleRandom}
-          onClose={() => setState(INIT_VALUE)}
+          onClose={handleClose}
           onTitleClick={handleTitleClick}
           headerLeftSlot={
             isList && (
@@ -133,7 +137,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           onNext={goNextFile}
           onPrev={goPrevFile}
           onToggleRandom={toggleRandom}
-          onClose={() => setState(INIT_VALUE)}
+          onClose={handleClose}
           onTitleClick={handleTitleClick}
           headerLeftSlot={
             isList && (
@@ -157,7 +161,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           onNext={goNextFile}
           onPrev={goPrevFile}
           onToggleRandom={toggleRandom}
-          onClose={() => setState(INIT_VALUE)}
+          onClose={handleClose}
           onTitleClick={handleTitleClick}
           headerLeftSlot={
             isList && (
