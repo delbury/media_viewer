@@ -2,7 +2,6 @@ import { useFileTitle } from '#/hooks/useFileTitle';
 import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import FileListPreviewer from '../FileListPreviewer';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
 import MediaControls from '../MediaControls';
@@ -11,8 +10,6 @@ import { useMediaSource } from './useMediaSource';
 
 type VideoViewerProps = {
   file?: FileInfo;
-  files?: FileInfo[];
-  fileIndex?: number;
   isList?: boolean;
   firstDisabled?: boolean;
   lastDisabled?: boolean;
@@ -21,14 +18,13 @@ type VideoViewerProps = {
   onNext?: () => void;
   onToggleRandom?: () => void;
   onTitleClick?: () => void;
+  headerLeftSlot?: React.ReactNode;
 } & Omit<FixedModalProps, 'children'>;
 
 const VideoViewer = ({
   visible,
   onClose,
   file,
-  files,
-  fileIndex,
   lastDisabled,
   firstDisabled,
   isList,
@@ -37,6 +33,7 @@ const VideoViewer = ({
   onPrev,
   onToggleRandom,
   onTitleClick,
+  headerLeftSlot,
 }: VideoViewerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   // 链接
@@ -68,14 +65,7 @@ const VideoViewer = ({
       onTitleClick={onTitleClick}
       title={title}
       secondaryTitle={secondaryTitle}
-      headerLeftSlot={
-        isList && (
-          <FileListPreviewer
-            files={files}
-            currentFileIndex={fileIndex}
-          />
-        )
-      }
+      headerLeftSlot={headerLeftSlot}
       footerSlot={
         // 工具栏
         <MediaControls

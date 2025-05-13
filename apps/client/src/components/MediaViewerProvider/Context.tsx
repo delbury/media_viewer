@@ -20,6 +20,7 @@ export interface MediaContextState {
 interface MediaContextValue {
   state: MediaContextState;
   setState: (val: MediaContextState) => void;
+  goNextFile: (val?: number) => void;
 }
 
 export const MediaContext = createContext<MediaContextValue>({
@@ -27,4 +28,5 @@ export const MediaContext = createContext<MediaContextValue>({
     ...INIT_VALUE,
   },
   setState: noop,
+  goNextFile: noop,
 });

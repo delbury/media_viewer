@@ -1,4 +1,3 @@
-import { h5Max } from '#/style/device';
 import { FIXED_MODAL_Z_INDEX } from '#/style/theme';
 import { Box, buttonBaseClasses, iconButtonClasses, styled, svgIconClasses } from '@mui/material';
 
@@ -21,10 +20,7 @@ export const StyledFixedModalHeader = styled(Box)`
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-
-  @media ${h5Max} {
-    flex-direction: row-reverse;
-  }
+  flex-direction: row-reverse;
 
   & .${iconButtonClasses.root} {
     color: inherit;

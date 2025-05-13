@@ -7,7 +7,6 @@ import { Button, IconButton, SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { SyntheticEvent, useCallback, useMemo, useRef, useState } from 'react';
 import Empty from '../Empty';
-import FileListPreviewer from '../FileListPreviewer';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
 import MediaControls, { MediaControlsInstance } from '../MediaControls';
@@ -24,8 +23,6 @@ import { findLyricIndex, useLyric } from './useLyric';
 
 type AudioViewerProps = {
   file?: FileInfo;
-  files?: FileInfo[];
-  fileIndex?: number;
   isList?: boolean;
   firstDisabled?: boolean;
   lastDisabled?: boolean;
@@ -34,6 +31,7 @@ type AudioViewerProps = {
   onNext?: () => void;
   onToggleRandom?: () => void;
   onTitleClick?: () => void;
+  headerLeftSlot?: React.ReactNode;
 } & Omit<FixedModalProps, 'children'>;
 
 const MEDIA_BTN_SX: SxProps<Theme> = {
@@ -51,8 +49,6 @@ const AudioViewer = ({
   visible,
   onClose,
   file,
-  files,
-  fileIndex,
   lastDisabled,
   firstDisabled,
   isList,
@@ -61,6 +57,7 @@ const AudioViewer = ({
   onPrev,
   onToggleRandom,
   onTitleClick,
+  headerLeftSlot,
 }: AudioViewerProps) => {
   const t = useTranslations();
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -134,14 +131,7 @@ const AudioViewer = ({
       onTitleClick={onTitleClick}
       title={title}
       secondaryTitle={secondaryTitle}
-      headerLeftSlot={
-        isList && (
-          <FileListPreviewer
-            files={files}
-            currentFileIndex={fileIndex}
-          />
-        )
-      }
+      headerLeftSlot={headerLeftSlot}
       footerSlot={
         // 工具栏
         <MediaControls

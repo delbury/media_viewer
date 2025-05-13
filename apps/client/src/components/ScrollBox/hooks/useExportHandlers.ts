@@ -41,4 +41,8 @@ export const useExportHandlers = (
     }),
     [scrollTo, wrapperRef]
   );
+
+  return {
+    scrollTo,
+  };
 };

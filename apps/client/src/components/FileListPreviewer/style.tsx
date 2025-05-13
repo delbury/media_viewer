@@ -19,37 +19,62 @@ export const StyledListPreviewerWrapper = styled(Box)`
   }
 `;
 
+export const StyledSlotWrapper = styled(Box)`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.75rem;
+`;
+
 export const StyleFilesContainer = styled(Box)`
   height: 65dvh;
+  overflow: hidden;
 `;
 
 export const StyleChildItemImage = styled(Box)`
   height: 100%;
-  aspect-ratio: 16 / 9;
+  /* aspect-ratio: 16 / 9; */
+  aspect-ratio: 1;
   background-color: ${({ theme }) => theme.palette.common.black};
   text-align: center;
 
   > img {
     height: 100%;
+    width: 100%;
     object-fit: contain;
   }
 `;
 
+export const StyleChildItemInfo = styled(Box)`
+  margin-right: 4px;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+`;
+
+export const StyleChildItemDir = styled(Box)`
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 0.65rem;
+  color: ${({ theme }) => theme.palette.text.secondary};
+`;
 export const StyleChildItemName = styled(Box)`
   text-overflow: ellipsis;
   overflow: hidden;
+  white-space: nowrap;
+  font-weight: 700;
   font-size: 0.75rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  word-break: break-all;
 `;
 
 export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !== 'activated' })<{
   activated?: boolean;
 }>`
   height: ${FILE_ITEM_ROW_HEIGHT}px;
-  padding: 4px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -57,6 +82,7 @@ export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !==
   border-top: 2px solid transparent;
   border-bottom: 2px solid transparent;
   background-clip: padding-box;
+  cursor: pointer;
 
   ${({ activated, theme }) =>
     activated ? `background-color: ${theme.palette.action.selected}` : ''};

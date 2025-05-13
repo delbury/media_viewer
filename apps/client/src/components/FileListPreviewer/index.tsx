@@ -1,18 +1,23 @@
+import { useFileTitle } from '#/hooks/useFileTitle';
+import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
-import { FormatListBulletedRounded } from '@mui/icons-material';
+import { FormatListBulletedRounded, PinDropRounded } from '@mui/icons-material';
 import { Badge, IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import Dialog from '../Dialog';
 import { VirtualListChildItemProps } from '../ScrollBox/hooks/useVirtualList';
-import ScrollBox from './../ScrollBox/index';
+import ScrollBox, { ScrollBoxInstance } from './../ScrollBox/index';
 import {
   FILE_ITEM_ROW_HEIGHT,
+  StyleChildItemDir,
   StyleChildItemImage,
+  StyleChildItemInfo,
   StyleChildItemName,
   StyledChildItem,
   StyledListPreviewerWrapper,
+  StyledSlotWrapper,
   StyleFilesContainer,
 } from './style';
 
@@ -21,21 +26,43 @@ interface FileListPreviewerProps {
   files?: FileInfo[];
 }
 
-const ChildItem = (props: FileListPreviewerProps & VirtualListChildItemProps) => {
-  const { index, files, currentFileIndex } = props;
-  const file = files?.[index];
+type ChildItemProps = {
+  onItemClick?: (file: FileInfo, index: number) => void;
+} & FileListPreviewerProps &
+  VirtualListChildItemProps;
+
+const ChildItem = (props: ChildItemProps) => {
+  const {
+    index,
+    files,
+    currentFileIndex,
+    onItemClick,
+    params: { offsetY },
+  } = props;
+  const file = files?.[index] as FileInfo;
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
   const activated = index === currentFileIndex;
+  const handleItemClick = useCallback(() => onItemClick?.(file, index), [file, index, onItemClick]);
+  const { title, secondaryTitle } = useFileTitle({ file });
 
   return (
-    <StyledChildItem activated={activated}>
+    <StyledChildItem
+      sx={{
+        transform: `translateY(${offsetY}px)`,
+      }}
+      activated={activated}
+      onClick={handleItemClick}
+    >
       <StyleChildItemImage>
         <img
           src={posterUrl}
-          alt={file?.name}
+          alt={title}
         />
       </StyleChildItemImage>
-      <StyleChildItemName>{file?.name}</StyleChildItemName>
+      <StyleChildItemInfo>
+        <StyleChildItemName>{title}</StyleChildItemName>
+        <StyleChildItemDir>{secondaryTitle}</StyleChildItemDir>
+      </StyleChildItemInfo>
     </StyledChildItem>
   );
 };
@@ -47,6 +74,34 @@ const FileListPreviewer = ({ files, currentFileIndex }: FileListPreviewerProps) 
 
   const handleOpen = useCallback(() => setVisible(true), []);
   const handleClose = useCallback(() => setVisible(false), []);
+
+  const scrollBoxRef = useRef<ScrollBoxInstance>(null);
+  const defaultScroll = FILE_ITEM_ROW_HEIGHT * ((currentFileIndex ?? 0) - 0.5);
+
+  const scrollToCurrentFile = useCallback(() => {
+    scrollBoxRef.current?.scrollTo({
+      top: defaultScroll,
+    });
+  }, [defaultScroll]);
+
+  const { jumpToFile } = useMediaViewerContext();
+  const handleJumpToFileIndex = useCallback(
+    (_: FileInfo, index: number) => {
+      jumpToFile(index);
+      // setVisible(false);
+    },
+    [jumpToFile]
+  );
+
+  const getChildProps = useCallback(
+    (index: number) => ({
+      key: files?.[index]?.showPath ?? '',
+      files,
+      currentFileIndex,
+      onItemClick: handleJumpToFileIndex,
+    }),
+    [currentFileIndex, files, handleJumpToFileIndex]
+  );
 
   return (
     <StyledListPreviewerWrapper>
@@ -64,25 +119,35 @@ const FileListPreviewer = ({ files, currentFileIndex }: FileListPreviewerProps) 
           title={t('Tools.FileListPreviewer')}
           open={visible}
           onClose={handleClose}
+          onlyClose
+          titleRightSlot={
+            <StyledSlotWrapper>
+              <IconButton onClick={scrollToCurrentFile}>
+                <PinDropRounded fontSize="small" />
+              </IconButton>
+              <span>
+                {currentFileIndex} / {files?.length ?? 0}
+              </span>
+            </StyledSlotWrapper>
+          }
         >
           <StyleFilesContainer>
             <ScrollBox
+              ref={scrollBoxRef}
+              sx={{ height: '100%' }}
               emptyText={t('Tools.NoFiles')}
               isEmpty={!files?.length}
               lazyLoadEnabled={true}
+              defaultScroll={{
+                top: defaultScroll,
+              }}
               virtualListConfig={{
                 childCount: files?.length ?? 0,
                 childHeight: FILE_ITEM_ROW_HEIGHT,
                 ChildItem,
-                getChildProps: (index: number) => ({
-                  key: files?.[index]?.relativePath ?? '',
-                  files,
-                  currentFileIndex,
-                }),
+                getChildProps,
               }}
-            >
-              xxx
-            </ScrollBox>
+            />
           </StyleFilesContainer>
         </Dialog>
       )}

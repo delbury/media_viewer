@@ -14,10 +14,10 @@ export const StyledScrollBoxContent = styled(Box, {
   overflow: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
-  scrollbar-width: ${({ hideScrollbar }) => (hideScrollbar ? 'none' : 'thin')};
+  scrollbar-width: ${({ hideScrollbar }) => (hideScrollbar ? 'none' : 'auto')};
 
   @media ${h5Max} {
-    scrollbar-width: ${({ hideScrollbar }) => (hideScrollbar ? 'none' : 'auto')};
+    scrollbar-width: ${({ hideScrollbar }) => (hideScrollbar ? 'none' : 'thin')};
   }
 `;
 

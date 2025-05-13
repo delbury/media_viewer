@@ -2,11 +2,10 @@ import Dialog from '#/components/Dialog';
 import PosterImage from '#/components/PosterImage';
 import { useSwr } from '#/hooks/useSwr';
 import { formatDate, formatFileSize } from '#/utils';
-import { FullFileType } from '#pkgs/shared';
 import { isMediaFile } from '#pkgs/tools/common';
 import { FileInfo } from '#pkgs/tools/traverseDirectories';
-import { LoopOutlined, PhotoOutlined, PlayCircleOutlineRounded } from '@mui/icons-material';
-import { Box, IconButton, SxProps, TabsOwnProps, Theme } from '@mui/material';
+import { LoopOutlined } from '@mui/icons-material';
+import { Box, IconButton, TabsOwnProps } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FULL_FILE_FILTER_MAP } from '../constant';
@@ -24,14 +23,14 @@ import {
   StyledTabs,
 } from '../style/file-detail-dialog';
 
-const getTitleIcon = (fileType: FullFileType, sx?: SxProps<Theme>) => {
-  if (fileType === 'video' || fileType === 'audio') {
-    return <PlayCircleOutlineRounded sx={sx} />;
-  } else if (fileType === 'image') {
-    return <PhotoOutlined sx={sx} />;
-  }
-  return null;
-};
+// const getTitleIcon = (fileType: FullFileType, sx?: SxProps<Theme>) => {
+//   if (fileType === 'video' || fileType === 'audio') {
+//     return <PlayCircleOutlineRounded sx={sx} />;
+//   } else if (fileType === 'image') {
+//     return <PhotoOutlined sx={sx} />;
+//   }
+//   return null;
+// };
 
 // 渲染路径信息
 const renderPathInfo = (
@@ -91,7 +90,7 @@ const FileDetailDialog = ({
       { label: t('File.Created'), value: formatDate(file.created) },
       { label: t('File.Updated'), value: formatDate(file.updated) },
     ];
-  }, [file, t]);
+  }, [file, onPathClick, t]);
 
   // 是否展示缩略图
   const isMedia = useMemo(() => isMediaFile(file.fileType), [file.fileType]);
@@ -125,7 +124,7 @@ const FileDetailDialog = ({
       onClose={onClose}
       title={
         <>
-          {getTitleIcon(file.fileType, { marginInlineEnd: '8px' })}
+          {/* {getTitleIcon(file.fileType, { marginInlineEnd: '8px' })} */}
           {file.name}
         </>
       }

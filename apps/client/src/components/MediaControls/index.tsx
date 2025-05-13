@@ -87,6 +87,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [videoDuration, setVideoDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
 
+    const isPausedInstant = useRef(true);
+    useEffect(() => {
+      isPausedInstant.current = isPaused;
+    }, [isPaused]);
+
     // 是否是 h5
     const isH5 = useMediaQuery(h5Max);
 
@@ -210,6 +215,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         // 可播放事件
         const canplayController = bindEvent(elm, 'canplay', () => {
           setIsWaiting(false);
+          if (!isPausedInstant.current) elm.play();
         });
 
         // 开始加载

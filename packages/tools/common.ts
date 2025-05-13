@@ -13,6 +13,7 @@ export const isMediaFile = (type: FullFileType) => ALLOWED_POSTER_FILE_TYPES.inc
 
 // 默认的高/宽比
 export const DEFAULT_RATIO = 0.5625;
+export const DEFAULT_AUDIO_POSTER_RATIO = 0.5625;
 
 // 格式化 path 为 linux 风格
 export const formatPath = (p: string) => p.replaceAll('\\', '/');

@@ -6,6 +6,7 @@ import { VIEWER_QUERY_KEY, ViewerQueryValue } from '#/utils/constant';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import AudioViewer from '../AudioViewer';
 import FileDetailDialog from '../DirectoryPicker/components/FileDetailDialog';
+import FileListPreviewer from '../FileListPreviewer';
 import ImageViewer from '../ImageViewer';
 import VideoViewer from '../VideoViewer';
 import { INIT_VALUE, MediaContext, MediaContextState } from './Context';
@@ -13,14 +14,6 @@ import { useFileOrDirectory } from './useFileOrDirectory';
 
 const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
   const [state, setState] = useState(INIT_VALUE);
-
-  const value = useMemo(
-    () => ({
-      state,
-      setState,
-    }),
-    [state]
-  );
 
   const show = useMemo(() => {
     const flags: Partial<Record<NonNullable<MediaContextState['mediaType']>, boolean>> = {};
@@ -46,6 +39,15 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     mediaType: state.mediaType,
   });
   const [detailVisible, setDetailVisible] = useState(false);
+
+  const value = useMemo(
+    () => ({
+      state,
+      setState,
+      goNextFile,
+    }),
+    [goNextFile, state]
+  );
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -100,8 +102,6 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
         <ImageViewer
           visible
           file={currentFile}
-          files={fileList}
-          fileIndex={currentFileIndex}
           isList={isList}
           lastDisabled={lastDisabled}
           firstDisabled={firstDisabled}
@@ -111,6 +111,14 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           onToggleRandom={toggleRandom}
           onClose={() => setState(INIT_VALUE)}
           onTitleClick={handleTitleClick}
+          headerLeftSlot={
+            isList && (
+              <FileListPreviewer
+                files={fileList}
+                currentFileIndex={currentFileIndex}
+              />
+            )
+          }
         />
       )}
 
@@ -118,8 +126,6 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
         <AudioViewer
           visible
           file={currentFile}
-          files={fileList}
-          fileIndex={currentFileIndex}
           isList={isList}
           lastDisabled={lastDisabled}
           firstDisabled={firstDisabled}
@@ -129,6 +135,14 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           onToggleRandom={toggleRandom}
           onClose={() => setState(INIT_VALUE)}
           onTitleClick={handleTitleClick}
+          headerLeftSlot={
+            isList && (
+              <FileListPreviewer
+                files={fileList}
+                currentFileIndex={currentFileIndex}
+              />
+            )
+          }
         />
       )}
 
@@ -136,8 +150,6 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
         <VideoViewer
           visible
           file={currentFile}
-          files={fileList}
-          fileIndex={currentFileIndex}
           isList={isList}
           lastDisabled={lastDisabled}
           firstDisabled={firstDisabled}
@@ -147,6 +159,14 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           onToggleRandom={toggleRandom}
           onClose={() => setState(INIT_VALUE)}
           onTitleClick={handleTitleClick}
+          headerLeftSlot={
+            isList && (
+              <FileListPreviewer
+                files={fileList}
+                currentFileIndex={currentFileIndex}
+              />
+            )
+          }
         />
       )}
 

@@ -1,5 +1,6 @@
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { MediaFileType } from '#pkgs/shared';
+import { isNil } from 'lodash-es';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface UseFileOrDirectoryParams {
@@ -79,29 +80,38 @@ export const useFileOrDirectory = ({
   }, [currentFileIndex, isRandomPlay]);
 
   // 下一个
-  const handleNext = useCallback(() => {
-    // 将当前正在播放的文件加入到随机播放已播放列表
-    randomPlayedIndexes.current.add(currentFileIndex);
+  const handleNext = useCallback(
+    (index?: number) => {
+      // 将当前正在播放的文件加入到随机播放已播放列表
+      randomPlayedIndexes.current.add(currentFileIndex);
 
-    if (isRandomPlay) {
-      // 随机播放
-      const nextIndexIndex = getRandomIndex(randomToPlayIndexes.current.size);
-      const nextIndex = [...randomToPlayIndexes.current][nextIndexIndex];
-      randomToPlayIndexes.current.delete(nextIndex);
-      setCurrentFileIndex(nextIndex);
-
-      // 播放到头了，重新开始
-      if (!randomToPlayIndexes.current.size) {
-        randomPlayedIndexes.current.clear();
-        randomToPlayIndexes.current = new Set(Array.from({ length: fileList.length }, (_, k) => k));
+      if (isRandomPlay) {
+        // 随机播放
+        const nextIndex = isNil(index)
+          ? [...randomToPlayIndexes.current][getRandomIndex(randomToPlayIndexes.current.size)]
+          : index;
         randomToPlayIndexes.current.delete(nextIndex);
+        setCurrentFileIndex(nextIndex);
+
+        // 播放到头了，重新开始
+        if (!randomToPlayIndexes.current.size) {
+          randomPlayedIndexes.current.clear();
+          randomToPlayIndexes.current = new Set(
+            Array.from({ length: fileList.length }, (_, k) => k)
+          );
+          randomToPlayIndexes.current.delete(nextIndex);
+        }
+      } else {
+        const newIndex = isNil(index)
+          ? currentFileIndex < fileList.length - 1
+            ? currentFileIndex + 1
+            : currentFileIndex
+          : index;
+        setCurrentFileIndex(newIndex);
       }
-    } else {
-      const newIndex =
-        currentFileIndex < fileList.length - 1 ? currentFileIndex + 1 : currentFileIndex;
-      setCurrentFileIndex(newIndex);
-    }
-  }, [currentFileIndex, fileList.length, isRandomPlay]);
+    },
+    [currentFileIndex, fileList.length, isRandomPlay]
+  );
 
   const handleToggleRandom = useCallback(() => {
     setIsRandomPlay(v => !v);
@@ -110,6 +120,7 @@ export const useFileOrDirectory = ({
   return {
     fileList,
     currentFileIndex,
+    setCurrentFileIndex,
     currentFile: fileList[currentFileIndex] as FileInfo | undefined,
     isList: fileList.length > 1,
     firstDisabled: isRandomPlay || (!isRandomPlay && currentFileIndex === 0),

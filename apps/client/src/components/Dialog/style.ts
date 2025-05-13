@@ -1,10 +1,26 @@
 import styled from '@emotion/styled';
-import { Box } from '@mui/material';
+import { Box, DialogTitle } from '@mui/material';
 
-export const StyledDialogTitleRow = styled(Box)`
+export const StyledDialogTitleWrapper = styled(Box)`
+  flex: 1;
   height: 48px;
-  padding: 0 16px;
+  padding-right: 16px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+`;
+
+export const StyledDialogTitle = styled(DialogTitle)`
+  padding: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+`;
+
+export const StyledDialogHeader = styled(Box)`
+  display: flex;
   align-items: center;
 `;

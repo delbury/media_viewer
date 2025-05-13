@@ -6,7 +6,7 @@ import {
   KeyboardArrowUpOutlined,
 } from '@mui/icons-material';
 import { Box, SxProps, Theme } from '@mui/material';
-import { forwardRef, useCallback, useMemo, useRef } from 'react';
+import { forwardRef, useCallback, useEffect, useMemo, useRef } from 'react';
 import Empty from '../Empty';
 import { useEvents } from './hooks/useEvents';
 import { ScrollBoxInstance, useExportHandlers } from './hooks/useExportHandlers';
@@ -36,6 +36,11 @@ export interface ScrollBoxProps {
   // 无内容
   emptyText?: string;
   isEmpty?: boolean;
+  // 挂载后默认滚动到的位置
+  defaultScroll?: {
+    left?: number;
+    top?: number;
+  };
 }
 
 const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
@@ -49,6 +54,7 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
       hideScrollbar,
       emptyText,
       isEmpty,
+      defaultScroll,
     },
     ref
   ) => {
@@ -84,7 +90,7 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
     });
 
     // 暴露给实例方法
-    useExportHandlers(ref, wrapperRef);
+    const { scrollTo } = useExportHandlers(ref, wrapperRef);
 
     // 懒加载
     const { observe } = useLazyLoad({
@@ -149,6 +155,15 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
         left: x,
         top: y,
         behavior: 'smooth',
+      });
+    }, []);
+
+    useEffect(() => {
+      // 默认滚动到的位置
+      scrollTo({
+        top: defaultScroll?.top,
+        left: defaultScroll?.left,
+        behavior: 'instant',
       });
     }, []);
 

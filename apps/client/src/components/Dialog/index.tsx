@@ -1,6 +1,8 @@
 'use client';
 
 import { useShortcut } from '#/hooks/useShortcut';
+import { stopPropagation } from '#/utils';
+import { CloseRounded } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -8,14 +10,14 @@ import {
   DialogActions,
   dialogClasses,
   DialogContent,
-  DialogTitle,
   Divider,
+  IconButton,
   DialogProps as RawDialogProps,
   Stack,
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
-import { StyledDialogTitleRow } from './style';
+import { StyledDialogHeader, StyledDialogTitle, StyledDialogTitleWrapper } from './style';
 
 interface DialogProps {
   open: boolean;
@@ -77,25 +79,24 @@ const CompDialog = (props: DialogProps) => {
       aria-modal={false}
       disableEscapeKeyDown
     >
-      {!!title && (
-        <StyledDialogTitleRow>
-          <DialogTitle
-            sx={{
-              padding: 0,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              maxWidth: '100%',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            {title}
-          </DialogTitle>
+      <StyledDialogHeader>
+        <IconButton
+          onClick={ev => {
+            stopPropagation(ev);
+            onClose?.();
+          }}
+        >
+          <CloseRounded />
+        </IconButton>
 
-          {titleRightSlot}
-        </StyledDialogTitleRow>
-      )}
+        {!!title && (
+          <StyledDialogTitleWrapper>
+            <StyledDialogTitle>{title}</StyledDialogTitle>
+
+            {titleRightSlot}
+          </StyledDialogTitleWrapper>
+        )}
+      </StyledDialogHeader>
 
       {!!title && <Divider />}
 

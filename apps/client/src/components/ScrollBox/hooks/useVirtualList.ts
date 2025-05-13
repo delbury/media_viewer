@@ -47,7 +47,7 @@ export interface VirtualListConfig {
   // grid 布局时，为行数
   overRowCount?: number | 'auto';
   // 渲染子元素
-  ChildItem: React.FC<VirtualListChildItemProps>;
+  ChildItem: React.FC<Record<string, unknown> & VirtualListChildItemProps>;
   // 子元素的 key
   getChildProps: (index: number) => { key: string; [key: string]: unknown };
   // 行包裹组件

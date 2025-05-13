@@ -29,7 +29,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import FileListPreviewer from '../FileListPreviewer';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
 import { StyledImageToolbar, StyledImageWrapper, StyledLoadingWrapper } from './style';
@@ -49,8 +48,6 @@ const SCALE_LIMIT = {
 
 type ImageViewerProps = {
   file?: FileInfo;
-  files?: FileInfo[];
-  fileIndex?: number;
   isList?: boolean;
   firstDisabled?: boolean;
   lastDisabled?: boolean;
@@ -59,14 +56,13 @@ type ImageViewerProps = {
   onNext?: () => void;
   onToggleRandom?: () => void;
   onTitleClick?: () => void;
+  headerLeftSlot?: React.ReactNode;
 } & Omit<FixedModalProps, 'children'>;
 
 const ImageViewer = ({
   visible,
   onClose,
   file,
-  files,
-  fileIndex,
   lastDisabled,
   firstDisabled,
   isList,
@@ -75,6 +71,7 @@ const ImageViewer = ({
   onPrev,
   onToggleRandom,
   onTitleClick,
+  headerLeftSlot,
 }: ImageViewerProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -280,14 +277,7 @@ const ImageViewer = ({
       onTitleClick={onTitleClick}
       title={title}
       secondaryTitle={secondaryTitle}
-      headerLeftSlot={
-        isList && (
-          <FileListPreviewer
-            files={files}
-            currentFileIndex={fileIndex}
-          />
-        )
-      }
+      headerLeftSlot={headerLeftSlot}
       footerSlot={
         // 工具栏
         <StyledImageToolbar>

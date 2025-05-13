@@ -1,5 +1,5 @@
 import { MediaDetailInfo } from '#pkgs/shared/index.js';
-import { DEFAULT_RATIO, detectFileType, logError } from '#pkgs/tools/common';
+import { DEFAULT_AUDIO_POSTER_RATIO, detectFileType, logError } from '#pkgs/tools/common';
 import path from 'node:path';
 import {
   LONG_VIDEO_DURATION_THRESHOLD,
@@ -81,7 +81,7 @@ const getGenerateAudioPosterCommand = async (rawFilePath: string, posterFilePath
     return [
       basePosterCommandParam,
       '-f lavfi',
-      `-i "color=c=black:s=${POSTER_MAX_SIZE}x${DEFAULT_RATIO * POSTER_MAX_SIZE}"`,
+      `-i "color=c=black:s=${POSTER_MAX_SIZE}x${DEFAULT_AUDIO_POSTER_RATIO * POSTER_MAX_SIZE}"`,
       '-vframes 1',
       webpCommandParam,
       `"${posterFilePath}"`,
