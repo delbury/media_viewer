@@ -1,6 +1,7 @@
 {
   "Tools": {
     "RepeatFileAnalyzer": "重复文件分析",
+    "FileViewer": "文件浏览器",
     "SelectDirectory": "选择文件夹",
     "NoDirectories": "当前目录下无文件夹",
     "NoFiles": "当前目录下无文件",
