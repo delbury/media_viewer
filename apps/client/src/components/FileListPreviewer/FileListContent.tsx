@@ -1,6 +1,7 @@
 import { useFileTitle } from '#/hooks/useFileTitle';
 import { formatFileSize, getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
+import { isNil } from 'lodash-es';
 import { useTranslations } from 'next-intl';
 import { RefObject, useCallback, useMemo } from 'react';
 import { VirtualListChildItemProps } from '../ScrollBox/hooks/useVirtualList';
@@ -21,6 +22,8 @@ interface FileListPreviewerProps {
   files?: FileInfo[];
   scrollBoxRef?: RefObject<ScrollBoxInstance | null>;
   onItemClick?: (file: FileInfo, index: number) => void;
+  rowHeight?: number;
+  RowExtraComp?: React.FC<{ file: FileInfo }>;
 }
 
 type ChildItemProps = FileListPreviewerProps & VirtualListChildItemProps;
@@ -28,23 +31,29 @@ type ChildItemProps = FileListPreviewerProps & VirtualListChildItemProps;
 const ChildItem = (props: ChildItemProps) => {
   const {
     index,
+    params: { offsetY },
     files,
     currentFileIndex,
     onItemClick,
-    params: { offsetY },
+    rowHeight,
+    RowExtraComp,
   } = props;
   const file = files?.[index] as FileInfo;
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
   const activated = index === currentFileIndex;
   const handleItemClick = useCallback(() => onItemClick?.(file, index), [file, index, onItemClick]);
   const { title, secondaryTitle } = useFileTitle({ file });
-  const isSibling = files?.[currentFileIndex as number].showDir === files?.[index].showDir;
+  const isSibling = isNil(currentFileIndex)
+    ? false
+    : files?.[currentFileIndex].showDir === files?.[index].showDir;
   const size = useMemo(() => formatFileSize(file.size), [file]);
 
   return (
     <StyledChildItem
       sx={{
         transform: `translateY(${offsetY}px)`,
+        cursor: onItemClick ? 'pointer' : void 0,
+        height: rowHeight ? `${rowHeight}px !important` : void 0,
       }}
       type={activated ? 'activated' : isSibling ? 'sibling' : void 0}
       onClick={handleItemClick}
@@ -61,6 +70,7 @@ const ChildItem = (props: ChildItemProps) => {
           <StyleChildItemSize>{size}</StyleChildItemSize>
         </StyleChildItemNameRow>
         <StyleChildItemDir>{secondaryTitle}</StyleChildItemDir>
+        {RowExtraComp && <RowExtraComp file={file} />}
       </StyleChildItemInfo>
     </StyledChildItem>
   );
@@ -71,6 +81,8 @@ const FileListContent = ({
   currentFileIndex,
   scrollBoxRef,
   onItemClick,
+  rowHeight,
+  RowExtraComp,
 }: FileListPreviewerProps) => {
   const t = useTranslations();
   const defaultScroll = FILE_ITEM_ROW_HEIGHT * ((currentFileIndex ?? 0) - 0.5);
@@ -81,8 +93,10 @@ const FileListContent = ({
       files,
       currentFileIndex,
       onItemClick,
+      rowHeight,
+      RowExtraComp,
     }),
-    [currentFileIndex, files, onItemClick]
+    [currentFileIndex, files, onItemClick, RowExtraComp, rowHeight]
   );
 
   return (
@@ -97,7 +111,7 @@ const FileListContent = ({
       }}
       virtualListConfig={{
         childCount: files?.length ?? 0,
-        childHeight: FILE_ITEM_ROW_HEIGHT,
+        childHeight: rowHeight ?? FILE_ITEM_ROW_HEIGHT,
         ChildItem,
         getChildProps,
       }}

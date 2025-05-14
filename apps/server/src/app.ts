@@ -1,7 +1,7 @@
+import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import { logError, logInfo } from '#pkgs/tools/common';
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
-import { ERROR_MSG } from './i18n/errorMsg';
 import { directoryRouter } from './router/directory';
 import { fileRouter } from './router/file';
 import { mediaRouter } from './router/media';

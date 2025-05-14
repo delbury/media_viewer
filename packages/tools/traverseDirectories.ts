@@ -2,6 +2,7 @@ import { Stats } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { FullFileType, MediaFileType } from '../shared';
+import { execCommand } from './cli';
 import { createFileNameRegExp, detectFileType, formatPath } from './common';
 import { IGNORE_FILE_NAME_REG, LYRIC_EXT, SUBTITLES_EXTS, SubtitlesExts } from './constant';
 
@@ -74,6 +75,16 @@ interface NewInfoParams {
 // 返回类型
 export type TraverseDirectoriesReturnValue = Awaited<ReturnType<typeof traverseDirectories>>;
 
+// 获取视频文件的时长
+const getVideoDuration = async (filePath?: string) => {
+  if (!filePath) return;
+
+  const command = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${filePath}"`;
+  const { stdout } = await execCommand(command);
+  const duration = parseFloat(stdout as string);
+  return duration;
+};
+
 // 文件和文件夹通用基础信息
 const newCommonInfo = ({ bp, fp, info, bpi }: NewInfoParams = {}): CommonInfo => {
   let basePath = formatPath(bp ?? '');
@@ -102,6 +113,12 @@ const newFileInfo = async (params: NewInfoParams): Promise<FileInfo> => {
   const { ext, name } = path.parse(params.fp ?? '');
   const nameExt = ext.toLowerCase();
   const fileType = detectFileType(ext);
+  let duration: number | undefined = void 0;
+
+  if (fileType === 'video') {
+    // 视频文件，获取视频时长
+    duration = await getVideoDuration(params.fp);
+  }
 
   const fileInfo: FileInfo = {
     ...newCommonInfo(params),
@@ -110,6 +127,7 @@ const newFileInfo = async (params: NewInfoParams): Promise<FileInfo> => {
     nameExt,
     nameExtPure: nameExt.replace('.', ''),
     fileType,
+    duration,
   };
 
   return fileInfo;
@@ -238,6 +256,7 @@ export const traverseDirectories = async (
         } else if (cdInfo.isFile()) {
           // 是文件，创建并保存当前文件信息对象
           const fileInfo = await newFileInfo({ bp, fp: path.resolve(fp, cd), info: cdInfo, bpi });
+
           dirInfo.files.push(fileInfo);
           // 所有文件信息放入数组
           fileList.push(fileInfo);

@@ -1,10 +1,11 @@
-import { CodecName, MediaDetailInfo } from '#pkgs/shared/index.js';
-import { logError, logWarn as RawLogWarn, switchFnByFlag } from '#pkgs/tools/common.js';
+import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
+import { CodecName, MediaDetailInfo } from '#pkgs/shared';
+import { execCommand } from '#pkgs/tools/cli';
+import { logError, logWarn as RawLogWarn, switchFnByFlag } from '#pkgs/tools/common';
 import { ParameterizedContext } from 'koa';
 import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { VIDEO_TRANSFORM_MAX_HEIGHT, VIDEO_TRANSFORM_MAX_WIDTH } from '../config';
-import { ERROR_MSG } from '../i18n/errorMsg';
-import { execCommand, generateHash } from './common';
+import { generateHash } from './common';
 import { logCommand } from './debug';
 
 interface VideoDetailTasks {

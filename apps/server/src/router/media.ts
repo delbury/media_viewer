@@ -1,9 +1,9 @@
 import { API_CONFIGS, ApiRequestParamsTypes } from '#pkgs/apis';
+import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import { detectFileType, isMediaFile } from '#pkgs/tools/common';
 import Router from '@koa/router';
 import { omit } from 'lodash-es';
 import path from 'node:path';
-import { ERROR_MSG } from '../i18n/errorMsg';
 import { getRootDir, returnBody } from '../util/common';
 import { getMediaDetail } from '../util/media';
 

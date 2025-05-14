@@ -1,8 +1,8 @@
 import { API_CONFIGS, ApiRequestParamsTypes, ApiResponseDataTypes } from '#pkgs/apis';
+import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import { detectFileType } from '#pkgs/tools/common';
 import Router from '@koa/router';
 import path from 'node:path';
-import { ERROR_MSG } from '../i18n/errorMsg';
 import { getRootDir, returnBody, validateNumberString } from '../util/common';
 import { getMediaDetail, transformVideoStream } from '../util/media';
 import { transformSubtitleToVtt } from '../util/subtitle';

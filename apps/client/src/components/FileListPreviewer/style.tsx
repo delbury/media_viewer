@@ -46,7 +46,7 @@ export const StyleChildItemImage = styled(Box)`
 `;
 
 export const StyleChildItemInfo = styled(Box)`
-  margin-right: 4px;
+  margin-right: 8px;
   flex: 1;
   min-width: 0;
   height: 100%;
@@ -97,7 +97,6 @@ export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !==
   border-top: 2px solid transparent;
   border-bottom: 2px solid transparent;
   background-clip: padding-box;
-  cursor: pointer;
 
   ${({ type, theme }) =>
     type === 'activated'

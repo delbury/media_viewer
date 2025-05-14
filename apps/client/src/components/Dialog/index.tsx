@@ -60,9 +60,12 @@ const CompDialog = (props: DialogProps) => {
   }, [onCancel, onClose]);
 
   const handleOk = useCallback(async () => {
-    setLoading(true);
-    await onOk?.();
-    setLoading(false);
+    try {
+      setLoading(true);
+      await onOk?.();
+    } finally {
+      setLoading(false);
+    }
   }, [onOk]);
 
   useShortcut({

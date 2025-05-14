@@ -1,5 +1,5 @@
 import { ApiResponseDataTypes } from '#pkgs/apis';
-import { ERROR_MSG } from '../i18n/errorMsg';
+import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 
 interface BaseTask<T = unknown> {
   loading: boolean;

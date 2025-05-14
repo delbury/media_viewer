@@ -1,4 +1,6 @@
-import { MediaDetailInfo } from '#pkgs/shared/index.js';
+import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
+import { MediaDetailInfo } from '#pkgs/shared/index';
+import { execCommand } from '#pkgs/tools/cli';
 import { DEFAULT_AUDIO_POSTER_RATIO, detectFileType, logError } from '#pkgs/tools/common';
 import path from 'node:path';
 import {
@@ -9,8 +11,6 @@ import {
   POSTER_MAX_SIZE,
   SHORT_VIDEO_POSTER_FRAME_TIME,
 } from '../config';
-import { ERROR_MSG } from '../i18n/errorMsg';
-import { execCommand } from './common';
 
 // 缩略图文件名
 export const getPosterFileName = (fileName: string) =>

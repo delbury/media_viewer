@@ -1,11 +1,11 @@
 import { POSTER_CACHE_MAX_AGE, TEXT_FILE_SIZE_LIMIT } from '#/config';
 import { readDataFromFile } from '#/util/fileOperation';
 import { API_CONFIGS, ApiRequestParamsTypes, ApiResponseDataTypes } from '#pkgs/apis';
+import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import Router from '@koa/router';
 import send from 'koa-send';
 import { stat } from 'node:fs/promises';
 import path from 'node:path';
-import { ERROR_MSG } from '../i18n/errorMsg';
 import { getRootDir, returnBody } from '../util/common';
 import { sendFileWithRange } from '../util/range';
 

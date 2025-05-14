@@ -8,6 +8,7 @@ import {
 } from '#/config';
 import { walkFromRootDirs } from '#/util/fileOperation';
 import { API_CONFIGS, ApiRequestParamsTypes } from '#pkgs/apis';
+import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import {
   ALLOWED_POSTER_FILE_TYPES,
   createAsyncTaskQueue,
@@ -20,7 +21,6 @@ import { noop } from 'lodash-es';
 import { access, mkdir, readdir, rm, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'os';
-import { ERROR_MSG } from '../i18n/errorMsg';
 import { getRootDir, hideFile, returnBody } from '../util/common';
 import { generatePoster, getPosterFileName } from '../util/poster';
 import { getTask } from '../util/task';

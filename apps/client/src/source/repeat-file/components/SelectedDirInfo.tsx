@@ -1,20 +1,14 @@
-import { DirectoryInfo } from '#pkgs/apis';
-import { getAllFiles } from '#pkgs/tools/common';
+import { FileInfo } from '#pkgs/apis';
 import { Divider } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
 import { StyledSelectedDirInfo, StyledSelectedDirInfoWrapper } from '../style';
 
 interface SelectedDirInfoProps {
-  dir?: DirectoryInfo;
+  files: FileInfo[];
 }
 
-const SelectedDirInfo = ({ dir }: SelectedDirInfoProps) => {
+const SelectedDirInfo = ({ files }: SelectedDirInfoProps) => {
   const t = useTranslations();
-  const files = useMemo(() => {
-    const list = dir ? getAllFiles('video', dir) : [];
-    return list;
-  }, [dir]);
 
   return (
     <StyledSelectedDirInfoWrapper>

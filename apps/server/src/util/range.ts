@@ -1,8 +1,8 @@
+import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import { ParameterizedContext } from 'koa';
 import mime from 'mime';
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
-import { ERROR_MSG } from '../i18n/errorMsg';
 
 // 每次的最大 size
 const MAX_RANGE_SIZE_STEP = 2 ** 22;

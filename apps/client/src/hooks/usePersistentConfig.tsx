@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useIdleCallback } from './useIdleCallback';
 
 const LOCAL_STORAGE_CONFIG_KEY = '_persistent_config';
@@ -41,9 +41,12 @@ export function usePersistentConfig<T = unknown>(
       ? `${storageKey.prefix || ''}${storageKey.suffix || ''}`
       : storageKey;
 
-  const [value, setValue] = useState(
-    key ? ((getLocalConfig(key) as T) ?? defaultValue) : defaultValue
-  );
+  const [value, setValue] = useState<T>(defaultValue);
+
+  // 初始化
+  useEffect(() => {
+    setValue(key ? ((getLocalConfig(key) as T) ?? defaultValue) : defaultValue);
+  }, []);
 
   const saveLocalConfigIdle = useIdleCallback(saveLocalConfig, 1000);
 

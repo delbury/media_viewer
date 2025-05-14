@@ -1,12 +1,11 @@
 import { ApiResponseBase } from '#pkgs/apis';
-import { logError } from '#pkgs/tools/common';
+import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
+import { execCommand } from '#pkgs/tools/cli';
 import { IGNORE_FILE_NAME_REG } from '#pkgs/tools/constant';
 import { isNil } from 'lodash-es';
-import { exec, ExecOptions } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { DIRECTORY_ROOTS } from '../config';
-import { ERROR_MSG } from '../i18n/errorMsg';
 
 export const returnBody = <T>(data?: T) => {
   return {
@@ -28,23 +27,6 @@ export const validateNumberString = (ns?: string) => {
   const num = +ns;
   if (Number.isNaN(num)) throw new Error(ERROR_MSG.notANumber);
   return num;
-};
-
-// 执行命令
-export const execCommand = (command: string, options?: ExecOptions) => {
-  return new Promise<{
-    stdout: string | Buffer<ArrayBufferLike>;
-    stderr: string | Buffer<ArrayBufferLike>;
-  }>((resolve, reject) => {
-    exec(command, options, (error, stdout, stderr) => {
-      // 错误处理
-      if (error) {
-        logError(error);
-        reject(new Error(ERROR_MSG.commandError));
-      }
-      resolve({ stdout, stderr });
-    });
-  });
 };
 
 // 隐藏文件或文件夹

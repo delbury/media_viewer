@@ -6,8 +6,8 @@ import hashSum from 'hash-sum';
 export const formatDate = (v: number) => {
   const date = new Date(v);
   const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
 
@@ -56,15 +56,24 @@ export const formatTime = (
   return `${symbol} ${h}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}${decimal}`;
 };
 
+// 格式化数字
+export const formatNumber = (num: number, fixed?: number) => {
+  return num.toLocaleString('en-US', {
+    minimumFractionDigits: fixed,
+    maximumFractionDigits: fixed,
+  });
+};
+
 // 格式化文件大小
-export const formatFileSize = (size: number) => {
-  const unit = ['B', 'K', 'M', 'G'];
+export const formatFileSize = (size: number, { toK }: { toK?: boolean } = {}) => {
+  const unit = toK ? ['B', 'K'] : ['B', 'K', 'M', 'G'];
   for (let i = 0; i < unit.length; i++) {
     if (size < 1024) {
-      return `${size.toFixed(2)}${unit[i]}`;
+      return `${formatNumber(size, 2)}${unit[i]}`;
     }
     size /= 1024;
   }
+  return `${formatNumber(size, 2)}${unit.at(-1)}`;
 };
 
 // 将角度限定在 0 ~ 270 之间

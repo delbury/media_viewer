@@ -2,11 +2,11 @@ import { CACHE_DATA_PATH, CACHE_DATE_FILE_NAME, DIRECTORY_ROOTS, SERVER_VERSION 
 import { returnBody } from '#/util/common';
 import { readDataFromFileByMsgPack, writeDataToFileByMsgPack } from '#/util/fileOperation';
 import { API_CONFIGS, ApiResponseDataTypes, DirUpdateData } from '#pkgs/apis';
+import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import { traverseDirectories } from '#pkgs/tools/traverseDirectories';
 import Router from '@koa/router';
 import { omit } from 'lodash-es';
 import path from 'node:path';
-import { ERROR_MSG } from '../i18n/errorMsg';
 import { getTask } from '../util/task';
 
 const directoryRouter = new Router();
