@@ -44,13 +44,14 @@ const ChildItem = (props: ChildItemProps) => {
   const activated = index === currentFileIndex;
   const handleItemClick = useCallback(() => onItemClick?.(file, index), [file, index, onItemClick]);
   const { title, secondaryTitle } = useFileTitle({ file });
+  const isSibling = files?.[currentFileIndex as number].showDir === files?.[index].showDir;
 
   return (
     <StyledChildItem
       sx={{
         transform: `translateY(${offsetY}px)`,
       }}
-      activated={activated}
+      type={activated ? 'activated' : isSibling ? 'sibling' : void 0}
       onClick={handleItemClick}
     >
       <StyleChildItemImage>

@@ -49,6 +49,13 @@ const theme = createTheme({
   zIndex: {
     modal: COMMON_DIALOG_Z_INDEX,
   },
+  palette: {
+    info: {
+      main: '#bae0ff',
+      light: '#e6f4ff',
+      dark: '#91caff',
+    },
+  },
 });
 
 export default theme;

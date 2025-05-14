@@ -14,6 +14,8 @@ interface CommonInfo {
   relativePath: string;
   // 展示的文件路径
   showPath: string;
+  // 展示的当前文件的文件目录
+  showDir: string;
   // 文件名
   name: string;
   // 文件创建时间
@@ -88,6 +90,7 @@ const newCommonInfo = ({ bp, fp, info, bpi }: NewInfoParams = {}): CommonInfo =>
     basePathIndex: bpi,
     relativePath,
     showPath: '',
+    showDir: '',
     name: fp ? path.basename(fp) : '',
     created: info?.birthtimeMs ?? 0,
     updated: info?.mtimeMs ?? 0,
@@ -275,6 +278,7 @@ export const traverseDirectories = async (
 // 处理敏感的文件路径
 const dealFilePath = (info: FileInfo | DirectoryInfo) => {
   info.showPath = `/${path.basename(info.basePath ?? '')}${info.relativePath}`;
+  info.showDir = path.dirname(info.showPath);
   info.basePath = void 0;
 };
 

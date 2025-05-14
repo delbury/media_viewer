@@ -72,7 +72,7 @@ export const StyleChildItemName = styled(Box)`
 `;
 
 export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !== 'activated' })<{
-  activated?: boolean;
+  type?: 'sibling' | 'activated';
 }>`
   height: ${FILE_ITEM_ROW_HEIGHT}px;
   display: flex;
@@ -84,10 +84,14 @@ export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !==
   background-clip: padding-box;
   cursor: pointer;
 
-  ${({ activated, theme }) =>
-    activated ? `background-color: ${theme.palette.action.selected}` : ''};
+  ${({ type, theme }) =>
+    type === 'activated'
+      ? `background-color: ${theme.palette.info.main}`
+      : type === 'sibling'
+        ? `background-color: ${theme.palette.action.selected}`
+        : ''};
 
   :hover {
-    background-color: ${({ theme }) => theme.palette.action.hover};
+    background-color: ${({ theme }) => theme.palette.info.dark};
   }
 `;
