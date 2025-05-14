@@ -19,6 +19,13 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
 import { StyledDialogHeader, StyledDialogTitle, StyledDialogTitleWrapper } from './style';
 
+const DIALOG_SX = {
+  [`& .${dialogClasses.paper}`]: {
+    margin: '0 16px',
+    width: 'calc(100% - 32px)',
+  },
+};
+
 interface DialogProps {
   open: boolean;
   onClose?: () => void;
@@ -71,10 +78,7 @@ const CompDialog = (props: DialogProps) => {
       fullWidth
       sx={{
         ...dialogProps?.sx,
-        [`& .${dialogClasses.paper}`]: {
-          margin: '0 16px',
-          width: 'calc(100% - 32px)',
-        },
+        ...DIALOG_SX,
       }}
       aria-modal={false}
       disableEscapeKeyDown

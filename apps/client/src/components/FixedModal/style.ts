@@ -1,4 +1,4 @@
-import { FIXED_MODAL_Z_INDEX } from '#/style/theme';
+import { FIXED_MODAL_Z_INDEX } from '#/style/constant';
 import { Box, buttonBaseClasses, iconButtonClasses, styled, svgIconClasses } from '@mui/material';
 
 export const StyledFixedModalWrapper = styled(Box)`

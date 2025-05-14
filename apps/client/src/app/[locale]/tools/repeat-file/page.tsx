@@ -1,3 +1,5 @@
+import RepeatFile from '#/source/repeat-file';
+
 export default function Page() {
-  return <div>xxx</div>;
+  return <RepeatFile />;
 }

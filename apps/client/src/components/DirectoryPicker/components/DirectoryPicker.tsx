@@ -5,15 +5,29 @@ import { useDialogState } from '#/hooks/useDialogState';
 import { DirectoryInfo } from '#pkgs/apis';
 import { Button } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyledBtnRow } from '../style/directory-picker';
 import PickViewer from './PickViewer';
 import SelectedPathInfo from './SelectedPathInfo';
 
-export default function DirectoryPicker() {
-  const { visible, handleClose, handleOpen } = useDialogState(true);
+interface DirectoryPickerProps {
+  defaultVisible?: boolean;
+  onCurrentDirChange?: (dir?: DirectoryInfo) => void;
+  storageKeySuffix?: string;
+}
+
+export default function DirectoryPicker({
+  defaultVisible = false,
+  onCurrentDirChange,
+  storageKeySuffix,
+}: DirectoryPickerProps = {}) {
+  const { visible, handleClose, handleOpen } = useDialogState(defaultVisible);
   const t = useTranslations();
   const [selectedPathList, setSelectedPathList] = useState<DirectoryInfo[]>([]);
+
+  useEffect(() => {
+    onCurrentDirChange?.(selectedPathList.at(-1));
+  }, [onCurrentDirChange, selectedPathList]);
 
   return (
     <ErrorBoundary>
@@ -34,6 +48,7 @@ export default function DirectoryPicker() {
         visible={visible}
         onClose={handleClose}
         onOk={setSelectedPathList}
+        storageKeySuffix={storageKeySuffix}
       />
     </ErrorBoundary>
   );

@@ -1,10 +1,12 @@
 import Header from '#/components/Header';
 import Layout from '#/components/Layout';
 import { routing } from '#/i18n/routing';
-import theme from '#/style/theme';
+import { HEADER_HEIGHT } from '#/style/constant';
+import { theme } from '#/style/theme';
+import { Theme } from '@emotion/react';
 import { Box } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
-import { ThemeProvider } from '@mui/material/styles';
+import { SxProps, ThemeProvider } from '@mui/material/styles';
 import classNames from 'classnames';
 import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
@@ -40,6 +42,11 @@ export const viewport: Viewport = {
   // interactiveWidget: 'resizes-visual',
 };
 
+const CONTAINER_SX: SxProps<Theme> = {
+  padding: '16px',
+  height: `calc(100dvh - ${HEADER_HEIGHT}px)`,
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -65,7 +72,7 @@ export default async function RootLayout({
               <ErrorBoundary fallback={<Box>Something went wrong</Box>}>
                 <Layout>
                   <Header />
-                  <Box sx={{ padding: '16px' }}>{children}</Box>
+                  <Box sx={CONTAINER_SX}>{children}</Box>
                 </Layout>
               </ErrorBoundary>
             </ThemeProvider>

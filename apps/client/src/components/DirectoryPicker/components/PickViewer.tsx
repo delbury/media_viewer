@@ -10,9 +10,10 @@ interface PickViewerProps {
   visible: boolean;
   onClose: () => void;
   onOk?: (dirInfo: DirectoryInfo[]) => void;
+  storageKeySuffix?: string;
 }
 
-const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
+const PickViewer = ({ visible, onClose, onOk, storageKeySuffix }: PickViewerProps) => {
   const t = useTranslations();
   const fileBrowserRef = useRef<FileBrowserInstance>(null);
 
@@ -62,6 +63,7 @@ const PickViewer = ({ visible, onClose, onOk }: PickViewerProps) => {
           height="65dvh"
           onPathNodeChange={setCurrentPathNode}
           onPathListChange={setPathList}
+          storageKeySuffix={storageKeySuffix}
         />
         {ConfirmDialog}
       </Dialog>

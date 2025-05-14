@@ -2,8 +2,9 @@
 
 import chalk from 'chalk';
 import { escapeRegExp, noop } from 'lodash-es';
-import { FullFileType } from '../shared';
+import { FullFileType, MediaFileType } from '../shared';
 import { AUDIO_REG, IMAGE_REG, TEXT_REG, VIDEO_REG } from './constant';
+import { DirectoryInfo, FileInfo } from './traverseDirectories';
 
 // 有缩略图的文件类型
 export const ALLOWED_POSTER_FILE_TYPES: FullFileType[] = ['image', 'audio', 'video'];
@@ -102,4 +103,18 @@ export const createFileNameRegExp = (pureName: string, ext: string | string[]) =
   const validPureName = escapeRegExp(pureName);
   const fullRule = `^${validPureName}\\.?(?<middle>.+)?\\.(?<ext>${extRule})$`;
   return new RegExp(fullRule);
+};
+
+// 获取随机 index
+export const getRandomIndex = (length: number) => Math.floor(Math.random() * length);
+
+// 获取文件夹下的所有文件
+export const getAllFiles = (type: MediaFileType, dir: DirectoryInfo, list: FileInfo[] = []) => {
+  dir.files.forEach(f => {
+    if (f.fileType === type) list.push(f);
+  });
+  for (const child of dir.children) {
+    getAllFiles(type, child, list);
+  }
+  return list;
 };

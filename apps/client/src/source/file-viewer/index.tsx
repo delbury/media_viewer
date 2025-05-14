@@ -16,7 +16,7 @@ const FileBrowser = dynamic(
 );
 
 const WRAPPER_SX: SxProps<Theme> = {
-  height: 'calc(100dvh - 72px)',
+  height: '100%',
 };
 
 const HEADER_SLOT_BTN_SX: SxProps<Theme> = {
@@ -32,7 +32,7 @@ const HEADER_SLOT_BTN_SX: SxProps<Theme> = {
  * 4. 所有视频文件按时长顺序排序，过滤所有短视频，< 30s
  */
 
-export default function RepeatFile() {
+export default function FileViewer() {
   const fileBrowserRef = useRef<FileBrowserInstance>(null);
 
   // 更新 api
@@ -45,7 +45,7 @@ export default function RepeatFile() {
     <Box sx={WRAPPER_SX}>
       <FileBrowser
         ref={fileBrowserRef}
-        storageKeySuffix="RepeatFile"
+        storageKeySuffix="FileViewer"
       />
 
       <HeaderSlot>

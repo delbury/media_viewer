@@ -1,5 +1,6 @@
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { MediaFileType } from '#pkgs/shared';
+import { getAllFiles, getRandomIndex } from '#pkgs/tools/common';
 import { isNil } from 'lodash-es';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -9,18 +10,6 @@ interface UseFileOrDirectoryParams {
   mediaType?: MediaFileType;
   defaultRandom?: boolean;
 }
-
-const getAllFiles = (type: MediaFileType, dir: DirectoryInfo, list: FileInfo[] = []) => {
-  dir.files.forEach(f => {
-    if (f.fileType === type) list.push(f);
-  });
-  for (const child of dir.children) {
-    getAllFiles(type, child, list);
-  }
-  return list;
-};
-
-const getRandomIndex = (length: number) => Math.floor(Math.random() * length);
 
 export const useFileOrDirectory = ({
   file,

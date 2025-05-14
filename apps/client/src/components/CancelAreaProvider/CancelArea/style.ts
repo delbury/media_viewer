@@ -1,4 +1,4 @@
-import { CANCEL_MODAL_Z_INDEX } from '#/style/theme';
+import { CANCEL_MODAL_Z_INDEX } from '#/style/constant';
 import { Box, styled } from '@mui/material';
 
 export const CancelAreaWrapper = styled(Box, {
