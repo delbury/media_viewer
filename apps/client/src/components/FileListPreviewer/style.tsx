@@ -63,12 +63,27 @@ export const StyleChildItemDir = styled(Box)`
   font-size: 0.65rem;
   color: ${({ theme }) => theme.palette.text.secondary};
 `;
+
+export const StyleChildItemNameRow = styled(Box)`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`;
+
 export const StyleChildItemName = styled(Box)`
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   font-weight: 700;
   font-size: 0.75rem;
+`;
+
+export const StyleChildItemSize = styled(Box)`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 0.75rem;
+  min-width: 60px;
 `;
 
 export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !== 'activated' })<{

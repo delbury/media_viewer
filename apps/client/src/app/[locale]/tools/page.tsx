@@ -14,12 +14,12 @@ const WrapperSx: SxProps<Theme> = {
 
 const getTools = (t: TFunction) => [
   {
-    title: t('Tools.RepeatFileAnalyzer'),
-    path: '/tools/repeat-file',
-  },
-  {
     title: t('Tools.FileViewer'),
     path: '/tools/file-viewer',
+  },
+  {
+    title: t('Tools.RepeatFileAnalyzer'),
+    path: '/tools/repeat-file',
   },
 ];
 

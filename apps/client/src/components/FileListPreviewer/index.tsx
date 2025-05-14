@@ -1,6 +1,6 @@
 import { useFileTitle } from '#/hooks/useFileTitle';
 import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
-import { getFilePosterUrl } from '#/utils';
+import { formatFileSize, getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { FormatListBulletedRounded, PinDropRounded } from '@mui/icons-material';
 import { Badge, IconButton } from '@mui/material';
@@ -15,6 +15,8 @@ import {
   StyleChildItemImage,
   StyleChildItemInfo,
   StyleChildItemName,
+  StyleChildItemNameRow,
+  StyleChildItemSize,
   StyledChildItem,
   StyledListPreviewerWrapper,
   StyledSlotWrapper,
@@ -45,6 +47,7 @@ const ChildItem = (props: ChildItemProps) => {
   const handleItemClick = useCallback(() => onItemClick?.(file, index), [file, index, onItemClick]);
   const { title, secondaryTitle } = useFileTitle({ file });
   const isSibling = files?.[currentFileIndex as number].showDir === files?.[index].showDir;
+  const size = useMemo(() => formatFileSize(file.size), [file]);
 
   return (
     <StyledChildItem
@@ -61,7 +64,10 @@ const ChildItem = (props: ChildItemProps) => {
         />
       </StyleChildItemImage>
       <StyleChildItemInfo>
-        <StyleChildItemName>{title}</StyleChildItemName>
+        <StyleChildItemNameRow>
+          <StyleChildItemName>{title}</StyleChildItemName>
+          <StyleChildItemSize>{size}</StyleChildItemSize>
+        </StyleChildItemNameRow>
         <StyleChildItemDir>{secondaryTitle}</StyleChildItemDir>
       </StyleChildItemInfo>
     </StyledChildItem>

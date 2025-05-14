@@ -1,6 +1,7 @@
 import { DirectoryInfo } from '#pkgs/apis';
 import { getAllFiles } from '#pkgs/tools/common';
 import { Divider } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { StyledSelectedDirInfo, StyledSelectedDirInfoWrapper } from '../style';
 
@@ -9,11 +10,19 @@ interface SelectedDirInfoProps {
 }
 
 const SelectedDirInfo = ({ dir }: SelectedDirInfoProps) => {
-  const files = useMemo(() => (dir ? getAllFiles('video', dir) : []), [dir]);
+  const t = useTranslations();
+  const files = useMemo(() => {
+    const list = dir ? getAllFiles('video', dir) : [];
+    return list;
+  }, [dir]);
 
   return (
     <StyledSelectedDirInfoWrapper>
-      <StyledSelectedDirInfo>{files.length}</StyledSelectedDirInfo>
+      <StyledSelectedDirInfo>
+        {t('Common.Video')}
+        {t(':')}
+        {files.length}
+      </StyledSelectedDirInfo>
       <Divider />
     </StyledSelectedDirInfoWrapper>
   );

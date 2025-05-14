@@ -12,4 +12,5 @@ export const StyledSelectedDirInfo = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  font-size: 0.875rem;
 `;

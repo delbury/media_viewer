@@ -33,7 +33,7 @@ export const useFileOrDirectory = ({
 
   // 随机播放，未播放的文件 index 列表
   const randomToPlayIndexes = useRef(new Set<number>());
-  // 随机播放，未播放的文件 index
+  // 随机播放，已播放的文件 index
   const randomPlayedIndexes = useRef(new Set<number>());
 
   // 文件列表
