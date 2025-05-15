@@ -18,9 +18,7 @@ const PickViewer = ({ visible, onClose, onOk, storageKeySuffix }: PickViewerProp
   const fileBrowserRef = useRef<FileBrowserInstance>(null);
 
   // 更新 api
-  const { DirUpdateBtn, PosterClearBtn, ConfirmDialog } = useUpdateOperation({
-    fileBrowserRef,
-  });
+  const { DirUpdateBtn, PosterClearBtn, ConfirmDialog } = useUpdateOperation();
 
   const [currentPathNode, setCurrentPathNode] = useState<DirectoryInfo>();
   const [pathList, setPathList] = useState<DirectoryInfo[]>([]);

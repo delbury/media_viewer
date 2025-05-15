@@ -4,21 +4,27 @@ import { CleaningServicesOutlined, LoopOutlined } from '@mui/icons-material';
 import { IconButton, SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import { FileBrowserInstance } from '../components/FileBrowser';
+import { mutate } from 'swr';
+import { FILE_BROWSER_DIR_TREE_REQUEST_KEY } from '../components/FileBrowser';
 
 interface UseUpdateOperationParams {
-  fileBrowserRef: React.RefObject<FileBrowserInstance | null>;
   btnSx?: SxProps<Theme>;
 }
 
-export const useUpdateOperation = ({ fileBrowserRef, btnSx }: UseUpdateOperationParams) => {
+export const useUpdateOperation = ({ btnSx }: UseUpdateOperationParams = {}) => {
   const t = useTranslations();
 
   // 后端强制更新文件信息
   const updateRequest = useSwrMutation('dirUpdate', {
     noticeWhenSuccess: true,
     onSuccess: res => {
-      fileBrowserRef.current?.updatePathList(res.data?.treeNode ? [res.data.treeNode] : []);
+      const newData = {
+        code: res.code,
+        data: res.data?.treeNode,
+      };
+      mutate(FILE_BROWSER_DIR_TREE_REQUEST_KEY, newData, {
+        revalidate: false,
+      });
     },
   });
 

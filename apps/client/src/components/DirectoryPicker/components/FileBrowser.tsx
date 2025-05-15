@@ -13,7 +13,6 @@ import {
   forwardRef,
   useCallback,
   useEffect,
-  useImperativeHandle,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -23,6 +22,8 @@ import { StyledFileBrowserWrapper } from '../style/file-browser';
 import DirectoryItemList from './DirectoryItemList';
 import FileItemList from './FileItemList';
 import SelectingPathInfo from './SelectingPathInfo';
+
+export const FILE_BROWSER_DIR_TREE_REQUEST_KEY = 'FILE_BROWSER_DIR_TREE_REQUEST_KEY';
 
 const createKey = (dir?: DirectoryInfo) => createHash(dir?.showPath);
 const createHistoryParams = (hash: string) => {
@@ -52,13 +53,14 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
   ({ height, storageKeySuffix, onPathNodeChange, onPathListChange }, ref) => {
     // 请求文件夹树
     const dirRequest = useSwr('dirTree', {
-      onSuccess: res => {
-        setPathList(res.data ? [res.data] : []);
-      },
+      key: FILE_BROWSER_DIR_TREE_REQUEST_KEY,
     });
-    const [pathList, setPathList] = useState<DirectoryInfo[]>(
-      dirRequest.data ? [dirRequest.data] : []
-    );
+
+    // 选中文件夹路径
+    const [pathList, setPathList] = useState<DirectoryInfo[]>([]);
+    useEffect(() => {
+      setPathList(dirRequest.data ? [dirRequest.data] : []);
+    }, [dirRequest.data]);
 
     // 当前目录下的子文件夹
     const currentPathNode = useMemo(() => pathList.at(-1), [pathList]);
@@ -188,17 +190,6 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
         pushHistory(hash);
       }
     }, [currentPathNode]);
-
-    // 外部强制更新
-    useImperativeHandle(
-      ref,
-      () => ({
-        updatePathList: (list: DirectoryInfo[]) => {
-          setPathList(list);
-        },
-      }),
-      []
-    );
 
     return (
       <StyledFileBrowserWrapper height={height || '100%'}>

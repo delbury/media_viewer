@@ -100,6 +100,9 @@ fileRouter[API_CONFIGS.fileDelete.method](API_CONFIGS.fileDelete.url, async ctx 
   const rootDirs = cachedData?.treeNode?.children;
   if (!rootDirs) throw new Error(ERROR_MSG.noFile);
 
+  // debug
+  ctx.body = returnBody();
+
   try {
     updateTask.start();
     for (const info of files) {

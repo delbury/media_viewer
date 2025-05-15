@@ -1,6 +1,7 @@
 'use client';
 
 import DirectoryPicker from '#/components/DirectoryPicker';
+import { FILE_BROWSER_DIR_TREE_REQUEST_KEY } from '#/components/DirectoryPicker/components/FileBrowser';
 import { FILE_SORT_API_FIELD_MAP, FILE_SORT_OPTIONS } from '#/components/DirectoryPicker/constant';
 import { useSortList } from '#/components/DirectoryPicker/hooks/useSortList';
 import { FileListContent } from '#/components/FileListPreviewer';
@@ -13,6 +14,7 @@ import { DeleteForeverRounded } from '@mui/icons-material';
 import { Box, Divider, IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { mutate } from 'swr';
 import FileExtraInfo from './components/FileExtraInfo';
 import {
   StyledFileContentContainer,
@@ -26,7 +28,6 @@ const ROW_HEIGHT = 72;
 
 export default function RepeatFile() {
   const t = useTranslations();
-  const [currentDir, setCurrentDir] = useState<DirectoryInfo>();
   // 已选中的文件id
   const [selectedSet, setSelectedSet] = useState(new Set<string>());
   // 保存文件 id => 文件信息
@@ -35,14 +36,15 @@ export default function RepeatFile() {
   const [showFileGroup, setShowFileGroup] = useState<'selected' | 'all'>('all');
 
   // 所有文件
-  const files = useMemo(() => {
+  const [files, setFiles] = useState<FileInfo[]>([]);
+  // 生成文件列表
+  const handleCurrentDirChange = useCallback((currentDir?: DirectoryInfo) => {
     // 清空已选
     setSelectedSet(new Set());
     fileMap.current = {};
-
     const list = currentDir ? getAllFiles('video', currentDir) : [];
-    return list;
-  }, [currentDir]);
+    setFiles(list);
+  }, []);
 
   const { trigger: deleteTrigger } = useSwrMutation('fileDelete');
   // 删除操作
@@ -55,6 +57,15 @@ export default function RepeatFile() {
         })),
       },
     });
+    // 乐观更新本地列表
+    setFiles(files => {
+      const newFiles = files.filter(f => !fileMap.current[f[FILE_INFO_ID_FIELD]]);
+      fileMap.current = {};
+      return newFiles;
+    });
+    setSelectedSet(new Set());
+    // 更新文件树
+    await mutate(FILE_BROWSER_DIR_TREE_REQUEST_KEY);
   }, [deleteTrigger, selectedSet]);
 
   // 操作确认
@@ -99,7 +110,7 @@ export default function RepeatFile() {
     <StyledRepeatFileWrapper>
       <DirectoryPicker
         defaultVisible
-        onCurrentDirChange={setCurrentDir}
+        onCurrentDirChange={handleCurrentDirChange}
         storageKeySuffix="RepeatFile"
       />
 

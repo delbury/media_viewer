@@ -13,6 +13,7 @@ const AUTO_HIDE_DURATION_ERROR = 2000;
 const AUTO_HIDE_DURATION_SUCCESS = 1000;
 
 interface UseSwrOptions<T, P extends ApiKeys> {
+  key?: string;
   lazy?: boolean;
   onSuccess?: (data: ApiResponseBase<T>) => void;
   params?: ApiRequestParamsTypes<P>;
@@ -39,6 +40,7 @@ const useSwr = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
     params: requestParams,
     data: requestData,
     disabled,
+    key,
   } = options ?? {};
   const t = useTranslations();
   const notifications = useNotifications();
@@ -47,7 +49,7 @@ const useSwr = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
     ApiResponseBase<D>,
     AxiosError<ApiResponseBase>
   >(
-    disabled ? null : [url, requestParams, requestData],
+    disabled ? null : (key ?? [url, requestParams, requestData]),
     async () => {
       if (disabled) return null;
       const res = await instance.request({
