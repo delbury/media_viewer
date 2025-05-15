@@ -37,16 +37,16 @@ export const StyledFileExtraInfoItem = styled(Box)`
 
   :nth-child(1),
   :nth-child(2) {
-    flex: 1 0 3.5rem;
+    flex: 1 0 3.2rem;
   }
 
   :nth-child(3) {
-    flex: 1 0 3rem;
+    flex: 1 0 2.5rem;
     align-items: flex-end;
   }
 
   :nth-child(4) {
-    flex: 1 0 3.75rem;
+    flex: 1 0 4.2rem;
     align-items: flex-end;
   }
 `;

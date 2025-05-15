@@ -65,15 +65,18 @@ export const formatNumber = (num: number, fixed?: number) => {
 };
 
 // 格式化文件大小
-export const formatFileSize = (size: number, { toK }: { toK?: boolean } = {}) => {
+export const formatFileSize = (
+  size: number,
+  { toK, fixed }: { toK?: boolean; fixed?: number } = {}
+) => {
   const unit = toK ? ['B', 'K'] : ['B', 'K', 'M', 'G'];
   for (let i = 0; i < unit.length; i++) {
     if (size < 1024) {
-      return `${formatNumber(size, 2)}${unit[i]}`;
+      return `${formatNumber(size, fixed ?? 2)}${unit[i]}`;
     }
-    size /= 1024;
+    if (i < unit.length - 1) size /= 1024;
   }
-  return `${formatNumber(size, 2)}${unit.at(-1)}`;
+  return `${formatNumber(size, fixed ?? 2)}${unit.at(-1)}`;
 };
 
 // 将角度限定在 0 ~ 270 之间
