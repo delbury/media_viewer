@@ -19,10 +19,12 @@ const sortItems = <T, F extends string>({
 }: {
   items: T[];
   sortMode: SortMode | null;
-  sortField: F[];
+  sortField: F[] | F;
   apiFieldMap: Record<F, keyof T>;
 }) => {
-  if (!sortMode || !sortField.length) return items;
+  // 转换为数组
+  if (sortField && typeof sortField === 'string') sortField = [sortField];
+  if (!sortMode || !Array.isArray(sortField) || !sortField.length) return items;
 
   const biggerNum = sortMode === 'asc' ? 1 : -1;
   const newList = [...items];
@@ -51,6 +53,8 @@ interface SortItemParams<T, F extends string> {
   persistentKeyPrefix?: string;
   persistentKeySuffix?: string;
   fileSortOptions: { label: string; value: F }[];
+  // 单选
+  exclusive?: boolean;
 }
 
 export const useSortList = <T, F extends string>({
@@ -59,6 +63,7 @@ export const useSortList = <T, F extends string>({
   fileSortOptions,
   persistentKeyPrefix,
   persistentKeySuffix = '',
+  exclusive = false,
 }: SortItemParams<T, F>) => {
   const [sortMode, setSortMode] = usePersistentConfig<SortMode | null>(
     DEFAULT_VALUES.sortMode,
@@ -97,11 +102,12 @@ export const useSortList = <T, F extends string>({
             value={sortField}
             onChange={(_, value) => setSortField(value)}
             showOrder
+            exclusive={exclusive}
           />
         </ScrollBox>
       </StyledFileToolRow>
     );
-  }, [ResetSortBtn, fileSortOptions, sortMode, sortField, setSortField, setSortMode]);
+  }, [ResetSortBtn, sortMode, fileSortOptions, sortField, exclusive, setSortMode, setSortField]);
 
   return {
     sortedItems,

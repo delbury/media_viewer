@@ -40,7 +40,8 @@
     "Other": "其他",
     "RequestSuccess": "操作成功",
     "BaseInfo": "基本信息",
-    "Metadata": "元信息"
+    "Metadata": "元信息",
+    "Selected": "已选"
   },
   "Btn": {
     "AutoScroll": "自动滚动"

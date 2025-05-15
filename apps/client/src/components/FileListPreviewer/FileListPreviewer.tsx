@@ -2,6 +2,7 @@ import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { FileInfo } from '#pkgs/apis';
 import { FormatListBulletedRounded, PinDropRounded } from '@mui/icons-material';
 import { Badge, IconButton } from '@mui/material';
+import { isNil } from 'lodash-es';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import Dialog from '../Dialog';
@@ -18,6 +19,12 @@ interface FileListPreviewerProps {
   currentFileIndex?: number;
   files?: FileInfo[];
 }
+
+const isSibling = (files: FileInfo[], currentIndex: number, selectedIndex?: number) => {
+  return isNil(selectedIndex)
+    ? false
+    : files?.[selectedIndex].showDir === files?.[currentIndex].showDir;
+};
 
 const FileListPreviewer = ({ files, currentFileIndex }: FileListPreviewerProps) => {
   const t = useTranslations();
@@ -77,8 +84,9 @@ const FileListPreviewer = ({ files, currentFileIndex }: FileListPreviewerProps) 
             <FileListContent
               scrollBoxRef={scrollBoxRef}
               files={files}
-              currentFileIndex={currentFileIndex}
+              selectedIndex={currentFileIndex}
               onItemClick={handleJumpToFileIndex}
+              isSibling={isSibling}
             />
           </StyleFilesContainer>
         </Dialog>

@@ -14,7 +14,26 @@ export const StyledSelectedDirInfo = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  font-size: 0.875rem;
+  color: ${({ theme }) => theme.palette.text.secondary};
+  font-size: 0.8rem;
+`;
+
+export const StyledFileGroupBtn = styled('span', {
+  shouldForwardProp: prop => prop !== 'selected',
+})<{
+  selected?: boolean;
+}>`
+  cursor: pointer;
+
+  ${({ selected, theme }) =>
+    selected
+      ? `
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-thickness: 1px;
+      color: ${theme.palette.primary.light};
+      `
+      : ''}
 `;
 
 export const StyledFileContentContainer = styled(Box)`

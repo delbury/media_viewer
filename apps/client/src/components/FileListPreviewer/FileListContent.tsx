@@ -1,7 +1,7 @@
 import { useFileTitle } from '#/hooks/useFileTitle';
 import { formatFileSize, getFilePosterUrl } from '#/utils';
+import { FILE_INFO_ID_FIELD } from '#/utils/constant';
 import { FileInfo } from '#pkgs/apis';
-import { isNil } from 'lodash-es';
 import { useTranslations } from 'next-intl';
 import { RefObject, useCallback, useMemo } from 'react';
 import { VirtualListChildItemProps } from '../ScrollBox/hooks/useVirtualList';
@@ -18,11 +18,16 @@ import {
 } from './style';
 
 interface FileListPreviewerProps {
-  currentFileIndex?: number;
+  // 选中的文件 index
+  selectedIndex?: number;
+  selectedIdSet?: Set<string>;
+  // 判断是否是选中文件的兄弟文件
+  isSibling?: (files: FileInfo[], currentIndex: number, selectedIndex?: number) => boolean;
   files?: FileInfo[];
   scrollBoxRef?: RefObject<ScrollBoxInstance | null>;
   onItemClick?: (file: FileInfo, index: number) => void;
   rowHeight?: number;
+  // 额外信息组件
   RowExtraComp?: React.FC<{ file: FileInfo }>;
 }
 
@@ -33,19 +38,20 @@ const ChildItem = (props: ChildItemProps) => {
     index,
     params: { offsetY },
     files,
-    currentFileIndex,
+    selectedIndex,
+    selectedIdSet,
+    isSibling,
     onItemClick,
     rowHeight,
     RowExtraComp,
   } = props;
   const file = files?.[index] as FileInfo;
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
-  const activated = index === currentFileIndex;
   const handleItemClick = useCallback(() => onItemClick?.(file, index), [file, index, onItemClick]);
   const { title, secondaryTitle } = useFileTitle({ file });
-  const isSibling = isNil(currentFileIndex)
-    ? false
-    : files?.[currentFileIndex].showDir === files?.[index].showDir;
+
+  const activated = index === selectedIndex || selectedIdSet?.has(file[FILE_INFO_ID_FIELD]);
+  const isSelectedFileSibling = isSibling?.(files ?? [], index, selectedIndex);
   const size = useMemo(() => formatFileSize(file.size), [file]);
 
   return (
@@ -55,7 +61,7 @@ const ChildItem = (props: ChildItemProps) => {
         cursor: onItemClick ? 'pointer' : void 0,
         height: rowHeight ? `${rowHeight}px !important` : void 0,
       }}
-      type={activated ? 'activated' : isSibling ? 'sibling' : void 0}
+      type={activated ? 'activated' : isSelectedFileSibling ? 'sibling' : void 0}
       onClick={handleItemClick}
     >
       <StyleChildItemImage>
@@ -78,25 +84,29 @@ const ChildItem = (props: ChildItemProps) => {
 
 const FileListContent = ({
   files,
-  currentFileIndex,
+  selectedIndex,
+  selectedIdSet,
+  isSibling,
   scrollBoxRef,
   onItemClick,
   rowHeight,
   RowExtraComp,
 }: FileListPreviewerProps) => {
   const t = useTranslations();
-  const defaultScroll = FILE_ITEM_ROW_HEIGHT * ((currentFileIndex ?? 0) - 0.5);
+  const defaultScroll = FILE_ITEM_ROW_HEIGHT * ((selectedIndex ?? 0) - 0.5);
 
   const getChildProps = useCallback(
     (index: number) => ({
-      key: files?.[index]?.showPath ?? '',
+      key: files?.[index]?.[FILE_INFO_ID_FIELD] ?? '',
       files,
-      currentFileIndex,
+      selectedIndex,
+      selectedIdSet,
+      isSibling,
       onItemClick,
       rowHeight,
       RowExtraComp,
     }),
-    [currentFileIndex, files, onItemClick, RowExtraComp, rowHeight]
+    [files, selectedIndex, selectedIdSet, isSibling, onItemClick, rowHeight, RowExtraComp]
   );
 
   return (
