@@ -17,6 +17,10 @@ export const GLOBAL_TASK = {
   clearPoster: {
     loading: false,
   } as BaseTask,
+  deleteFile: {
+    loading: false,
+    cache: null,
+  },
 };
 
 type GlobalTask = typeof GLOBAL_TASK;

@@ -5,13 +5,14 @@ import { FILE_SORT_API_FIELD_MAP, FILE_SORT_OPTIONS } from '#/components/Directo
 import { useSortList } from '#/components/DirectoryPicker/hooks/useSortList';
 import { FileListContent } from '#/components/FileListPreviewer';
 import { useConfirmDialogByKeys } from '#/hooks/useConfirmDialog';
+import { useSwrMutation } from '#/hooks/useSwr';
 import { FILE_INFO_ID_FIELD } from '#/utils/constant';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { getAllFiles } from '#pkgs/tools/common';
 import { DeleteForeverRounded } from '@mui/icons-material';
 import { Box, Divider, IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import FileExtraInfo from './components/FileExtraInfo';
 import {
   StyledFileContentContainer,
@@ -26,8 +27,10 @@ const ROW_HEIGHT = 72;
 export default function RepeatFile() {
   const t = useTranslations();
   const [currentDir, setCurrentDir] = useState<DirectoryInfo>();
-  // 已选中的文件
+  // 已选中的文件id
   const [selectedSet, setSelectedSet] = useState(new Set<string>());
+  // 保存文件 id => 文件信息
+  const fileMap = useRef<Record<string, FileInfo>>({});
   // 显示的文件集合
   const [showFileGroup, setShowFileGroup] = useState<'selected' | 'all'>('all');
 
@@ -35,15 +38,24 @@ export default function RepeatFile() {
   const files = useMemo(() => {
     // 清空已选
     setSelectedSet(new Set());
+    fileMap.current = {};
 
     const list = currentDir ? getAllFiles('video', currentDir) : [];
     return list;
   }, [currentDir]);
 
+  const { trigger: deleteTrigger } = useSwrMutation('fileDelete');
   // 删除操作
-  const handleDelete = useCallback(() => {
-    //
-  }, [selectedSet]);
+  const handleDelete = useCallback(async () => {
+    await deleteTrigger({
+      data: {
+        files: [...selectedSet].map(it => ({
+          basePathIndex: fileMap.current[it].basePathIndex as number,
+          relativePath: fileMap.current[it].relativePath,
+        })),
+      },
+    });
+  }, [deleteTrigger, selectedSet]);
 
   // 操作确认
   const { ConfirmDialog, openConfirmDialog } = useConfirmDialogByKeys({
@@ -72,8 +84,13 @@ export default function RepeatFile() {
   const handleItemClick = useCallback((file: FileInfo) => {
     setSelectedSet(set => {
       const id = file[FILE_INFO_ID_FIELD];
-      if (set.has(id)) set.delete(id);
-      else set.add(id);
+      if (set.has(id)) {
+        set.delete(id);
+        Reflect.deleteProperty(fileMap.current, id);
+      } else {
+        set.add(id);
+        fileMap.current[id] = file;
+      }
       return new Set(set);
     });
   }, []);

@@ -19,6 +19,32 @@ export const DEFAULT_AUDIO_POSTER_RATIO = 0.5625;
 // 格式化 path 为 linux 风格
 export const formatPath = (p: string) => p.replaceAll('\\', '/');
 
+// 将路径字符串拆分为数组
+export const splitPath = (p: string, { ignoreLast }: { ignoreLast?: boolean } = {}) => {
+  return p.split(/[\\/]/).filter((it, i, list) => {
+    if (!it) return false;
+    return !ignoreLast ? true : i !== list.length - 1;
+  });
+};
+
+// 根据路径数组，在文件树中找到文件信息
+export const findFileInfoInDir = (dir: DirectoryInfo, names: string[]) => {
+  let curDir = dir;
+  const fileName = names.pop();
+  for (const dirName of names) {
+    const d = curDir.children.find(c => c.name === dirName);
+    if (!d) return null;
+    curDir = d;
+  }
+  const target = curDir.files.find(f => f.name === fileName);
+  return target
+    ? {
+        fileInfo: target,
+        parentDirInfo: curDir,
+      }
+    : null;
+};
+
 // 控制台打印日志
 export const logInfo = (str: string) => console.info(chalk.blue(str));
 export const logSuccess = (str: string) => console.info(chalk.green(str));
@@ -45,43 +71,53 @@ export const detectFileType = (ext: string): FullFileType => {
  * @param concurrency 并发数
  * @returns
  */
-type TaskFn = () => Promise<void>;
-export const createAsyncTaskQueue = (concurrency: number = 1) => {
+type TaskFn<T> = () => Promise<T>;
+export const createAsyncTaskQueue = <T = unknown>(concurrency: number = 1) => {
   if (concurrency < 1) throw new Error('concurrency must >= 1');
 
   // 任务队列
-  const waitingTasks: TaskFn[] = [];
+  const waitingTasks: TaskFn<T>[] = [];
+  // 任务编号
+  let taskOrder = 0;
+  // 任务结果
+  const taskResults: T[] = [];
   // 正在运行的任务
-  const runnings: (Promise<void> | null)[] = Array(concurrency).fill(null);
+  const runnings: (Promise<T> | null)[] = Array(concurrency).fill(null);
 
-  const result = Promise.withResolvers<void>();
+  const result = Promise.withResolvers<T[]>();
 
   // 添加任务
-  const add = (task: TaskFn) => {
+  const add = (task: TaskFn<T>) => {
     waitingTasks.push(task);
   };
 
   // 开始任务队列
   const start = async () => {
     if (!waitingTasks.length && runnings.every(t => !t)) {
-      result.resolve();
+      result.resolve(taskResults);
     }
 
     while (waitingTasks.length) {
       const index = runnings.findIndex(item => !item);
       if (index === -1 || index >= concurrency) return;
 
-      const task = waitingTasks.shift() as TaskFn;
+      const task = waitingTasks.shift() as TaskFn<T>;
+      const currentTaskIndex = taskOrder;
+      taskOrder++;
 
       // 开始任务
       const taskPromise = task();
       runnings[index] = taskPromise;
 
       // 监听任务完成
-      taskPromise.finally(() => {
-        runnings[index] = null;
-        start();
-      });
+      taskPromise
+        .then(res => {
+          taskResults[currentTaskIndex] = res;
+        })
+        .finally(() => {
+          runnings[index] = null;
+          start();
+        });
     }
   };
 

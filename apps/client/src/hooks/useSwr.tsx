@@ -90,6 +90,7 @@ const useSwr = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
   };
 };
 
+type MutationArgs<T, P extends ApiKeys> = Pick<UseSwrOptions<T, P>, 'data' | 'params'>;
 const useSwrMutation = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
   apiKey: T,
   options?: Pick<UseSwrOptions<D, T>, 'data' | 'params' | 'onSuccess' | 'noticeWhenSuccess'>
@@ -103,19 +104,19 @@ const useSwrMutation = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
     isMutating: isLoading,
     trigger,
     reset,
-  } = useSWRMutation<ApiResponseBase<D>, AxiosError<ApiResponseBase>>(
-    [url, requestParams, requestData],
-    async () => {
-      const res = await instance.request({
+  } = useSWRMutation(
+    url,
+    async (url: string, { arg: { params, data } }: { arg: MutationArgs<D, T> }) => {
+      const res = await instance.request<ApiResponseBase<D>>({
         url,
         method,
-        params: requestParams,
-        data: requestData,
+        params: params ?? requestParams,
+        data: data ?? requestData,
       });
       return res?.data;
     },
     {
-      onError: error => {
+      onError: (error: AxiosError<ApiResponseBase>) => {
         notifications.show(error.response?.data?.msg || error.message, {
           autoHideDuration: AUTO_HIDE_DURATION_ERROR,
           severity: 'error',
@@ -133,10 +134,17 @@ const useSwrMutation = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
     }
   );
 
+  const wrappedTrigger = useCallback(
+    (arg: MutationArgs<D, T> = {}) => {
+      return trigger(arg);
+    },
+    [trigger]
+  );
+
   return {
     data: data?.data,
     isLoading,
-    trigger,
+    trigger: wrappedTrigger,
     reset,
   };
 };

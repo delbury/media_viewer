@@ -1,4 +1,5 @@
 import { FileInfo } from '#pkgs/apis';
+import { splitPath } from '#pkgs/tools/common';
 import { useMemo } from 'react';
 
 const PATH_DIVIDER_SYMBOL = ' ⋰ ';
@@ -9,11 +10,7 @@ export const useFileTitle = ({ file }: { file?: FileInfo } = {}) => {
   const secondaryTitle = useMemo(() => {
     if (!file) return;
 
-    const text = file.showPath
-      .split('/')
-      .filter((v, i, list) => !!v && i !== list.length - 1)
-      .reverse()
-      .join(PATH_DIVIDER_SYMBOL);
+    const text = splitPath(file.showPath, { ignoreLast: true }).reverse().join(PATH_DIVIDER_SYMBOL);
 
     return `${LEFT_SYMBOL}${text}${RIGHT_SYMBOL}`;
 

@@ -1,13 +1,34 @@
-import { POSTER_CACHE_MAX_AGE, TEXT_FILE_SIZE_LIMIT } from '#/config';
-import { readDataFromFile } from '#/util/fileOperation';
-import { API_CONFIGS, ApiRequestParamsTypes, ApiResponseDataTypes } from '#pkgs/apis';
+import {
+  CACHE_DATA_PATH,
+  CACHE_DATE_FILE_FULL_PATH,
+  CACHE_DATE_FILE_NAME,
+  POSTER_CACHE_MAX_AGE,
+  TEXT_FILE_SIZE_LIMIT,
+} from '#/config';
+import {
+  readDataFromFile,
+  readDataFromFileByMsgPack,
+  writeDataToFileByMsgPack,
+} from '#/util/fileOperation';
+import {
+  API_CONFIGS,
+  ApiRequestDataTypes,
+  ApiRequestParamsTypes,
+  ApiResponseDataTypes,
+  DirUpdateData,
+} from '#pkgs/apis';
 import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
+import { findFileInfoInDir, logError, splitPath } from '#pkgs/tools/common.js';
 import Router from '@koa/router';
 import send from 'koa-send';
 import { stat } from 'node:fs/promises';
 import path from 'node:path';
+import trash from 'trash';
 import { getRootDir, returnBody } from '../util/common';
 import { sendFileWithRange } from '../util/range';
+import { getTask } from '../util/task';
+
+const updateTask = getTask('dirUpdate');
 
 const fileRouter = new Router();
 
@@ -51,6 +72,57 @@ fileRouter[API_CONFIGS.fileGet.method](API_CONFIGS.fileGet.url, async ctx => {
       maxAge: POSTER_CACHE_MAX_AGE,
       hidden: false,
     });
+  }
+});
+
+const deleteFileTask = getTask('deleteFile');
+
+// 删除文件
+fileRouter[API_CONFIGS.fileDelete.method](API_CONFIGS.fileDelete.url, async ctx => {
+  const { files } = ctx.request.body as ApiRequestDataTypes<'fileDelete'>;
+  if (!files?.length) throw new Error(ERROR_MSG.noFile);
+
+  // 取内存缓存
+  let cachedData = updateTask.getCache();
+  if (!cachedData) {
+    // 取本地缓存
+    cachedData = (await readDataFromFileByMsgPack(
+      path.join(CACHE_DATA_PATH, CACHE_DATE_FILE_NAME)
+    )) as Omit<DirUpdateData, 'fileList'>;
+
+    // 缓存到内存
+    updateTask.setCache(cachedData);
+  }
+
+  const rootDirs = cachedData?.treeNode?.children;
+  if (!rootDirs) throw new Error(ERROR_MSG.noFile);
+
+  try {
+    updateTask.start();
+    for (const info of files) {
+      // 根据入参，找到内存中对应的文件信息
+      const base = getRootDir(info.basePathIndex);
+      const pathSeq = splitPath(info.relativePath);
+      const findRes = findFileInfoInDir(rootDirs[info.basePathIndex], pathSeq);
+      if (!findRes) {
+        logError(`no file info: "${info.relativePath}"`);
+        continue;
+      }
+      const { fileInfo, parentDirInfo } = findRes;
+      // 删除本地文件，放入回收站
+      const fullPath = path.join(base, fileInfo.relativePath);
+      await trash([fullPath]);
+      // 删除并更新文件信息内存缓存
+      const index = parentDirInfo.files.findIndex(it => it === fileInfo);
+      parentDirInfo.files.splice(index, 1);
+      // 更新文件信息缓存文件
+      await writeDataToFileByMsgPack(CACHE_DATE_FILE_FULL_PATH, cachedData);
+    }
+
+    // done
+    ctx.body = returnBody();
+  } finally {
+    updateTask.end();
   }
 });
 

@@ -1,9 +1,10 @@
 import { Stats } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { FullFileType, MediaFileType } from '../shared';
 import { execCommand } from './cli';
-import { createFileNameRegExp, detectFileType, formatPath } from './common';
+import { createAsyncTaskQueue, createFileNameRegExp, detectFileType, formatPath } from './common';
 import { IGNORE_FILE_NAME_REG, LYRIC_EXT, SUBTITLES_EXTS, SubtitlesExts } from './constant';
 
 interface CommonInfo {
@@ -247,6 +248,10 @@ export const traverseDirectories = async (
 
       // 当前文件夹的所有子文件
       const currentFiles: FileInfo[] = [];
+
+      // 任务队列
+      const taskQueue = createAsyncTaskQueue<FileInfo>(os.cpus().length);
+
       // 将所有文件夹和文件入队
       for (const cd of childDirs) {
         const cdInfo = await stat(path.resolve(fp, cd));
@@ -255,22 +260,26 @@ export const traverseDirectories = async (
           dirs.push(path.resolve(fp, cd));
         } else if (cdInfo.isFile()) {
           // 是文件，创建并保存当前文件信息对象
-          const fileInfo = await newFileInfo({ bp, fp: path.resolve(fp, cd), info: cdInfo, bpi });
-
-          dirInfo.files.push(fileInfo);
-          // 所有文件信息放入数组
-          fileList.push(fileInfo);
-
-          // 统计当前文件夹的子文件类型数量
-          if (fileInfo.fileType in dirInfo.selfMediaFilesCount) {
-            dirInfo.selfMediaFilesCount[fileInfo.fileType as MediaFileType]++;
-          }
-
-          // 把当前文件夹的子文件信息集合到一起
-          // 后续文件关系判断使用
-          currentFiles.push(fileInfo);
+          const task = () => newFileInfo({ bp, fp: path.resolve(fp, cd), info: cdInfo, bpi });
+          taskQueue.add(task);
         }
       }
+      taskQueue.start();
+      const fileInfos = await taskQueue.result;
+      fileInfos.forEach(fileInfo => {
+        dirInfo.files.push(fileInfo);
+        // 所有文件信息放入数组
+        fileList.push(fileInfo);
+
+        // 统计当前文件夹的子文件类型数量
+        if (fileInfo.fileType in dirInfo.selfMediaFilesCount) {
+          dirInfo.selfMediaFilesCount[fileInfo.fileType as MediaFileType]++;
+        }
+
+        // 把当前文件夹的子文件信息集合到一起
+        // 后续文件关系判断使用
+        currentFiles.push(fileInfo);
+      });
       dirInfo.selfFilesCount = dirInfo.files.length;
 
       resolveFileRelation(currentFiles);
@@ -288,7 +297,8 @@ export const traverseDirectories = async (
 
   return {
     treeNode,
-    fileList,
+    // 不 export 文件 list
+    fileList: [],
     version: options?.version,
     timestamp: Date.now(),
   };

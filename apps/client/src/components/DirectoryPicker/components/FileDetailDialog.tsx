@@ -2,7 +2,7 @@ import Dialog from '#/components/Dialog';
 import PosterImage from '#/components/PosterImage';
 import { useSwr } from '#/hooks/useSwr';
 import { formatDate, formatFileSize } from '#/utils';
-import { isMediaFile } from '#pkgs/tools/common';
+import { isMediaFile, splitPath } from '#pkgs/tools/common';
 import { FileInfo } from '#pkgs/tools/traverseDirectories';
 import { LoopOutlined } from '@mui/icons-material';
 import { Box, IconButton, TabsOwnProps } from '@mui/material';
@@ -37,7 +37,7 @@ const renderPathInfo = (
   file: FileInfo,
   onPathClick?: (paths: string[]) => void
 ): React.ReactNode => {
-  const paths = file.showPath.split('/').filter(it => !!it);
+  const paths = splitPath(file.showPath);
   return (
     <Box>
       {paths.map((p, i) => (

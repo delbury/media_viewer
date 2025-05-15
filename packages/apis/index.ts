@@ -53,6 +53,11 @@ export const API_CONFIGS = {
     url: '/file/text',
     method: 'get',
   },
+  // 删除文件
+  fileDelete: {
+    url: '/file/delete',
+    method: 'post',
+  },
   // 获取缩略图
   posterGet: {
     url: '/poster/get',
@@ -158,10 +163,18 @@ interface ApiVideoSegment extends ApiFileFetchParams {
 
 export type ApiRequestDataTypes<T extends ApiKeys> = T extends 'posterClear'
   ? ApiFilePosterClearParams
-  : never;
+  : T extends 'fileDelete'
+    ? ApiFileDeleteParams
+    : never;
 
 interface ApiFilePosterClearParams {
   clearAll?: boolean;
+}
+interface ApiFileDeleteParams {
+  files: {
+    basePathIndex: number;
+    relativePath: string;
+  }[];
 }
 
 /**

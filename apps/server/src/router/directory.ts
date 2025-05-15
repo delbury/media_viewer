@@ -1,4 +1,4 @@
-import { CACHE_DATA_PATH, CACHE_DATE_FILE_NAME, DIRECTORY_ROOTS, SERVER_VERSION } from '#/config';
+import { CACHE_DATE_FILE_FULL_PATH, DIRECTORY_ROOTS, SERVER_VERSION } from '#/config';
 import { returnBody } from '#/util/common';
 import { readDataFromFileByMsgPack, writeDataToFileByMsgPack } from '#/util/fileOperation';
 import { API_CONFIGS, ApiResponseDataTypes, DirUpdateData } from '#pkgs/apis';
@@ -6,7 +6,6 @@ import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import { traverseDirectories } from '#pkgs/tools/traverseDirectories';
 import Router from '@koa/router';
 import { omit } from 'lodash-es';
-import path from 'node:path';
 import { getTask } from '../util/task';
 
 const directoryRouter = new Router();
@@ -25,7 +24,7 @@ directoryRouter[API_CONFIGS.dirUpdate.method](API_CONFIGS.dirUpdate.url, async c
     // 更新内存缓存
     updateTask.setCache(resultData);
     // 更新本地缓存
-    await writeDataToFileByMsgPack(path.join(CACHE_DATA_PATH, CACHE_DATE_FILE_NAME), res);
+    await writeDataToFileByMsgPack(CACHE_DATE_FILE_FULL_PATH, res);
   } finally {
     updateTask.end();
   }
@@ -40,9 +39,10 @@ directoryRouter[API_CONFIGS.dirTree.method](API_CONFIGS.dirTree.url, async ctx =
     return;
   }
   // 取本地缓存
-  const json = (await readDataFromFileByMsgPack(
-    path.join(CACHE_DATA_PATH, CACHE_DATE_FILE_NAME)
-  )) as Omit<DirUpdateData, 'fileList'>;
+  const json = (await readDataFromFileByMsgPack(CACHE_DATE_FILE_FULL_PATH)) as Omit<
+    DirUpdateData,
+    'fileList'
+  >;
 
   // 缓存到内存
   updateTask.setCache(json);
