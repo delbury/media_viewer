@@ -15,6 +15,7 @@ import {
   StyleChildItemNameRow,
   StyleChildItemSize,
   StyledChildItem,
+  StyledChildItemInner,
 } from './style';
 
 interface FileListPreviewerProps {
@@ -64,20 +65,22 @@ const ChildItem = (props: ChildItemProps) => {
       type={activated ? 'activated' : isSelectedFileSibling ? 'sibling' : void 0}
       onClick={handleItemClick}
     >
-      <StyleChildItemImage>
-        <img
-          src={posterUrl}
-          alt={title}
-        />
-      </StyleChildItemImage>
-      <StyleChildItemInfo>
-        <StyleChildItemNameRow>
-          <StyleChildItemName>{title}</StyleChildItemName>
-          <StyleChildItemSize>{size}</StyleChildItemSize>
-        </StyleChildItemNameRow>
-        <StyleChildItemDir>{secondaryTitle}</StyleChildItemDir>
-        {RowExtraComp && <RowExtraComp file={file} />}
-      </StyleChildItemInfo>
+      <StyledChildItemInner>
+        <StyleChildItemImage>
+          <img
+            src={posterUrl}
+            alt={title}
+          />
+        </StyleChildItemImage>
+        <StyleChildItemInfo>
+          <StyleChildItemNameRow>
+            <StyleChildItemName>{title}</StyleChildItemName>
+            <StyleChildItemSize>{size}</StyleChildItemSize>
+          </StyleChildItemNameRow>
+          <StyleChildItemDir>{secondaryTitle}</StyleChildItemDir>
+          {RowExtraComp && <RowExtraComp file={file} />}
+        </StyleChildItemInfo>
+      </StyledChildItemInner>
     </StyledChildItem>
   );
 };

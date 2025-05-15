@@ -86,24 +86,36 @@ export const StyleChildItemSize = styled(Box)`
   min-width: 60px;
 `;
 
-export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !== 'activated' })<{
-  type?: 'sibling' | 'activated';
-}>`
-  height: ${FILE_ITEM_ROW_HEIGHT}px;
+export const StyledChildItemInner = styled(Box)`
+  height: 100%;
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 12px;
   border-radius: 4px;
+  border: 1px solid transparent;
+`;
+
+export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !== 'activated' })<{
+  type?: 'sibling' | 'activated';
+}>`
+  height: ${FILE_ITEM_ROW_HEIGHT}px;
   border-top: 2px solid transparent;
   border-bottom: 2px solid transparent;
+  border-radius: 4px;
   background-clip: padding-box;
 
   ${({ type, theme }) =>
     type === 'activated'
-      ? `background-color: ${theme.palette.info.main}`
+      ? `
+      background-color: ${theme.palette.info.main};
+      ${StyledChildItemInner} {
+        border-color: ${theme.palette.primary.dark};
+      }
+      `
       : type === 'sibling'
-        ? `background-color: ${theme.palette.action.selected}`
-        : ''};
+        ? `background-color: ${theme.palette.action.selected};`
+        : ''}
 
   :hover {
     background-color: ${({ theme }) => theme.palette.info.dark};
