@@ -3,6 +3,9 @@ import {
   CACHE_DATE_FILE_FULL_PATH,
   CACHE_DATE_FILE_NAME,
   POSTER_CACHE_MAX_AGE,
+  POSTER_DIR_NAME,
+  POSTER_FILE_EXT,
+  POSTER_FILE_NAME_PREFIX,
   TEXT_FILE_SIZE_LIMIT,
 } from '#/config';
 import {
@@ -109,9 +112,14 @@ fileRouter[API_CONFIGS.fileDelete.method](API_CONFIGS.fileDelete.url, async ctx 
         continue;
       }
       const { fileInfo, parentDirInfo } = findRes;
-      // 删除本地文件，放入回收站
+      // 删除本地文件和缩略图，放入回收站
       const fullPath = path.join(base, fileInfo.relativePath);
-      await trash([fullPath]);
+      const posterPath = path.join(
+        path.dirname(fullPath),
+        POSTER_DIR_NAME,
+        `${POSTER_FILE_NAME_PREFIX}${fileInfo.name}${POSTER_FILE_EXT}`
+      );
+      await trash([fullPath, posterPath]);
       // 删除并更新文件信息内存缓存
       const index = parentDirInfo.files.findIndex(it => it === fileInfo);
       parentDirInfo.files.splice(index, 1);
