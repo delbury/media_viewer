@@ -47,9 +47,9 @@ export const useConfirmDialog = function ({
 
   return {
     ConfirmDialog,
-    handleOpen,
-    handleOpenSkipConfirm,
-    handleClose,
+    openConfirmDialog: handleOpen,
+    closeConfirmDialog: handleClose,
+    openConfirmDialogSkipConfirm: handleOpenSkipConfirm,
   };
 };
 
@@ -65,29 +65,29 @@ export const useConfirmDialogByKeys = <T extends string = string>(
     return;
   }, [params, currentKey, defaultKey]);
 
-  const { ConfirmDialog, handleOpen, handleOpenSkipConfirm, handleClose } =
+  const { ConfirmDialog, openConfirmDialog, openConfirmDialogSkipConfirm, closeConfirmDialog } =
     useConfirmDialog(currentParams);
 
   const handleOpenWrapped = useCallback(
     (key: T) => {
       setCurrentKey(key);
-      handleOpen();
+      openConfirmDialog();
     },
-    [handleOpen]
+    [openConfirmDialog]
   );
 
   const handleOpenSkipConfirmWrapped = useCallback(
     (key: T) => {
       setCurrentKey(key);
-      handleOpenSkipConfirm();
+      openConfirmDialogSkipConfirm();
     },
-    [handleOpenSkipConfirm]
+    [openConfirmDialogSkipConfirm]
   );
 
   return {
     ConfirmDialog,
-    handleOpen: handleOpenWrapped,
-    handleOpenSkipConfirm: handleOpenSkipConfirmWrapped,
-    handleClose,
+    openConfirmDialog: handleOpenWrapped,
+    openConfirmDialogSkipConfirm: handleOpenSkipConfirmWrapped,
+    closeConfirmDialog,
   };
 };

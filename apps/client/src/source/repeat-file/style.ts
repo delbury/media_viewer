@@ -13,7 +13,7 @@ export const StyledSelectedDirInfoWrapper = styled(Box)`
 export const StyledSelectedDirInfo = styled(Box)`
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   color: ${({ theme }) => theme.palette.text.secondary};
   font-size: 0.8rem;
 `;
@@ -24,6 +24,10 @@ export const StyledFileGroupBtn = styled('span', {
   selected?: boolean;
 }>`
   cursor: pointer;
+
+  :not(:last-child) {
+    margin-inline-end: 16px;
+  }
 
   ${({ selected, theme }) =>
     selected

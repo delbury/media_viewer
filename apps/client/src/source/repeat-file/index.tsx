@@ -4,10 +4,12 @@ import DirectoryPicker from '#/components/DirectoryPicker';
 import { FILE_SORT_API_FIELD_MAP, FILE_SORT_OPTIONS } from '#/components/DirectoryPicker/constant';
 import { useSortList } from '#/components/DirectoryPicker/hooks/useSortList';
 import { FileListContent } from '#/components/FileListPreviewer';
+import { useConfirmDialogByKeys } from '#/hooks/useConfirmDialog';
 import { FILE_INFO_ID_FIELD } from '#/utils/constant';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { getAllFiles } from '#pkgs/tools/common';
-import { Divider } from '@mui/material';
+import { DeleteForeverRounded } from '@mui/icons-material';
+import { Box, Divider, IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import FileExtraInfo from './components/FileExtraInfo';
@@ -31,9 +33,25 @@ export default function RepeatFile() {
 
   // 所有文件
   const files = useMemo(() => {
+    // 清空已选
+    setSelectedSet(new Set());
+
     const list = currentDir ? getAllFiles('video', currentDir) : [];
     return list;
   }, [currentDir]);
+
+  // 删除操作
+  const handleDelete = useCallback(() => {
+    //
+  }, [selectedSet]);
+
+  // 操作确认
+  const { ConfirmDialog, openConfirmDialog } = useConfirmDialogByKeys({
+    delete: {
+      onOk: handleDelete,
+      description: t('Tools.AreYouSureDeleteSelectedFiles'),
+    },
+  });
 
   // 排序
   const { sortedItems, SortToolRow } = useSortList({
@@ -71,23 +89,34 @@ export default function RepeatFile() {
       {/* 信息行 */}
       <StyledSelectedDirInfoWrapper>
         <StyledSelectedDirInfo>
-          <StyledFileGroupBtn
-            selected={showFileGroup === 'selected'}
-            onClick={() => setShowFileGroup('selected')}
-          >
-            {t('Common.Selected')}
-            {t(':')}
-            {selectedSet.size}
-          </StyledFileGroupBtn>
-          {t(',')}
-          <StyledFileGroupBtn
-            selected={showFileGroup === 'all'}
-            onClick={() => setShowFileGroup('all')}
-          >
-            {t('Common.Video')}
-            {t(':')}
-            {sortedItems.length}
-          </StyledFileGroupBtn>
+          <span>
+            <StyledFileGroupBtn
+              selected={showFileGroup === 'all'}
+              onClick={() => setShowFileGroup('all')}
+            >
+              {t('Common.Video')}
+              {t(':')}
+              {sortedItems.length}
+            </StyledFileGroupBtn>
+            <StyledFileGroupBtn
+              selected={showFileGroup === 'selected'}
+              onClick={() => setShowFileGroup('selected')}
+            >
+              {t('Common.Selected')}
+              {t(':')}
+              {selectedSet.size}
+            </StyledFileGroupBtn>
+          </span>
+
+          <Box>
+            <IconButton
+              size="small"
+              disabled={!selectedSet.size}
+              onClick={() => openConfirmDialog('delete')}
+            >
+              <DeleteForeverRounded fontSize="small" />
+            </IconButton>
+          </Box>
         </StyledSelectedDirInfo>
         <Divider />
       </StyledSelectedDirInfoWrapper>
@@ -103,6 +132,8 @@ export default function RepeatFile() {
           selectedIdSet={selectedSet}
         />
       </StyledFileContentContainer>
+
+      {ConfirmDialog}
     </StyledRepeatFileWrapper>
   );
 }

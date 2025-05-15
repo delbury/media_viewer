@@ -31,7 +31,7 @@ export const useUpdateOperation = ({ fileBrowserRef, btnSx }: UseUpdateOperation
   });
 
   // 二次确认是否刷新
-  const { ConfirmDialog, handleOpen: confirmOpen } = useConfirmDialogByKeys({
+  const { ConfirmDialog, openConfirmDialog } = useConfirmDialogByKeys({
     dirUpdate: {
       onOk: updateRequest.trigger,
       description: t('Tools.AreYouSureReGenerateDirectoryInfo'),
@@ -46,25 +46,25 @@ export const useUpdateOperation = ({ fileBrowserRef, btnSx }: UseUpdateOperation
     return (
       <IconButton
         loading={updateRequest.isLoading}
-        onClick={() => confirmOpen('dirUpdate')}
+        onClick={() => openConfirmDialog('dirUpdate')}
         sx={btnSx}
       >
         <LoopOutlined />
       </IconButton>
     );
-  }, [btnSx, confirmOpen, updateRequest.isLoading]);
+  }, [btnSx, openConfirmDialog, updateRequest.isLoading]);
 
   const PosterClearBtn = useMemo(() => {
     return (
       <IconButton
         loading={updateRequest.isLoading}
-        onClick={() => confirmOpen('posterClear')}
+        onClick={() => openConfirmDialog('posterClear')}
         sx={btnSx}
       >
         <CleaningServicesOutlined />
       </IconButton>
     );
-  }, [btnSx, confirmOpen, updateRequest.isLoading]);
+  }, [btnSx, openConfirmDialog, updateRequest.isLoading]);
 
   return {
     DirUpdateBtn,
