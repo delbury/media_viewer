@@ -3,10 +3,10 @@ import { returnBody } from '#/util/common';
 import { readDataFromFileByMsgPack, writeDataToFileByMsgPack } from '#/util/fileOperation';
 import { API_CONFIGS, ApiResponseDataTypes, DirUpdateData } from '#pkgs/apis';
 import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
-import { traverseDirectories } from '#pkgs/tools/traverseDirectories';
 import Router from '@koa/router';
 import { omit } from 'lodash-es';
 import { getTask } from '../util/task';
+import { traverseDirectories } from '../util/traverseDirectories';
 
 const directoryRouter = new Router();
 

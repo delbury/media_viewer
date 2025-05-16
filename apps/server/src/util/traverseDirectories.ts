@@ -1,11 +1,25 @@
+import { FullFileType, MediaFileType } from '#pkgs/shared';
+import { execCommand } from '#pkgs/tools/cli.js';
+import {
+  createAsyncTaskQueue,
+  createFileNameRegExp,
+  createOrderLogs,
+  createTimer,
+  detectFileType,
+  formatPath,
+} from '#pkgs/tools/common';
+import {
+  IGNORE_FILE_NAME_REG,
+  LYRIC_EXT,
+  SUBTITLES_EXTS,
+  SubtitlesExts,
+} from '#pkgs/tools/constant';
 import { Stats } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { FullFileType, MediaFileType } from '../shared';
-import { execCommand } from './cli';
-import { createAsyncTaskQueue, createFileNameRegExp, detectFileType, formatPath } from './common';
-import { IGNORE_FILE_NAME_REG, LYRIC_EXT, SUBTITLES_EXTS, SubtitlesExts } from './constant';
+import { getRootDir } from './common';
+import { logProgress } from './debug';
 
 interface CommonInfo {
   // 文件根路径
@@ -77,13 +91,52 @@ interface NewInfoParams {
 export type TraverseDirectoriesReturnValue = Awaited<ReturnType<typeof traverseDirectories>>;
 
 // 获取视频文件的时长
-const getVideoDuration = async (filePath?: string) => {
-  if (!filePath) return;
+const getVideoFilesDuration = async (fileInfos: FileInfo[]) => {
+  const taskQueue = createAsyncTaskQueue<number>(os.cpus().length * 2);
+  const videoFileIndexes: number[] = [];
+  let totalFiles = 0;
+  let stepCount = 1;
+  let curStep = 0;
 
-  const command = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${filePath}"`;
-  const { stdout } = await execCommand(command);
-  const duration = parseFloat(stdout as string);
-  return duration;
+  const baseCommand = [
+    'ffprobe -v error',
+    '-probesize 32K -analyzeduration 100000',
+    '-select_streams v:0',
+    '-show_entries format=duration',
+    '-of default=noprint_wrappers=1:nokey=1',
+  ].join(' ');
+
+  for (let i = 0; i < fileInfos.length; i++) {
+    const fileInfo = fileInfos[i];
+    if (fileInfo.fileType !== 'video') continue;
+
+    videoFileIndexes.push(i);
+
+    const basePath = getRootDir(fileInfo.basePathIndex as number);
+    const filePath = path.posix.join(basePath, fileInfo.relativePath);
+    const task = async () => {
+      const command = baseCommand + ` "${filePath}"`;
+      const { stdout } = await execCommand(command, { encoding: null });
+
+      totalFiles--;
+      curStep--;
+      if (!totalFiles || !curStep) {
+        progressbar.tick(stepCount);
+        if (!curStep) curStep = stepCount;
+      }
+      return +stdout;
+    };
+    taskQueue.add(task);
+  }
+
+  totalFiles = taskQueue.getWaitingLength();
+  stepCount = Math.floor(totalFiles / 20);
+  curStep = stepCount;
+  const progressbar = logProgress(totalFiles);
+
+  taskQueue.start();
+  const durationRes = await taskQueue.result;
+  durationRes.forEach((d, i) => (fileInfos[videoFileIndexes[i]].duration = d ?? NaN));
 };
 
 // 文件和文件夹通用基础信息
@@ -110,21 +163,10 @@ const newCommonInfo = ({ bp, fp, info, bpi }: NewInfoParams = {}): CommonInfo =>
 };
 
 // 文件信息
-const newFileInfo = async (params: NewInfoParams): Promise<FileInfo> => {
+const newFileInfo = (params: NewInfoParams) => {
   const { ext, name } = path.parse(params.fp ?? '');
   const nameExt = ext.toLowerCase();
   const fileType = detectFileType(ext);
-  const duration: number | undefined = void 0;
-
-  // if (fileType === 'video') {
-  //   // 视频文件，获取视频时长
-  //   try {
-  //     duration = await getVideoDuration(params.fp);
-  //   } catch (error) {
-  //     duration = NaN;
-  //     logError(error);
-  //   }
-  // }
 
   const fileInfo: FileInfo = {
     ...newCommonInfo(params),
@@ -133,7 +175,6 @@ const newFileInfo = async (params: NewInfoParams): Promise<FileInfo> => {
     nameExt,
     nameExtPure: nameExt.replace('.', ''),
     fileType,
-    duration,
   };
 
   return fileInfo;
@@ -210,6 +251,11 @@ export const traverseDirectories = async (
   dir: string | string[],
   options?: { version?: string }
 ) => {
+  const { logInfo, logSuccess } = createOrderLogs();
+  logInfo('start generating directories info');
+  const fullStop = createTimer();
+  const traverseStop = createTimer();
+
   // [path1, path2, dirArr, ...]
   // 根目录，去重
   const rootDir = [...new Set(Array.isArray(dir) ? [...dir] : [dir])];
@@ -254,9 +300,6 @@ export const traverseDirectories = async (
       // 当前文件夹的所有子文件
       const currentFiles: FileInfo[] = [];
 
-      // 任务队列
-      const taskQueue = createAsyncTaskQueue<FileInfo>(os.cpus().length);
-
       // 将所有文件夹和文件入队
       for (const cd of childDirs) {
         const cdInfo = await stat(path.resolve(fp, cd));
@@ -265,26 +308,21 @@ export const traverseDirectories = async (
           dirs.push(path.resolve(fp, cd));
         } else if (cdInfo.isFile()) {
           // 是文件，创建并保存当前文件信息对象
-          const task = () => newFileInfo({ bp, fp: path.resolve(fp, cd), info: cdInfo, bpi });
-          taskQueue.add(task);
+          const fileInfo = newFileInfo({ bp, fp: path.resolve(fp, cd), info: cdInfo, bpi });
+          dirInfo.files.push(fileInfo);
+          // 所有文件信息放入数组
+          fileList.push(fileInfo);
+
+          // 统计当前文件夹的子文件类型数量
+          if (fileInfo.fileType in dirInfo.selfMediaFilesCount) {
+            dirInfo.selfMediaFilesCount[fileInfo.fileType as MediaFileType]++;
+          }
+
+          // 把当前文件夹的子文件信息集合到一起
+          // 后续文件关系判断使用
+          currentFiles.push(fileInfo);
         }
       }
-      taskQueue.start();
-      const fileInfos = await taskQueue.result;
-      fileInfos.forEach(fileInfo => {
-        dirInfo.files.push(fileInfo);
-        // 所有文件信息放入数组
-        fileList.push(fileInfo);
-
-        // 统计当前文件夹的子文件类型数量
-        if (fileInfo.fileType in dirInfo.selfMediaFilesCount) {
-          dirInfo.selfMediaFilesCount[fileInfo.fileType as MediaFileType]++;
-        }
-
-        // 把当前文件夹的子文件信息集合到一起
-        // 后续文件关系判断使用
-        currentFiles.push(fileInfo);
-      });
       dirInfo.selfFilesCount = dirInfo.files.length;
 
       resolveFileRelation(currentFiles);
@@ -293,13 +331,22 @@ export const traverseDirectories = async (
       dirList.push(dirInfo);
     }
   }
-
+  logSuccess('traverse directories done: ', traverseStop());
+  // 统计文件数量
+  const countStop = createTimer();
   calcFileCount(treeNode);
+  logSuccess('count the number of files done: ', countStop());
+
+  // 获取视频文件的时长信息
+  const durationStop = createTimer();
+  await getVideoFilesDuration(fileList);
+  logSuccess('get files duration done: ', durationStop());
 
   // 额外处理不需要返回的 path 信息
   fileList.forEach(dealFilePath);
   dirList.forEach(dealFilePath);
 
+  logSuccess('generate directories info successfully: ', fullStop());
   return {
     treeNode,
     // 不 export 文件 list

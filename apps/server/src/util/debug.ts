@@ -1,4 +1,5 @@
 import { logInfo } from '#pkgs/tools/common';
+import ProgressBar from 'progress';
 
 export const logCommand = (cli: string, args: string[]) => {
   const cmd = `${cli} ${args
@@ -14,4 +15,12 @@ export const logCommand = (cli: string, args: string[]) => {
   logInfo(cmd);
 
   return cmd;
+};
+
+export const logProgress = (total: number, { prefix = '' }: { prefix?: string } = {}) => {
+  const bar = new ProgressBar(`${prefix}[:bar] :current/:total :percent`, {
+    total,
+    width: 30,
+  });
+  return bar;
 };

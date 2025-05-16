@@ -1,10 +1,10 @@
 import { ParsedUrlQuery } from 'querystring';
-import { MediaDetailInfo } from '../shared';
 import {
   DirectoryInfo,
   FileInfo,
   TraverseDirectoriesReturnValue,
-} from '../tools/traverseDirectories';
+} from '../../apps/server/src/util/traverseDirectories';
+import { MediaDetailInfo } from '../shared';
 
 export * from './tools';
 

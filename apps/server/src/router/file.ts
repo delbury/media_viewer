@@ -32,6 +32,7 @@ import { sendFileWithRange } from '../util/range';
 import { getTask } from '../util/task';
 
 const updateTask = getTask('dirUpdate');
+const deleteFileTask = getTask('deleteFile');
 
 const fileRouter = new Router();
 
@@ -78,8 +79,6 @@ fileRouter[API_CONFIGS.fileGet.method](API_CONFIGS.fileGet.url, async ctx => {
   }
 });
 
-const deleteFileTask = getTask('deleteFile');
-
 // 删除文件
 fileRouter[API_CONFIGS.fileDelete.method](API_CONFIGS.fileDelete.url, async ctx => {
   const { files } = ctx.request.body as ApiRequestDataTypes<'fileDelete'>;
@@ -104,7 +103,8 @@ fileRouter[API_CONFIGS.fileDelete.method](API_CONFIGS.fileDelete.url, async ctx 
   ctx.body = returnBody();
 
   try {
-    updateTask.start();
+    deleteFileTask.start();
+
     for (const info of files) {
       // 根据入参，找到内存中对应的文件信息
       const base = getRootDir(info.basePathIndex);
@@ -133,7 +133,7 @@ fileRouter[API_CONFIGS.fileDelete.method](API_CONFIGS.fileDelete.url, async ctx 
     // done
     ctx.body = returnBody();
   } finally {
-    updateTask.end();
+    deleteFileTask.end();
   }
 });
 

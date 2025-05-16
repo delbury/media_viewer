@@ -2,9 +2,9 @@
 
 import chalk from 'chalk';
 import { escapeRegExp, noop } from 'lodash-es';
+import { DirectoryInfo, FileInfo } from '../../apps/server/src/util/traverseDirectories';
 import { FullFileType, MediaFileType } from '../shared';
 import { AUDIO_REG, IMAGE_REG, TEXT_REG, VIDEO_REG } from './constant';
-import { DirectoryInfo, FileInfo } from './traverseDirectories';
 
 // 有缩略图的文件类型
 export const ALLOWED_POSTER_FILE_TYPES: FullFileType[] = ['image', 'audio', 'video'];
@@ -46,10 +46,34 @@ export const findFileInfoInDir = (dir: DirectoryInfo, names: string[]) => {
 };
 
 // 控制台打印日志
-export const logInfo = (str: string) => console.info(chalk.blue(str));
-export const logSuccess = (str: string) => console.info(chalk.green(str));
-export const logWarn = (str: string) => console.info(chalk.yellow(str));
+export const logInfo = (...args: (string | number)[]) => console.info(chalk.blue(...args));
+export const logSuccess = (...args: (string | number)[]) => console.info(chalk.green(...args));
+export const logWarn = (...args: (string | number)[]) => console.info(chalk.yellow(...args));
 export const logError = console.error;
+
+// log with order
+export const createOrderLogs = () => {
+  let order = 1;
+  const wrapper =
+    (logFn: (...args: (string | number)[]) => void) =>
+    (...args: (string | number)[]) =>
+      logFn(`${order++}.`, ...args);
+
+  return {
+    logInfo: wrapper(logInfo),
+    logSuccess: wrapper(logSuccess),
+    logWarn: wrapper(logWarn),
+  };
+};
+
+// 执行计时器
+export const createTimer = () => {
+  const start = performance.now();
+  return () => {
+    const end = performance.now();
+    return end - start;
+  };
+};
 
 // 根据 flag 来控制是否执行函数
 export const switchFnByFlag = <T extends unknown[]>(fn: (...args: T) => void, flag: boolean) => {
@@ -80,11 +104,11 @@ export const createAsyncTaskQueue = <T = unknown>(concurrency: number = 1) => {
   // 任务编号
   let taskOrder = 0;
   // 任务结果
-  const taskResults: T[] = [];
+  const taskResults: (T | null)[] = [];
   // 正在运行的任务
   const runnings: (Promise<T> | null)[] = Array(concurrency).fill(null);
 
-  const result = Promise.withResolvers<T[]>();
+  const result = Promise.withResolvers<(T | null)[]>();
 
   // 添加任务
   const add = (task: TaskFn<T>) => {
@@ -114,6 +138,10 @@ export const createAsyncTaskQueue = <T = unknown>(concurrency: number = 1) => {
         .then(res => {
           taskResults[currentTaskIndex] = res;
         })
+        .catch(err => {
+          taskResults[currentTaskIndex] = null;
+          logError(err);
+        })
         .finally(() => {
           runnings[index] = null;
           start();
@@ -121,7 +149,7 @@ export const createAsyncTaskQueue = <T = unknown>(concurrency: number = 1) => {
     }
   };
 
-  return { add, start, result: result.promise };
+  return { add, start, getWaitingLength: () => waitingTasks.length, result: result.promise };
 };
 
 // 构造正则，文件名 + 忽略大小写的后缀名

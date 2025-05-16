@@ -1,3 +1,4 @@
+import { REQUEST_TIMEOUT } from '#pkgs/tools/constant';
 import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
@@ -23,6 +24,9 @@ const nextConfig: NextConfig = {
   images: {},
   // 禁用 dev 下的工具浮窗
   devIndicators: false,
+  experimental: {
+    proxyTimeout: REQUEST_TIMEOUT,
+  },
 };
 
 export default withNextIntl(nextConfig);
