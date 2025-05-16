@@ -1,13 +1,12 @@
 import { API_CONFIGS, ApiKeys, ApiRequestDataTypes, ApiRequestParamsTypes } from '#pkgs/apis';
+import { REQUEST_TIMEOUT } from '#pkgs/tools/constant';
 import axios from 'axios';
-
-export const TIMEOUT = 1000 * 60;
 
 export const API_BASE_URL = '/api';
 
 const instance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: TIMEOUT,
+  timeout: REQUEST_TIMEOUT,
 });
 
 // instance.interceptors.request.use();

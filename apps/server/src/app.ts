@@ -1,5 +1,6 @@
 import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import { logError, logInfo } from '#pkgs/tools/common';
+import { REQUEST_TIMEOUT } from '#pkgs/tools/constant';
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import { directoryRouter } from './router/directory';
@@ -21,7 +22,7 @@ app.use(async (ctx, next) => {
   try {
     await next();
   } catch (err) {
-    // logError(err);
+    logError(err);
     ctx.status = 400;
     ctx.body = returnError((err as Error)?.message || ERROR_MSG.serverError);
   }
@@ -36,6 +37,8 @@ app.on('error', err => {
   logError(err);
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   logInfo(`server started on ${PORT}`);
 });
+
+server.timeout = REQUEST_TIMEOUT;

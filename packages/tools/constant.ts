@@ -1,3 +1,6 @@
+// 请求超时时间
+export const REQUEST_TIMEOUT = 2 * 1000 * 60;
+
 // 图片文件后缀
 const CONST_IMAGE_EXTS = [
   'gif',

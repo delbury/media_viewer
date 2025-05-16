@@ -21,7 +21,7 @@ import {
   DirUpdateData,
 } from '#pkgs/apis';
 import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
-import { findFileInfoInDir, logError, splitPath } from '#pkgs/tools/common.js';
+import { findFileInfoInDir, logError, splitPath } from '#pkgs/tools/common';
 import Router from '@koa/router';
 import send from 'koa-send';
 import { stat } from 'node:fs/promises';

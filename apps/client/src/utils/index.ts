@@ -1,6 +1,7 @@
 import { API_BASE_URL } from '#/request';
 import { FileInfo, joinUrlWithQueryString } from '#pkgs/apis';
 import hashSum from 'hash-sum';
+import { isNil } from 'lodash-es';
 
 // 格式化日期
 export const formatDate = (v: number) => {
@@ -27,6 +28,7 @@ export const formatTime = (
     withSymbol?: boolean;
   } = {}
 ) => {
+  if (isNil(t)) return '-';
   // 转换为数字
   t = +t;
   // 判断正负

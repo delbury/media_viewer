@@ -6,7 +6,7 @@ import { isNil } from 'lodash-es';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import Dialog from '../Dialog';
-import { ScrollBoxInstance } from './../ScrollBox/index';
+import { ScrollBoxInstance } from '../ScrollBox';
 import FileListContent from './FileListContent';
 import {
   FILE_ITEM_ROW_HEIGHT,

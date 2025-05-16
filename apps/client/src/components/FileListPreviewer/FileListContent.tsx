@@ -4,8 +4,8 @@ import { FILE_INFO_ID_FIELD } from '#/utils/constant';
 import { FileInfo } from '#pkgs/apis';
 import { useTranslations } from 'next-intl';
 import { RefObject, useCallback, useMemo } from 'react';
+import ScrollBox, { ScrollBoxInstance } from '../ScrollBox';
 import { VirtualListChildItemProps } from '../ScrollBox/hooks/useVirtualList';
-import ScrollBox, { ScrollBoxInstance } from './../ScrollBox/index';
 import {
   FILE_ITEM_ROW_HEIGHT,
   StyleChildItemDir,

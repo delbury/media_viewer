@@ -1,4 +1,4 @@
-import { IGNORE_FILE_NAME_PREFIX } from '#pkgs/tools/constant.js';
+import { IGNORE_FILE_NAME_PREFIX } from '#pkgs/tools/constant';
 import packageJson from '#root/package.json';
 import path from 'node:path';
 import { generateHash } from '../util/common';

@@ -1,4 +1,4 @@
-import { logInfo } from '#pkgs/tools/common.js';
+import { logInfo } from '#pkgs/tools/common';
 
 export const logCommand = (cli: string, args: string[]) => {
   const cmd = `${cli} ${args

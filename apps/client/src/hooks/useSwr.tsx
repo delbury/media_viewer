@@ -1,7 +1,8 @@
 'use client';
 
-import { API_CONFIGS, ApiKeys, ApiResponseDataTypes, instance, TIMEOUT } from '#/request';
+import { API_CONFIGS, ApiKeys, ApiResponseDataTypes, instance } from '#/request';
 import { ApiRequestDataTypes, ApiRequestParamsTypes, ApiResponseBase } from '#pkgs/apis';
+import { REQUEST_TIMEOUT } from '#pkgs/tools/constant';
 import { useNotifications } from '@toolpad/core';
 import { AxiosError } from 'axios';
 import { useTranslations } from 'next-intl';
@@ -61,7 +62,7 @@ const useSwr = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
       return res?.data;
     },
     {
-      loadingTimeout: TIMEOUT,
+      loadingTimeout: REQUEST_TIMEOUT,
       shouldRetryOnError: false,
       revalidateOnFocus: false,
       revalidateOnMount: !lazy && !disabled,

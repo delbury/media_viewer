@@ -1,5 +1,5 @@
 import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
-import { MediaDetailInfo } from '#pkgs/shared/index';
+import { MediaDetailInfo } from '#pkgs/shared';
 import { execCommand } from '#pkgs/tools/cli';
 import { DEFAULT_AUDIO_POSTER_RATIO, detectFileType, logError } from '#pkgs/tools/common';
 import path from 'node:path';

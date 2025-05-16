@@ -89,5 +89,6 @@ export const useConfirmDialogByKeys = <T extends string = string>(
     openConfirmDialog: handleOpenWrapped,
     openConfirmDialogSkipConfirm: handleOpenSkipConfirmWrapped,
     closeConfirmDialog,
+    currentKey,
   };
 };

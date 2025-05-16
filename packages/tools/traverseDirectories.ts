@@ -114,12 +114,17 @@ const newFileInfo = async (params: NewInfoParams): Promise<FileInfo> => {
   const { ext, name } = path.parse(params.fp ?? '');
   const nameExt = ext.toLowerCase();
   const fileType = detectFileType(ext);
-  let duration: number | undefined = void 0;
+  const duration: number | undefined = void 0;
 
-  if (fileType === 'video') {
-    // 视频文件，获取视频时长
-    duration = await getVideoDuration(params.fp);
-  }
+  // if (fileType === 'video') {
+  //   // 视频文件，获取视频时长
+  //   try {
+  //     duration = await getVideoDuration(params.fp);
+  //   } catch (error) {
+  //     duration = NaN;
+  //     logError(error);
+  //   }
+  // }
 
   const fileInfo: FileInfo = {
     ...newCommonInfo(params),
