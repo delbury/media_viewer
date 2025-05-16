@@ -1,5 +1,5 @@
 import { FullFileType, MediaFileType } from '#pkgs/shared';
-import { execCommand } from '#pkgs/tools/cli.js';
+import { execCommand } from '#pkgs/tools/cli';
 import {
   createAsyncTaskQueue,
   createFileNameRegExp,
@@ -94,9 +94,6 @@ export type TraverseDirectoriesReturnValue = Awaited<ReturnType<typeof traverseD
 const getVideoFilesDuration = async (fileInfos: FileInfo[]) => {
   const taskQueue = createAsyncTaskQueue<number>(os.cpus().length * 2);
   const videoFileIndexes: number[] = [];
-  let totalFiles = 0;
-  let stepCount = 1;
-  let curStep = 0;
 
   const baseCommand = [
     'ffprobe -v error',
@@ -114,25 +111,19 @@ const getVideoFilesDuration = async (fileInfos: FileInfo[]) => {
 
     const basePath = getRootDir(fileInfo.basePathIndex as number);
     const filePath = path.posix.join(basePath, fileInfo.relativePath);
-    const task = async () => {
+    // 任务队列
+    const task = async (index: number) => {
       const command = baseCommand + ` "${filePath}"`;
-      const { stdout } = await execCommand(command, { encoding: null });
+      const { stdout } = await execCommand(command);
 
-      totalFiles--;
-      curStep--;
-      if (!totalFiles || !curStep) {
-        progressbar.tick(stepCount);
-        if (!curStep) curStep = stepCount;
-      }
+      progressbar.goTo(index);
       return +stdout;
     };
     taskQueue.add(task);
   }
 
-  totalFiles = taskQueue.getWaitingLength();
-  stepCount = Math.floor(totalFiles / 20);
-  curStep = stepCount;
-  const progressbar = logProgress(totalFiles);
+  // 进度条
+  const progressbar = logProgress(taskQueue.getWaitingLength());
 
   taskQueue.start();
   const durationRes = await taskQueue.result;

@@ -17,10 +17,23 @@ export const logCommand = (cli: string, args: string[]) => {
   return cmd;
 };
 
-export const logProgress = (total: number, { prefix = '' }: { prefix?: string } = {}) => {
+export const logProgress = (
+  total: number,
+  { prefix = '', segments = 20 }: { prefix?: string; segments?: number } = {}
+) => {
+  const step = Math.ceil(total / segments);
   const bar = new ProgressBar(`${prefix}[:bar] :current/:total :percent`, {
     total,
     width: 30,
   });
-  return bar;
+  return {
+    tick: bar.tick,
+    goTo: (index: number) => {
+      if (index % step === 0 || index === total - 1) {
+        bar.curr = index + 1;
+        bar.render();
+        if (index === total - 1) bar.tick(0);
+      }
+    },
+  };
 };

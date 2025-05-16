@@ -95,7 +95,7 @@ export const detectFileType = (ext: string): FullFileType => {
  * @param concurrency 并发数
  * @returns
  */
-type TaskFn<T> = () => Promise<T>;
+type TaskFn<T> = (index: number) => Promise<T>;
 export const createAsyncTaskQueue = <T = unknown>(concurrency: number = 1) => {
   if (concurrency < 1) throw new Error('concurrency must >= 1');
 
@@ -130,7 +130,7 @@ export const createAsyncTaskQueue = <T = unknown>(concurrency: number = 1) => {
       taskOrder++;
 
       // 开始任务
-      const taskPromise = task();
+      const taskPromise = task(currentTaskIndex);
       runnings[index] = taskPromise;
 
       // 监听任务完成
