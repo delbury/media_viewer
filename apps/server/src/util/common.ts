@@ -1,4 +1,4 @@
-import { ApiResponseBase } from '#pkgs/apis';
+import { ApiResponseBase, FileInfo } from '#pkgs/apis';
 import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import { execCommand } from '#pkgs/tools/cli';
 import { IGNORE_FILE_NAME_REG } from '#pkgs/tools/constant';
@@ -55,3 +55,10 @@ export const getRootDir = (index: number | string) => {
 // 生成 hash
 export const generateHash = (text: string) =>
   createHash('md5').update(text).digest('hex').substring(0, 8);
+
+// 获取文件路径
+export const getFilePath = (fileInfo: Pick<FileInfo, 'basePathIndex' | 'relativePath'>) => {
+  const basePath = getRootDir(fileInfo.basePathIndex as number);
+  const filePath = path.posix.join(basePath, fileInfo.relativePath);
+  return filePath;
+};

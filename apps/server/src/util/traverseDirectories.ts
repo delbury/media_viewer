@@ -1,7 +1,5 @@
 import { FullFileType, MediaFileType } from '#pkgs/shared';
-import { execCommand } from '#pkgs/tools/cli';
 import {
-  createAsyncTaskQueue,
   createFileNameRegExp,
   createOrderLogs,
   createTimer,
@@ -16,10 +14,7 @@ import {
 } from '#pkgs/tools/constant';
 import { Stats } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
-import { getRootDir } from './common';
-import { logProgress } from './debug';
 
 interface CommonInfo {
   // 文件根路径
@@ -89,46 +84,6 @@ interface NewInfoParams {
 
 // 返回类型
 export type TraverseDirectoriesReturnValue = Awaited<ReturnType<typeof traverseDirectories>>;
-
-// 获取视频文件的时长
-const getVideoFilesDuration = async (fileInfos: FileInfo[]) => {
-  const taskQueue = createAsyncTaskQueue<number>(os.cpus().length * 2);
-  const videoFileIndexes: number[] = [];
-
-  const baseCommand = [
-    'ffprobe -v error',
-    '-probesize 32K -analyzeduration 100000',
-    '-select_streams v:0',
-    '-show_entries format=duration',
-    '-of default=noprint_wrappers=1:nokey=1',
-  ].join(' ');
-
-  for (let i = 0; i < fileInfos.length; i++) {
-    const fileInfo = fileInfos[i];
-    if (fileInfo.fileType !== 'video') continue;
-
-    videoFileIndexes.push(i);
-
-    const basePath = getRootDir(fileInfo.basePathIndex as number);
-    const filePath = path.posix.join(basePath, fileInfo.relativePath);
-    // 任务队列
-    const task = async (index: number) => {
-      const command = baseCommand + ` "${filePath}"`;
-      const { stdout } = await execCommand(command);
-
-      progressbar.goTo(index);
-      return +stdout;
-    };
-    taskQueue.add(task);
-  }
-
-  // 进度条
-  const progressbar = logProgress(taskQueue.getWaitingLength());
-
-  taskQueue.start();
-  const durationRes = await taskQueue.result;
-  durationRes.forEach((d, i) => (fileInfos[videoFileIndexes[i]].duration = d ?? NaN));
-};
 
 // 文件和文件夹通用基础信息
 const newCommonInfo = ({ bp, fp, info, bpi }: NewInfoParams = {}): CommonInfo => {
@@ -328,11 +283,6 @@ export const traverseDirectories = async (
   calcFileCount(treeNode);
   logSuccess('count the number of files done: ', countStop());
 
-  // 获取视频文件的时长信息
-  const durationStop = createTimer();
-  await getVideoFilesDuration(fileList);
-  logSuccess('get files duration done: ', durationStop());
-
   // 额外处理不需要返回的 path 信息
   fileList.forEach(dealFilePath);
   dirList.forEach(dealFilePath);
@@ -341,7 +291,7 @@ export const traverseDirectories = async (
   return {
     treeNode,
     // 不 export 文件 list
-    fileList: [],
+    fileList,
     version: options?.version,
     timestamp: Date.now(),
   };

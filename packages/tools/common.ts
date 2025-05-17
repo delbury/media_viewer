@@ -6,6 +6,9 @@ import { DirectoryInfo, FileInfo } from '../../apps/server/src/util/traverseDire
 import { FullFileType, MediaFileType } from '../shared';
 import { AUDIO_REG, IMAGE_REG, TEXT_REG, VIDEO_REG } from './constant';
 
+// 文件信息的 id 字段
+export const FILE_INFO_ID_FIELD: Extract<keyof FileInfo, 'showPath'> = 'showPath';
+
 // 有缩略图的文件类型
 export const ALLOWED_POSTER_FILE_TYPES: FullFileType[] = ['image', 'audio', 'video'];
 
@@ -95,7 +98,7 @@ export const detectFileType = (ext: string): FullFileType => {
  * @param concurrency 并发数
  * @returns
  */
-type TaskFn<T> = (index: number) => Promise<T>;
+type TaskFn<T> = (index: number, total: number) => Promise<T>;
 export const createAsyncTaskQueue = <T = unknown>(concurrency: number = 1) => {
   if (concurrency < 1) throw new Error('concurrency must >= 1');
 
@@ -107,12 +110,15 @@ export const createAsyncTaskQueue = <T = unknown>(concurrency: number = 1) => {
   const taskResults: (T | null)[] = [];
   // 正在运行的任务
   const runnings: (Promise<T> | null)[] = Array(concurrency).fill(null);
-
+  // 执行结果
   const result = Promise.withResolvers<(T | null)[]>();
+  // 任务总数
+  let totalTaskCount = 0;
 
   // 添加任务
   const add = (task: TaskFn<T>) => {
     waitingTasks.push(task);
+    totalTaskCount++;
   };
 
   // 开始任务队列
@@ -130,7 +136,7 @@ export const createAsyncTaskQueue = <T = unknown>(concurrency: number = 1) => {
       taskOrder++;
 
       // 开始任务
-      const taskPromise = task(currentTaskIndex);
+      const taskPromise = task(currentTaskIndex, totalTaskCount);
       runnings[index] = taskPromise;
 
       // 监听任务完成
@@ -149,7 +155,7 @@ export const createAsyncTaskQueue = <T = unknown>(concurrency: number = 1) => {
     }
   };
 
-  return { add, start, getWaitingLength: () => waitingTasks.length, result: result.promise };
+  return { add, start, totalTaskCount, result: result.promise };
 };
 
 // 构造正则，文件名 + 忽略大小写的后缀名

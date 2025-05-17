@@ -1,24 +1,16 @@
 import {
-  CACHE_DATA_PATH,
-  CACHE_DATE_FILE_FULL_PATH,
-  CACHE_DATE_FILE_NAME,
   POSTER_CACHE_MAX_AGE,
   POSTER_DIR_NAME,
   POSTER_FILE_EXT,
   POSTER_FILE_NAME_PREFIX,
   TEXT_FILE_SIZE_LIMIT,
 } from '#/config';
-import {
-  readDataFromFile,
-  readDataFromFileByMsgPack,
-  writeDataToFileByMsgPack,
-} from '#/util/fileOperation';
+import { readDataFromFile } from '#/util/fileOperation';
 import {
   API_CONFIGS,
   ApiRequestDataTypes,
   ApiRequestParamsTypes,
   ApiResponseDataTypes,
-  DirUpdateData,
 } from '#pkgs/apis';
 import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import { findFileInfoInDir, logError, splitPath } from '#pkgs/tools/common';
@@ -84,17 +76,8 @@ fileRouter[API_CONFIGS.fileDelete.method](API_CONFIGS.fileDelete.url, async ctx 
   const { files } = ctx.request.body as ApiRequestDataTypes<'fileDelete'>;
   if (!files?.length) throw new Error(ERROR_MSG.noFile);
 
-  // 取内存缓存
-  let cachedData = updateTask.getCache();
-  if (!cachedData) {
-    // 取本地缓存
-    cachedData = (await readDataFromFileByMsgPack(
-      path.join(CACHE_DATA_PATH, CACHE_DATE_FILE_NAME)
-    )) as Omit<DirUpdateData, 'fileList'>;
-
-    // 缓存到内存
-    updateTask.setCache(cachedData);
-  }
+  // 取缓存
+  const cachedData = await updateTask.getCache();
 
   const rootDirs = cachedData?.treeNode?.children;
   if (!rootDirs) throw new Error(ERROR_MSG.noFile);
@@ -127,7 +110,7 @@ fileRouter[API_CONFIGS.fileDelete.method](API_CONFIGS.fileDelete.url, async ctx 
       const index = parentDirInfo.files.findIndex(it => it === fileInfo);
       parentDirInfo.files.splice(index, 1);
       // 更新文件信息缓存文件
-      await writeDataToFileByMsgPack(CACHE_DATE_FILE_FULL_PATH, cachedData);
+      updateTask.saveCache();
     }
 
     // done

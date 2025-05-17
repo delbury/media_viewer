@@ -19,6 +19,13 @@ export const CACHE_DATE_FILE_NAME = `${generateHash(DIRECTORY_ROOTS?.join('/') ?
 // 资源文件信息缓存文件完整路径
 export const CACHE_DATE_FILE_FULL_PATH = path.join(CACHE_DATA_PATH, CACHE_DATE_FILE_NAME);
 
+// 视频文件时长信息的缓存路径
+export const CACHE_DATA_VIDEO_DURATION_NAME = `${generateHash(DIRECTORY_ROOTS?.join('/') ?? '')}_duration.local.info`;
+export const CACHE_DATA_VIDEO_DURATION_FULL_PATH = path.join(
+  CACHE_DATA_PATH,
+  CACHE_DATA_VIDEO_DURATION_NAME
+);
+
 // 原始图片可以直接用于 poster 的最大大小，单位：字节 B
 export const RAW_IMAGE_FOR_POSTER_MAX_SIZE = 1024 * 512;
 

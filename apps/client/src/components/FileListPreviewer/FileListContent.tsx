@@ -1,7 +1,7 @@
 import { useFileTitle } from '#/hooks/useFileTitle';
 import { formatFileSize, getFilePosterUrl } from '#/utils';
-import { FILE_INFO_ID_FIELD } from '#/utils/constant';
 import { FileInfo } from '#pkgs/apis';
+import { FILE_INFO_ID_FIELD } from '#pkgs/tools/common';
 import { useTranslations } from 'next-intl';
 import { RefObject, useCallback, useMemo } from 'react';
 import ScrollBox, { ScrollBoxInstance } from '../ScrollBox';

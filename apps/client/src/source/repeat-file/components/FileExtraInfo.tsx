@@ -11,7 +11,7 @@ const FileExtraInfo = ({ file }: { file: FileInfo }) => {
     return [
       { label: t('File.Created'), value: formatDate(file.created) },
       { label: t('File.Updated'), value: formatDate(file.updated) },
-      { label: t('File.Duration'), value: formatTime(file.duration ?? 0) },
+      { label: t('File.Duration'), value: formatTime(file.duration) },
       { label: t('File.Size'), value: formatFileSize(file.size, { toK: true, fixed: 0 }) },
     ];
   }, [file, t]);

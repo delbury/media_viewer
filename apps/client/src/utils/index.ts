@@ -14,11 +14,12 @@ export const formatDate = (v: number) => {
 
 // 格式化时间
 export const formatTime = (
-  t: number | string,
+  t?: number | string | null,
   {
     withHour,
     fixed,
     withSymbol,
+    placeholder,
   }: {
     // 强制显示小时
     withHour?: boolean;
@@ -26,9 +27,10 @@ export const formatTime = (
     fixed?: number;
     // 强制显示正负号
     withSymbol?: boolean;
+    placeholder?: string;
   } = {}
 ) => {
-  if (isNil(t)) return '-';
+  if (isNil(t)) return placeholder ?? '--:--';
   // 转换为数字
   t = +t;
   // 判断正负

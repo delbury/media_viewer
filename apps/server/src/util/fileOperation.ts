@@ -1,4 +1,3 @@
-import { logInfo, logSuccess } from '#pkgs/tools/common';
 import { IGNORE_FILE_NAME_PREFIX, IGNORE_FILE_NAME_REG } from '#pkgs/tools/constant';
 import { Decoder, Encoder } from '@msgpack/msgpack';
 import { access, constants, readdir, readFile, stat, writeFile } from 'node:fs/promises';
@@ -25,12 +24,8 @@ export const writeDataToFileByMsgPack = async (
   fullFilePath: string,
   data?: Record<string, unknown>
 ) => {
-  logInfo('start writing file');
-
   const dataBuffer = encoder.encode(data ?? {});
   await writeFile(fullFilePath, dataBuffer);
-
-  logSuccess('written file successfully');
 };
 
 // 读文件
@@ -47,12 +42,8 @@ export const readDataFromFile = async (fullFilePath: string) => {
 
 // 写文件
 export const writeDataToFile = async (fullFilePath: string, data?: Record<string, unknown>) => {
-  logInfo('start writing file');
-
   const jsonString = JSON.stringify(data ?? {});
   await writeFile(fullFilePath, jsonString);
-
-  logSuccess('written file successfully');
 };
 
 // 从根目录开始遍历文件夹

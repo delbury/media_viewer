@@ -19,7 +19,7 @@ export const logCommand = (cli: string, args: string[]) => {
 
 export const logProgress = (
   total: number,
-  { prefix = '', segments = 20 }: { prefix?: string; segments?: number } = {}
+  { prefix = '', segments = 100 }: { prefix?: string; segments?: number } = {}
 ) => {
   const step = Math.ceil(total / segments);
   const bar = new ProgressBar(`${prefix}[:bar] :current/:total :percent`, {
