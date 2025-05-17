@@ -17,6 +17,7 @@ import { getTask } from './task';
 import { FileInfo } from './traverseDirectories';
 
 const durationTask = getTask('getDuration');
+const updateTask = getTask('dirUpdate');
 
 const BASE_COMMAND = [
   'ffprobe -v error',
@@ -73,10 +74,11 @@ export const attachVideoFilesDuration = async (
   }
 
   // 进度条
-  const progressbar = logProgress(taskQueue.totalTaskCount);
+  const progressbar = logProgress(taskQueue.getTotalCount());
 
   taskQueue.start();
   await taskQueue.result;
+  await updateTask.saveCache();
 };
 
 // 异步查询视频时长并保存

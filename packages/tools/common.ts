@@ -49,6 +49,7 @@ export const findFileInfoInDir = (dir: DirectoryInfo, names: string[]) => {
 };
 
 // 控制台打印日志
+export const logBase = (...args: (string | number)[]) => console.info(...args);
 export const logInfo = (...args: (string | number)[]) => console.info(chalk.blue(...args));
 export const logSuccess = (...args: (string | number)[]) => console.info(chalk.green(...args));
 export const logWarn = (...args: (string | number)[]) => console.info(chalk.yellow(...args));
@@ -155,7 +156,7 @@ export const createAsyncTaskQueue = <T = unknown>(concurrency: number = 1) => {
     }
   };
 
-  return { add, start, totalTaskCount, result: result.promise };
+  return { add, start, getTotalCount: () => totalTaskCount, result: result.promise };
 };
 
 // 构造正则，文件名 + 忽略大小写的后缀名
