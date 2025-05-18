@@ -117,13 +117,20 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const subtitles = useMemo(() => file?.subtitles, [file]);
 
     // handlers
-    const { handleTogglePlay, handleBack, handleForward, handleGoBy, handleNext, handlePrev } =
-      useHandlers({
-        mediaRef,
-        isPaused,
-        onPrev,
-        onNext,
-      });
+    const {
+      handleTogglePlay,
+      handleBack,
+      handleForward,
+      handleGoBy,
+      handleNext,
+      handleNextAndPlay,
+      handlePrev,
+    } = useHandlers({
+      mediaRef,
+      isPaused,
+      onPrev,
+      onNext,
+    });
 
     // 快捷键
     useShortcut({
@@ -236,6 +243,20 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         };
       }
     }, [handleTogglePlay, mediaRef]);
+
+    // 自动播放下一个
+    useEffect(() => {
+      const elm = mediaRef.current;
+      if (!elm) return;
+      // 播放结束事件
+      const endController = bindEvent(elm, 'ended', () => {
+        if (!lastDisabled && isList) handleNextAndPlay?.();
+      });
+
+      return () => {
+        endController.abort();
+      };
+    }, [handleNext, handleNextAndPlay, isList, lastDisabled, mediaRef, onNext]);
 
     // 实例方法
     useImperativeHandle(

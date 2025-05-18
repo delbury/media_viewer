@@ -76,15 +76,18 @@ export const useHandlers = ({ mediaRef, isPaused, onPrev, onNext }: UseHandlersP
 
     onNext();
     if (!isPaused && mediaRef.current) {
-      mediaRef.current.addEventListener(
-        'canplay',
-        () => {
-          mediaRef.current?.play();
-        },
-        { once: true }
-      );
+      mediaRef.current.addEventListener('canplay', () => mediaRef.current?.play(), { once: true });
     }
   }, [isPaused, mediaRef, onNext]);
+
+  const handleNextAndPlay = useCallback(() => {
+    if (!onNext) return;
+
+    onNext();
+    if (mediaRef.current) {
+      mediaRef.current.addEventListener('canplay', () => mediaRef.current?.play(), { once: true });
+    }
+  }, [mediaRef, onNext]);
 
   return {
     handleTogglePlay,
@@ -93,5 +96,6 @@ export const useHandlers = ({ mediaRef, isPaused, onPrev, onNext }: UseHandlersP
     handleGoBy,
     handlePrev,
     handleNext,
+    handleNextAndPlay,
   };
 };

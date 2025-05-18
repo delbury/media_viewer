@@ -8,11 +8,9 @@ import { isNil } from 'lodash-es';
 import {
   MouseEventHandler,
   RefObject,
-  startTransition,
   useCallback,
   useEffect,
   useMemo,
-  useOptimistic,
   useRef,
   useState,
 } from 'react';
@@ -43,7 +41,7 @@ interface MediaProgressProps {
 
 export const MediaProgress = ({
   mediaRef,
-  currentTime: rawCurrentTime,
+  currentTime,
   videoDuration,
   previewDiffTime,
   onGoTo,
@@ -54,12 +52,12 @@ export const MediaProgress = ({
   const [bufferRanges, setBufferRanges] = useState<[number, number][]>([]);
   const realShowCursor = showCursor || !isNil(previewDiffTime);
 
-  const [currentTime, addCurrentTimeInstant] = useOptimistic<number, number>(
-    rawCurrentTime,
-    (_, instantVal) => {
-      return instantVal;
-    }
-  );
+  // const [currentTime, addCurrentTimeInstant] = useOptimistic<number, number>(
+  //   rawCurrentTime,
+  //   (_, instantVal) => {
+  //     return instantVal;
+  //   }
+  // );
 
   // 禁用跳转拖动
   const progressDisabled = useMemo(
@@ -170,15 +168,15 @@ export const MediaProgress = ({
       mediaRef.current.currentTime = time;
       onGoTo?.();
 
-      startTransition(async () => {
-        addCurrentTimeInstant(time);
-        await new Promise(resolve => {
-          if (!mediaRef.current) return resolve(void 0);
-          bindEventOnce(mediaRef.current, 'timeupdate', resolve);
-        });
-      });
+      // startTransition(async () => {
+      //   addCurrentTimeInstant(time);
+      //   await new Promise(resolve => {
+      //     if (!mediaRef.current) return resolve(void 0);
+      //     bindEventOnce(mediaRef.current, 'timeupdate', resolve);
+      //   });
+      // });
     },
-    [mediaRef, progressDisabled, videoDuration, onGoTo, addCurrentTimeInstant]
+    [mediaRef, progressDisabled, videoDuration, onGoTo]
   );
   const handleClick = useCallback<MouseEventHandler>(
     ev => {
