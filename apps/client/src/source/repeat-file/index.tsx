@@ -11,7 +11,7 @@ import { useSwrMutation } from '#/hooks/useSwr';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { FILE_INFO_ID_FIELD, getAllFiles } from '#pkgs/tools/common';
 import { DeleteForeverRounded } from '@mui/icons-material';
-import { Box, Divider, IconButton } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { mutate } from 'swr';
@@ -33,7 +33,7 @@ export default function RepeatFile() {
   // 保存文件 id => 文件信息
   const fileMap = useRef<Record<string, FileInfo>>({});
   // 显示的文件集合
-  const [showFileGroup, setShowFileGroup] = useState<'selected' | 'all'>('all');
+  const [showFileGroup, setShowFileGroup] = useState<'selected' | 'all' | 'same'>('all');
 
   // 所有文件
   const [files, setFiles] = useState<FileInfo[]>([]);
@@ -77,7 +77,7 @@ export default function RepeatFile() {
   });
 
   // 排序
-  const { sortedItems, SortToolRow } = useSortList({
+  const { sortedItems, SortToolRow, sortField } = useSortList({
     items: files,
     apiFieldMap: FILE_SORT_API_FIELD_MAP,
     persistentKeyPrefix: 'toolRepeatFiles',
@@ -86,11 +86,34 @@ export default function RepeatFile() {
   });
 
   // 过滤
-  const filteredItems = useMemo(() => {
-    if (showFileGroup === 'selected')
-      return sortedItems.filter(it => selectedSet.has(it[FILE_INFO_ID_FIELD]));
-    else return sortedItems;
-  }, [selectedSet, showFileGroup, sortedItems]);
+  const selectedItems = useMemo(() => {
+    return sortedItems.filter(it => selectedSet.has(it[FILE_INFO_ID_FIELD]));
+  }, [selectedSet, sortedItems]);
+
+  // 只展示存在相同值的项
+  const repeatItems = useMemo(() => {
+    if (Array.isArray(sortField)) return [];
+    const tempMap = new Map<string, Set<number>>();
+    sortedItems.forEach((item, index) => {
+      const key = item[sortField];
+      const set = tempMap.get(key);
+      if (set) set.add(index);
+      else tempMap.set(key, new Set([index]));
+    });
+    const resList: FileInfo[] = [];
+    for (const set of tempMap.values()) {
+      if (set.size > 1) {
+        for (const i of set.values()) resList.push(sortedItems[i]);
+      }
+    }
+    return resList;
+  }, [sortField, sortedItems]);
+
+  const realShowItem = useMemo(() => {
+    if (showFileGroup === 'selected') return selectedItems;
+    else if (showFileGroup === 'all') return sortedItems;
+    else if (showFileGroup === 'same') return repeatItems;
+  }, [selectedItems, repeatItems, showFileGroup, sortedItems]);
 
   const handleItemClick = useCallback((file: FileInfo) => {
     setSelectedSet(set => {
@@ -123,7 +146,7 @@ export default function RepeatFile() {
       {/* 信息行 */}
       <StyledSelectedDirInfoWrapper>
         <StyledSelectedDirInfo>
-          <span>
+          <Box>
             <StyledFileGroupBtn
               selected={showFileGroup === 'all'}
               onClick={() => setShowFileGroup('all')}
@@ -140,7 +163,13 @@ export default function RepeatFile() {
               {t(':')}
               {selectedSet.size}
             </StyledFileGroupBtn>
-          </span>
+            <StyledFileGroupBtn
+              selected={showFileGroup === 'same'}
+              onClick={() => setShowFileGroup('same')}
+            >
+              {t('Tools.ExistRepeatItem')}
+            </StyledFileGroupBtn>
+          </Box>
 
           <Box>
             <IconButton
@@ -152,14 +181,13 @@ export default function RepeatFile() {
             </IconButton>
           </Box>
         </StyledSelectedDirInfo>
-        <Divider />
       </StyledSelectedDirInfoWrapper>
 
       {SortToolRow}
 
       <StyledFileContentContainer>
         <FileListContent
-          files={filteredItems}
+          files={realShowItem}
           RowExtraComp={FileExtraInfo}
           rowHeight={ROW_HEIGHT}
           onItemClick={handleItemClick}

@@ -75,7 +75,7 @@ export const formatFileSize = (
 ) => {
   const unit = toK ? ['B', 'K'] : ['B', 'K', 'M', 'G'];
   for (let i = 0; i < unit.length; i++) {
-    if (size < 1024) {
+    if (size < 1000) {
       return `${formatNumber(size, fixed ?? 2)}${unit[i]}`;
     }
     if (i < unit.length - 1) size /= 1024;

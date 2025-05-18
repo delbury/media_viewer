@@ -17,7 +17,8 @@
     "AreYouSureReGenerateDirectoryInfo": "确定重新生成文件目录数据？",
     "AreYouSureClearUselessPoster": "确定删除无用的封面缩略图？",
     "FileListPreviewer": "文件列表预览",
-    "AreYouSureDeleteSelectedFiles": "确定删除已选择的文件？"
+    "AreYouSureDeleteSelectedFiles": "确定删除已选择的文件？",
+    "ExistRepeatItem": "存在重复项"
   },
   "Common": {
     "AreYouSure": "确定？",

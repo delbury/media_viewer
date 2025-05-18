@@ -37,7 +37,7 @@ export const attachVideoFilesDuration = async (
   cacheMap: Record<string, number>
 ) => {
   // 出错的文件
-  const errorFilePath: string[] = [];
+  const errorFilePath: { path: string; info: FileInfo }[] = [];
   // 任务队列
   const taskQueue = createAsyncTaskQueue(os.cpus().length * 3);
   // 新的缓存，用来去掉已不存在文件的视频时长
@@ -71,7 +71,10 @@ export const attachVideoFilesDuration = async (
         pureCacheMap[cacheKey] = duration;
       } catch {
         logWarn('get file duration failed');
-        errorFilePath.push(filePath);
+        errorFilePath.push({
+          path: filePath,
+          info: fileInfos[i],
+        });
       }
 
       // 每隔一批任务，保存一下缓存文件

@@ -112,5 +112,6 @@ export const useSortList = <T, F extends string>({
   return {
     sortedItems,
     SortToolRow,
+    sortField,
   };
 };

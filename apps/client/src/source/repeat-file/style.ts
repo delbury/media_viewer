@@ -8,14 +8,20 @@ export const StyledRepeatFileWrapper = styled(Box)`
 
 export const StyledSelectedDirInfoWrapper = styled(Box)`
   margin: 8px 0;
+  border-bottom: 1px solid ${({ theme }) => theme.palette.divider};
 `;
 
 export const StyledSelectedDirInfo = styled(Box)`
+  height: 100%;
   display: flex;
-  align-items: center;
   justify-content: space-between;
   color: ${({ theme }) => theme.palette.text.secondary};
   font-size: 0.8rem;
+
+  > * {
+    height: 100%;
+    display: flex;
+  }
 `;
 
 export const StyledFileGroupBtn = styled('span', {
@@ -23,7 +29,12 @@ export const StyledFileGroupBtn = styled('span', {
 })<{
   selected?: boolean;
 }>`
+  display: flex;
+  height: calc(100% + 1px);
+  align-items: center;
   cursor: pointer;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
 
   :not(:last-child) {
     margin-inline-end: 16px;
@@ -32,9 +43,7 @@ export const StyledFileGroupBtn = styled('span', {
   ${({ selected, theme }) =>
     selected
       ? `
-      text-decoration: underline;
-      text-underline-offset: 4px;
-      text-decoration-thickness: 1px;
+      border-bottom-color: currentColor;
       color: ${theme.palette.primary.light};
       `
       : ''}
