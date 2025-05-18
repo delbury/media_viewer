@@ -15,5 +15,5 @@
     "types": ["node"],
     "paths": {}
   },
-  "exclude": ["node_modules", "dist", "**/*.mjs", "**/*.js"]
+  "exclude": ["node_modules", "dist", "**/*.mjs", "**/*.js", "**/*.cjs"]
 }

@@ -14,7 +14,10 @@
     "ts-server": "pnpm --filter server run ts",
     "ts": "pnpm run ts-client & pnpm run ts-server",
     "build-client": "pnpm --filter client run build",
-    "build-server": "pnpm --filter server run build"
+    "build-server": "pnpm --filter server run build",
+    "start-client": "pnpm --filter client run start",
+    "start-server": "pnpm --filter server run start",
+    "start": "pm2 start ./ecosystem.config.cjs"
   },
   "keywords": [],
   "author": "",
@@ -38,6 +41,7 @@
   },
   "dependencies": {
     "chalk": "^5.4.1",
+    "cross-env": "^7.0.3",
     "lodash-es": "^4.17.21"
   }
 }
