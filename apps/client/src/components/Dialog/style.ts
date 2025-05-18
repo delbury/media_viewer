@@ -3,6 +3,7 @@ import { Box, DialogTitle } from '@mui/material';
 
 export const StyledDialogTitleWrapper = styled(Box)`
   flex: 1;
+  min-width: 0;
   height: 48px;
   padding-right: 16px;
   display: flex;
@@ -18,6 +19,9 @@ export const StyledDialogTitle = styled(DialogTitle)`
   max-width: 100%;
   display: flex;
   align-items: center;
+  min-width: 0;
+  flex: 1;
+  display: block;
 `;
 
 export const StyledDialogHeader = styled(Box)`

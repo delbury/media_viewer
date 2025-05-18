@@ -2,6 +2,7 @@ import { ForwardedRef, RefObject, useCallback, useImperativeHandle } from 'react
 
 export interface ScrollBoxInstance {
   scrollTo: (params: { top?: number; left?: number; behavior?: ScrollBehavior }) => void;
+  scrollBy: (params: { top?: number; left?: number; behavior?: ScrollBehavior }) => void;
   scrollToEnd: () => void;
   getScrollPosition: () => { left: number; top: number } | null;
 }
@@ -22,11 +23,23 @@ export const useExportHandlers = (
     [wrapperRef]
   );
 
+  const scrollBy: ScrollBoxInstance['scrollBy'] = useCallback(
+    ({ top, left, behavior }) => {
+      wrapperRef.current?.scrollBy({
+        top,
+        left,
+        behavior: behavior ?? 'smooth',
+      });
+    },
+    [wrapperRef]
+  );
+
   // 暴露给父组件
   useImperativeHandle(
     ref,
     () => ({
       scrollTo,
+      scrollBy,
       scrollToEnd: () => {
         scrollTo({ top: wrapperRef.current?.scrollHeight, left: wrapperRef.current?.scrollWidth });
       },
