@@ -4,14 +4,17 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin();
 
+const PORT = process.env.API_PORT || 4002;
+
 const nextConfig: NextConfig = {
   /* config options here */
   basePath: '',
+  distDir: 'dist',
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:4002/:path*',
+        destination: `http://localhost:${PORT}/:path*`,
       },
     ];
   },
@@ -26,6 +29,11 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   experimental: {
     proxyTimeout: REQUEST_TIMEOUT,
+  },
+  webpack: config => {
+    // 禁用 webpack 缓存以解决构建问题
+    config.cache = false;
+    return config;
   },
 };
 

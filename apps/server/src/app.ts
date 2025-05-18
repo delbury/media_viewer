@@ -12,7 +12,7 @@ import { returnError } from './util/common';
 
 const routers = [directoryRouter, fileRouter, posterRouter, videoRouter, mediaRouter];
 
-const PORT = 4002;
+const PORT = process.env.PORT || 4002;
 
 const app = new Koa();
 

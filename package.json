@@ -12,7 +12,9 @@
     "lint": "eslint apps/client/src apps/server/src",
     "ts-client": "pnpm --filter client run ts",
     "ts-server": "pnpm --filter server run ts",
-    "ts": "pnpm run ts-client & pnpm run ts-server"
+    "ts": "pnpm run ts-client & pnpm run ts-server",
+    "build-client": "pnpm --filter client run build",
+    "build-server": "pnpm --filter server run build"
   },
   "keywords": [],
   "author": "",
