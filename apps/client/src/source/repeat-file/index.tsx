@@ -82,7 +82,7 @@ export default function RepeatFile() {
     apiFieldMap: FILE_SORT_API_FIELD_MAP,
     persistentKeyPrefix: 'toolRepeatFiles',
     fileSortOptions: FILE_SORT_OPTIONS,
-    exclusive: true,
+    // exclusive: true,
   });
 
   // 过滤
@@ -92,10 +92,12 @@ export default function RepeatFile() {
 
   // 只展示存在相同值的项
   const repeatItems = useMemo(() => {
-    if (Array.isArray(sortField)) return [];
+    const sf = Array.isArray(sortField) ? sortField[0] : sortField;
+    if (!sf) return [];
+
     const tempMap = new Map<string, Set<number>>();
     sortedItems.forEach((item, index) => {
-      const key = item[sortField];
+      const key = item[sf];
       const set = tempMap.get(key);
       if (set) set.add(index);
       else tempMap.set(key, new Set([index]));

@@ -31,7 +31,10 @@ export const FILE_TYPE_EXTS = {
 export const DIRECTORY_ITEM_HEIGHT = 40;
 
 // 文件排序选项
-export type FileSortField = 'name' | 'size' | 'type' | 'updated' | 'created' | 'duration';
+export type FileSortField = Extract<
+  FileInfo,
+  'name' | 'size' | 'type' | 'updated' | 'created' | 'duration'
+>;
 export const FILE_SORT_API_FIELD_MAP: Record<FileSortField, keyof FileInfo> = {
   name: 'name',
   size: 'size',

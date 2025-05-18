@@ -109,9 +109,11 @@ fileRouter[API_CONFIGS.fileDelete.method](API_CONFIGS.fileDelete.url, async ctx 
       // 删除并更新文件信息内存缓存
       const index = parentDirInfo.files.findIndex(it => it === fileInfo);
       parentDirInfo.files.splice(index, 1);
-      // 更新文件信息缓存文件
-      updateTask.saveCache();
     }
+
+    // 更新文件信息缓存文件
+    updateTask.setCache(cachedData);
+    await updateTask.saveCache();
 
     // done
     ctx.body = returnBody();
