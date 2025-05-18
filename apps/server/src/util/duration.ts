@@ -40,29 +40,35 @@ export const attachVideoFilesDuration = async (
   cacheMap: Record<string, number>
 ) => {
   const taskQueue = createAsyncTaskQueue(os.cpus().length * 3);
+  // 新的缓存，用来去掉已不存在文件的视频时长
+  const pureCacheMap: Record<string, number> = {};
 
   for (let i = 0; i < fileInfos.length; i++) {
     // 过滤非视频文件
     if (fileInfos[i].fileType !== 'video') continue;
 
+    const cacheKey = fileInfos[i][FILE_INFO_ID_FIELD];
+
     // 取缓存
-    const cachedDuration = cacheMap[fileInfos[i][FILE_INFO_ID_FIELD]];
+    const cachedDuration = cacheMap[cacheKey];
     if (!isNil(cachedDuration)) {
       fileInfos[i].duration = cachedDuration;
+      pureCacheMap[cacheKey] = cachedDuration;
       continue;
     }
 
     // 任务队列
-    const task = async (index: number, total: number) => {
+    const task = async (index: number) => {
       const { stdout } = await execCommand(getFullCommand(fileInfos[i]));
       const duration = +stdout;
       // *! 直接修改引用值
       fileInfos[i].duration = duration;
       // *! 直接修改引用值，设置缓存
-      cacheMap[fileInfos[i][FILE_INFO_ID_FIELD]] = duration;
+      cacheMap[cacheKey] = duration;
+      pureCacheMap[cacheKey] = duration;
 
       // 每隔一批任务，保存一下缓存文件
-      if ((index && index % SAVE_PER_FILE_COUNT === 0) || index === total - 1) {
+      if (index && index % SAVE_PER_FILE_COUNT === 0) {
         await durationTask.saveCache();
         logSuccess('save duration cache successfully');
       }
@@ -78,7 +84,11 @@ export const attachVideoFilesDuration = async (
 
   taskQueue.start();
   await taskQueue.result;
+  // 更新所有文件的本地缓存
   await updateTask.saveCache();
+  // 更新视频时长的本地缓存
+  durationTask.setCache(pureCacheMap);
+  await durationTask.saveCache();
 };
 
 // 异步查询视频时长并保存
