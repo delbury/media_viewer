@@ -1,9 +1,9 @@
 import { useFileTitle } from '#/hooks/useFileTitle';
-import { formatFileSize, getFilePosterUrl } from '#/utils';
+import { formatFileSize, getFilePosterUrl, stopPropagation } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { FILE_INFO_ID_FIELD } from '#pkgs/tools/common';
 import { useTranslations } from 'next-intl';
-import { RefObject, useCallback, useMemo } from 'react';
+import { MouseEventHandler, RefObject, useCallback, useMemo } from 'react';
 import ScrollBox, { ScrollBoxInstance } from '../ScrollBox';
 import { VirtualListChildItemProps } from '../ScrollBox/hooks/useVirtualList';
 import {
@@ -27,6 +27,7 @@ interface FileListPreviewerProps {
   files?: FileInfo[];
   scrollBoxRef?: RefObject<ScrollBoxInstance | null>;
   onItemClick?: (file: FileInfo, index: number) => void;
+  onImgClick?: (file: FileInfo, index: number) => void;
   rowHeight?: number;
   // 额外信息组件
   RowExtraComp?: React.FC<{ file: FileInfo }>;
@@ -43,6 +44,7 @@ const ChildItem = (props: ChildItemProps) => {
     selectedIdSet,
     isSibling,
     onItemClick,
+    onImgClick,
     rowHeight,
     RowExtraComp,
   } = props;
@@ -55,6 +57,14 @@ const ChildItem = (props: ChildItemProps) => {
   const isSelectedFileSibling = isSibling?.(files ?? [], index, selectedIndex);
   const size = useMemo(() => formatFileSize(file.size), [file]);
 
+  const handleImgClick = useCallback<MouseEventHandler<HTMLDivElement>>(
+    ev => {
+      if (onImgClick) stopPropagation(ev);
+      onImgClick?.(file, index);
+    },
+    [file, index, onImgClick]
+  );
+
   return (
     <StyledChildItem
       sx={{
@@ -66,7 +76,7 @@ const ChildItem = (props: ChildItemProps) => {
       onClick={handleItemClick}
     >
       <StyledChildItemInner>
-        <StyleChildItemImage>
+        <StyleChildItemImage onClick={handleImgClick}>
           <img
             src={posterUrl}
             alt={title}
@@ -92,6 +102,7 @@ const FileListContent = ({
   isSibling,
   scrollBoxRef,
   onItemClick,
+  onImgClick,
   rowHeight,
   RowExtraComp,
 }: FileListPreviewerProps) => {
@@ -106,10 +117,20 @@ const FileListContent = ({
       selectedIdSet,
       isSibling,
       onItemClick,
+      onImgClick,
       rowHeight,
       RowExtraComp,
     }),
-    [files, selectedIndex, selectedIdSet, isSibling, onItemClick, rowHeight, RowExtraComp]
+    [
+      files,
+      selectedIndex,
+      selectedIdSet,
+      isSibling,
+      onItemClick,
+      onImgClick,
+      rowHeight,
+      RowExtraComp,
+    ]
   );
 
   return (

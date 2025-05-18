@@ -2,8 +2,8 @@ import Dialog from '#/components/Dialog';
 import PosterImage from '#/components/PosterImage';
 import { useSwr } from '#/hooks/useSwr';
 import { formatDate, formatFileSize } from '#/utils';
+import { FileInfo } from '#pkgs/apis';
 import { isMediaFile, splitPath } from '#pkgs/tools/common';
-import { FileInfo } from '#pkgs/tools/traverseDirectories';
 import { LoopOutlined } from '@mui/icons-material';
 import { Box, IconButton, TabsOwnProps } from '@mui/material';
 import { useTranslations } from 'next-intl';
@@ -66,7 +66,6 @@ interface FileDetailDialogProps {
   visible: boolean;
   onClose: () => void;
   hidePoster?: boolean;
-  zIndex?: number;
   onPathClick?: (paths: string[]) => void;
 }
 
@@ -75,7 +74,6 @@ const FileDetailDialog = ({
   visible,
   onClose,
   hidePoster,
-  zIndex,
   onPathClick,
 }: FileDetailDialogProps) => {
   const t = useTranslations();
@@ -131,9 +129,6 @@ const FileDetailDialog = ({
       onlyClose
       dialogProps={{
         maxWidth: 'xs',
-        sx: {
-          zIndex,
-        },
       }}
       leftFooterSlot={
         isMedia && (

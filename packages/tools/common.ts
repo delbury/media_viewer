@@ -49,7 +49,8 @@ export const findFileInfoInDir = (dir: DirectoryInfo, names: string[]) => {
 };
 
 // 控制台打印日志
-export const logBase = (...args: (string | number)[]) => console.info(...args);
+export const logBase = console.info;
+export const logBaseWarn = console.warn;
 export const logInfo = (...args: (string | number)[]) => console.info(chalk.blue(...args));
 export const logSuccess = (...args: (string | number)[]) => console.info(chalk.green(...args));
 export const logWarn = (...args: (string | number)[]) => console.info(chalk.yellow(...args));

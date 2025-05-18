@@ -2,6 +2,7 @@
 
 import DirectoryPicker from '#/components/DirectoryPicker';
 import { FILE_BROWSER_DIR_TREE_REQUEST_KEY } from '#/components/DirectoryPicker/components/FileBrowser';
+import FileDetailDialog from '#/components/DirectoryPicker/components/FileDetailDialog';
 import { FILE_SORT_API_FIELD_MAP, FILE_SORT_OPTIONS } from '#/components/DirectoryPicker/constant';
 import { useSortList } from '#/components/DirectoryPicker/hooks/useSortList';
 import { FileListContent } from '#/components/FileListPreviewer';
@@ -105,6 +106,12 @@ export default function RepeatFile() {
     });
   }, []);
 
+  // 文件详情
+  const [detailFile, setDetailFile] = useState<FileInfo | null>(null);
+  const handleImgClick = useCallback((file: FileInfo) => {
+    setDetailFile(file);
+  }, []);
+
   return (
     <StyledRepeatFileWrapper>
       <DirectoryPicker
@@ -156,11 +163,20 @@ export default function RepeatFile() {
           RowExtraComp={FileExtraInfo}
           rowHeight={ROW_HEIGHT}
           onItemClick={handleItemClick}
+          onImgClick={handleImgClick}
           selectedIdSet={selectedSet}
         />
       </StyledFileContentContainer>
 
       {ConfirmDialog}
+
+      {detailFile && (
+        <FileDetailDialog
+          visible
+          file={detailFile}
+          onClose={() => setDetailFile(null)}
+        />
+      )}
     </StyledRepeatFileWrapper>
   );
 }

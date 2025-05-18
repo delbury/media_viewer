@@ -3,9 +3,11 @@ import {
   createAsyncTaskQueue,
   createTimer,
   FILE_INFO_ID_FIELD,
+  logBaseWarn,
   logError,
   logInfo,
   logSuccess,
+  logWarn,
 } from '#pkgs/tools/common';
 import genericPool from 'generic-pool';
 import { isNil } from 'lodash-es';
@@ -27,11 +29,6 @@ const BASE_COMMAND = [
   '-of default=noprint_wrappers=1:nokey=1',
 ].join(' ');
 
-const getFullCommand = (fileInfo: FileInfo) => {
-  const filePath = getFilePath(fileInfo);
-  return `${BASE_COMMAND} "${filePath}"`;
-};
-
 const SAVE_PER_FILE_COUNT = 500;
 
 // 获取视频文件的时长
@@ -39,6 +36,9 @@ export const attachVideoFilesDuration = async (
   fileInfos: FileInfo[],
   cacheMap: Record<string, number>
 ) => {
+  // 出错的文件
+  const errorFilePath: string[] = [];
+  // 任务队列
   const taskQueue = createAsyncTaskQueue(os.cpus().length * 3);
   // 新的缓存，用来去掉已不存在文件的视频时长
   const pureCacheMap: Record<string, number> = {};
@@ -59,13 +59,20 @@ export const attachVideoFilesDuration = async (
 
     // 任务队列
     const task = async (index: number) => {
-      const { stdout } = await execCommand(getFullCommand(fileInfos[i]));
-      const duration = +stdout;
-      // *! 直接修改引用值
-      fileInfos[i].duration = duration;
-      // *! 直接修改引用值，设置缓存
-      cacheMap[cacheKey] = duration;
-      pureCacheMap[cacheKey] = duration;
+      const filePath = getFilePath(fileInfos[i]);
+      const command = `${BASE_COMMAND} "${filePath}"`;
+      try {
+        const { stdout } = await execCommand(command, { quitWhenError: true });
+        const duration = +stdout;
+        // *! 直接修改引用值
+        fileInfos[i].duration = duration;
+        // *! 直接修改引用值，设置缓存
+        cacheMap[cacheKey] = duration;
+        pureCacheMap[cacheKey] = duration;
+      } catch {
+        logWarn('get file duration failed');
+        errorFilePath.push(filePath);
+      }
 
       // 每隔一批任务，保存一下缓存文件
       if (index && index % SAVE_PER_FILE_COUNT === 0) {
@@ -79,11 +86,12 @@ export const attachVideoFilesDuration = async (
     taskQueue.add(task);
   }
 
-  // 进度条
+  // 开启进度条
   const progressbar = logProgress(taskQueue.getTotalCount());
-
+  // 开始任务
   taskQueue.start();
   await taskQueue.result;
+  if (errorFilePath.length) logBaseWarn('some command were failed: ', errorFilePath);
   // 更新所有文件的本地缓存
   await updateTask.saveCache();
   // 更新视频时长的本地缓存
@@ -180,7 +188,8 @@ export const attachVideoFilesDurationByPool = async (fileInfos: FileInfo[]) => {
       });
 
       // 发送命令
-      const command = [getFullCommand(fileInfo), `echo ${END_MARKER}`].join('\n') + '\r\n';
+      const filePath = getFilePath(fileInfo);
+      const command = [`${BASE_COMMAND} "${filePath}"`, `echo ${END_MARKER}`].join('\n') + '\r\n';
       ps.stdin.write(command);
       const duration = await promise;
 
