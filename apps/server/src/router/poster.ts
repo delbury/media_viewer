@@ -112,6 +112,10 @@ posterRouter[API_CONFIGS.posterGet.method](API_CONFIGS.posterGet.url, async ctx 
 posterRouter[API_CONFIGS.posterClear.method](API_CONFIGS.posterClear.url, async ctx => {
   const { clearAll } = ctx.request.body as ApiRequestParamsTypes<'posterClear'>;
 
+  let removedOldFiles = 0;
+  let removedDirs = 0;
+  let removedFiles = 0;
+
   try {
     clearPosterTask.start();
     // 任务队列
@@ -127,7 +131,7 @@ posterRouter[API_CONFIGS.posterClear.method](API_CONFIGS.posterClear.url, async 
           if (fileName !== POSTER_DIR_NAME && fileName.startsWith(POSTER_FILE_NAME_PREFIX)) {
             tasks.add(async () => {
               await unlink(file);
-              logSuccess(`removed poster (old): ${file}`);
+              removedOldFiles++;
             });
           }
         });
@@ -139,7 +143,7 @@ posterRouter[API_CONFIGS.posterClear.method](API_CONFIGS.posterClear.url, async 
             if (path.basename(dir) === POSTER_DIR_NAME) {
               tasks.add(async () => {
                 await rm(dir, { recursive: true });
-                logSuccess(`removed dir: ${dir}`);
+                removedDirs++;
               });
             }
           });
@@ -162,7 +166,7 @@ posterRouter[API_CONFIGS.posterClear.method](API_CONFIGS.posterClear.url, async 
               const fp = path.join(posterDir, posterName);
               tasks.add(async () => {
                 await rm(fp);
-                logSuccess(`removed poster: ${fp}`);
+                removedFiles++;
               });
             }
           });
@@ -173,6 +177,10 @@ posterRouter[API_CONFIGS.posterClear.method](API_CONFIGS.posterClear.url, async 
     );
     tasks.start();
     await tasks.result;
+
+    logSuccess(
+      `removed old files: ${removedOldFiles}, dirs: ${removedDirs}, files: ${removedFiles}`
+    );
 
     ctx.body = returnBody();
   } finally {
