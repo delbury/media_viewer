@@ -1,7 +1,7 @@
 import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import { CodecName, MediaDetailInfo } from '#pkgs/shared';
 import { execCommand } from '#pkgs/tools/cli';
-import { logError, logWarn as RawLogWarn, switchFnByFlag } from '#pkgs/tools/common';
+import { isDev, logError, logWarn as RawLogWarn, switchFnByFlag } from '#pkgs/tools/common';
 import { ParameterizedContext } from 'koa';
 import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { VIDEO_TRANSFORM_MAX_HEIGHT, VIDEO_TRANSFORM_MAX_WIDTH } from '../config';
@@ -18,7 +18,7 @@ interface VideoDetailTasks {
 // 进行中的任务信息
 const VIDEO_DETAIL_TASKS: VideoDetailTasks = {};
 
-const logWarn = switchFnByFlag(RawLogWarn, false);
+const logWarn = switchFnByFlag(RawLogWarn, isDev());
 
 // 获取视频详细信息
 export const getMediaDetail = async (
@@ -94,22 +94,41 @@ const getVideoFileCuvid = async (filePath: string) => {
 };
 
 // 缓存进程信息，暂时只允许同时出现一个进程
-const CACHED_INFO: { cp: ChildProcessWithoutNullStreams | null; hash: string | null } = {
+const CACHED_INFO: {
+  cp: ChildProcessWithoutNullStreams | null;
+  hash: string | null;
+  clearPromise: Promise<void> | null;
+} = {
   cp: null,
   hash: null,
+  clearPromise: null,
 };
 const setProcess = (cp: ChildProcessWithoutNullStreams, hash: string) => {
   CACHED_INFO.cp = cp;
   CACHED_INFO.hash = hash;
 };
-const killProcess = () => {
-  const cp = CACHED_INFO.cp;
-  if (cp && cp.exitCode === null && !cp.killed) {
-    cp.kill('SIGTERM');
-    logWarn(`${CACHED_INFO.hash}: ffmpeg stream kill`);
-  }
+const clearProcess = () => {
   CACHED_INFO.cp = null;
   CACHED_INFO.hash = null;
+  CACHED_INFO.clearPromise = null;
+};
+const killProcess = async () => {
+  if (CACHED_INFO.clearPromise) await CACHED_INFO.clearPromise;
+
+  const cp = CACHED_INFO.cp;
+  if (cp && cp.exitCode === null && !cp.killed) {
+    const promise = Promise.withResolvers<void>();
+    cp.on('exit', () => promise.resolve());
+    cp.stdin.destroy();
+    cp.stdout.destroy();
+    cp.stderr.destroy();
+    cp.kill('SIGKILL');
+
+    CACHED_INFO.clearPromise = promise.promise;
+    await promise.promise;
+    logWarn(`${CACHED_INFO.hash}: ffmpeg stream kill`);
+  }
+  clearProcess();
 };
 
 const SEGMENT_START_TIME_THRESHOLD = 5;
@@ -125,7 +144,7 @@ export const transformVideoStream = async (
   segOpt?: SegmentOptions
 ) => {
   // 关闭之前的进程
-  killProcess();
+  await killProcess();
   const hash = generateHash(filePath);
 
   // 根据源文件的编码类型，选择不同的解码器
@@ -205,6 +224,7 @@ export const transformVideoStream = async (
 
   // 创建进程
   const ffmpegProcess = spawn('ffmpeg', args);
+
   // 保存进程信息
   setProcess(ffmpegProcess, hash);
 
@@ -243,9 +263,12 @@ export const transformVideoStream = async (
   });
 
   ctx.req.socket.once('error', err => {
-    if ((err as unknown as { code: string }).code === 'ECONNRESET') {
+    const errorCode = (err as unknown as { code: string }).code;
+    if (errorCode === 'ECONNRESET') {
       logWarn(`${hash}: ffmpeg stream socket ECONNRESET`);
       ctx.req.socket.destroy();
+    } else {
+      logWarn(`${hash}: ffmpeg stream socket err: ${errorCode}`);
     }
   });
 

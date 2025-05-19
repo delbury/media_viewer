@@ -80,6 +80,9 @@ export const createTimer = () => {
   };
 };
 
+// 是否是开发环境
+export const isDev = () => process.env.NODE_ENV === 'development';
+
 // 根据 flag 来控制是否执行函数
 export const switchFnByFlag = <T extends unknown[]>(fn: (...args: T) => void, flag: boolean) => {
   if (flag) return fn;

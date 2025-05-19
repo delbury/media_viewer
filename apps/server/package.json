@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cross-env NODE_ENV=dev nodemon --watch ./src --watch ./.env --watch ./.env.dev --watch ../../packages --ext js,ts,json,mjs --exec \"node --inspect=9229 --import tsx ./main.ts\"",
+    "dev": "cross-env NODE_ENV=development nodemon --watch ./src --watch ./.env --watch ./.env.dev --watch ../../packages --ext js,ts,json,mjs --exec \"node --inspect=9229 --import tsx ./main.ts\"",
     "start": "cross-env NODE_ENV=production PORT=3005 node --import tsx ./main.ts",
     "ts": "tsc --noEmit"
   },
