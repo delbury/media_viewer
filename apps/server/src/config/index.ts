@@ -3,6 +3,9 @@ import packageJson from '#root/package.json';
 import path from 'node:path';
 import { generateHash } from '../util/common';
 
+// 自定义 header
+export const CUSTOM_REQUEST_HEADER = 'X-Custom-Request-Id';
+
 // server 版本
 export const SERVER_VERSION = process.env.SERVER_VERSION || packageJson.version || void 0;
 

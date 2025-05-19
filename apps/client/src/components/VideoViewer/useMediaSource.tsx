@@ -125,7 +125,7 @@ export const useMediaSource = ({ mediaRef, file, forceSource }: UseMediaSourcePa
         // 开始加载
         setIsLoading(true);
 
-        const response = await fetchData('videoSegment', {
+        const [error, response] = await fetchData('videoSegment', {
           params: {
             basePathIndex: file.basePathIndex?.toString() as string,
             relativePath: file.relativePath,
@@ -134,6 +134,13 @@ export const useMediaSource = ({ mediaRef, file, forceSource }: UseMediaSourcePa
           },
           signal: controller.signal,
         });
+
+        if (!response || error) {
+          // 有错误
+          setIsLoading(false);
+          return;
+        }
+
         abortController.current = null;
         controller.signal.onabort = () => {
           // 中断 fetch 请求后，结束流
@@ -160,13 +167,13 @@ export const useMediaSource = ({ mediaRef, file, forceSource }: UseMediaSourcePa
         }
       } catch {
         // 流中断后，直接中断 fetch 请求
-        controller.abort();
+        controller.abort('error');
       } finally {
         // 加载结束
         setIsLoading(false);
       }
     },
-    [file, isLoading]
+    [file, isLoading, mediaRef]
   );
   const lazyLoadSegmentDebounce = useDebounce(lazyLoadSegment, 200);
 
@@ -267,7 +274,7 @@ export const useMediaSource = ({ mediaRef, file, forceSource }: UseMediaSourcePa
       }
 
       // 停止旧的请求
-      abortController.current?.abort();
+      abortController.current?.abort('stopOld');
 
       // 没有命中缓存，重置加载结束 flag
       isLoadDone.current = false;
@@ -299,7 +306,7 @@ export const useMediaSource = ({ mediaRef, file, forceSource }: UseMediaSourcePa
 
       return () => {
         stopStream(mediaSource.current, sourceBuffer.current);
-        abortController.current?.abort();
+        abortController.current?.abort('streamEnd');
         videoDuration.current = 0;
         currentSegmentOffset.current = 0;
         sourceBuffer.current = null;

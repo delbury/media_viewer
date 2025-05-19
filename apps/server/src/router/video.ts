@@ -56,7 +56,7 @@ videoRouter[API_CONFIGS.videoSegment.method](API_CONFIGS.videoSegment.url, async
   const fileType = detectFileType(relativePath);
   if (fileType !== 'video') throw new Error(ERROR_MSG.notVideoFile);
 
-  transformVideoStream(ctx, fullPath, { start: startNumber, duration: durationNumber });
+  await transformVideoStream(ctx, fullPath, { start: startNumber, duration: durationNumber });
 });
 
 // 视频文件的降级地址，转码并返回视频流

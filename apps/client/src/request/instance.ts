@@ -21,7 +21,7 @@ interface FetchDataOptions<T extends ApiKeys> {
 const fetchData = async <T extends ApiKeys>(
   apiKey: T,
   { params, data, signal }: FetchDataOptions<T> = {}
-) => {
+): Promise<[string | null, Response | null]> => {
   const body = data ? JSON.stringify(data) : void 0;
   const search = params
     ? `?${new URLSearchParams(params as Record<string, string>).toString()}`
@@ -36,7 +36,10 @@ const fetchData = async <T extends ApiKeys>(
     signal,
   });
 
-  return response;
+  if (response.status < 200 || response.status > 299)
+    return [`${response.status} ${response.statusText}`, null];
+
+  return [null, response];
 };
 
 export { fetchData, instance };

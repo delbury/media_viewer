@@ -4,8 +4,11 @@ import { execCommand } from '#pkgs/tools/cli';
 import { isDev, logError, logWarn as RawLogWarn, switchFnByFlag } from '#pkgs/tools/common';
 import { ParameterizedContext } from 'koa';
 import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
-import { VIDEO_TRANSFORM_MAX_HEIGHT, VIDEO_TRANSFORM_MAX_WIDTH } from '../config';
-import { generateHash } from './common';
+import {
+  CUSTOM_REQUEST_HEADER,
+  VIDEO_TRANSFORM_MAX_HEIGHT,
+  VIDEO_TRANSFORM_MAX_WIDTH,
+} from '../config';
 import { logCommand } from './debug';
 
 interface VideoDetailTasks {
@@ -32,10 +35,10 @@ export const getMediaDetail = async (
   const task = VIDEO_DETAIL_TASKS[filaPath];
   if (task && !forceUpdate) {
     // 有缓存则取缓存
-    if (task.done) return VIDEO_DETAIL_TASKS[filaPath].data;
+    if (task.done) return task.data;
 
     // 有任务则等待任务完成并返回结果
-    return await VIDEO_DETAIL_TASKS[filaPath].promise;
+    return await task.promise;
   }
 
   // 没有缓存或者正在进行的任务，则创建新任务
@@ -50,6 +53,7 @@ export const getMediaDetail = async (
           '-show_format',
           `"${filaPath}"`,
         ].join(' ');
+
         execCommand(command)
           .then(({ stdout }) => {
             const info = JSON.parse(stdout as string);
@@ -122,11 +126,11 @@ const killProcess = async () => {
     cp.stdin.destroy();
     cp.stdout.destroy();
     cp.stderr.destroy();
-    cp.kill('SIGKILL');
+    cp.kill('SIGTERM');
 
     CACHED_INFO.clearPromise = promise.promise;
     await promise.promise;
-    logWarn(`${CACHED_INFO.hash}: ffmpeg stream kill`);
+    logWarn(`${CACHED_INFO.hash}: ffmpeg progress kill`);
   }
   clearProcess();
 };
@@ -145,8 +149,11 @@ export const transformVideoStream = async (
 ) => {
   // 关闭之前的进程
   await killProcess();
-  const hash = generateHash(filePath);
 
+  // const hash = generateHash(filePath);
+  const hash = ctx.response.get(CUSTOM_REQUEST_HEADER);
+
+  ctx.body = { ok: 666 };
   // 根据源文件的编码类型，选择不同的解码器
   const { cuvid } = await getVideoFileCuvid(filePath);
 
@@ -212,7 +219,7 @@ export const transformVideoStream = async (
     '-gpu', 'any',
 
     // 音频
-    "-c:a", "aac", '-b:a', '128k',
+    '-c:a', 'aac', '-b:a', '128k',
     
     // fmp4
     '-movflags', '+frag_keyframe+empty_moov+default_base_moof',
@@ -228,11 +235,9 @@ export const transformVideoStream = async (
   // 保存进程信息
   setProcess(ffmpegProcess, hash);
 
-  // logCommand('ffmpeg', args);
-
   // 设置响应头，告知客户端这是一个视频流
-  ctx.set('Content-Type', 'video/mp4');
-  ctx.set('Transfer-Encoding', 'chunked');
+  // ctx.set('Content-Type', 'video/mp4');
+  // ctx.set('Transfer-Encoding', 'chunked');
 
   // 错误处理
   ffmpegProcess.stderr.on('data', data => {
@@ -241,8 +246,18 @@ export const transformVideoStream = async (
   });
 
   // 流开始
-  ffmpegProcess.stdout.once('readable', () => {
-    logWarn(`${hash}: ffmpeg stream process start`);
+  // ffmpegProcess.stdout.once('readable', () => {
+  //   logWarn(`${hash}: ffmpeg stream process start`);
+  // });
+
+  // 进程结束
+  // ffmpegProcess.once('exit', () => {
+  //   logWarn(`${hash}: ffmpeg stream process exit`);
+  // });
+
+  // 数据请求结束
+  ffmpegProcess.stdout.on('end', () => {
+    logWarn(`${hash}: ffmpeg progress stdout end`);
   });
 
   // 连接断开
@@ -252,9 +267,9 @@ export const transformVideoStream = async (
   });
 
   // 客户端请求关闭
-  ctx.req.once('close', () => {
-    logWarn(`${hash}: ffmpeg stream request close`);
-  });
+  // ctx.req.once('close', () => {
+  //   logWarn(`${hash}: ffmpeg stream request close`);
+  // });
 
   // 客户端主动连接关闭
   ctx.req.socket.once('close', () => {

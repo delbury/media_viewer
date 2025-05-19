@@ -52,7 +52,6 @@ export default function RepeatFile() {
   const { trigger: deleteTrigger } = useSwrMutation('fileDelete');
   // 删除操作
   const handleDelete = useCallback(async () => {
-    const size = selectedSet.size;
     await deleteTrigger({
       data: {
         files: [...selectedSet].map(it => ({

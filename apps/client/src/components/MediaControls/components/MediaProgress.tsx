@@ -48,9 +48,11 @@ export const MediaProgress = ({
 }: MediaProgressProps) => {
   const progressBarRef = useRef<HTMLElement>(null);
   const [cursorOffset, setCursorOffset] = useState(0);
-  const [showCursor, setShowCursor] = useState(false);
   const [bufferRanges, setBufferRanges] = useState<[number, number][]>([]);
-  const realShowCursor = showCursor || !isNil(previewDiffTime);
+
+  const [showCursor, setShowCursor] = useState(false);
+  const [showCursorForce, setShowCursorForce] = useState(false);
+  const realShowCursor = showCursorForce || showCursor || !isNil(previewDiffTime);
 
   // const [currentTime, addCurrentTimeInstant] = useOptimistic<number, number>(
   //   rawCurrentTime,
@@ -168,6 +170,8 @@ export const MediaProgress = ({
       mediaRef.current.currentTime = time;
       onGoTo?.();
 
+      setShowCursorForce(true);
+      bindEventOnce(mediaRef.current, 'timeupdate', () => setShowCursorForce(false));
       // startTransition(async () => {
       //   addCurrentTimeInstant(time);
       //   await new Promise(resolve => {

@@ -3,6 +3,7 @@ import { logError, logInfo } from '#pkgs/tools/common';
 import { REQUEST_TIMEOUT } from '#pkgs/tools/constant';
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
+import { CUSTOM_REQUEST_HEADER } from './config';
 import { directoryRouter } from './router/directory';
 import { fileRouter } from './router/file';
 import { mediaRouter } from './router/media';
@@ -19,6 +20,9 @@ const app = new Koa();
 app.use(bodyParser());
 
 app.use(async (ctx, next) => {
+  // 添加自定义头
+  ctx.response.set(CUSTOM_REQUEST_HEADER, Date.now().toString());
+
   try {
     await next();
   } catch (err) {
