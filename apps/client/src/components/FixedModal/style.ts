@@ -68,4 +68,8 @@ export const StyledFooterWrapper = styled(Box)`
   && .${buttonBaseClasses.disabled} {
     color: ${({ theme }) => theme.palette.grey[700]};
   }
+
+  & .${iconButtonClasses.loadingIndicator} {
+    color: ${({ theme }) => theme.palette.common.white};
+  }
 `;

@@ -23,6 +23,7 @@ import {
 } from 'react';
 import TooltipSetting from '../TooltipSetting';
 import AlertInfo from './components/AlertInfo';
+import DislikeSetting from './components/DislikeSetting';
 import FullscreenSetting from './components/FullscreenSetting';
 import { MediaProgress } from './components/MediaProgress';
 import ProgressInfo from './components/ProgressInfo';
@@ -103,6 +104,8 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const showSubtitle = !isH5 && isVideo;
     const showSource = !isH5 && isVideo;
     const showVolume = !isVideo || !isH5;
+    const hasPlayMode = isList && !!onToggleRandom;
+
     const [moreOpen, setMoreOpen] = useState(false);
     const handleToggleMoreOpen = useCallback(() => setMoreOpen(v => !v), []);
 
@@ -294,8 +297,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
           <StyledBtnsContainer>
             <StyledBtnsGroup>
+              {/* 标记为不喜欢 */}
+              <DislikeSetting file={file} />
+
               {/* 播放模式 */}
-              {isList && onToggleRandom && (
+              {hasPlayMode && !isH5 && (
                 <IconButton onClick={onToggleRandom}>
                   {isRandomPlay ? <ShuffleRounded /> : <FormatListNumberedRtlRounded />}
                 </IconButton>
@@ -368,15 +374,23 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
                   open={moreOpen}
                   tooltipContent={
                     <StyledBtnsGroup>
+                      {hasPlayMode && (
+                        <IconButton onClick={onToggleRandom}>
+                          {isRandomPlay ? <ShuffleRounded /> : <FormatListNumberedRtlRounded />}
+                        </IconButton>
+                      )}
+
                       <SubtitleSetting
                         mediaRef={mediaRef}
                         subtitleOptions={subtitles}
                       />
+
                       <SourceSetting
                         isAuto={isRawSource}
                         useSource={useSource}
                         onUseSourceChange={onUseSourceChange}
                       />
+
                       <VolumeSetting mediaRef={mediaRef} />
                     </StyledBtnsGroup>
                   }
