@@ -1,7 +1,7 @@
 {
   "Tools": {
-    "RepeatFileAnalyzer": "重复文件分析",
-    "FileViewer": "文件浏览器",
+    "RepeatFileAnalyzer": "文件处理",
+    "FileViewer": "媒体浏览",
     "SelectDirectory": "选择文件夹",
     "NoDirectories": "当前目录下无文件夹",
     "NoFiles": "当前目录下无文件",
@@ -18,7 +18,7 @@
     "AreYouSureClearUselessPoster": "确定删除无用的封面缩略图？",
     "FileListPreviewer": "文件列表预览",
     "AreYouSureDeleteSelectedFiles": "确定删除已选择的文件？",
-    "ExistRepeatItem": "存在重复项"
+    "ExistRepeatItem": "存在重复"
   },
   "Common": {
     "AreYouSure": "确定？",

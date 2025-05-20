@@ -13,8 +13,8 @@ import genericPool from 'generic-pool';
 import { isNil } from 'lodash-es';
 import { spawn } from 'node:child_process';
 import { default as os } from 'node:os';
-import { getFilePath } from './common';
 import { logProgress } from './debug';
+import { getFilePath } from './file';
 import { getTask } from './task';
 import { FileInfo } from './traverseDirectories';
 

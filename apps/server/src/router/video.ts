@@ -3,7 +3,8 @@ import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import { detectFileType } from '#pkgs/tools/common';
 import Router from '@koa/router';
 import path from 'node:path';
-import { getRootDir, returnBody, validateNumberString } from '../util/common';
+import { returnBody, validateNumberString } from '../util/common';
+import { getRootDir } from '../util/file';
 import { getMediaDetail, transformVideoStream } from '../util/media';
 import { transformSubtitleToVtt } from '../util/subtitle';
 

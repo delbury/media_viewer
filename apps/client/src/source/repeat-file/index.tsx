@@ -118,6 +118,7 @@ export default function RepeatFile() {
     if (showFileGroup === 'selected') return selectedItems;
     else if (showFileGroup === 'all') return sortedItems;
     else if (showFileGroup === 'same') return repeatItems;
+    return [];
   }, [selectedItems, repeatItems, showFileGroup, sortedItems]);
 
   const handleItemClick = useCallback((file: FileInfo) => {
@@ -143,7 +144,7 @@ export default function RepeatFile() {
   return (
     <StyledRepeatFileWrapper>
       <DirectoryPicker
-        defaultVisible
+        // defaultVisible
         onCurrentDirChange={handleCurrentDirChange}
         storageKeySuffix="RepeatFile"
       />
@@ -160,6 +161,7 @@ export default function RepeatFile() {
               {t(':')}
               {sortedItems.length}
             </StyledFileGroupBtn>
+
             <StyledFileGroupBtn
               selected={showFileGroup === 'selected'}
               onClick={() => setShowFileGroup('selected')}
@@ -168,11 +170,14 @@ export default function RepeatFile() {
               {t(':')}
               {selectedSet.size}
             </StyledFileGroupBtn>
+
             <StyledFileGroupBtn
               selected={showFileGroup === 'same'}
               onClick={() => setShowFileGroup('same')}
             >
               {t('Tools.ExistRepeatItem')}
+              {t(':')}
+              {repeatItems.length}
             </StyledFileGroupBtn>
           </Box>
 

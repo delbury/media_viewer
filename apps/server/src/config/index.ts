@@ -16,10 +16,9 @@ export const DIRECTORY_ROOTS = process.env.API_DIRECTORY_ROOT
 
 // 资源文件信息缓存文件路径
 export const CACHE_DATA_PATH = path.resolve(__dirname, process.env.CACHE_DATA_PATH || './');
-// 资源文件信息缓存文件名
-// export const CACHE_DATE_FILE_NAME = 'full_dir_info.local.json';
-export const CACHE_DATE_FILE_NAME = `${generateHash(DIRECTORY_ROOTS?.join('/') ?? '')}.local.info`;
+
 // 资源文件信息缓存文件完整路径
+export const CACHE_DATE_FILE_NAME = `${generateHash(DIRECTORY_ROOTS?.join('/') ?? '')}.local.info`;
 export const CACHE_DATE_FILE_FULL_PATH = path.join(CACHE_DATA_PATH, CACHE_DATE_FILE_NAME);
 
 // 视频文件时长信息的缓存路径
@@ -27,6 +26,13 @@ export const CACHE_DATA_VIDEO_DURATION_NAME = `${generateHash(DIRECTORY_ROOTS?.j
 export const CACHE_DATA_VIDEO_DURATION_FULL_PATH = path.join(
   CACHE_DATA_PATH,
   CACHE_DATA_VIDEO_DURATION_NAME
+);
+
+// dislike 文件列表缓存路径
+export const CACHE_DATA_DISLIKE_MEDIA_FILE_NAME = `${generateHash(DIRECTORY_ROOTS?.join('/') ?? '')}_dislike.local.info`;
+export const CACHE_DATA_DISLIKE_MEDIA_FILE_FULL_PATH = path.join(
+  CACHE_DATA_PATH,
+  CACHE_DATA_DISLIKE_MEDIA_FILE_NAME
 );
 
 // 原始图片可以直接用于 poster 的最大大小，单位：字节 B

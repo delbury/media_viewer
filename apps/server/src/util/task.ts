@@ -1,10 +1,16 @@
-import { ApiResponseDataTypes } from '#pkgs/apis';
+import { ApiResponseDataTypes, FileInfo } from '#pkgs/apis';
 import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import { logInfo, logSuccess } from '#pkgs/tools/common';
-import { CACHE_DATA_VIDEO_DURATION_FULL_PATH, CACHE_DATE_FILE_FULL_PATH } from '../config';
+import {
+  CACHE_DATA_DISLIKE_MEDIA_FILE_FULL_PATH,
+  CACHE_DATA_VIDEO_DURATION_FULL_PATH,
+  CACHE_DATE_FILE_FULL_PATH,
+} from '../config';
 import { readDataFromFileByMsgPack, writeDataToFileByMsgPack } from './fileOperation';
 
-interface BaseTask<T extends Record<string, unknown> = Record<string, unknown>> {
+interface BaseTask<
+  T extends Record<string, unknown> | unknown[] = Record<string, unknown> | unknown[],
+> {
   loading: boolean;
   cache?: T | null;
   cacheFilePath?: string;
@@ -32,6 +38,11 @@ export const GLOBAL_TASK = {
     cache: null,
     cacheFilePath: CACHE_DATA_VIDEO_DURATION_FULL_PATH,
   } as BaseTask<Record<string, number>>,
+  dislikeList: {
+    loading: false,
+    cache: null,
+    cacheFilePath: CACHE_DATA_DISLIKE_MEDIA_FILE_FULL_PATH,
+  } as BaseTask<FileInfo[]>,
 } satisfies Record<string, BaseTask>;
 
 type GlobalTask = typeof GLOBAL_TASK;
@@ -39,6 +50,12 @@ type TaskName = keyof GlobalTask;
 
 export const getTask = <T extends TaskName>(name: T) => {
   const task = GLOBAL_TASK[name];
+
+  // 正在执行的 saveCache 的 promise
+  let runningSavePromise: Promise<void> | null = null;
+  // 是否在执行完当前的 saveCache 后，再次执行
+  let needRunSave = false;
+
   return {
     task,
     start: () => {
@@ -50,6 +67,7 @@ export const getTask = <T extends TaskName>(name: T) => {
     },
     setCache: (cache: GlobalTask[T]['cache']) => {
       task.cache = cache;
+      return cache;
     },
     getCache: async () => {
       // 优先取内存缓存
@@ -66,11 +84,29 @@ export const getTask = <T extends TaskName>(name: T) => {
       return data;
     },
     saveCache: async () => {
-      if (task.cacheFilePath && task.cache) {
+      if (!task.cacheFilePath || !task.cache) return;
+
+      const fn = async () => {
+        if (!task.cacheFilePath || !task.cache) return;
         // 更新文件信息缓存文件
         logInfo('start writing file: ', task.cacheFilePath);
         await writeDataToFileByMsgPack(task.cacheFilePath, task.cache);
         logSuccess('written file successfully');
+
+        runningSavePromise = null;
+        // 判断是否需要继续执行
+        if (needRunSave) {
+          needRunSave = false;
+          runningSavePromise = fn();
+        }
+      };
+
+      if (runningSavePromise) {
+        // 当前正在执行，标记需要后续执行
+        needRunSave = true;
+      } else {
+        // 当前空闲
+        runningSavePromise = fn();
       }
     },
   };

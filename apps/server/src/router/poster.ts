@@ -21,7 +21,8 @@ import { noop } from 'lodash-es';
 import { access, mkdir, readdir, rm, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'os';
-import { getRootDir, hideFile, returnBody } from '../util/common';
+import { returnBody } from '../util/common';
+import { getRootDir, hideFile } from '../util/file';
 import { generatePoster, getPosterFileName } from '../util/poster';
 import { getTask } from '../util/task';
 

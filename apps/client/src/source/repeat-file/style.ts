@@ -37,7 +37,7 @@ export const StyledFileGroupBtn = styled('span', {
   border-bottom: 2px solid transparent;
 
   :not(:last-child) {
-    margin-inline-end: 16px;
+    margin-inline-end: 12px;
   }
 
   ${({ selected, theme }) =>

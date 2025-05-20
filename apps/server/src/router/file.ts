@@ -19,7 +19,8 @@ import send from 'koa-send';
 import { stat } from 'node:fs/promises';
 import path from 'node:path';
 import trash from 'trash';
-import { getRootDir, returnBody } from '../util/common';
+import { returnBody } from '../util/common';
+import { getRootDir } from '../util/file';
 import { sendFileWithRange } from '../util/range';
 import { getTask } from '../util/task';
 

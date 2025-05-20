@@ -16,13 +16,13 @@ export const readDataFromFileByMsgPack = async (fullFilePath: string) => {
 
   const dataBuffer = await readFile(fullFilePath);
   const data = decoder.decode(dataBuffer);
-  return data as Record<string, unknown>;
+  return data;
 };
 
 // 写文件，使用 msgpack
 export const writeDataToFileByMsgPack = async (
   fullFilePath: string,
-  data?: Record<string, unknown>
+  data?: Record<string, unknown> | unknown[]
 ) => {
   const dataBuffer = encoder.encode(data ?? {});
   await writeFile(fullFilePath, dataBuffer);
