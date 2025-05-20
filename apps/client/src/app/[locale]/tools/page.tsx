@@ -21,6 +21,10 @@ const getTools = (t: TFunction) => [
     title: t('Tools.RepeatFileAnalyzer'),
     path: '/tools/repeat-file',
   },
+  {
+    title: t('Tools.DislikeFileList'),
+    path: '/tools/dislike-list',
+  },
 ];
 
 export default function Tools() {

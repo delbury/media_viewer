@@ -2,6 +2,7 @@
   "Tools": {
     "RepeatFileAnalyzer": "文件处理",
     "FileViewer": "媒体浏览",
+    "DislikeFileList": "已标记列表",
     "SelectDirectory": "选择文件夹",
     "NoDirectories": "当前目录下无文件夹",
     "NoFiles": "当前目录下无文件",
@@ -30,7 +31,6 @@
     "Empty": "无内容",
     "Files": "文件",
     "Total": "共",
-    "SomethingWentWrong": "发生了一些错误",
     "Default": "默认",
     "Name": "名称",
     "Asc": "升序",
@@ -43,13 +43,15 @@
     "RequestSuccess": "操作成功",
     "BaseInfo": "基本信息",
     "Metadata": "元信息",
-    "Selected": "已选"
+    "Selected": "已选",
+    "Copied": "已复制"
   },
   "Btn": {
     "AutoScroll": "自动滚动"
   },
   "Error": {
-    "NetError": "网络错误"
+    "NetError": "网络错误",
+    "SomethingWentWrong": "发生了一些错误"
   },
   "Util": {
     "MoveHereToCancel": "移动到此处取消"

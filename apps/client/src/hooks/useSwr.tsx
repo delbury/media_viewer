@@ -3,12 +3,12 @@
 import { API_CONFIGS, ApiKeys, ApiResponseDataTypes, instance } from '#/request';
 import { ApiRequestDataTypes, ApiRequestParamsTypes, ApiResponseBase } from '#pkgs/apis';
 import { REQUEST_TIMEOUT } from '#pkgs/tools/constant';
-import { useNotifications } from '@toolpad/core';
 import { AxiosError } from 'axios';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import useSWR, { KeyedMutator } from 'swr';
 import useSWRMutation from 'swr/mutation';
+import { useMessage } from './useMessage';
 
 const AUTO_HIDE_DURATION_ERROR = 2000;
 const AUTO_HIDE_DURATION_SUCCESS = 1000;
@@ -44,7 +44,7 @@ const useSwr = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
     key,
   } = options ?? {};
   const t = useTranslations();
-  const notifications = useNotifications();
+  const msg = useMessage();
   const { url, method } = API_CONFIGS[apiKey];
   const { data, isLoading, isValidating, mutate } = useSWR<
     ApiResponseBase<D>,
@@ -67,17 +67,17 @@ const useSwr = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
       revalidateOnFocus: false,
       revalidateOnMount: !lazy && !disabled,
       onError: error => {
-        notifications.show(error.response?.data?.msg || error.message, {
-          autoHideDuration: AUTO_HIDE_DURATION_ERROR,
-          severity: 'error',
+        msg.show({
+          message: error.response?.data?.msg || error.message,
+          type: 'error',
         });
       },
       onSuccess: data => {
         onSuccess?.(data);
         if (noticeWhenSuccess) {
-          notifications.show(t('Common.RequestSuccess'), {
-            autoHideDuration: AUTO_HIDE_DURATION_SUCCESS,
-            severity: 'success',
+          msg.show({
+            message: t('Common.RequestSuccess'),
+            type: 'success',
           });
         }
       },
@@ -100,7 +100,7 @@ const useSwrMutation = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
 ) => {
   const { onSuccess, noticeWhenSuccess, params: requestParams, data: requestData } = options ?? {};
   const t = useTranslations();
-  const notifications = useNotifications();
+  const msg = useMessage();
   const { url, method } = API_CONFIGS[apiKey];
   const {
     data,
@@ -120,17 +120,17 @@ const useSwrMutation = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
     },
     {
       onError: (error: AxiosError<ApiResponseBase>) => {
-        notifications.show(error.response?.data?.msg || error.message, {
-          autoHideDuration: AUTO_HIDE_DURATION_ERROR,
-          severity: 'error',
+        msg.show({
+          message: error.response?.data?.msg || error.message,
+          type: 'error',
         });
       },
       onSuccess: data => {
         onSuccess?.(data);
         if (noticeWhenSuccess) {
-          notifications.show(t('Common.RequestSuccess'), {
-            autoHideDuration: AUTO_HIDE_DURATION_SUCCESS,
-            severity: 'success',
+          msg.show({
+            message: t('Common.RequestSuccess'),
+            type: 'success',
           });
         }
       },

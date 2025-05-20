@@ -104,9 +104,9 @@ export const useVirtualList = (
   }, [childRowHeight, gridLayout, config]);
 
   const reLayout = useCallback(() => {
-    if (!config) return;
-
     let currentRenderRange: RenderRange;
+
+    const childCount = config?.childCount ?? 0;
 
     if (gridLayout) {
       // grid 布局
@@ -118,7 +118,7 @@ export const useVirtualList = (
 
       // 渲染视窗中元素的行数
       const overRowCount =
-        typeof config.overRowCount === 'number'
+        typeof config?.overRowCount === 'number'
           ? config.overRowCount
           : Math.ceil(visibleRowCount / 2);
 
@@ -126,7 +126,7 @@ export const useVirtualList = (
       const endRowIndex = Math.min(rows - 1, visibleRowIndexEnd + overRowCount);
 
       const startIndex = startRowIndex * cols;
-      const endIndex = Math.min(config.childCount - 1, endRowIndex * cols + cols - 1);
+      const endIndex = Math.min(childCount - 1, endRowIndex * cols + cols - 1);
 
       currentRenderRange = {
         startIndex,
@@ -145,9 +145,11 @@ export const useVirtualList = (
 
       // 渲染视窗中元素个数两倍的元素，前后各一半
       const overRowCount =
-        typeof config.overRowCount === 'number' ? config.overRowCount : Math.ceil(visibleCount / 2);
+        typeof config?.overRowCount === 'number'
+          ? config.overRowCount
+          : Math.ceil(visibleCount / 2);
       const startIndex = Math.max(0, visibleIndexStart - overRowCount);
-      const endIndex = Math.min(config.childCount - 1, visibleIndexEnd + overRowCount);
+      const endIndex = Math.min(childCount - 1, visibleIndexEnd + overRowCount);
 
       currentRenderRange = {
         startIndex,
@@ -160,8 +162,16 @@ export const useVirtualList = (
       };
     }
     setRenderRange(currentRenderRange);
-  }, [config, status.scrollTop, status.clientHeight, childRowHeight, gridLayout]);
+  }, [
+    config?.overRowCount,
+    config?.childCount,
+    status.scrollTop,
+    status.clientHeight,
+    childRowHeight,
+    gridLayout,
+  ]);
   const reLayoutThrottle = useThrottle(reLayout, 100);
+  // const reLayoutThrottle = reLayout;
 
   // 重新计算渲染范围
   useEffect(() => {
@@ -179,7 +189,7 @@ export const useVirtualList = (
     }
 
     reLayoutThrottle();
-  }, [status]);
+  }, [status, reLayoutThrottle, renderRange, config?.overRowCount, childRowHeight]);
 
   // 限制子元素的尺寸
   useEffect(() => {

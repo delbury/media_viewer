@@ -6,7 +6,6 @@ import FileDetailDialog from '#/components/DirectoryPicker/components/FileDetail
 import { FILE_SORT_API_FIELD_MAP, FILE_SORT_OPTIONS } from '#/components/DirectoryPicker/constant';
 import { useSortList } from '#/components/DirectoryPicker/hooks/useSortList';
 import { FileListContent } from '#/components/FileListPreviewer';
-import { ScrollBoxInstance } from '#/components/ScrollBox';
 import { useConfirmDialogByKeys } from '#/hooks/useConfirmDialog';
 import { useSwrMutation } from '#/hooks/useSwr';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
@@ -47,9 +46,7 @@ export default function RepeatFile() {
     setFiles(list);
   }, []);
 
-  const scrollBoxRef = useRef<ScrollBoxInstance>(null);
-
-  const { trigger: deleteTrigger } = useSwrMutation('fileDelete');
+  const { trigger: deleteTrigger, isLoading } = useSwrMutation('fileDelete');
   // 删除操作
   const handleDelete = useCallback(async () => {
     await deleteTrigger({
@@ -197,13 +194,13 @@ export default function RepeatFile() {
 
       <StyledFileContentContainer>
         <FileListContent
-          scrollBoxRef={scrollBoxRef}
           files={realShowItem}
           RowExtraComp={FileExtraInfo}
           rowHeight={ROW_HEIGHT}
           onItemClick={handleItemClick}
           onImgClick={handleImgClick}
           selectedIdSet={selectedSet}
+          isLoading={isLoading}
         />
       </StyledFileContentContainer>
 

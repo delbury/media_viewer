@@ -8,6 +8,7 @@ import {
 import { Box, SxProps, Theme } from '@mui/material';
 import { forwardRef, useCallback, useEffect, useMemo, useRef } from 'react';
 import Empty from '../Empty';
+import Loading from '../Loading';
 import { useEvents } from './hooks/useEvents';
 import { ScrollBoxInstance, useExportHandlers } from './hooks/useExportHandlers';
 import { useScrollStatus } from './hooks/useScrollStatus';
@@ -36,6 +37,7 @@ export interface ScrollBoxProps {
   // 无内容
   emptyText?: string;
   isEmpty?: boolean;
+  isLoading?: boolean;
   // 挂载后默认滚动到的位置
   defaultScroll?: {
     left?: number;
@@ -54,6 +56,7 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
       hideScrollbar,
       emptyText,
       isEmpty,
+      isLoading,
       defaultScroll,
     },
     ref
@@ -173,9 +176,9 @@ const ScrollBox = forwardRef<ScrollBoxInstance, ScrollBoxProps>(
           ref={wrapperRef}
           hideScrollbar={hideScrollbar}
         >
-          {isEmpty && (
+          {(isEmpty || isLoading) && (
             <StyledEmptyWrapper>
-              <Empty label={emptyText} />
+              {isLoading ? <Loading /> : <Empty label={emptyText} />}
             </StyledEmptyWrapper>
           )}
           <Box ref={contentRef}>

@@ -31,6 +31,7 @@ interface FileListPreviewerProps {
   rowHeight?: number;
   // 额外信息组件
   RowExtraComp?: React.FC<{ file: FileInfo }>;
+  isLoading?: boolean;
 }
 
 type ChildItemProps = FileListPreviewerProps & VirtualListChildItemProps;
@@ -80,6 +81,9 @@ const ChildItem = (props: ChildItemProps) => {
           <img
             src={posterUrl}
             alt={title}
+            style={{
+              cursor: onImgClick ? 'pointer' : void 0,
+            }}
           />
         </StyleChildItemImage>
         <StyleChildItemInfo>
@@ -105,6 +109,7 @@ const FileListContent = ({
   onImgClick,
   rowHeight,
   RowExtraComp,
+  isLoading,
 }: FileListPreviewerProps) => {
   const t = useTranslations();
   const defaultScroll = FILE_ITEM_ROW_HEIGHT * ((selectedIndex ?? 0) - 0.5);
@@ -139,6 +144,7 @@ const FileListContent = ({
       sx={{ height: '100%' }}
       emptyText={t('Tools.NoFiles')}
       isEmpty={!files?.length}
+      isLoading={isLoading}
       lazyLoadEnabled={true}
       defaultScroll={{
         top: defaultScroll,

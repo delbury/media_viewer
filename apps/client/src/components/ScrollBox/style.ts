@@ -81,4 +81,8 @@ export const StyledEmptyWrapper = styled(Box)`
   position: absolute;
   inset: 0;
   margin: auto;
+  color: ${({ theme }) => theme.palette.text.secondary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
