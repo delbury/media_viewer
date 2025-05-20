@@ -212,7 +212,7 @@ export const transformVideoStream = async (
     
     '-c:v', 'h264_nvenc',
     '-b:v', '3000k',
-    '-profile:v', 'high', '-level', '4.0',
+    '-profile:v', 'high', '-level', '5.1',
     '-preset', 'p4',
     '-tune', 'll',
     '-bf', '0',
