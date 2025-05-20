@@ -11,6 +11,7 @@ export interface RenderRange {
   rowHeight: number;
   // 保存计算出当前 range 时的 scrollTop
   scrollTop: number;
+  clientHeight: number;
   // 当前渲染元素的 y 轴偏移距离
   offsetY: number;
 }
@@ -127,6 +128,7 @@ export const useVirtualList = (
         count: endIndex - startIndex + 1,
         rowHeight: childRowHeight,
         scrollTop: status.scrollTop,
+        clientHeight: status.clientHeight,
         offsetY: startRowIndex * childRowHeight,
       };
     } else {
@@ -150,6 +152,7 @@ export const useVirtualList = (
         count: endIndex - startIndex + 1,
         rowHeight: childRowHeight,
         scrollTop: status.scrollTop,
+        clientHeight: status.clientHeight,
         offsetY: startIndex * childRowHeight,
       };
     }
@@ -161,7 +164,11 @@ export const useVirtualList = (
   useEffect(() => {
     if (status.type === 'resize') {
       // 当滚动高度不变时，不重新计算
-      if (status.scrollTop === renderRange?.scrollTop) return;
+      if (
+        status.scrollTop === renderRange?.scrollTop &&
+        status.clientHeight === renderRange.clientHeight
+      )
+        return;
     }
 
     if (status.type === 'scroll') {
@@ -174,10 +181,6 @@ export const useVirtualList = (
 
     reLayoutThrottle();
   }, [status]);
-
-  useEffect(() => {
-    reLayoutThrottle();
-  }, [config?.childCount]);
 
   // 限制子元素的尺寸
   useEffect(() => {

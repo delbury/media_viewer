@@ -61,7 +61,10 @@ mediaRouter[API_CONFIGS.mediaDislikeSet.method](API_CONFIGS.mediaDislikeSet.url,
     // 设置
     if (index < 0) {
       const { fileInfo } = (await getFileInfo({ basePathIndex, relativePath })) ?? {};
-      if (fileInfo) list.push(fileInfo);
+      if (fileInfo) {
+        list.push(fileInfo);
+        await dislikeListTask.saveCache();
+      }
     }
   } else {
     // 取消设置
