@@ -67,17 +67,10 @@ export const useVirtualList = (
   config?: VirtualListConfig
 ) => {
   const [renderRange, setRenderRange] = useState<RenderRange | null>(null);
-
-  const gridLayout = useMemo(() => {
-    if (!config) return null;
-    return config?.calcGridLayout?.(config.childCount, status.clientWidth) ?? null;
-  }, [config, status.clientWidth]);
-
+  // 布局
+  const gridLayout = config?.calcGridLayout?.(config.childCount, status.clientWidth) ?? null;
   // 子元素高度
-  const childHeight = useMemo(() => {
-    if (!config) return 0;
-    return config.childHeight ?? 0;
-  }, [config]);
+  const childHeight = config?.childHeight ?? 0;
 
   // 子元素行的实际高度 = 子元素高度 + 行 gap
   const childRowHeight = useMemo(() => {
@@ -105,7 +98,6 @@ export const useVirtualList = (
 
   const reLayout = useCallback(() => {
     let currentRenderRange: RenderRange;
-
     const childCount = config?.childCount ?? 0;
 
     if (gridLayout) {
@@ -162,16 +154,8 @@ export const useVirtualList = (
       };
     }
     setRenderRange(currentRenderRange);
-  }, [
-    config?.overRowCount,
-    config?.childCount,
-    status.scrollTop,
-    status.clientHeight,
-    childRowHeight,
-    gridLayout,
-  ]);
+  }, [config, gridLayout, status.scrollTop, status.clientHeight, childRowHeight]);
   const reLayoutThrottle = useThrottle(reLayout, 100);
-  // const reLayoutThrottle = reLayout;
 
   // 重新计算渲染范围
   useEffect(() => {
@@ -189,7 +173,11 @@ export const useVirtualList = (
     }
 
     reLayoutThrottle();
-  }, [status, reLayoutThrottle, renderRange, config?.overRowCount, childRowHeight]);
+  }, [status]);
+
+  useEffect(() => {
+    reLayoutThrottle();
+  }, [config?.childCount]);
 
   // 限制子元素的尺寸
   useEffect(() => {
