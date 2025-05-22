@@ -1,4 +1,4 @@
-import { logBase, logInfo } from '#pkgs/tools/common';
+import { logInfo } from '#pkgs/tools/common';
 import ProgressBar from 'progress';
 
 export const logCommand = (cli: string, args: string[]) => {
@@ -32,7 +32,7 @@ export const logProgress = (
       if (index % step === 0 || index === total - 1) {
         bar.curr = index + 1;
         bar.render();
-        if (singleRow) logBase('\n');
+        if (singleRow) process.stdout.write('\n');
         if (index === total - 1) bar.tick(0);
       }
     },

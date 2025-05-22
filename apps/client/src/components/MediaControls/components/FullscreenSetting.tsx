@@ -1,7 +1,7 @@
-import { RootType } from '#/components/FixedModal';
 import { FullscreenExitRounded, FullscreenRounded } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { RefObject, useCallback, useEffect, useState } from 'react';
+import { findFullscreenRoot } from '../util';
 
 interface FullscreenSettingProps {
   mediaRef: RefObject<HTMLMediaElement | null>;
@@ -15,21 +15,28 @@ const FullscreenSetting = ({ mediaRef }: FullscreenSettingProps) => {
   const handleToggleFullScreen = useCallback(() => {
     if (document.fullscreenElement) {
       document.exitFullscreen();
-      setIsFullScreen(false);
     } else {
-      let curElm: HTMLElement | null = mediaRef.current;
-      while (curElm) {
-        if (curElm.dataset.root === RootType.Media) break;
-        curElm = curElm.parentElement;
-      }
-      if (!curElm) return;
-      curElm.requestFullscreen();
-      setIsFullScreen(true);
+      const elm = findFullscreenRoot(mediaRef.current);
+      elm?.requestFullscreen();
     }
-  }, [mediaRef, setIsFullScreen]);
+  }, [mediaRef]);
 
   useEffect(() => {
     setDisabled(!document.fullscreenEnabled);
+
+    const controller = new AbortController();
+    document.addEventListener(
+      'fullscreenchange',
+      () => {
+        setIsFullScreen(!!document.fullscreenElement);
+      },
+      {
+        signal: controller.signal,
+      }
+    );
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   return (

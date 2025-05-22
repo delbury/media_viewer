@@ -1,5 +1,6 @@
 import { SxProps, Theme } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import CancelArea from './CancelArea';
 import { CancelAreaContext } from './Context';
 
@@ -8,6 +9,16 @@ const CancelAreaProvider = ({ children }: { children?: React.ReactNode }) => {
   const [areaSize, setAreaSize] = useState<DOMRect | null>(null);
   const [activated, setActivated] = useState(false);
   const [areaSx, setAreaSx] = useState<SxProps<Theme>>();
+  const [defaultContainer, setDefaultContainer] = useState<HTMLElement | null>(null);
+  const [customContainer, setCustomContainer] = useState<HTMLElement | null>(null);
+  const container = customContainer || defaultContainer;
+
+  useEffect(() => {
+    if (!visible) {
+      setDefaultContainer(null);
+      setCustomContainer(null);
+    }
+  }, [visible]);
 
   const value = useMemo(
     () => ({
@@ -18,6 +29,7 @@ const CancelAreaProvider = ({ children }: { children?: React.ReactNode }) => {
       setActivated,
       areaSx,
       setAreaSx,
+      setCustomContainer,
     }),
     [activated, areaSize, areaSx, visible]
   );
@@ -26,11 +38,17 @@ const CancelAreaProvider = ({ children }: { children?: React.ReactNode }) => {
     <CancelAreaContext.Provider value={value}>
       {children}
       {visible && (
-        <CancelArea
-          activated={activated}
-          onSizeChange={setAreaSize}
-          sx={areaSx}
-        />
+        <div ref={setDefaultContainer}>
+          {!!container &&
+            createPortal(
+              <CancelArea
+                activated={activated}
+                onSizeChange={setAreaSize}
+                sx={areaSx}
+              />,
+              container
+            )}
+        </div>
       )}
     </CancelAreaContext.Provider>
   );

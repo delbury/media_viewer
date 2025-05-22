@@ -10,6 +10,7 @@ interface CancelAreaValue {
   setActivated: (v: boolean) => void;
   areaSx?: SxProps<Theme>;
   setAreaSx: (sx?: SxProps<Theme>) => void;
+  setCustomContainer: (elm: HTMLElement | null) => void;
 }
 
 export const CancelAreaContext = createContext<CancelAreaValue>({
@@ -20,4 +21,5 @@ export const CancelAreaContext = createContext<CancelAreaValue>({
   setActivated: noop,
   areaSx: null,
   setAreaSx: noop,
+  setCustomContainer: noop,
 });

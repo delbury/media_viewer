@@ -10,6 +10,8 @@ interface UseCancelAreaContextParams {
   areaSx?: SxProps<Theme>;
   // 是否禁用
   ifDisable?: () => boolean;
+  // 获取自定义挂载点
+  getCustomContainer?: () => HTMLElement | null;
 }
 
 export const useCancelAreaContext = ({
@@ -18,26 +20,35 @@ export const useCancelAreaContext = ({
   onFinal,
   areaSx,
   ifDisable,
+  getCustomContainer,
 }: UseCancelAreaContextParams) => {
   // 判断是否开始
   const isStart = useRef(false);
-  const { visible, setVisible, areaSize, activated, setActivated, setAreaSx } =
+  const { visible, setVisible, areaSize, activated, setActivated, setAreaSx, setCustomContainer } =
     useContext(CancelAreaContext);
+  const hasCustomContainer = useRef(false);
 
   // 开
   const openCancelArea = useCallback(() => {
+    // 获取自定义容器
+    if (!hasCustomContainer.current) {
+      setCustomContainer(getCustomContainer?.() ?? null);
+      hasCustomContainer.current = true;
+    }
+
     if (!isStart.current) {
       isStart.current = true;
       setAreaSx(areaSx);
     }
     setVisible(true);
-  }, [areaSx, setAreaSx, setVisible]);
+  }, [areaSx, getCustomContainer, setAreaSx, setCustomContainer, setVisible]);
 
   // 关
   const closeCancelArea = useCallback(() => {
     setVisible(false);
     setActivated(false);
     isStart.current = false;
+    hasCustomContainer.current = false;
   }, [setActivated, setVisible]);
 
   const activateCancelArea = useCallback(() => setActivated(true), [setActivated]);

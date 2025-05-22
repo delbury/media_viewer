@@ -6,7 +6,7 @@ import { SxProps, Theme } from '@mui/material';
 import { isNil } from 'lodash-es';
 import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MAX_RATE } from '../components/RateSetting';
-import { bindEvent } from '../util';
+import { bindEvent, findFullscreenRoot } from '../util';
 
 // 在 video 上拖动时，每像素的偏移时间
 export const PROGRESS_DRAG_PER_PX = 0.1;
@@ -31,20 +31,21 @@ export const useMobileGesture = ({ mediaRef, handleGoBy }: UseMobileDragParams) 
   // 之前的播放速度
   const lastRate = useRef<number>(null);
 
-  // 拖拽结束
-  const handleDragEnd = useCallback(() => {
-    if (currentDragDirection.current === 'x' && currentDragOffsetInstant.current) {
-      const diffTime = currentDragOffsetInstant.current[0] * PROGRESS_DRAG_PER_PX;
-      handleGoBy(1, diffTime);
-    }
-  }, [handleGoBy]);
-
   // 重置
   const handleResetDrag = useCallback(() => {
     currentDragDirection.current = null;
     currentDragOffsetInstant.current = null;
     setCurrentDragOffset(null);
   }, []);
+
+  // 拖拽结束
+  const handleDragEnd = useCallback(() => {
+    if (currentDragDirection.current === 'x' && currentDragOffsetInstant.current) {
+      const diffTime = currentDragOffsetInstant.current[0] * PROGRESS_DRAG_PER_PX;
+      handleGoBy(1, diffTime);
+    }
+    handleResetDrag();
+  }, [handleGoBy, handleResetDrag]);
 
   // 拖拽中
   const handleDrag = useCallback((offset: [number, number]) => {
@@ -85,6 +86,10 @@ export const useMobileGesture = ({ mediaRef, handleGoBy }: UseMobileDragParams) 
     return currentDragOffset ? currentDragOffset[0] * PROGRESS_DRAG_PER_PX : void 0;
   }, [currentDragOffset]);
 
+  const getCustomContainer = useCallback(() => {
+    return findFullscreenRoot(mediaRef.current);
+  }, [mediaRef]);
+
   // 中途取消
   const ifDisableDrag = useCallback(() => currentDragDirection.current !== 'x', []);
   useCancelAreaContext({
@@ -93,6 +98,7 @@ export const useMobileGesture = ({ mediaRef, handleGoBy }: UseMobileDragParams) 
     onFinal: handleResetDrag,
     areaSx: CANCEL_AREA_SX,
     ifDisable: ifDisableDrag,
+    getCustomContainer,
   });
 
   // 事件绑定
