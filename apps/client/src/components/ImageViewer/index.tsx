@@ -270,6 +270,8 @@ const ImageViewer = ({
     setDegree(resetDegree);
   }, [degree, handleResetOffsetAndScale, setDegree]);
 
+  const handleNext = useCallback(() => onNext?.(), [onNext]);
+
   return (
     <FixedModal
       visible={visible}
@@ -317,7 +319,7 @@ const ImageViewer = ({
           {/* 下一个 */}
           {isList && onNext && (
             <IconButton
-              onClick={onNext}
+              onClick={handleNext}
               disabled={lastDisabled}
             >
               <ArrowForwardRounded />
