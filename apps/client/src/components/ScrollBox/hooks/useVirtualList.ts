@@ -50,7 +50,7 @@ export interface VirtualListConfig {
   // 渲染子元素
   ChildItem: React.FC<Record<string, unknown> & VirtualListChildItemProps>;
   // 子元素的 key
-  getChildProps: (index: number) => { key: string; [key: string]: unknown };
+  getChildProps: (index: number) => { key: string | null; [key: string]: unknown };
   // 行包裹组件
   RowWrapperComponent?: React.FC<{ children: React.ReactNode }>;
 }

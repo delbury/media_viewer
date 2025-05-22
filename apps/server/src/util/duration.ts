@@ -84,7 +84,7 @@ export const attachVideoFilesDuration = async (
       }
 
       // 更新进度条
-      progressbar.goTo(index);
+      progressbar.goTo(index, true);
     };
     taskQueue.add(task);
   }

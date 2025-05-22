@@ -80,7 +80,9 @@ const DirectoryItemList = ({
           childHeight: DIRECTORY_ITEM_HEIGHT,
           ChildItem,
           getChildProps: (index: number) => ({
-            key: sortedItems[index]?.relativePath,
+            key: sortedItems[index]
+              ? `${sortedItems[index].basePathIndex}${sortedItems[index].relativePath}`
+              : null,
             sortedItems,
             onClick,
           }),

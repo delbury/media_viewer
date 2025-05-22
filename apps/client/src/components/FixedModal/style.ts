@@ -72,4 +72,8 @@ export const StyledFooterWrapper = styled(Box)`
   & .${iconButtonClasses.loadingIndicator} {
     color: ${({ theme }) => theme.palette.common.white};
   }
+
+  & .${svgIconClasses.root} {
+    font-size: 20px;
+  }
 `;

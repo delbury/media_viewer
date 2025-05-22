@@ -102,7 +102,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     // 隐藏部分按钮到更多中
     const showMore = isH5 && isVideo;
     const showSubtitle = !isH5 && isVideo;
-    const showSource = !isH5 && isVideo;
+    const showSource = isVideo;
     const showVolume = !isVideo || !isH5;
     const hasPlayMode = isList && !!onToggleRandom;
 
@@ -385,11 +385,13 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
                         subtitleOptions={subtitles}
                       />
 
-                      <SourceSetting
-                        isAuto={isRawSource}
-                        useSource={useSource}
-                        onUseSourceChange={onUseSourceChange}
-                      />
+                      {/* {showSource && (
+                        <SourceSetting
+                          isAuto={isRawSource}
+                          useSource={useSource}
+                          onUseSourceChange={onUseSourceChange}
+                        />
+                      )} */}
 
                       <VolumeSetting mediaRef={mediaRef} />
                     </StyledBtnsGroup>
