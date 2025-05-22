@@ -32,7 +32,7 @@ const HEADER_SLOT_BTN_SX: SxProps<Theme> = {
 
 export default function FileViewer() {
   // 更新 api
-  const { DirUpdateBtn, PosterClearBtn, ConfirmDialog } = useUpdateOperation({
+  const { DirUpdateBtn, PosterClearBtn } = useUpdateOperation({
     btnSx: HEADER_SLOT_BTN_SX,
   });
 
@@ -46,8 +46,6 @@ export default function FileViewer() {
           {PosterClearBtn}
         </StyledHeaderLinkGroup>
       </HeaderSlot>
-
-      {ConfirmDialog}
     </Box>
   );
 }

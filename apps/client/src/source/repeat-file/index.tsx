@@ -69,7 +69,7 @@ export default function RepeatFile() {
   }, [deleteTrigger, selectedSet]);
 
   // 操作确认
-  const { ConfirmDialog, openConfirmDialog } = useConfirmDialogByKeys({
+  const { openConfirmDialog } = useConfirmDialogByKeys({
     delete: {
       onOk: handleDelete,
       description: t('Tools.AreYouSureDeleteSelectedFiles'),
@@ -203,8 +203,6 @@ export default function RepeatFile() {
           isLoading={isLoading}
         />
       </StyledFileContentContainer>
-
-      {ConfirmDialog}
 
       {detailFile && (
         <FileDetailDialog

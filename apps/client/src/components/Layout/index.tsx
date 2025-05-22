@@ -3,6 +3,7 @@
 import { NOTIFICATION_Z_INDEX } from '#/style/constant';
 import { NotificationsProvider } from '@toolpad/core/useNotifications';
 import CancelAreaProvider from '../CancelAreaProvider';
+import ConfirmDialogProvider from '../ConfirmDialogProvider';
 import MediaViewerProvider from '../MediaViewerProvider';
 
 const Layout = ({
@@ -22,9 +23,11 @@ const Layout = ({
         },
       }}
     >
-      <CancelAreaProvider>
-        <MediaViewerProvider>{children}</MediaViewerProvider>
-      </CancelAreaProvider>
+      <ConfirmDialogProvider>
+        <CancelAreaProvider>
+          <MediaViewerProvider>{children}</MediaViewerProvider>
+        </CancelAreaProvider>
+      </ConfirmDialogProvider>
     </NotificationsProvider>
   );
 };

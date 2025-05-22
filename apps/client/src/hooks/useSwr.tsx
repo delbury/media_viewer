@@ -27,7 +27,6 @@ interface UseSwrReturnValue<T> {
   isLoading: boolean;
   isValidating: boolean;
   mutate: KeyedMutator<ApiResponseBase<T>>;
-  refresh: () => void;
 }
 
 const useSwr = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
@@ -89,7 +88,6 @@ const useSwr = <T extends ApiKeys, D = ApiResponseDataTypes<T>>(
     isLoading,
     isValidating,
     mutate,
-    refresh: useCallback(() => mutate(), [mutate]),
   };
 };
 

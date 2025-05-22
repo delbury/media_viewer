@@ -2,12 +2,15 @@ import { useFileTitle } from '#/hooks/useFileTitle';
 import { formatFileSize, getFilePosterUrl, stopPropagation } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { FILE_INFO_ID_FIELD } from '#pkgs/tools/common';
+import { DeleteForeverRounded } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { MouseEventHandler, RefObject, useCallback, useMemo } from 'react';
 import ScrollBox, { ScrollBoxInstance } from '../ScrollBox';
 import { VirtualListChildItemProps } from '../ScrollBox/hooks/useVirtualList';
 import {
   FILE_ITEM_ROW_HEIGHT,
+  StyleChildItemDelete,
   StyleChildItemDir,
   StyleChildItemImage,
   StyleChildItemInfo,
@@ -28,9 +31,12 @@ interface FileListPreviewerProps {
   scrollBoxRef?: RefObject<ScrollBoxInstance | null>;
   onItemClick?: (file: FileInfo, index: number) => void;
   onImgClick?: (file: FileInfo, index: number) => void;
+  // 删除
+  onItemDelete?: (file: FileInfo, index: number) => void;
   rowHeight?: number;
   // 额外信息组件
   RowExtraComp?: React.FC<{ file: FileInfo }>;
+
   isLoading?: boolean;
 }
 
@@ -48,6 +54,7 @@ const ChildItem = (props: ChildItemProps) => {
     onImgClick,
     rowHeight,
     RowExtraComp,
+    onItemDelete,
   } = props;
   const file = files?.[index] as FileInfo;
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
@@ -64,6 +71,14 @@ const ChildItem = (props: ChildItemProps) => {
       onImgClick?.(file, index);
     },
     [file, index, onImgClick]
+  );
+
+  const handleItemDelete = useCallback<MouseEventHandler<HTMLButtonElement>>(
+    ev => {
+      if (onItemDelete) stopPropagation(ev);
+      onItemDelete?.(file, index);
+    },
+    [file, index, onItemDelete]
   );
 
   return (
@@ -86,6 +101,7 @@ const ChildItem = (props: ChildItemProps) => {
             }}
           />
         </StyleChildItemImage>
+
         <StyleChildItemInfo>
           <StyleChildItemNameRow>
             <StyleChildItemName>{title}</StyleChildItemName>
@@ -94,6 +110,14 @@ const ChildItem = (props: ChildItemProps) => {
           <StyleChildItemDir>{secondaryTitle}</StyleChildItemDir>
           {RowExtraComp && <RowExtraComp file={file} />}
         </StyleChildItemInfo>
+
+        {onItemDelete && (
+          <StyleChildItemDelete>
+            <IconButton onClick={handleItemDelete}>
+              <DeleteForeverRounded fontSize="small" />
+            </IconButton>
+          </StyleChildItemDelete>
+        )}
       </StyledChildItemInner>
     </StyledChildItem>
   );
@@ -107,6 +131,7 @@ const FileListContent = ({
   scrollBoxRef,
   onItemClick,
   onImgClick,
+  onItemDelete,
   rowHeight,
   RowExtraComp,
   isLoading,
@@ -123,6 +148,7 @@ const FileListContent = ({
       isSibling,
       onItemClick,
       onImgClick,
+      onItemDelete,
       rowHeight,
       RowExtraComp,
     }),
@@ -133,6 +159,7 @@ const FileListContent = ({
       isSibling,
       onItemClick,
       onImgClick,
+      onItemDelete,
       rowHeight,
       RowExtraComp,
     ]

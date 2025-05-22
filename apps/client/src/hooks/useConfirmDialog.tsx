@@ -1,7 +1,5 @@
-import Dialog from '#/components/Dialog';
-import { useDialogState } from '#/hooks/useDialogState';
-import { useTranslations } from 'next-intl';
-import { useCallback, useMemo, useState } from 'react';
+import { ConfirmDialogContext } from '#/components/ConfirmDialogProvider/Context';
+import { useCallback, useContext, useState } from 'react';
 
 interface UseConfirmDialogParams {
   title?: string;
@@ -9,75 +7,55 @@ interface UseConfirmDialogParams {
   onOk?: () => unknown | Promise<unknown>;
 }
 
-export const useConfirmDialog = function ({
-  title,
-  description,
-  onOk,
-}: UseConfirmDialogParams = {}) {
-  const { visible, handleOpen, handleClose } = useDialogState();
-  const t = useTranslations();
+export const useConfirmDialog = ({ title, description, onOk }: UseConfirmDialogParams = {}) => {
+  const { openConfirmDialog, closeConfirmDialog } = useContext(ConfirmDialogContext);
 
-  const ConfirmDialog = useMemo(
-    () =>
-      visible && (
-        <Dialog
-          open={visible}
-          title={title ?? t('Common.AreYouSure')}
-          dialogProps={{
-            maxWidth: 'xs',
-          }}
-          onCancel={handleClose}
-          onOk={async () => {
-            await onOk?.();
-            handleClose();
-          }}
-          onClose={handleClose}
-        >
-          {description ?? t('Common.AreYouSureDoOperation')}
-        </Dialog>
-      ),
-    [visible, title, t, handleClose, description, onOk]
+  const handleOpen = useCallback(
+    (args?: UseConfirmDialogParams) => {
+      openConfirmDialog(
+        args ?? {
+          title,
+          description,
+          onOk,
+        }
+      );
+    },
+    [description, onOk, openConfirmDialog, title]
   );
 
   // 跳过确认选项
   const handleOpenSkipConfirm = useCallback(async () => {
     await onOk?.();
-    handleClose();
-  }, [handleClose, onOk]);
+    closeConfirmDialog();
+  }, [closeConfirmDialog, onOk]);
 
   return {
-    ConfirmDialog,
     openConfirmDialog: handleOpen,
-    closeConfirmDialog: handleClose,
+    closeConfirmDialog,
     openConfirmDialogSkipConfirm: handleOpenSkipConfirm,
   };
 };
 
 // 可以配置多个确认弹窗，通过 key 区分
-export const useConfirmDialogByKeys = <T extends string = string>(
-  params: Record<T, UseConfirmDialogParams>,
-  defaultKey?: T
+export const useConfirmDialogByKeys = <K extends string>(
+  params: Record<K, UseConfirmDialogParams>
 ) => {
-  const [currentKey, setCurrentKey] = useState<T | null>(null);
-  const currentParams = useMemo(() => {
-    if (currentKey) return params[currentKey];
-    if (defaultKey) return params[defaultKey];
-    return;
-  }, [params, currentKey, defaultKey]);
+  const [currentKey, setCurrentKey] = useState<K | null>(null);
 
-  const { ConfirmDialog, openConfirmDialog, openConfirmDialogSkipConfirm, closeConfirmDialog } =
-    useConfirmDialog(currentParams);
+  const { openConfirmDialog, openConfirmDialogSkipConfirm, closeConfirmDialog } = useConfirmDialog(
+    currentKey ? params[currentKey] : void 0
+  );
 
   const handleOpenWrapped = useCallback(
-    (key: T) => {
+    (key: K) => {
       setCurrentKey(key);
-      openConfirmDialog();
+      openConfirmDialog(params[key]);
     },
-    [openConfirmDialog]
+    [openConfirmDialog, params]
   );
 
   const handleOpenSkipConfirmWrapped = useCallback(
-    (key: T) => {
+    (key: K) => {
       setCurrentKey(key);
       openConfirmDialogSkipConfirm();
     },
@@ -85,7 +63,6 @@ export const useConfirmDialogByKeys = <T extends string = string>(
   );
 
   return {
-    ConfirmDialog,
     openConfirmDialog: handleOpenWrapped,
     openConfirmDialogSkipConfirm: handleOpenSkipConfirmWrapped,
     closeConfirmDialog,

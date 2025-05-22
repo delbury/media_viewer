@@ -37,7 +37,7 @@ export const useUpdateOperation = ({ btnSx }: UseUpdateOperationParams = {}) => 
   });
 
   // 二次确认是否刷新
-  const { ConfirmDialog, openConfirmDialog, currentKey } = useConfirmDialogByKeys({
+  const { openConfirmDialog, currentKey } = useConfirmDialogByKeys({
     dirUpdate: {
       onOk: updateRequest.trigger,
       description: t('Tools.AreYouSureReGenerateDirectoryInfo'),
@@ -75,6 +75,5 @@ export const useUpdateOperation = ({ btnSx }: UseUpdateOperationParams = {}) => 
   return {
     DirUpdateBtn,
     PosterClearBtn,
-    ConfirmDialog,
   };
 };

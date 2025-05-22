@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { badgeClasses, Box } from '@mui/material';
+import { badgeClasses, Box, iconButtonClasses } from '@mui/material';
 
 export const FILE_ITEM_ROW_HEIGHT = 48;
 
@@ -54,6 +54,13 @@ export const StyleChildItemInfo = styled(Box)`
   flex-direction: column;
   gap: 4px;
   justify-content: center;
+`;
+
+// 删除按钮容器
+export const StyleChildItemDelete = styled(Box)`
+  & .${iconButtonClasses.root} {
+    padding: 2px;
+  }
 `;
 
 export const StyleChildItemDir = styled(Box)`
