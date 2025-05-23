@@ -9,6 +9,7 @@ const ApiResponseDataTypeMapObj = {
   posterClear: {} as ApiFilePosterClearParams,
   fileDelete: {} as ApiFileDeleteParams,
   mediaDislikeSet: {} as ApiMediaDislikeSetParams,
+  mediaDislikeClear: {} as ApiMediaDislikeClearParams,
 } satisfies Partial<Record<ApiKeys, unknown>>;
 
 type ApiResponseDataTypeMap = typeof ApiResponseDataTypeMapObj;
@@ -32,4 +33,9 @@ interface ApiMediaDislikeSetParams {
   basePathIndex: number;
   relativePath: string;
   dislike?: boolean;
+}
+
+interface ApiMediaDislikeClearParams {
+  list?: { basePathIndex: number; relativePath: string }[];
+  clearAll?: boolean;
 }

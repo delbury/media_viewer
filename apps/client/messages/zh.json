@@ -21,7 +21,8 @@
     "AreYouSureDeleteSelectedFiles": "确定删除已选择的文件？",
     "ExistRepeatItem": "存在重复",
     "AreYouSureRemoveTheFile": "确定移除该文件？",
-    "AreYouSureRemoveTheDir": "确定移除该文件夹？"
+    "AreYouSureRemoveTheDir": "确定移除该文件夹？",
+    "AreYouSureRemoveAll": "确定清空所有文件？"
   },
   "Common": {
     "AreYouSure": "确定？",

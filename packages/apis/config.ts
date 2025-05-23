@@ -76,6 +76,10 @@ export const API_CONFIGS = {
     url: '/media/dislike/list',
     method: 'get',
   },
+  mediaDislikeClear: {
+    url: '/media/dislike/clear',
+    method: 'post',
+  },
 } satisfies Record<string, ApiConfig>;
 
 export type ApiKeys = keyof typeof API_CONFIGS;

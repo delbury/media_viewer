@@ -101,4 +101,26 @@ mediaRouter[API_CONFIGS.mediaDislikeList.method](API_CONFIGS.mediaDislikeList.ur
   ctx.body = returnBody<ApiResponseDataTypes<'mediaDislikeList'>>({ list });
 });
 
+// 批量清除不喜欢列表
+mediaRouter[API_CONFIGS.mediaDislikeClear.method](API_CONFIGS.mediaDislikeClear.url, async ctx => {
+  const { list, clearAll } = ctx.request.body as ApiRequestDataTypes<'mediaDislikeClear'>;
+
+  if (clearAll) {
+    // 全部清除
+    dislikeListTask.setCache([]);
+    await dislikeListTask.saveCache();
+  } else if (list?.length) {
+    // 批量移除
+    const cachedList = await dislikeListTask.getCache();
+    const removeKeySet = new Set(list.map(it => `${it.basePathIndex}${it.relativePath}`));
+    const newList = cachedList?.filter(
+      it => !removeKeySet.has(`${it.basePathIndex}${it.relativePath}`)
+    );
+    dislikeListTask.setCache(newList ?? []);
+    await dislikeListTask.saveCache();
+  }
+
+  ctx.body = returnBody();
+});
+
 export { mediaRouter };

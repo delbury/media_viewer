@@ -2,7 +2,7 @@
 
 import { HEADER_HEIGHT } from '#/style/constant';
 import styled from '@emotion/styled';
-import { Box } from '@mui/material';
+import { Box, svgIconClasses } from '@mui/material';
 
 export const StyledHeaderWrapper = styled(Box)`
   display: flex;
@@ -20,7 +20,7 @@ export const StyledHeaderLinkGroup = styled(Box)`
   align-items: center;
   font-size: 0;
 
-  svg {
+  & .${svgIconClasses.root} {
     font-size: 24px;
     color: var(--color-text-light);
   }

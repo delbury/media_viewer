@@ -25,6 +25,7 @@ const DislikeList = () => {
   const [selectedDir, setSelectedDir] = useState<string | null>(null);
   const listRequest = useSwr('mediaDislikeList');
   const { trigger: removeDislike } = useSwrMutation('mediaDislikeSet');
+  const { trigger: clearDislike } = useSwrMutation('mediaDislikeClear');
   const t = useTranslations();
 
   const selectedFileSet = useMemo(() => {
@@ -85,14 +86,39 @@ const DislikeList = () => {
   }, []);
 
   // 移除文件夹以及相同文件夹的文件
-  const handleDirDelete = useCallback((dir: string) => {
-    // console.log(dir);
-  }, []);
+  const handleDirDelete = useCallback(
+    (dir: string) => {
+      openConfirmDialog({
+        description: t('Tools.AreYouSureRemoveTheDir'),
+        onOk: async () => {
+          if (!listRequest.data?.list.length) return;
+          await clearDislike({
+            data: {
+              list: listRequest.data.list
+                .filter(it => it.showDir === dir)
+                .map(it => ({
+                  basePathIndex: it.basePathIndex as number,
+                  relativePath: it.relativePath,
+                })),
+            },
+          });
+          await listRequest.mutate();
+        },
+      });
+    },
+    [clearDislike, listRequest, openConfirmDialog, t]
+  );
 
-  // removeDir: {
-  //   onOk: ,
-  //   description: t('Tools.AreYouSureRemoveTheDir'),
-  // },
+  // 移除所有
+  const handleClear = useCallback(() => {
+    openConfirmDialog({
+      description: t('Tools.AreYouSureRemoveAll'),
+      onOk: async () => {
+        await clearDislike({ data: { clearAll: true } });
+        await listRequest.mutate();
+      },
+    });
+  }, [clearDislike, listRequest, openConfirmDialog, t]);
 
   return (
     <StyledDislikeListWrapper>
@@ -130,7 +156,7 @@ const DislikeList = () => {
       <HeaderSlot>
         <IconButton
           // loading={}
-          // onClick={}
+          onClick={handleClear}
           sx={HEADER_SLOT_BTN_SX}
         >
           <CleaningServicesOutlined />

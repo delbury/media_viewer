@@ -16,7 +16,7 @@ export default function Header() {
         </Link>
       </StyledHeaderLinkGroup>
 
-      <div id={HEADER_RIGHT_SLOT_ID} />
+      <StyledHeaderLinkGroup id={HEADER_RIGHT_SLOT_ID} />
     </StyledHeaderWrapper>
   );
 }
