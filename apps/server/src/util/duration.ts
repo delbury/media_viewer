@@ -2,7 +2,7 @@ import { execCommand } from '#pkgs/tools/cli';
 import {
   createAsyncTaskQueue,
   createTimer,
-  FILE_INFO_ID_FIELD,
+  INFO_ID_FIELD,
   logBaseWarn,
   logError,
   logInfo,
@@ -47,7 +47,7 @@ export const attachVideoFilesDuration = async (
     // 过滤非视频文件
     if (fileInfos[i].fileType !== 'video') continue;
 
-    const cacheKey = fileInfos[i][FILE_INFO_ID_FIELD];
+    const cacheKey = fileInfos[i][INFO_ID_FIELD];
 
     // 取缓存
     const cachedDuration = cacheMap[cacheKey];

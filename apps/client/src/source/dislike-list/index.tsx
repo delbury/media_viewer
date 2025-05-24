@@ -7,7 +7,7 @@ import ScrollBox from '#/components/ScrollBox';
 import { useConfirmDialog } from '#/hooks/useConfirmDialog';
 import { useSwr, useSwrMutation } from '#/hooks/useSwr';
 import { FileInfo } from '#pkgs/apis';
-import { FILE_INFO_ID_FIELD } from '#pkgs/tools/common';
+import { INFO_ID_FIELD } from '#pkgs/tools/common';
 import { CleaningServicesOutlined } from '@mui/icons-material';
 import { Chip, IconButton, SxProps, Theme } from '@mui/material';
 import { isNil } from 'lodash-es';
@@ -32,7 +32,7 @@ const DislikeList = () => {
     const set = new Set<string>();
     listRequest.data?.list.forEach(it => {
       if (it.showDir === selectedDir) {
-        set.add(it[FILE_INFO_ID_FIELD]);
+        set.add(it[INFO_ID_FIELD]);
       }
     });
     return set;

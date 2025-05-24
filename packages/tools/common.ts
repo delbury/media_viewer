@@ -2,12 +2,16 @@
 
 import chalk from 'chalk';
 import { escapeRegExp, noop } from 'lodash-es';
-import { DirectoryInfo, FileInfo } from '../../apps/server/src/util/traverseDirectories';
+import {
+  CommonInfo,
+  DirectoryInfo,
+  FileInfo,
+} from '../../apps/server/src/util/traverseDirectories';
 import { FullFileType, MediaFileType } from '../shared';
 import { AUDIO_REG, IMAGE_REG, TEXT_REG, VIDEO_REG } from './constant';
 
-// 文件信息的 id 字段
-export const FILE_INFO_ID_FIELD: Extract<keyof FileInfo, 'showPath'> = 'showPath';
+// 文件/文件夹信息的 id 字段
+export const INFO_ID_FIELD: Extract<keyof CommonInfo, 'showPath'> = 'showPath';
 
 // 有缩略图的文件类型
 export const ALLOWED_POSTER_FILE_TYPES: FullFileType[] = ['image', 'audio', 'video'];
@@ -192,4 +196,28 @@ export const getAllFiles = (type: MediaFileType, dir: DirectoryInfo, list: FileI
     getAllFiles(type, child, list);
   }
   return list;
+};
+
+// 获取文件夹下的所有媒体文件并分组
+export const getAllMediaFileGroup = (
+  dir: DirectoryInfo,
+  lists: Record<MediaFileType, FileInfo[]> = {
+    audio: [],
+    image: [],
+    video: [],
+  },
+  parentMap: Record<string, DirectoryInfo> = {}
+) => {
+  dir.files.forEach(f => {
+    if (!(f.fileType in lists)) return;
+    lists[f.fileType as MediaFileType].push(f);
+    parentMap[f[INFO_ID_FIELD]] = dir;
+  });
+  for (const child of dir.children) {
+    getAllMediaFileGroup(child, lists, parentMap);
+  }
+  return {
+    lists,
+    parentMap,
+  };
 };

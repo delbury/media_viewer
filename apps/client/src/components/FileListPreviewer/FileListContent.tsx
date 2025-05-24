@@ -1,7 +1,7 @@
 import { useFileTitle } from '#/hooks/useFileTitle';
 import { formatFileSize, getFilePosterUrl, stopPropagation } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
-import { FILE_INFO_ID_FIELD } from '#pkgs/tools/common';
+import { INFO_ID_FIELD } from '#pkgs/tools/common';
 import { DeleteForeverRounded } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
@@ -61,7 +61,7 @@ const ChildItem = (props: ChildItemProps) => {
   const handleItemClick = useCallback(() => onItemClick?.(file, index), [file, index, onItemClick]);
   const { title, secondaryTitle } = useFileTitle({ file });
 
-  const activated = index === selectedIndex || selectedIdSet?.has(file[FILE_INFO_ID_FIELD]);
+  const activated = index === selectedIndex || selectedIdSet?.has(file[INFO_ID_FIELD]);
   const isSelectedFileSibling = isSibling?.(files ?? [], index, selectedIndex);
   const size = useMemo(() => formatFileSize(file.size), [file]);
 
@@ -141,7 +141,7 @@ const FileListContent = ({
 
   const getChildProps = useCallback(
     (index: number) => ({
-      key: files?.[index]?.[FILE_INFO_ID_FIELD] ?? '',
+      key: files?.[index]?.[INFO_ID_FIELD] ?? '',
       files,
       selectedIndex,
       selectedIdSet,

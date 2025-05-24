@@ -9,7 +9,7 @@ import { FileListContent } from '#/components/FileListPreviewer';
 import { useConfirmDialogByKeys } from '#/hooks/useConfirmDialog';
 import { useSwrMutation } from '#/hooks/useSwr';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
-import { FILE_INFO_ID_FIELD, getAllFiles } from '#pkgs/tools/common';
+import { INFO_ID_FIELD, getAllFiles } from '#pkgs/tools/common';
 import { DeleteForeverRounded } from '@mui/icons-material';
 import { Box, IconButton } from '@mui/material';
 import { useTranslations } from 'next-intl';
@@ -59,7 +59,7 @@ export default function RepeatFile() {
     });
     // 乐观更新本地列表
     setFiles(files => {
-      const newFiles = files.filter(f => !fileMap.current[f[FILE_INFO_ID_FIELD]]);
+      const newFiles = files.filter(f => !fileMap.current[f[INFO_ID_FIELD]]);
       fileMap.current = {};
       return newFiles;
     });
@@ -87,7 +87,7 @@ export default function RepeatFile() {
 
   // 过滤
   const selectedItems = useMemo(() => {
-    return sortedItems.filter(it => selectedSet.has(it[FILE_INFO_ID_FIELD]));
+    return sortedItems.filter(it => selectedSet.has(it[INFO_ID_FIELD]));
   }, [selectedSet, sortedItems]);
 
   // 只展示存在相同值的项
@@ -120,7 +120,7 @@ export default function RepeatFile() {
 
   const handleItemClick = useCallback((file: FileInfo) => {
     setSelectedSet(set => {
-      const id = file[FILE_INFO_ID_FIELD];
+      const id = file[INFO_ID_FIELD];
       if (set.has(id)) {
         set.delete(id);
         Reflect.deleteProperty(fileMap.current, id);

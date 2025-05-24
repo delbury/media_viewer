@@ -1,6 +1,12 @@
 import Link from '#/components/Link';
 import { TFunction } from '#/types/i18n';
 import { Theme } from '@emotion/react';
+import {
+  CalculateRounded,
+  ScheduleRounded,
+  ThumbDownAltRounded,
+  TopicRounded,
+} from '@mui/icons-material';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import { Box, Card, CardActionArea, CardActions, CardHeader, SxProps } from '@mui/material';
 import { useTranslations } from 'next-intl';
@@ -14,16 +20,24 @@ const WrapperSx: SxProps<Theme> = {
 
 const getTools = (t: TFunction) => [
   {
+    title: t('Tools.RecentFiles'),
+    path: '/tools/recent-file',
+    icon: <ScheduleRounded />,
+  },
+  {
     title: t('Tools.FileViewer'),
     path: '/tools/file-viewer',
+    icon: <TopicRounded />,
   },
   {
     title: t('Tools.RepeatFileAnalyzer'),
     path: '/tools/repeat-file',
+    icon: <CalculateRounded />,
   },
   {
     title: t('Tools.DislikeFileList'),
     path: '/tools/dislike-list',
+    icon: <ThumbDownAltRounded />,
   },
 ];
 
@@ -49,7 +63,10 @@ export default function Tools() {
                 },
               }}
             >
-              <CardHeader title={tool.title} />
+              <CardHeader
+                title={tool.title}
+                avatar={tool.icon}
+              />
               <CardActions>
                 <OpenInNewOutlinedIcon />
               </CardActions>

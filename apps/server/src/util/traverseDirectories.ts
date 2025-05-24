@@ -16,7 +16,7 @@ import { Stats } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 
-interface CommonInfo {
+export interface CommonInfo {
   // 文件根路径
   basePath?: string;
   // 文件根路径在根目录中的索引

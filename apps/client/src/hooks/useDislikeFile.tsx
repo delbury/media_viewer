@@ -1,5 +1,5 @@
 import { FileInfo } from '#pkgs/apis';
-import { FILE_INFO_ID_FIELD } from '#pkgs/tools/common';
+import { INFO_ID_FIELD } from '#pkgs/tools/common';
 import { isNil } from 'lodash-es';
 import { useCallback, useEffect, useState } from 'react';
 import { useIdleCallback } from './useIdleCallback';
@@ -46,9 +46,7 @@ export const useDislikeFile = ({ file }: UseDislikeFileParams) => {
 
       if (v) {
         // 移除
-        const index = MEMORY_CACHE.list?.findIndex(
-          it => it[FILE_INFO_ID_FIELD] === file[FILE_INFO_ID_FIELD]
-        );
+        const index = MEMORY_CACHE.list?.findIndex(it => it[INFO_ID_FIELD] === file[INFO_ID_FIELD]);
         if (!isNil(index) && index > -1) MEMORY_CACHE.list?.splice(index, 1);
       } else {
         // 添加
@@ -63,7 +61,7 @@ export const useDislikeFile = ({ file }: UseDislikeFileParams) => {
   // 设置初始值
   useEffect(() => {
     if (!file || !MEMORY_CACHE.list) return setDislike(false);
-    setDislike(MEMORY_CACHE.list.some(it => it[FILE_INFO_ID_FIELD] === file[FILE_INFO_ID_FIELD]));
+    setDislike(MEMORY_CACHE.list.some(it => it[INFO_ID_FIELD] === file[INFO_ID_FIELD]));
   }, [file]);
 
   return {

@@ -7,7 +7,8 @@ export const StyledListItem = styled(ListItem)`
 `;
 
 export const StyledListItemButton = styled(ListItemButton)`
-  padding: 0;
+  padding: 0 4px;
+  border-radius: 4px;
 `;
 
 export const StyledSubIcon = styled(Box)`
