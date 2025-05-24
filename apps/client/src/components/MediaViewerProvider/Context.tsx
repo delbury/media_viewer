@@ -8,6 +8,7 @@ import { createContext } from 'react';
 export const INIT_VALUE: MediaContextState = {
   dir: void 0,
   file: void 0,
+  list: void 0,
   mediaType: void 0,
 };
 
@@ -15,6 +16,7 @@ export interface MediaContextState {
   mediaType?: MediaFileType;
   file?: FileInfo;
   dir?: DirectoryInfo;
+  list?: FileInfo[];
 }
 
 interface MediaContextValue {

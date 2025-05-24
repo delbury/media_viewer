@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 interface UseFileOrDirectoryParams {
   file?: FileInfo;
   dir?: DirectoryInfo;
+  list?: FileInfo[];
   mediaType?: MediaFileType;
   defaultRandom?: boolean;
 }
@@ -14,6 +15,7 @@ interface UseFileOrDirectoryParams {
 export const useFileOrDirectory = ({
   file,
   dir,
+  list,
   mediaType,
   defaultRandom = true,
 }: UseFileOrDirectoryParams) => {
@@ -38,27 +40,29 @@ export const useFileOrDirectory = ({
 
   // 文件列表
   useEffect(() => {
-    let list: FileInfo[] = [];
+    let fileList: FileInfo[] = [];
     if (mediaType) {
-      if (dir) {
-        list = getAllFiles(mediaType, dir);
+      if (list?.length) {
+        fileList = list;
+      } else if (dir) {
+        fileList = getAllFiles(mediaType, dir);
       } else if (file) {
-        list = [file];
+        fileList = [file];
       }
     }
     randomToPlayIndexes.current.clear();
     randomPlayedIndexes.current.clear();
     if (defaultRandom) {
-      const startIndex = getRandomIndex(list.length);
+      const startIndex = getRandomIndex(fileList.length);
       setCurrentFileIndex(startIndex);
-      const newSet = new Set(Array.from({ length: list.length }, (_, k) => k));
+      const newSet = new Set(Array.from({ length: fileList.length }, (_, k) => k));
       newSet.delete(startIndex);
       randomToPlayIndexes.current = newSet;
     } else {
       setCurrentFileIndex(0);
     }
-    setFileList(list);
-  }, [dir, file, mediaType]);
+    setFileList(fileList);
+  }, [dir, file, list, mediaType]);
 
   // 上一个
   const handlePrev = useCallback(() => {

@@ -17,10 +17,10 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
 
   const show = useMemo(() => {
     const flags: Partial<Record<NonNullable<MediaContextState['mediaType']>, boolean>> = {};
-    if (!state.file && !state.dir) return flags;
+    if (!state.file && !state.dir && !state.list?.length) return flags;
     if (state.mediaType) flags[state.mediaType] = true;
     return flags;
-  }, [state.dir, state.file, state.mediaType]);
+  }, [state.dir, state.file, state.list, state.mediaType]);
 
   const {
     fileList,
@@ -36,6 +36,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
   } = useFileOrDirectory({
     file: state.file,
     dir: state.dir,
+    list: state.list,
     mediaType: state.mediaType,
   });
   const [detailVisible, setDetailVisible] = useState(false);
@@ -49,6 +50,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     [goNextFile, state]
   );
 
+  // 用于拦截浏览器返回上一个历史记录
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (!show.audio && !show.image && !show.video) {

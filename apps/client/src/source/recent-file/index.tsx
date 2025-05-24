@@ -4,6 +4,7 @@ import ToolGroupBtn from '#/components/DirectoryPicker/components/ToolGroupBtn';
 import { FILE_FILTER_OPTIONS } from '#/components/DirectoryPicker/constant';
 import ScrollBox from '#/components/ScrollBox';
 import { formatParentDir } from '#/hooks/useFileTitle';
+import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { useSwr } from '#/hooks/useSwr';
 import { formatDate, getFilePosterUrl } from '#/utils';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
@@ -12,7 +13,7 @@ import { INFO_ID_FIELD, getAllMediaFileGroup } from '#pkgs/tools/common';
 import { Theme } from '@emotion/react';
 import { SubscriptionsRounded } from '@mui/icons-material';
 import { Divider, IconButton, ListItemAvatar, SxProps } from '@mui/material';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   StyledCardHeader,
   StyledContainer,
@@ -109,6 +110,23 @@ export default function RecentFile() {
     }
   }, [audioList, filterFileType, imageList, videoList]);
 
+  // 打开媒体浏览器
+  const { openMediaViewer } = useMediaViewerContext();
+
+  const handleFileClick = useCallback(
+    (file: FileInfo) => {
+      openMediaViewer({ file, mediaType: filterFileType });
+    },
+    [filterFileType, openMediaViewer]
+  );
+
+  const handleDirClick = useCallback(
+    (list: FileInfo[]) => {
+      openMediaViewer({ list, mediaType: filterFileType });
+    },
+    [filterFileType, openMediaViewer]
+  );
+
   return (
     <StyledRecentFileWrapper>
       <StyledToolsRow>
@@ -139,6 +157,7 @@ export default function RecentFile() {
                     <SubscriptionsRounded />
                   </IconButton>
                 }
+                onClick={() => handleDirClick(files)}
               />
               <StyledList>
                 {files.map(file => {
@@ -146,7 +165,7 @@ export default function RecentFile() {
                   const posterUrl = getFilePosterUrl(file);
                   return (
                     <React.Fragment key={file[INFO_ID_FIELD]}>
-                      <StyledListItem>
+                      <StyledListItem onClick={() => handleFileClick(file)}>
                         <ListItemAvatar>
                           <StyledImgContainer>
                             <img
