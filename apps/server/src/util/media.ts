@@ -230,7 +230,9 @@ export const transformVideoStream = async (
   ];
 
   // 创建进程
-  const ffmpegProcess = spawn('ffmpeg', args);
+  const ffmpegProcess = spawn('ffmpeg', args, {
+    windowsHide: true,
+  });
 
   // 保存进程信息
   setProcess(ffmpegProcess, hash);

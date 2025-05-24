@@ -37,7 +37,9 @@ export const transformSubtitleToVtt = async (ctx: ParameterizedContext, filePath
     ];
 
     const promise = new Promise<string>((resolve, reject) => {
-      const progress = spawn('ffmpeg', args);
+      const progress = spawn('ffmpeg', args, {
+        windowsHide: true,
+      });
       let tempData = '';
 
       // 监听 stdout 数据

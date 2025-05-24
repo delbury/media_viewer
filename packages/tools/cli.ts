@@ -16,13 +16,20 @@ export const execCommand = (
     stdout: string | Buffer<ArrayBufferLike>;
     stderr: string | Buffer<ArrayBufferLike>;
   }>((resolve, reject) => {
-    exec(command, options, (error, stdout, stderr) => {
-      // 错误处理
-      if (error) {
-        if (!options?.quitWhenError) logError(error);
-        reject(new Error(ERROR_MSG.commandError));
+    exec(
+      command,
+      {
+        windowsHide: true,
+        ...options,
+      },
+      (error, stdout, stderr) => {
+        // 错误处理
+        if (error) {
+          if (!options?.quitWhenError) logError(error);
+          reject(new Error(ERROR_MSG.commandError));
+        }
+        resolve({ stdout, stderr });
       }
-      resolve({ stdout, stderr });
-    });
+    );
   });
 };

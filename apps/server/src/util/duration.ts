@@ -131,7 +131,8 @@ export const createShellPool = () => {
     {
       create: async () => {
         const ps = spawn('powershell.exe', ['-NoLogo', '-NonInteractive', '-Command', '-'], {
-          // shell: true,
+          shell: true,
+          windowsHide: true,
           stdio: ['pipe', 'pipe', 'pipe'],
           env: {
             ...process.env, // 继承当前环境变量

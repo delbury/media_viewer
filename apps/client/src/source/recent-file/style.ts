@@ -33,7 +33,7 @@ export const StyledCardHeader = styled(CardHeader)`
   background-color: ${({ theme }) => theme.palette.grey[600]};
   cursor: pointer;
 
-  * {
+  && * {
     color: ${({ theme }) => theme.palette.common.white};
   }
 
