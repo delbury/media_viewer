@@ -9,7 +9,7 @@ const PORT = process.env.API_PORT || 4002;
 const nextConfig: NextConfig = {
   /* config options here */
   basePath: '',
-  distDir: 'dist',
+  distDir: process.env.NODE_ENV === 'production' ? 'dist' : '.next',
   async rewrites() {
     return [
       {
