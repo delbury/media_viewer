@@ -10,8 +10,9 @@ export const StyledContentContainer = styled(Box)`
 export const StyledFileDetailWrapper = styled(Box)`
   display: grid;
   grid-template-columns: minmax(6em, 2fr) 5fr;
-  column-gap: 1em;
+  column-gap: 8px;
   row-gap: 4px;
+  font-size: 0.875rem;
 `;
 
 export const StyledFileDetailLabel = styled(Box)`
@@ -31,7 +32,7 @@ export const StyledFileDetailValue = styled(Box)`
 
 export const StyledFilePosterWrapper = styled(Box)`
   position: relative;
-  margin-top: 24px;
+  margin-top: 16px;
   width: 100%;
   padding-top: ${DEFAULT_RATIO * 100}%;
 `;
@@ -63,6 +64,7 @@ export const StyledJsonContainer = styled(Box)`
   background-color: ${({ theme }) => theme.palette.common.black};
   color: ${({ theme }) => theme.palette.common.white};
   scrollbar-width: thin;
+  font-size: 0.75rem;
 `;
 
 export const StyledPathItem = styled('span')`

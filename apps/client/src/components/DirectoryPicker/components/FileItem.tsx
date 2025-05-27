@@ -1,6 +1,6 @@
 import PosterImage from '#/components/PosterImage';
 import { LazyLoadObserve } from '#/hooks/useLazyLoad';
-import { formatFileSize } from '#/utils';
+import { formatFileSize, formatTime } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { SxProps, Theme } from '@mui/material';
 import { useTranslations } from 'next-intl';
@@ -9,8 +9,8 @@ import {
   StyledFileCardWrapper,
   StyledFileCoverWrapper,
   StyledFileMoreInfo,
-  StyledFileMoreInfoExt,
-  StyledFileMoreInfoSize,
+  StyledFileMoreInfoMain,
+  StyledFileMoreInfoSecondary,
   StyledFileName,
   StyledFileTitle,
 } from '../style/file-item';
@@ -39,10 +39,13 @@ const FileItem = ({ file, onTitleClick, sx, refBindCallback }: FileItemProps) =>
         <StyledFileName>{file.name}</StyledFileName>
 
         <StyledFileMoreInfo>
-          <StyledFileMoreInfoExt variant="body2">{file.nameExt || t('-')}</StyledFileMoreInfoExt>
-          <StyledFileMoreInfoSize variant="body2">
+          <StyledFileMoreInfoMain variant="body2">{file.nameExt || t('-')}</StyledFileMoreInfoMain>
+          <StyledFileMoreInfoSecondary variant="body2">
             {formatFileSize(file.size)}
-          </StyledFileMoreInfoSize>
+          </StyledFileMoreInfoSecondary>
+          <StyledFileMoreInfoSecondary variant="body2">
+            {formatTime(file.duration)}
+          </StyledFileMoreInfoSecondary>
         </StyledFileMoreInfo>
       </StyledFileTitle>
 

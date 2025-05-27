@@ -16,7 +16,7 @@ export const StyledFileMoreInfo = styled(Box)`
   flex-direction: column;
   align-items: flex-end;
 `;
-export const StyledFileMoreInfoExt = styled(Typography)`
+export const StyledFileMoreInfoMain = styled(Typography)`
   line-height: 1.2;
   font-size: 0.8rem;
   text-transform: uppercase;
@@ -25,21 +25,15 @@ export const StyledFileMoreInfoExt = styled(Typography)`
     font-size: 0.5rem;
   }
 `;
-export const StyledFileMoreInfoSize = styled(StyledFileMoreInfoExt)`
-  line-height: 1.2;
-  font-size: 0.8rem;
+export const StyledFileMoreInfoSecondary = styled(StyledFileMoreInfoMain)`
   color: ${({ theme }) => theme.palette.text.secondary};
-
-  @media ${h5Max} {
-    font-size: 0.5rem;
-  }
 `;
 export const StyledFileName = styled(Box)`
   display: -webkit-box;
   text-overflow: ellipsis;
   overflow: hidden;
   word-break: break-all;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   line-height: 1.2;
   font-size: 0.8rem;
@@ -53,7 +47,7 @@ export const StyledFileTitle = styled(Box)`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  column-gap: 0.2rem;
+  column-gap: 4px;
   cursor: pointer;
   &:hover * {
     color: ${({ theme }) => theme.palette.primary.main};

@@ -100,6 +100,7 @@ const TooltipSetting = forwardRef<TooltipSettingInstance, TooltipSettingProps>(
             popper: {
               container: wrapperRef.current,
               modifiers: TOOLTIP_MODIFIERS,
+              keepMounted: true,
             },
           }}
           open={innerOpen}

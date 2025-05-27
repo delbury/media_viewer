@@ -1,7 +1,7 @@
 import Dialog from '#/components/Dialog';
 import PosterImage from '#/components/PosterImage';
 import { useSwr } from '#/hooks/useSwr';
-import { formatDate, formatFileSize } from '#/utils';
+import { formatDate, formatFileSize, formatTime } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { isMediaFile, splitPath } from '#pkgs/tools/common';
 import { LoopOutlined } from '@mui/icons-material';
@@ -85,6 +85,7 @@ const FileDetailDialog = ({
       { label: t('File.Path'), value: renderPathInfo(file, onPathClick) },
       { label: t('File.Type'), value: t(FULL_FILE_FILTER_MAP[file.fileType]) },
       { label: t('File.Size'), value: formatFileSize(file.size) },
+      { label: t('File.Duration'), value: formatTime(file.duration) },
       { label: t('File.Created'), value: formatDate(file.created) },
       { label: t('File.Updated'), value: formatDate(file.updated) },
     ];

@@ -2,11 +2,9 @@ import { useShortcut } from '#/hooks/useShortcut';
 import { h5Max } from '#/style/device';
 import { FileInfo } from '#pkgs/apis';
 import {
-  FormatListNumberedRtlRounded,
   MoreVertRounded,
   PauseRounded,
   PlayArrowRounded,
-  ShuffleRounded,
   SkipNextRounded,
   SkipPreviousRounded,
 } from '@mui/icons-material';
@@ -25,7 +23,9 @@ import TooltipSetting from '../TooltipSetting';
 import AlertInfo from './components/AlertInfo';
 import DislikeSetting from './components/DislikeSetting';
 import FullscreenSetting from './components/FullscreenSetting';
+import LoopSetting from './components/LoopSetting';
 import { MediaProgress } from './components/MediaProgress';
+import ModeSetting from './components/ModeSetting';
 import ProgressInfo from './components/ProgressInfo';
 import RateSetting from './components/RateSetting';
 import RotateSetting from './components/RotateSetting';
@@ -87,6 +87,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [isWaiting, setIsWaiting] = useState(false);
     const [videoDuration, setVideoDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
+    const [loopTimes, setLoopTimes] = useState(1);
 
     const isPausedInstant = useRef(true);
     useEffect(() => {
@@ -104,6 +105,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const showSubtitle = !isH5 && isVideo;
     const showSource = isVideo;
     const showVolume = !isVideo || !isH5;
+    const showLoop = !isH5;
     const hasPlayMode = isList && !!onToggleRandom;
 
     const [moreOpen, setMoreOpen] = useState(false);
@@ -253,13 +255,13 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       if (!elm) return;
       // 播放结束事件
       const endController = bindEvent(elm, 'ended', () => {
-        if (!lastDisabled && isList) handleNextAndPlay?.();
+        if (!lastDisabled && isList && loopTimes === 1) handleNextAndPlay?.();
       });
 
       return () => {
         endController.abort();
       };
-    }, [handleNext, handleNextAndPlay, isList, lastDisabled, mediaRef, onNext]);
+    }, [handleNext, handleNextAndPlay, isList, lastDisabled, loopTimes, mediaRef, onNext]);
 
     // 实例方法
     useImperativeHandle(
@@ -293,6 +295,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
           <ProgressInfo
             currentTime={currentTime}
             videoDuration={videoDuration}
+            loopTimes={loopTimes}
           />
 
           <StyledBtnsContainer>
@@ -302,9 +305,10 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
               {/* 播放模式 */}
               {hasPlayMode && !isH5 && (
-                <IconButton onClick={onToggleRandom}>
-                  {isRandomPlay ? <ShuffleRounded /> : <FormatListNumberedRtlRounded />}
-                </IconButton>
+                <ModeSetting
+                  isRandomPlay={isRandomPlay}
+                  onClick={onToggleRandom}
+                />
               )}
 
               {/* 倍速 */}
@@ -345,6 +349,15 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
             </StyledBtnsGroup>
 
             <StyledBtnsGroup>
+              {/* 循环 */}
+              {showLoop && (
+                <LoopSetting
+                  mediaRef={mediaRef}
+                  onTimesChange={setLoopTimes}
+                  videoDuration={videoDuration}
+                />
+              )}
+
               {/* 字幕 */}
               {showSubtitle && (
                 <SubtitleSetting
@@ -369,16 +382,23 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
               {isVideo && <FullscreenSetting mediaRef={mediaRef} />}
 
               {/* 更多 */}
-              {showMore && isVideo && (
+              {showMore && (
                 <TooltipSetting
                   open={moreOpen}
                   tooltipContent={
                     <StyledBtnsGroup>
                       {hasPlayMode && (
-                        <IconButton onClick={onToggleRandom}>
-                          {isRandomPlay ? <ShuffleRounded /> : <FormatListNumberedRtlRounded />}
-                        </IconButton>
+                        <ModeSetting
+                          isRandomPlay={isRandomPlay}
+                          onClick={onToggleRandom}
+                        />
                       )}
+
+                      <LoopSetting
+                        mediaRef={mediaRef}
+                        onTimesChange={setLoopTimes}
+                        videoDuration={videoDuration}
+                      />
 
                       <SubtitleSetting
                         mediaRef={mediaRef}

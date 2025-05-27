@@ -1,3 +1,4 @@
+import { MULTIPLE_SYMBOL } from '#/utils/constant';
 import { RectangleRounded } from '@mui/icons-material';
 import { IconButton, ToggleButtonGroup, ToggleButtonGroupProps } from '@mui/material';
 import { at, isNil } from 'lodash-es';
@@ -19,8 +20,8 @@ const FULL_RATE_OPTIONS = [0.5, 1, 1.5, 2];
 export const SWITCH_RATE_OPTIONS = at(FULL_RATE_OPTIONS, [1, 2]);
 // 最大播放速度
 export const MAX_RATE = FULL_RATE_OPTIONS[FULL_RATE_OPTIONS.length - 1];
-const RATE_SUFFIX_SYMBOL = 'x';
-const formatRate = (rate: number) => `${rate.toFixed(1)}${RATE_SUFFIX_SYMBOL}`;
+
+const formatRate = (rate: number) => `${rate.toFixed(1)}${MULTIPLE_SYMBOL}`;
 
 const RateSetting = ({ mediaRef }: RateSettingProps) => {
   // 播放速度

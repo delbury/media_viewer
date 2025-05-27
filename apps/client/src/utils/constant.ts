@@ -13,3 +13,9 @@ export enum ViewerQueryValue {
 
 // file browser 中，打开对应的 dir 时标志的 query key
 export const HASH_QUERY_KEY = 'hash';
+
+// 倍数符号
+export const MULTIPLE_SYMBOL = 'x';
+
+// 空的占位符
+export const EMPTY_SYMBOL = '-';

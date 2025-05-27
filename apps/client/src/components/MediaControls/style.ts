@@ -205,3 +205,13 @@ export const StyledFloatAlertInfo = styled(Box)`
   border-radius: 4px;
   text-align: center;
 `;
+
+// 播发循环控件
+export const StyledLoopText = styled(StyledRateText)`
+  font-weight: normal;
+  font-size: 0.45rem;
+  color: ${({ theme }) => theme.palette.common.white};
+`;
+export const StyledLoopTimes = styled(Box)`
+  margin-inline-start: 12px;
+`;
