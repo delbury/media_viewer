@@ -22,6 +22,9 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     return flags;
   }, [state.dir, state.file, state.list, state.mediaType]);
 
+  // 是否关闭
+  const closed = !show.audio && !show.image && !show.video;
+
   const {
     fileList,
     currentFile,
@@ -53,7 +56,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
   // 用于拦截浏览器返回上一个历史记录
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (!show.audio && !show.image && !show.video) {
+    if (closed) {
       // 关闭时
       setDetailVisible(false);
       params.delete(VIEWER_QUERY_KEY);
@@ -80,7 +83,28 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
         generateUrlWithSearch(params)
       );
     }
-  }, [show]);
+  }, [closed]);
+
+  // 监听浏览器返回上一页
+  useEffect(() => {
+    if (closed) return;
+
+    const controller = new AbortController();
+    // 拦截浏览器返回
+    window.addEventListener(
+      'popstate',
+      () => {
+        if (window.history.state[VIEWER_QUERY_KEY] === ViewerQueryValue.Prev) {
+          // 关闭
+          setState(INIT_VALUE);
+        }
+      },
+      { signal: controller.signal }
+    );
+    return () => {
+      controller.abort();
+    };
+  }, [closed]);
 
   // 标题点击
   const handleTitleClick = useCallback(() => {
