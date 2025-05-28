@@ -57,7 +57,7 @@ export const StyledTab = styled(Tab)`
 
 export const StyledJsonContainer = styled(Box)`
   font-family: 'Courier New', monospace;
-  padding: 12px;
+  padding: 8px;
   width: 100%;
   height: 100%;
   overflow: auto;

@@ -66,6 +66,13 @@ export default function RepeatFile() {
     setSelectedSet(new Set());
     // 更新文件树
     await mutate(FILE_BROWSER_DIR_TREE_REQUEST_KEY);
+
+    /**
+     * TODO 更新滚动距离
+     * 找到最后一个删除的文件在当前 list 中的 index
+     * 提前计算当删除选中的文件后，index 之前还剩下 n 个文件没被移除
+     * 然后定位滚动位置到 n * rowHeight
+     */
   }, [deleteTrigger, selectedSet]);
 
   // 操作确认
@@ -92,6 +99,7 @@ export default function RepeatFile() {
 
   // 只展示存在相同值的项
   const repeatItems = useMemo(() => {
+    // 只以用第一个排序项字段，来判断文件重复
     const sf = Array.isArray(sortField) ? sortField[0] : sortField;
     if (!sf) return [];
 
