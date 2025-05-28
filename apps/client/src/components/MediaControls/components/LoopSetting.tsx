@@ -34,7 +34,7 @@ const calcNearEdge = (currentTime: number, duration: number, paused: boolean) =>
  * 小于 M 秒的视频，播放 n 次
  * 当 n * duration >= M 秒成立时，n 取最小值
  */
-const DURATION_M = 10;
+const DURATION_M = 12;
 const calcAutoLoopTimes = (duration: number) => {
   if (Number.isNaN(duration) || duration >= DURATION_M) return 1;
 
