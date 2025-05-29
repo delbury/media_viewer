@@ -20,9 +20,22 @@ export const CANCEL_AREA_SX: SxProps<Theme> = {
 interface UseMobileDragParams {
   mediaRef: RefObject<HTMLMediaElement | null>;
   handleGoBy: (dir: 1 | -1, diff?: number) => void;
+  handlePrev?: () => void;
+  handleNext?: () => void;
+  showExtraAreas?: boolean;
+  prevDisabled?: boolean;
+  nextDisabled?: boolean;
 }
 
-export const useMobileGesture = ({ mediaRef, handleGoBy }: UseMobileDragParams) => {
+export const useMobileGesture = ({
+  mediaRef,
+  handleGoBy,
+  handlePrev,
+  handleNext,
+  showExtraAreas,
+  prevDisabled,
+  nextDisabled,
+}: UseMobileDragParams) => {
   // 拖拽方向
   const currentDragDirection = useRef<'x' | 'y' | null>(null);
   // 判断当前拖拽距离
@@ -99,6 +112,13 @@ export const useMobileGesture = ({ mediaRef, handleGoBy }: UseMobileDragParams) 
     areaSx: CANCEL_AREA_SX,
     ifDisable: ifDisableDrag,
     getCustomContainer,
+    extraAreasConfig: {
+      showExtraAreas,
+      prevDisabled,
+      nextDisabled,
+      onPrevActivatedCallback: handlePrev,
+      onNextActivatedCallback: handleNext,
+    },
   });
 
   // 事件绑定

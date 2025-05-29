@@ -3,7 +3,7 @@ import { useCancelAreaContext } from '#/hooks/useCancelAreaContext';
 import { useMove } from '#/hooks/useMove';
 import { formatTime } from '#/utils';
 import { ArrowDropDownRounded, ArrowDropUpRounded } from '@mui/icons-material';
-import { LinearProgress, linearProgressClasses, SxProps } from '@mui/material';
+import { LinearProgress, linearProgressClasses, SxProps, Theme } from '@mui/material';
 import { isNil } from 'lodash-es';
 import {
   MouseEventHandler,
@@ -25,6 +25,10 @@ import { bindEvent, bindEventOnce } from '../util';
 
 const BUFFER_BAR_COLOR = 'var(--mui-palette-grey-600)';
 const BUFFER_BAR_COLOR_EMPTY = 'transparent';
+
+export const CANCEL_AREA_SX: SxProps<Theme> = {
+  marginBottom: '144px',
+};
 
 interface MediaProgressProps {
   mediaRef: RefObject<HTMLMediaElement | null>;
@@ -193,6 +197,7 @@ export const MediaProgress = ({
   useCancelAreaContext({
     domRef: progressBarRef,
     onActivatedCallback: handleGoTo,
+    areaSx: CANCEL_AREA_SX,
   });
 
   useEffect(() => {

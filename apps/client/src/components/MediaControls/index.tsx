@@ -54,8 +54,8 @@ interface MediaControls {
   onNext?: () => void;
   onPrev?: () => void;
   isList?: boolean;
-  firstDisabled?: boolean;
-  lastDisabled?: boolean;
+  prevDisabled?: boolean;
+  nextDisabled?: boolean;
   isRandomPlay?: boolean;
   onToggleRandom?: () => void;
   isRawSource?: boolean;
@@ -75,8 +75,8 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       isList,
       onToggleRandom,
       isRandomPlay,
-      firstDisabled,
-      lastDisabled,
+      prevDisabled,
+      nextDisabled,
       isRawSource,
       useSource,
       onUseSourceChange,
@@ -151,6 +151,11 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const { skipTimeText, currentDragDiffTime } = useMobileGesture({
       mediaRef,
       handleGoBy,
+      showExtraAreas: isList && isVideo,
+      prevDisabled: prevDisabled,
+      nextDisabled: nextDisabled,
+      handlePrev,
+      handleNext,
     });
 
     // 在模拟双击播放时，记录处于的阶段
@@ -255,13 +260,13 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       if (!elm) return;
       // 播放结束事件
       const endController = bindEvent(elm, 'ended', () => {
-        if (!lastDisabled && isList && loopTimes === 1) handleNextAndPlay?.();
+        if (!nextDisabled && isList && loopTimes === 1) handleNextAndPlay?.();
       });
 
       return () => {
         endController.abort();
       };
-    }, [handleNext, handleNextAndPlay, isList, lastDisabled, loopTimes, mediaRef, onNext]);
+    }, [handleNext, handleNextAndPlay, isList, nextDisabled, loopTimes, mediaRef, onNext]);
 
     // 实例方法
     useImperativeHandle(
@@ -323,7 +328,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
               {isList && (
                 <IconButton
                   onClick={handlePrev}
-                  disabled={firstDisabled}
+                  disabled={prevDisabled}
                 >
                   <SkipPreviousRounded />
                 </IconButton>
@@ -341,7 +346,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
               {isList && (
                 <IconButton
                   onClick={handleNext}
-                  disabled={lastDisabled}
+                  disabled={nextDisabled}
                 >
                   <SkipNextRounded />
                 </IconButton>

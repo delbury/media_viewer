@@ -2,6 +2,16 @@ import { SxProps, Theme } from '@mui/material';
 import { noop } from 'lodash-es';
 import { createContext } from 'react';
 
+export interface ExtraAreasConfig {
+  showExtraAreas?: boolean;
+  prevDisabled?: boolean;
+  nextDisabled?: boolean;
+  prevText?: string;
+  nextText?: string;
+  onPrevActivatedCallback?: (ev: PointerEvent) => void;
+  onNextActivatedCallback?: (ev: PointerEvent) => void;
+}
+
 interface CancelAreaValue {
   areaSize: DOMRect | null;
   visible: boolean;
@@ -11,6 +21,13 @@ interface CancelAreaValue {
   areaSx?: SxProps<Theme>;
   setAreaSx: (sx?: SxProps<Theme>) => void;
   setCustomContainer: (elm: HTMLElement | null) => void;
+  setExtraAreasConfig: (config: ExtraAreasConfig | null) => void;
+  prevAreaSize: DOMRect | null;
+  prevActivated: boolean;
+  setPrevActivated: (v: boolean) => void;
+  nextAreaSize: DOMRect | null;
+  nextActivated: boolean;
+  setNextActivated: (v: boolean) => void;
 }
 
 export const CancelAreaContext = createContext<CancelAreaValue>({
@@ -22,4 +39,11 @@ export const CancelAreaContext = createContext<CancelAreaValue>({
   areaSx: null,
   setAreaSx: noop,
   setCustomContainer: noop,
+  setExtraAreasConfig: noop,
+  prevAreaSize: null,
+  prevActivated: false,
+  setPrevActivated: noop,
+  nextAreaSize: null,
+  nextActivated: false,
+  setNextActivated: noop,
 });

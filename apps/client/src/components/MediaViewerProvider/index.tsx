@@ -32,8 +32,8 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     isList,
     goNextFile,
     goPrevFile,
-    lastDisabled,
-    firstDisabled,
+    nextDisabled,
+    prevDisabled,
     toggleRandom,
     isRandomPlay,
   } = useFileOrDirectory({
@@ -133,8 +133,8 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           visible
           file={currentFile}
           isList={isList}
-          lastDisabled={lastDisabled}
-          firstDisabled={firstDisabled}
+          nextDisabled={nextDisabled}
+          prevDisabled={prevDisabled}
           isRandomPlay={isRandomPlay}
           onNext={goNextFile}
           onPrev={goPrevFile}
@@ -157,8 +157,8 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           visible
           file={currentFile}
           isList={isList}
-          lastDisabled={lastDisabled}
-          firstDisabled={firstDisabled}
+          nextDisabled={nextDisabled}
+          prevDisabled={prevDisabled}
           isRandomPlay={isRandomPlay}
           onNext={goNextFile}
           onPrev={goPrevFile}
@@ -181,8 +181,8 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           visible
           file={currentFile}
           isList={isList}
-          lastDisabled={lastDisabled}
-          firstDisabled={firstDisabled}
+          nextDisabled={nextDisabled}
+          prevDisabled={prevDisabled}
           isRandomPlay={isRandomPlay}
           onNext={goNextFile}
           onPrev={goPrevFile}

@@ -5,31 +5,42 @@ import { CancelAreaWrapper } from './style';
 
 interface CancelAreaProps {
   activated: boolean;
-  onSizeChange?: (rect: DOMRect) => void;
+  onSizeChange?: (rect: DOMRect | null) => void;
   sx?: SxProps<Theme>;
+  text?: string;
+  disabled?: boolean;
 }
 
-const CancelArea = ({ activated, onSizeChange, sx }: CancelAreaProps) => {
+const CancelArea = ({ activated, onSizeChange, sx, text, disabled }: CancelAreaProps) => {
   const wrapperRef = useRef<HTMLElement>(null);
   const domRect = useRef<DOMRect>(null);
   const t = useTranslations();
 
   useEffect(() => {
+    if (disabled) {
+      onSizeChange?.(null);
+      return;
+    }
+
     const elm = wrapperRef.current;
     if (elm) {
       const rect = elm.getBoundingClientRect();
       domRect.current = rect;
       onSizeChange?.(rect);
     }
-  }, [onSizeChange, sx]);
+    return () => {
+      onSizeChange?.(null);
+    };
+  }, [onSizeChange, disabled]);
 
   return (
     <CancelAreaWrapper
       activated={activated}
       ref={wrapperRef}
       sx={sx}
+      disabled={disabled}
     >
-      {t('Util.MoveHereToCancel')}
+      {text ?? t('Util.MoveHereToCancel')}
     </CancelAreaWrapper>
   );
 };

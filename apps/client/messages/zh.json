@@ -48,7 +48,9 @@
     "BaseInfo": "基本信息",
     "Metadata": "元信息",
     "Selected": "已选",
-    "Copied": "已复制"
+    "Copied": "已复制",
+    "Prev": "上一个",
+    "Next": "下一个"
   },
   "Btn": {
     "AutoScroll": "自动滚动"

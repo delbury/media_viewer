@@ -49,8 +49,8 @@ const SCALE_LIMIT = {
 type ImageViewerProps = {
   file?: FileInfo;
   isList?: boolean;
-  firstDisabled?: boolean;
-  lastDisabled?: boolean;
+  prevDisabled?: boolean;
+  nextDisabled?: boolean;
   isRandomPlay?: boolean;
   onPrev?: () => void;
   onNext?: () => void;
@@ -63,8 +63,8 @@ const ImageViewer = ({
   visible,
   onClose,
   file,
-  lastDisabled,
-  firstDisabled,
+  nextDisabled,
+  prevDisabled,
   isList,
   isRandomPlay,
   onNext,
@@ -310,7 +310,7 @@ const ImageViewer = ({
           {isList && onPrev && (
             <IconButton
               onClick={onPrev}
-              disabled={firstDisabled}
+              disabled={prevDisabled}
             >
               <ArrowBackRounded />
             </IconButton>
@@ -320,7 +320,7 @@ const ImageViewer = ({
           {isList && onNext && (
             <IconButton
               onClick={handleNext}
-              disabled={lastDisabled}
+              disabled={nextDisabled}
             >
               <ArrowForwardRounded />
             </IconButton>

@@ -1,4 +1,4 @@
-import { CancelAreaContext } from '#/components/CancelAreaProvider/Context';
+import { CancelAreaContext, ExtraAreasConfig } from '#/components/CancelAreaProvider/Context';
 import { SxProps, Theme } from '@mui/material';
 import { useCallback, useContext, useEffect, useRef } from 'react';
 import { useThrottle } from './useThrottle';
@@ -12,7 +12,16 @@ interface UseCancelAreaContextParams {
   ifDisable?: () => boolean;
   // 获取自定义挂载点
   getCustomContainer?: () => HTMLElement | null;
+  // 显示额外区域，包括 prev 和 next 两个区域
+  extraAreasConfig?: ExtraAreasConfig;
 }
+
+const calcIfHit = (areaSize: DOMRect | null, [px, py]: [number, number]) => {
+  if (!areaSize) return false;
+  const { left, top, width, height } = areaSize;
+  if (px < left || px > left + width || py < top || py > top + height) return false;
+  else return true;
+};
 
 export const useCancelAreaContext = ({
   domRef,
@@ -21,11 +30,26 @@ export const useCancelAreaContext = ({
   areaSx,
   ifDisable,
   getCustomContainer,
+  extraAreasConfig,
 }: UseCancelAreaContextParams) => {
   // 判断是否开始
   const isStart = useRef(false);
-  const { visible, setVisible, areaSize, activated, setActivated, setAreaSx, setCustomContainer } =
-    useContext(CancelAreaContext);
+  const {
+    visible,
+    setVisible,
+    areaSize,
+    // activated,
+    setActivated,
+    setAreaSx,
+    setCustomContainer,
+    setExtraAreasConfig,
+    prevAreaSize,
+    // prevActivated,
+    setPrevActivated,
+    nextAreaSize,
+    // nextActivated,
+    setNextActivated,
+  } = useContext(CancelAreaContext);
   const hasCustomContainer = useRef(false);
 
   // 开
@@ -40,8 +64,17 @@ export const useCancelAreaContext = ({
       isStart.current = true;
       setAreaSx(areaSx);
     }
+    setExtraAreasConfig(extraAreasConfig ?? null);
     setVisible(true);
-  }, [areaSx, getCustomContainer, setAreaSx, setCustomContainer, setVisible]);
+  }, [
+    areaSx,
+    extraAreasConfig,
+    getCustomContainer,
+    setAreaSx,
+    setCustomContainer,
+    setExtraAreasConfig,
+    setVisible,
+  ]);
 
   // 关
   const closeCancelArea = useCallback(() => {
@@ -51,22 +84,24 @@ export const useCancelAreaContext = ({
     hasCustomContainer.current = false;
   }, [setActivated, setVisible]);
 
-  const activateCancelArea = useCallback(() => setActivated(true), [setActivated]);
-  const deactivateCancelArea = useCallback(() => setActivated(false), [setActivated]);
+  // const activateCancelArea = useCallback(() => setActivated(true), [setActivated]);
+  // const deactivateCancelArea = useCallback(() => setActivated(false), [setActivated]);
 
   // 检测是否激活
   const detectIfActivated = useCallback(
-    ([px, py]: [number, number]) => {
-      let flag = false;
-      if (areaSize) {
-        const { left, top, width, height } = areaSize;
-        if (px < left || px > left + width || py < top || py > top + height) flag = false;
-        else flag = true;
-      }
-      setActivated(flag);
-      return flag;
+    (pos: [number, number]) => {
+      const mainFlag = calcIfHit(areaSize, pos);
+      setActivated(mainFlag);
+
+      const prevFlag = calcIfHit(prevAreaSize, pos);
+      setPrevActivated(prevFlag);
+
+      const nextFlag = calcIfHit(nextAreaSize, pos);
+      setNextActivated(nextFlag);
+
+      return { mainFlag, prevFlag, nextFlag };
     },
-    [areaSize, setActivated]
+    [areaSize, nextAreaSize, prevAreaSize, setActivated, setNextActivated, setPrevActivated]
   );
 
   // 移动端触发，move 过程中判断
@@ -88,14 +123,21 @@ export const useCancelAreaContext = ({
   // 结束事件
   const handleLostPointerCapture = useCallback(
     (ev: PointerEvent) => {
-      if (!visible) return;
-      if (!detectIfActivated([ev.clientX, ev.clientY])) {
-        onActivatedCallback?.(ev);
+      if (!visible) {
+        onFinal?.();
+        return;
       }
+      const { mainFlag, prevFlag, nextFlag } = detectIfActivated([ev.clientX, ev.clientY]);
+      // 主区域为取消区域，即命中则不执行
+      if (!mainFlag && !prevFlag && !nextFlag) onActivatedCallback?.(ev);
+      // 其他区域为确定区域，即命中则执行
+      if (prevFlag) extraAreasConfig?.onPrevActivatedCallback?.(ev);
+      if (nextFlag) extraAreasConfig?.onNextActivatedCallback?.(ev);
+
       closeCancelArea();
       onFinal?.();
     },
-    [closeCancelArea, detectIfActivated, onActivatedCallback, onFinal, visible]
+    [visible, detectIfActivated, onActivatedCallback, extraAreasConfig, closeCancelArea, onFinal]
   );
 
   useEffect(() => {
@@ -118,12 +160,11 @@ export const useCancelAreaContext = ({
   }, [domRef, handleLostPointerCapture, handleTouchMoveThrottle]);
 
   return {
-    cancelAreaActivated: activated,
-    cancelAreaVisible: visible,
+    // cancelAreaActivated: activated,
+    // cancelAreaVisible: visible,
     openCancelArea,
     closeCancelArea,
-    activateCancelArea,
-    deactivateCancelArea,
-    detectIfActivated,
+    // activateCancelArea,
+    // deactivateCancelArea,
   };
 };

@@ -61,7 +61,7 @@ const DirectoryPath = ({ pathList, onItemClick, storageKeySuffix = '' }: Directo
                   variant={isLast ? 'filled' : 'outlined'}
                   color={isLast ? 'primary' : 'default'}
                   onClick={() => onItemClick?.(index)}
-                  sx={{ maxWidth: 'min(160px, 30vw)' }}
+                  sx={{ maxWidth: 'min(160px, 30dvw)' }}
                 />
               </StyledPathNode>
               {!isLast && <Typography variant="body1">{PATH_SEPARATOR}</Typography>}

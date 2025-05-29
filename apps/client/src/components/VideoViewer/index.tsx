@@ -11,8 +11,8 @@ import { useMediaSource } from './useMediaSource';
 type VideoViewerProps = {
   file?: FileInfo;
   isList?: boolean;
-  firstDisabled?: boolean;
-  lastDisabled?: boolean;
+  prevDisabled?: boolean;
+  nextDisabled?: boolean;
   isRandomPlay?: boolean;
   onPrev?: () => void;
   onNext?: () => void;
@@ -25,8 +25,8 @@ const VideoViewer = ({
   visible,
   onClose,
   file,
-  lastDisabled,
-  firstDisabled,
+  nextDisabled,
+  prevDisabled,
   isList,
   isRandomPlay,
   onNext,
@@ -72,8 +72,8 @@ const VideoViewer = ({
           mediaRef={videoRef}
           onWaitingStateChange={setIsWaiting}
           file={file}
-          lastDisabled={lastDisabled}
-          firstDisabled={firstDisabled}
+          nextDisabled={nextDisabled}
+          prevDisabled={prevDisabled}
           isList={isList}
           isRandomPlay={isRandomPlay}
           onNext={onNext}

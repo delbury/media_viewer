@@ -24,8 +24,8 @@ import { findLyricIndex, useLyric } from './useLyric';
 type AudioViewerProps = {
   file?: FileInfo;
   isList?: boolean;
-  firstDisabled?: boolean;
-  lastDisabled?: boolean;
+  prevDisabled?: boolean;
+  nextDisabled?: boolean;
   isRandomPlay?: boolean;
   onPrev?: () => void;
   onNext?: () => void;
@@ -49,8 +49,8 @@ const AudioViewer = ({
   visible,
   onClose,
   file,
-  lastDisabled,
-  firstDisabled,
+  nextDisabled,
+  prevDisabled,
   isList,
   isRandomPlay,
   onNext,
@@ -140,8 +140,8 @@ const AudioViewer = ({
           onPausedStateChange={setIsPaused}
           onWaitingStateChange={setIsWaiting}
           file={file}
-          lastDisabled={lastDisabled}
-          firstDisabled={firstDisabled}
+          nextDisabled={nextDisabled}
+          prevDisabled={prevDisabled}
           isList={isList}
           isRandomPlay={isRandomPlay}
           onNext={onNext}
