@@ -5,7 +5,7 @@ import { formatDate, formatFileSize, formatTime } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { isMediaFile, splitPath } from '#pkgs/tools/common';
 import { LoopOutlined } from '@mui/icons-material';
-import { Box, IconButton, TabsOwnProps } from '@mui/material';
+import { IconButton, TabsOwnProps } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FULL_FILE_FILTER_MAP } from '../constant';
@@ -17,6 +17,7 @@ import {
   StyledFileItem,
   StyledFilePosterInner,
   StyledFilePosterWrapper,
+  StyledItemWrapper,
   StyledJsonContainer,
   StyledPathItem,
   StyledTab,
@@ -33,17 +34,19 @@ import {
 // };
 
 // 渲染路径信息
-const renderPathInfo = (
-  file: FileInfo,
-  onPathClick?: (paths: string[]) => void
+export const renderPathInfo = (
+  path?: string,
+  onPathClick?: (paths: string[]) => void,
+  { lastClickable }: { lastClickable?: boolean } = {}
 ): React.ReactNode => {
-  const paths = splitPath(file.showPath);
+  if (!path) return null;
+  const paths = splitPath(path);
   return (
-    <Box>
+    <StyledItemWrapper>
       {paths.map((p, i) => (
         <span key={`${p}/${i}`}>
           /
-          {i === paths.length - 1 || !onPathClick ? (
+          {!lastClickable && (i === paths.length - 1 || !onPathClick) ? (
             <StyledFileItem>{p}</StyledFileItem>
           ) : (
             <StyledPathItem onClick={() => onPathClick?.(paths.slice(0, i + 1))}>
@@ -52,7 +55,7 @@ const renderPathInfo = (
           )}
         </span>
       ))}
-    </Box>
+    </StyledItemWrapper>
   );
 };
 
@@ -82,7 +85,7 @@ const FileDetailDialog = ({
   const fileInfos: { label: string; value: React.ReactNode }[] = useMemo(() => {
     return [
       { label: t('File.Name'), value: file.name },
-      { label: t('File.Path'), value: renderPathInfo(file, onPathClick) },
+      { label: t('File.Path'), value: renderPathInfo(file.showPath, onPathClick) },
       { label: t('File.Type'), value: t(FULL_FILE_FILTER_MAP[file.fileType]) },
       { label: t('File.Size'), value: formatFileSize(file.size) },
       { label: t('File.Duration'), value: formatTime(file.duration) },

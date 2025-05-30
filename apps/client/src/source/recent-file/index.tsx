@@ -3,6 +3,7 @@
 import ToolGroupBtn from '#/components/DirectoryPicker/components/ToolGroupBtn';
 import { FILE_FILTER_OPTIONS } from '#/components/DirectoryPicker/constant';
 import ScrollBox from '#/components/ScrollBox';
+import { useDialogStateByValue } from '#/hooks/useDialogState';
 import { formatParentDir } from '#/hooks/useFileTitle';
 import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { useSwr } from '#/hooks/useSwr';
@@ -12,8 +13,9 @@ import { MediaFileType } from '#pkgs/shared';
 import { INFO_ID_FIELD, getAllMediaFileGroup } from '#pkgs/tools/common';
 import { Theme } from '@emotion/react';
 import { SubscriptionsRounded } from '@mui/icons-material';
-import { Divider, IconButton, ListItemAvatar, SxProps } from '@mui/material';
+import { Badge, Divider, IconButton, ListItemAvatar, SxProps } from '@mui/material';
 import React, { useCallback, useMemo, useState } from 'react';
+import PlayDirDialog from './components/PlayDirDialog';
 import {
   StyledCardHeader,
   StyledContainer,
@@ -36,7 +38,7 @@ const createTimeSorter = (a: FileInfo, b: FileInfo) => {
  * 取最近的 N 个文件，相同文件夹下的最多取 M 个文件
  */
 const RECENT_FILE_MAX_COUNT = 100;
-const SAME_DIR_FILE_MAX_COUNT = 5;
+const SAME_DIR_FILE_MAX_COUNT = 3;
 
 const SCROLL_BOX_SX: SxProps<Theme> = {
   flex: 1,
@@ -120,12 +122,14 @@ export default function RecentFile() {
     [filterFileType, openMediaViewer]
   );
 
-  const handleDirClick = useCallback(
+  const handlePlayDirFiles = useCallback(
     (list: FileInfo[]) => {
       openMediaViewer({ list, mediaType: filterFileType });
     },
     [filterFileType, openMediaViewer]
   );
+
+  const { visible, stateValue, handleClose, handleOpen } = useDialogStateByValue<DirectoryInfo>();
 
   return (
     <StyledRecentFileWrapper>
@@ -153,11 +157,20 @@ export default function RecentFile() {
                 title={parent.name}
                 subheader={formatParentDir(parent)}
                 avatar={
-                  <IconButton>
-                    <SubscriptionsRounded />
+                  <IconButton onClick={() => handlePlayDirFiles(parent.files)}>
+                    <Badge
+                      badgeContent={parent.files.length}
+                      color="secondary"
+                    >
+                      <SubscriptionsRounded />
+                    </Badge>
                   </IconButton>
                 }
-                onClick={() => handleDirClick(files)}
+                slotProps={{
+                  content: {
+                    onClick: () => handleOpen(parent),
+                  },
+                }}
               />
               <StyledList>
                 {files.map(file => {
@@ -193,6 +206,16 @@ export default function RecentFile() {
           ))}
         </StyledContainer>
       </ScrollBox>
+
+      {stateValue && (
+        <PlayDirDialog
+          visible={visible}
+          onClose={handleClose}
+          dir={stateValue}
+          rootDir={treeRequest.data}
+          mediaType={filterFileType}
+        />
+      )}
     </StyledRecentFileWrapper>
   );
 }

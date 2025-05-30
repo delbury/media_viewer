@@ -67,6 +67,8 @@ export const StyledJsonContainer = styled(Box)`
   font-size: 0.75rem;
 `;
 
+export const StyledItemWrapper = styled(Box)``;
+
 export const StyledPathItem = styled('span')`
   padding: 0 4px;
   color: ${({ theme }) => theme.palette.primary.light};

@@ -20,7 +20,7 @@ export interface CommonInfo {
   // 文件根路径
   basePath?: string;
   // 文件根路径在根目录中的索引
-  basePathIndex?: number;
+  basePathIndex: number;
   // 文件相对路径
   relativePath: string;
   // 展示的文件路径
@@ -98,7 +98,7 @@ const newCommonInfo = ({ bp, fp, info, bpi }: NewInfoParams = {}): CommonInfo =>
 
   return {
     basePath,
-    basePathIndex: bpi,
+    basePathIndex: bpi as number,
     relativePath,
     showPath: '',
     showDir: '',

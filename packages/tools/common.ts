@@ -35,8 +35,12 @@ export const splitPath = (p: string, { ignoreLast }: { ignoreLast?: boolean } = 
 };
 
 // 根据路径数组，在文件树中找到文件信息
-export const findFileInfoInDir = (dir: DirectoryInfo, names: string[]) => {
-  let curDir = dir;
+export const findFileInfoInDir = (
+  rootDir: DirectoryInfo,
+  basePathIndex: number,
+  names: string[]
+) => {
+  let curDir = rootDir.children[basePathIndex];
   const fileName = names.pop();
   for (const dirName of names) {
     const d = curDir.children.find(c => c.name === dirName);
@@ -50,6 +54,17 @@ export const findFileInfoInDir = (dir: DirectoryInfo, names: string[]) => {
         parentDirInfo: curDir,
       }
     : null;
+};
+
+// 根据路径数组，在文件树中找到文件夹
+export const findDirInfoInRootDir = (rootDir: DirectoryInfo, names: string[]) => {
+  let curDir = rootDir;
+  for (const dirName of names) {
+    const d = curDir.children.find(c => c.name === dirName);
+    if (!d) return null;
+    curDir = d;
+  }
+  return curDir ?? null;
 };
 
 // 控制台打印日志

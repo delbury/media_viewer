@@ -34,7 +34,7 @@ const DislikeSetting = ({ file }: DislikeSettingProps) => {
     await setTrigger({
       data: {
         dislike: newVal,
-        basePathIndex: file.basePathIndex as number,
+        basePathIndex: file.basePathIndex,
         relativePath: file.relativePath,
       },
     });

@@ -2,7 +2,7 @@ import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { splitPath } from '#pkgs/tools/common';
 import { useMemo } from 'react';
 
-const PATH_DIVIDER_SYMBOL = ' ⋰ ';
+const PATH_DIVIDER_SYMBOL = ' ⋱ ';
 const LEFT_SYMBOL = '⇝ ';
 const RIGHT_SYMBOL = ' ⇜';
 

@@ -1,4 +1,5 @@
 import {
+  badgeClasses,
   Box,
   Card,
   CardHeader,
@@ -31,18 +32,27 @@ export const StyledCardHeader = styled(CardHeader)`
   padding: 8px;
   padding-bottom: 4px;
   background-color: ${({ theme }) => theme.palette.grey[600]};
-  cursor: pointer;
 
   && * {
     color: ${({ theme }) => theme.palette.common.white};
   }
 
-  :hover * {
-    color: ${({ theme }) => theme.palette.info.dark};
-  }
-
   & .${cardHeaderClasses.subheader} {
     font-size: 0.75rem;
+  }
+
+  & .${cardHeaderClasses.content} {
+    cursor: pointer;
+    :hover * {
+      color: ${({ theme }) => theme.palette.info.dark};
+    }
+  }
+
+  & .${badgeClasses.badge} {
+    padding: 4px;
+    font-size: 0.6rem;
+    height: 16px;
+    min-width: 16px;
   }
 `;
 

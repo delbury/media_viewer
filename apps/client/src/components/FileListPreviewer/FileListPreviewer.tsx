@@ -1,10 +1,11 @@
+import { useDialogState } from '#/hooks/useDialogState';
 import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { FileInfo } from '#pkgs/apis';
 import { FormatListBulletedRounded, PinDropRounded } from '@mui/icons-material';
 import { Badge, IconButton } from '@mui/material';
 import { isNil } from 'lodash-es';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import Dialog from '../Dialog';
 import { ScrollBoxInstance } from '../ScrollBox';
 import FileListContent from './FileListContent';
@@ -28,11 +29,8 @@ const isSibling = (files: FileInfo[], currentIndex: number, selectedIndex?: numb
 
 const FileListPreviewer = ({ files, currentFileIndex }: FileListPreviewerProps) => {
   const t = useTranslations();
-  const [visible, setVisible] = useState(false);
+  const { visible, handleOpen, handleClose } = useDialogState();
   const fileCount = useMemo(() => files?.length ?? 0, [files]);
-
-  const handleOpen = useCallback(() => setVisible(true), []);
-  const handleClose = useCallback(() => setVisible(false), []);
 
   const scrollBoxRef = useRef<ScrollBoxInstance>(null);
   const defaultScroll = FILE_ITEM_ROW_HEIGHT * ((currentFileIndex ?? 0) - 0.5);
@@ -47,9 +45,9 @@ const FileListPreviewer = ({ files, currentFileIndex }: FileListPreviewerProps) 
   const handleJumpToFileIndex = useCallback(
     (_: FileInfo, index: number) => {
       jumpToFile(index);
-      setVisible(false);
+      handleClose();
     },
-    [jumpToFile]
+    [handleClose, jumpToFile]
   );
 
   return (

@@ -52,7 +52,7 @@ export default function RepeatFile() {
     await deleteTrigger({
       data: {
         files: [...selectedSet].map(it => ({
-          basePathIndex: fileMap.current[it].basePathIndex as number,
+          basePathIndex: fileMap.current[it].basePathIndex,
           relativePath: fileMap.current[it].relativePath,
         })),
       },

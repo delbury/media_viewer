@@ -68,7 +68,7 @@ const DislikeList = () => {
         onOk: async () => {
           await removeDislike({
             data: {
-              basePathIndex: file.basePathIndex as number,
+              basePathIndex: file.basePathIndex,
               relativePath: file.relativePath,
               dislike: false,
             },
@@ -97,7 +97,7 @@ const DislikeList = () => {
               list: listRequest.data.list
                 .filter(it => it.showDir === dir)
                 .map(it => ({
-                  basePathIndex: it.basePathIndex as number,
+                  basePathIndex: it.basePathIndex,
                   relativePath: it.relativePath,
                 })),
             },

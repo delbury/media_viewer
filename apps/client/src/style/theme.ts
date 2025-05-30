@@ -45,6 +45,11 @@ export const theme = createTheme({
       light: '#e6f4ff',
       dark: '#91caff',
     },
+    secondary: {
+      main: '#8c8c8c',
+      light: '#bfbfbf',
+      dark: '#595959',
+    },
   },
 });
 

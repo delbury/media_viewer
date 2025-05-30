@@ -80,8 +80,7 @@ fileRouter[API_CONFIGS.fileDelete.method](API_CONFIGS.fileDelete.url, async ctx 
   // 取缓存
   const cachedData = await updateTask.getCache();
 
-  const rootDirs = cachedData?.treeNode?.children;
-  if (!rootDirs) throw new Error(ERROR_MSG.noFile);
+  if (!cachedData?.treeNode?.children) throw new Error(ERROR_MSG.noFile);
 
   // debug
   ctx.body = returnBody();
@@ -93,7 +92,7 @@ fileRouter[API_CONFIGS.fileDelete.method](API_CONFIGS.fileDelete.url, async ctx 
       // 根据入参，找到内存中对应的文件信息
       const base = getRootDir(info.basePathIndex);
       const pathSeq = splitPath(info.relativePath);
-      const findRes = findFileInfoInDir(rootDirs[info.basePathIndex], pathSeq);
+      const findRes = findFileInfoInDir(cachedData.treeNode, info.basePathIndex, pathSeq);
       if (!findRes) {
         logError(`no file info: "${info.relativePath}"`);
         continue;

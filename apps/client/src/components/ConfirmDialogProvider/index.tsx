@@ -1,5 +1,6 @@
 'use client';
 
+import { useDialogState } from '#/hooks/useDialogState';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import Dialog from '../Dialog';
@@ -7,7 +8,12 @@ import { ConfirmDialogContext, ConfirmDialogContextValue } from './Context';
 
 const ConfirmDialogProvider = ({ children }: { children?: React.ReactNode }) => {
   const t = useTranslations();
-  const [visible, setVisible] = useState(false);
+  // const [visible, setVisible] = useState(false);
+  const {
+    visible,
+    handleClose: handleCloseDialog,
+    handleOpen: handleOpenDialog,
+  } = useDialogState();
   const [title, setTitle] = useState<string | null>(null);
   const [description, setDescription] = useState<string | null>(null);
   const onOkHandler = useRef<null | (() => unknown | Promise<unknown>)>(null);
@@ -18,17 +24,17 @@ const ConfirmDialogProvider = ({ children }: { children?: React.ReactNode }) => 
       setDescription(description ?? null);
       // setOnOk(onOk ?? null);
       onOkHandler.current = onOk ?? null;
-      setVisible(true);
+      handleOpenDialog();
     },
-    []
+    [handleOpenDialog]
   );
 
   const handleClose = useCallback(() => {
     setTitle(null);
     setDescription(null);
     onOkHandler.current = null;
-    setVisible(false);
-  }, []);
+    handleCloseDialog();
+  }, [handleCloseDialog]);
 
   const value = useMemo<ConfirmDialogContextValue>(
     () => ({

@@ -32,7 +32,7 @@ export const getRootDir = (index: number | string) => {
 
 // 获取文件路径
 export const getFilePath = (fileInfo: Pick<FileInfo, 'basePathIndex' | 'relativePath'>) => {
-  const basePath = getRootDir(fileInfo.basePathIndex as number);
+  const basePath = getRootDir(fileInfo.basePathIndex);
   const filePath = path.posix.join(basePath, fileInfo.relativePath);
   return filePath;
 };
@@ -41,10 +41,9 @@ export const getFilePath = (fileInfo: Pick<FileInfo, 'basePathIndex' | 'relative
 export const getFileInfo = async (info: Pick<FileInfo, 'basePathIndex' | 'relativePath'>) => {
   const updateTask = getTask('dirUpdate');
   const cachedData = await updateTask.getCache();
-  const rootDirs = cachedData?.treeNode?.children;
-  if (!rootDirs) return null;
+  if (!cachedData?.treeNode?.children) return null;
 
   const pathSeq = splitPath(info.relativePath);
-  const findRes = findFileInfoInDir(rootDirs[info.basePathIndex as number], pathSeq);
+  const findRes = findFileInfoInDir(cachedData?.treeNode, info.basePathIndex, pathSeq);
   return findRes;
 };
