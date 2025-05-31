@@ -12,8 +12,8 @@ import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { MediaFileType } from '#pkgs/shared';
 import { INFO_ID_FIELD, getAllMediaFileGroup } from '#pkgs/tools/common';
 import { Theme } from '@emotion/react';
-import { SubscriptionsRounded } from '@mui/icons-material';
-import { Badge, Divider, IconButton, ListItemAvatar, SxProps } from '@mui/material';
+import { PlayCircleRounded, SubscriptionsRounded } from '@mui/icons-material';
+import { Badge, Chip, Divider, IconButton, ListItemAvatar, SxProps } from '@mui/material';
 import React, { useCallback, useMemo, useState } from 'react';
 import PlayDirDialog from './components/PlayDirDialog';
 import {
@@ -69,48 +69,75 @@ const getRecentFilesWithParentDir = (
     reset--;
   }
 
-  return [
-    ...map.entries().map(([key, val]) => ({
-      parent: key,
-      files: val,
-    })),
-  ];
+  return {
+    list: [
+      ...map.entries().map(([key, val]) => ({
+        parent: key,
+        files: val,
+      })),
+    ],
+    count: RECENT_FILE_MAX_COUNT - reset,
+  };
 };
 
 export default function RecentFile() {
   const [filterFileType, setFilterFileType] = useState<MediaFileType>('video');
 
   const treeRequest = useSwr('dirTree');
-  const { audioList, videoList, imageList } = useMemo(() => {
+  const { audioList, videoList, imageList, audioCount, videoCount, imageCount } = useMemo(() => {
     if (!treeRequest.data) return {};
 
     const {
       lists: { audio, image, video },
       parentMap,
     } = getAllMediaFileGroup(treeRequest.data);
-    const audioList = getRecentFilesWithParentDir(audio.sort(createTimeSorter), parentMap);
-    const videoList = getRecentFilesWithParentDir(video.sort(createTimeSorter), parentMap);
-    const imageList = getRecentFilesWithParentDir(image.sort(createTimeSorter), parentMap);
+    const { list: audioList, count: audioCount } = getRecentFilesWithParentDir(
+      audio.sort(createTimeSorter),
+      parentMap
+    );
+    const { list: videoList, count: videoCount } = getRecentFilesWithParentDir(
+      video.sort(createTimeSorter),
+      parentMap
+    );
+    const { list: imageList, count: imageCount } = getRecentFilesWithParentDir(
+      image.sort(createTimeSorter),
+      parentMap
+    );
 
     return {
       audioList,
       videoList,
       imageList,
+      audioCount,
+      videoCount,
+      imageCount,
     };
   }, [treeRequest.data]);
 
-  const recentItems = useMemo(() => {
+  const { recentItems, recentItemsCount } = useMemo(() => {
     switch (filterFileType) {
       case 'audio':
-        return audioList ?? [];
+        return {
+          recentItems: audioList ?? [],
+          recentItemsCount: audioCount,
+        };
       case 'image':
-        return imageList ?? [];
+        return {
+          recentItems: imageList ?? [],
+          recentItemsCount: imageCount,
+        };
       case 'video':
-        return videoList ?? [];
+        return {
+          recentItems: videoList ?? [],
+          recentItemsCount: videoCount,
+        };
       default:
-        return [];
+        return {
+          recentItems: [],
+          recentItemsCount: 0,
+        };
     }
-  }, [audioList, filterFileType, imageList, videoList]);
+  }, [audioCount, audioList, filterFileType, imageCount, imageList, videoCount, videoList]);
 
   // 打开媒体浏览器
   const { openMediaViewer } = useMediaViewerContext();
@@ -129,6 +156,10 @@ export default function RecentFile() {
     [filterFileType, openMediaViewer]
   );
 
+  const handlePlayRecent = useCallback(() => {
+    openMediaViewer({ list: recentItems.map(it => it.files).flat(), mediaType: filterFileType });
+  }, [filterFileType, openMediaViewer, recentItems]);
+
   const { visible, stateValue, handleClose, handleOpen } = useDialogStateByValue<DirectoryInfo>();
 
   return (
@@ -142,6 +173,18 @@ export default function RecentFile() {
             if (!value) return;
             setFilterFileType(value);
           }}
+        />
+
+        <Chip
+          size="small"
+          onClick={handlePlayRecent}
+          icon={
+            <PlayCircleRounded
+              fontSize="small"
+              color="info"
+            />
+          }
+          label={recentItemsCount}
         />
       </StyledToolsRow>
 

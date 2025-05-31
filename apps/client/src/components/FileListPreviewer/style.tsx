@@ -100,7 +100,7 @@ export const StyledChildItemInner = styled(Box)`
   align-items: center;
   gap: 12px;
   border-radius: 4px;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
 `;
 
 export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !== 'activated' })<{
@@ -115,9 +115,10 @@ export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !==
   ${({ type, theme }) =>
     type === 'activated'
       ? `
-      background-color: ${theme.palette.info.main};
+      background-color: ${theme.palette.info.light};
       ${StyledChildItemInner} {
         border-color: ${theme.palette.primary.dark};
+        border-style: double ;
       }
       `
       : type === 'sibling'
@@ -125,6 +126,6 @@ export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !==
         : ''}
 
   :hover {
-    background-color: ${({ theme }) => theme.palette.info.dark};
+    background-color: ${({ theme }) => theme.palette.info.main};
   }
 `;

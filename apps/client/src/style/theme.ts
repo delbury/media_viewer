@@ -41,9 +41,12 @@ export const theme = createTheme({
   },
   palette: {
     info: {
-      main: '#bae0ff',
-      light: '#e6f4ff',
-      dark: '#91caff',
+      // main: '#bae0ff',
+      // light: '#e6f4ff',
+      // dark: '#91caff',
+      main: '#69b1ff',
+      light: '#91caff',
+      dark: '#4096ff',
     },
     secondary: {
       main: '#8c8c8c',

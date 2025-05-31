@@ -67,16 +67,13 @@ export const StyledJsonContainer = styled(Box)`
   font-size: 0.75rem;
 `;
 
-export const StyledItemWrapper = styled(Box)``;
+export const StyledFileItem = styled('span')`
+  padding: 0 8px;
+`;
 
-export const StyledPathItem = styled('span')`
-  padding: 0 4px;
+export const StyledPathItem = styled(StyledFileItem)`
   color: ${({ theme }) => theme.palette.primary.light};
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
-`;
-
-export const StyledFileItem = styled('span')`
-  padding: 0 4px;
 `;

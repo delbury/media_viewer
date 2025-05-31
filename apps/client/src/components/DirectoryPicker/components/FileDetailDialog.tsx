@@ -5,7 +5,7 @@ import { formatDate, formatFileSize, formatTime } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
 import { isMediaFile, splitPath } from '#pkgs/tools/common';
 import { LoopOutlined } from '@mui/icons-material';
-import { IconButton, TabsOwnProps } from '@mui/material';
+import { Box, IconButton, TabsOwnProps } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FULL_FILE_FILTER_MAP } from '../constant';
@@ -17,7 +17,6 @@ import {
   StyledFileItem,
   StyledFilePosterInner,
   StyledFilePosterWrapper,
-  StyledItemWrapper,
   StyledJsonContainer,
   StyledPathItem,
   StyledTab,
@@ -42,7 +41,7 @@ export const renderPathInfo = (
   if (!path) return null;
   const paths = splitPath(path);
   return (
-    <StyledItemWrapper>
+    <Box sx={{ lineHeight: onPathClick ? 2 : void 0 }}>
       {paths.map((p, i) => (
         <span key={`${p}/${i}`}>
           /
@@ -55,7 +54,7 @@ export const renderPathInfo = (
           )}
         </span>
       ))}
-    </StyledItemWrapper>
+    </Box>
   );
 };
 

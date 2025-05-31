@@ -4,6 +4,7 @@ import {
   Card,
   CardHeader,
   cardHeaderClasses,
+  chipClasses,
   List,
   ListItem,
   ListItemText,
@@ -18,6 +19,13 @@ export const StyledRecentFileWrapper = styled(Box)`
 
 export const StyledToolsRow = styled(Box)`
   margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  & .${chipClasses.label} {
+    font-size: 0.75rem;
+  }
 `;
 
 export const StyledContainer = styled(Box)`
