@@ -99,6 +99,7 @@ const ChildItem = (props: ChildItemProps) => {
             style={{
               cursor: onImgClick ? 'pointer' : void 0,
             }}
+            loading="lazy"
           />
         </StyleChildItemImage>
 

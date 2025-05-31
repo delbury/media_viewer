@@ -367,6 +367,7 @@ const ImageViewer = ({
             style={imageStyle}
             onPointerDown={handlePointerDown}
             onPointerUp={handlePointerUp}
+            loading="lazy"
           />
         )}
 

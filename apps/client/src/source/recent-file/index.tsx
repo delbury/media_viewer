@@ -227,6 +227,7 @@ export default function RecentFile() {
                             <img
                               src={posterUrl}
                               alt={file.name}
+                              loading="lazy"
                             />
                           </StyledImgContainer>
                         </ListItemAvatar>

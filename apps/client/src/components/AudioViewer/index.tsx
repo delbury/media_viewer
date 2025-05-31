@@ -156,6 +156,7 @@ const AudioViewer = ({
             <img
               src={posterUrl}
               alt={title}
+              loading="lazy"
             />
           )}
           <StyledCoverBtnWrapper>
