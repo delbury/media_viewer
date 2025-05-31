@@ -1,19 +1,24 @@
 import Link from '#/components/Link';
-import { HandymanOutlined, HomeWorkOutlined } from '@mui/icons-material';
+import { getHeaderRoutes } from '#/utils/route';
+import { useMemo } from 'react';
 import { StyledHeaderLinkGroup, StyledHeaderWrapper } from './style';
 
 export const HEADER_RIGHT_SLOT_ID = 'header-right-slot';
 
 export default function Header() {
+  const routes = useMemo(() => getHeaderRoutes(), []);
+
   return (
     <StyledHeaderWrapper>
       <StyledHeaderLinkGroup>
-        <Link href="/">
-          <HomeWorkOutlined fontSize="inherit" />
-        </Link>
-        <Link href="/tools">
-          <HandymanOutlined fontSize="inherit" />
-        </Link>
+        {routes.map(r => (
+          <Link
+            key={r.path}
+            href={r.path}
+          >
+            {r.icon}
+          </Link>
+        ))}
       </StyledHeaderLinkGroup>
 
       <StyledHeaderLinkGroup id={HEADER_RIGHT_SLOT_ID} />
