@@ -100,7 +100,7 @@ export const StyledChildItemInner = styled(Box)`
   align-items: center;
   gap: 12px;
   border-radius: 4px;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
 `;
 
 export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !== 'activated' })<{
@@ -116,16 +116,14 @@ export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !==
     type === 'activated'
       ? `
       background-color: ${theme.palette.info.light};
-      ${StyledChildItemInner} {
-        border-color: ${theme.palette.primary.dark};
-        border-style: double ;
-      }
       `
       : type === 'sibling'
         ? `background-color: ${theme.palette.action.selected};`
         : ''}
 
   :hover {
-    background-color: ${({ theme }) => theme.palette.info.main};
+    ${StyledChildItemInner} {
+      border-color: ${({ theme }) => theme.palette.info.dark};
+    }
   }
 `;
