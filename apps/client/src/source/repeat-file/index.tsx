@@ -7,6 +7,7 @@ import { FILE_SORT_API_FIELD_MAP, FILE_SORT_OPTIONS } from '#/components/Directo
 import { useSortList } from '#/components/DirectoryPicker/hooks/useSortList';
 import { FileListContent } from '#/components/FileListPreviewer';
 import { useConfirmDialogByKeys } from '#/hooks/useConfirmDialog';
+import { useShortcut } from '#/hooks/useShortcut';
 import { useSwrMutation } from '#/hooks/useSwr';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { INFO_ID_FIELD, getAllFiles } from '#pkgs/tools/common';
@@ -81,6 +82,13 @@ export default function RepeatFile() {
       onOk: handleDelete,
       description: t('Tools.AreYouSureDeleteSelectedFiles'),
     },
+  });
+  const handleClickDelete = useCallback(() => {
+    if (selectedSet.size) openConfirmDialog('delete');
+  }, [openConfirmDialog, selectedSet.size]);
+
+  useShortcut({
+    onBackspacePressed: handleClickDelete,
   });
 
   // 排序
@@ -190,7 +198,7 @@ export default function RepeatFile() {
             <IconButton
               size="small"
               disabled={!selectedSet.size}
-              onClick={() => openConfirmDialog('delete')}
+              onClick={handleClickDelete}
             >
               <DeleteForeverRounded fontSize="small" />
             </IconButton>

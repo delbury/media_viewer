@@ -16,6 +16,7 @@ import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import { findFileInfoInDir, logError, splitPath } from '#pkgs/tools/common';
 import Router from '@koa/router';
 import send from 'koa-send';
+import { noop } from 'lodash-es';
 import { stat } from 'node:fs/promises';
 import path from 'node:path';
 import trash from 'trash';
@@ -105,7 +106,13 @@ fileRouter[API_CONFIGS.fileDelete.method](API_CONFIGS.fileDelete.url, async ctx 
         POSTER_DIR_NAME,
         `${POSTER_FILE_NAME_PREFIX}${fileInfo.name}${POSTER_FILE_EXT}`
       );
-      await trash([fullPath, posterPath]);
+      try {
+        await trash([fullPath]);
+        await trash([posterPath]).catch(noop);
+      } catch (err) {
+        logError(err);
+        throw new Error(ERROR_MSG.commandError);
+      }
       // 删除并更新文件信息内存缓存
       const index = parentDirInfo.files.findIndex(it => it === fileInfo);
       parentDirInfo.files.splice(index, 1);

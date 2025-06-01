@@ -9,6 +9,7 @@ enum BoardKey {
   ArrowDown = 'ArrowDown',
   Space = 'Space',
   Enter = 'Enter',
+  Backspace = 'Backspace',
 }
 
 interface UseShortcutParams {
@@ -19,6 +20,7 @@ interface UseShortcutParams {
   onDownPressed?: (ev: KeyboardEvent) => void;
   onSpacePressed?: (ev: KeyboardEvent) => void;
   onEnterPressed?: (ev: KeyboardEvent) => void;
+  onBackspacePressed?: (ev: KeyboardEvent) => void;
   eventOption?: EventItem['option'];
 }
 
@@ -47,13 +49,13 @@ const keyboardCallback = (ev: KeyboardEvent) => {
   }
 };
 
-const removeGlobalListener = () => {
-  // 无事件后，移除
-  if (Object.values(GLOBAL_STATE.events).every(v => !v.size)) {
-    GLOBAL_STATE.eventController?.abort();
-    GLOBAL_STATE.eventController = null;
-  }
-};
+// const removeGlobalListener = () => {
+//   // 无事件后，移除
+//   if (Object.values(GLOBAL_STATE.events).every(v => !v.size)) {
+//     GLOBAL_STATE.eventController?.abort();
+//     GLOBAL_STATE.eventController = null;
+//   }
+// };
 
 const useBindKeyEvent = (
   key: BoardKey,
@@ -77,7 +79,6 @@ const useBindKeyEvent = (
     return () => {
       // 移除
       GLOBAL_STATE.events[key].delete(item);
-      removeGlobalListener();
     };
   }, [key, cb, eventOption?.stopWhenFirstCalled]);
 };
@@ -90,20 +91,21 @@ export const useShortcut = ({
   onDownPressed,
   onSpacePressed,
   onEnterPressed,
+  onBackspacePressed,
   eventOption,
 }: UseShortcutParams = {}) => {
   // 初始化，单例模式
   useEffect(() => {
     if (!GLOBAL_STATE.eventController) {
       const controller = new AbortController();
+      GLOBAL_STATE.eventController = controller;
+
       window.addEventListener(
         'keydown',
         keyboardCallback,
         // 防止触发 dialog 的关闭事件
         { signal: controller.signal, capture: false }
       );
-
-      GLOBAL_STATE.eventController = controller;
     }
   }, []);
 
@@ -114,4 +116,5 @@ export const useShortcut = ({
   useBindKeyEvent(BoardKey.ArrowDown, onDownPressed, { eventOption });
   useBindKeyEvent(BoardKey.Space, onSpacePressed, { eventOption });
   useBindKeyEvent(BoardKey.Enter, onEnterPressed, { eventOption });
+  useBindKeyEvent(BoardKey.Backspace, onBackspacePressed, { eventOption });
 };
