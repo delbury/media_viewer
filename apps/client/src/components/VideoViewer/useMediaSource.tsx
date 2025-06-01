@@ -52,6 +52,7 @@ export const useMediaSource = ({ mediaRef, file, forceSource }: UseMediaSourcePa
   const [isCanplay, setIsCanplay] = useState(false);
   // 视频资源的类型
   const [srcType, setSrcType] = useState<SrcType>(null);
+
   const isSource = srcType === 'source';
   const isRaw = srcType === 'raw';
 
@@ -295,13 +296,7 @@ export const useMediaSource = ({ mediaRef, file, forceSource }: UseMediaSourcePa
     const elm = mediaRef.current;
     if (!elm || !file) return;
 
-    let type: SrcType = 'source';
-    if (!forceSource && file && CAN_DIRECT_PLAY_EXTS.includes(file.nameExtPure)) {
-      type = 'raw';
-    }
-    setSrcType(type);
-
-    if (type === 'source') {
+    if (srcType === 'source') {
       const res = createSource();
 
       return () => {
@@ -314,9 +309,15 @@ export const useMediaSource = ({ mediaRef, file, forceSource }: UseMediaSourcePa
         isLoadDone.current = false;
         if (res?.url) URL.revokeObjectURL(res?.url);
       };
-    } else if (type === 'raw') {
+    } else if (srcType === 'raw') {
       elm.src = getFileSourceUrl(file);
     }
+  }, [srcType, file, forceSource, mediaRef]);
+
+  useEffect(() => {
+    setSrcType(
+      !forceSource && file && CAN_DIRECT_PLAY_EXTS.includes(file.nameExtPure) ? 'raw' : 'source'
+    );
   }, [file, forceSource]);
 
   return {
