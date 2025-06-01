@@ -3,7 +3,7 @@
 import ErrorBoundary from '#/components/ErrorBoundary';
 import ResizeContainer from '#/components/ResizeContainer';
 import { ScrollBoxInstance } from '#/components/ScrollBox';
-import { useCustomEvent } from '#/hooks/useCustomEvent';
+import { FILE_PATH_CHANGE_EVENT, useCustomEvent } from '#/hooks/useCustomEvent';
 import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { useSwr } from '#/hooks/useSwr';
 import { createHash, generateUrlWithSearch } from '#/utils';
@@ -119,16 +119,22 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
     // 绑定全局自定义事件
     const { on } = useCustomEvent();
     useEffect(() => {
-      return on('customFilePathChange', evData => {
-        if (!evData) return;
+      return on(FILE_PATH_CHANGE_EVENT, evData => {
+        let currentDir = dirRequest.data;
+        if (!evData || !currentDir) return;
         // 当前的文件夹
-        const currentDir = dirRequest.data;
-        const newPathList: DirectoryInfo[] = [];
+        const newPathList: DirectoryInfo[] = [currentDir];
         // 查找新路径
         for (const dirName of evData) {
-          const pathNode = currentDir?.children.find(c => c.name === dirName);
-          if (pathNode) newPathList.push(pathNode);
-          else return closeMediaViewer();
+          const pathNode: DirectoryInfo | undefined = currentDir?.children.find(
+            c => c.name === dirName
+          );
+          if (pathNode) {
+            newPathList.push(pathNode);
+            currentDir = pathNode;
+          } else {
+            return closeMediaViewer();
+          }
         }
         setPathList(curPathList => {
           closeMediaViewer();

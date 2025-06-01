@@ -1,6 +1,6 @@
 'use client';
 
-import { useCustomEvent } from '#/hooks/useCustomEvent';
+import { FILE_PATH_CHANGE_EVENT, useCustomEvent } from '#/hooks/useCustomEvent';
 import { generateUrlWithSearch } from '#/utils';
 import { VIEWER_QUERY_KEY, ViewerQueryValue } from '#/utils/constant';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -115,7 +115,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
   // 文件详情的路径点击
   const handleDetailPathClick = useCallback(
     (paths: string[]) => {
-      emit('customFilePathChange', paths);
+      emit(FILE_PATH_CHANGE_EVENT, paths);
     },
     [emit]
   );
