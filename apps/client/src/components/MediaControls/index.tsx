@@ -301,6 +301,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
             currentTime={currentTime}
             videoDuration={videoDuration}
             loopTimes={loopTimes}
+            file={file}
           />
 
           <StyledBtnsContainer>

@@ -22,6 +22,12 @@ export interface MediaStream {
   disposition: {
     default: number;
   };
+
+  // video
+  width?: number;
+  height?: number;
+
+  [key: string]: string | number;
 }
 
 export interface MediaMeta {

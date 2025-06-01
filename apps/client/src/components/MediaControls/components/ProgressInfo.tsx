@@ -1,17 +1,34 @@
+import RollingText from '#/components/RollingText';
+import { formatCurrentPath } from '#/hooks/useFileTitle';
 import { h5Max } from '#/style/device';
 import { formatTime } from '#/utils';
 import { MULTIPLE_SYMBOL } from '#/utils/constant';
-import { useMediaQuery } from '@mui/material';
-import { useMemo } from 'react';
-import { StyledInfoDivider, StyledLoopTimes, StyledProgressInfo } from '../style';
+import { FileInfo } from '#pkgs/apis';
+import { SxProps, Theme, useMediaQuery } from '@mui/material';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  StyledInfoDivider,
+  StyledLoopTimes,
+  StyledProgressInfo,
+  StyledProgressLeft,
+  StyledProgressRight,
+} from '../style';
 
 interface ProgressInfoProps {
   currentTime: number;
   videoDuration: number;
   loopTimes: number;
+  file?: FileInfo;
 }
 
-const ProgressInfo = ({ currentTime, videoDuration, loopTimes }: ProgressInfoProps) => {
+const PATH_TITLE_SX: SxProps<Theme> = {
+  fontWeight: 400,
+  fontSize: '0.6rem',
+  textDecoration: 'none',
+  marginRight: 0,
+};
+
+const ProgressInfo = ({ currentTime, videoDuration, loopTimes, file }: ProgressInfoProps) => {
   // 当前播放的进度信息，用于展示
   const ct = Math.floor(currentTime);
   const tt = Math.floor(videoDuration);
@@ -20,18 +37,49 @@ const ProgressInfo = ({ currentTime, videoDuration, loopTimes }: ProgressInfoPro
   // 是否是 h5
   const isH5 = useMediaQuery(h5Max);
   const showLoopTimes = isH5 && loopTimes !== 1;
+  // 展示的路径信息
+  const pathText = useMemo(() => formatCurrentPath(file), [file]);
+
+  // 是否全屏
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    document.addEventListener(
+      'fullscreenchange',
+      () => {
+        setIsFullScreen(!!document.fullscreenElement);
+      },
+      {
+        signal: controller.signal,
+      }
+    );
+    return () => {
+      controller.abort();
+    };
+  }, []);
 
   return (
     <StyledProgressInfo variant="body2">
-      {currentInfo}
-      <StyledInfoDivider>/</StyledInfoDivider>
-      {totalInfo}
-      {showLoopTimes && (
-        <StyledLoopTimes>
-          {MULTIPLE_SYMBOL}
-          {loopTimes}
-        </StyledLoopTimes>
-      )}
+      <StyledProgressLeft>
+        {currentInfo}
+        <StyledInfoDivider>/</StyledInfoDivider>
+        {totalInfo}
+        {showLoopTimes && (
+          <StyledLoopTimes>
+            {MULTIPLE_SYMBOL}
+            {loopTimes}
+          </StyledLoopTimes>
+        )}
+      </StyledProgressLeft>
+      <StyledProgressRight>
+        {isFullScreen && (
+          <RollingText
+            sx={PATH_TITLE_SX}
+            text={pathText}
+          />
+        )}
+      </StyledProgressRight>
     </StyledProgressInfo>
   );
 };

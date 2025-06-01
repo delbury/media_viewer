@@ -156,6 +156,7 @@ export const transformVideoStream = async (
   ctx.body = { ok: 666 };
   // 根据源文件的编码类型，选择不同的解码器
   const { cuvid } = await getVideoFileCuvid(filePath);
+  // const videoWith = metadata?.streams.find(it => it.codec_type === 'video')?.width;
 
   const inputArgs: string[] = ['-c:v', cuvid, '-i', `${filePath}`];
 

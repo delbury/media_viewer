@@ -41,16 +41,41 @@ export const StyledBtnsGroup = styled(Box)`
 `;
 
 // 播放时间/总时间信息
+export const StyledProgressLeft = styled(Box)`
+  display: flex;
+
+  @media ${h5Max} {
+    flex-shrink: 0;
+    width: 120px;
+  }
+`;
+export const StyledProgressRight = styled(Box)`
+  display: none;
+
+  @media ${h5Max} {
+    flex: 1;
+    display: unset;
+    overflow: hidden;
+  }
+`;
 export const StyledProgressInfo = styled(Typography)`
   display: flex;
+  justify-content: space-between;
   font-size: 0.75rem;
   margin-inline-end: 24px;
 
   @media ${h5Max} {
+    margin-inline-end: 0;
     position: absolute;
     top: 0;
+    left: 0;
+    right: 0;
     transform: translateY(-100%);
     font-size: 0.6rem;
+
+    ${StyledProgressLeft} {
+      width: 100px;
+    }
   }
 `;
 export const StyledInfoDivider = styled(Box)`

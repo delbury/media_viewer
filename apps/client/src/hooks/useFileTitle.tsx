@@ -1,3 +1,4 @@
+import { EMPTY_SYMBOL } from '#/utils/constant';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { splitPath } from '#pkgs/tools/common';
 import { useMemo } from 'react';
@@ -6,9 +7,15 @@ const PATH_DIVIDER_SYMBOL = ' ⋱ ';
 const LEFT_SYMBOL = '⇝ ';
 const RIGHT_SYMBOL = ' ⇜';
 
+// 格式化当前文件路径
+export const formatCurrentPath = (file?: FileInfo | DirectoryInfo) =>
+  file ? splitPath(file.showPath).reverse().join(PATH_DIVIDER_SYMBOL) : EMPTY_SYMBOL;
+
 // 格式化父文件夹
-export const formatParentDir = (file: FileInfo | DirectoryInfo) =>
-  splitPath(file.showPath, { ignoreLast: true }).reverse().join(PATH_DIVIDER_SYMBOL);
+export const formatParentDir = (file?: FileInfo | DirectoryInfo) =>
+  file
+    ? splitPath(file.showPath, { ignoreLast: true }).reverse().join(PATH_DIVIDER_SYMBOL)
+    : EMPTY_SYMBOL;
 
 export const useFileTitle = ({ file }: { file?: FileInfo } = {}) => {
   const secondaryTitle = useMemo(() => {
