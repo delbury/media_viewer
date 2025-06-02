@@ -208,6 +208,9 @@ export const traverseDirectories = async (
 
   const dirs: Array<string | DirectoryInfo> = [...rootDir];
   const treeNode: DirectoryInfo = newDirectoryInfo();
+  const now = Date.now();
+  treeNode.created = now;
+  treeNode.updated = now;
   const fileList: FileInfo[] = [];
   const dirList: DirectoryInfo[] = [];
   // 当前的文件夹数组

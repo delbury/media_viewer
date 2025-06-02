@@ -19,6 +19,7 @@ import {
   useState,
 } from 'react';
 import { StyledFileBrowserWrapper } from '../style/file-browser';
+import DirectoryItem from './DirectoryItem';
 import DirectoryItemList from './DirectoryItemList';
 import FileItemList from './FileItemList';
 import SelectingPathInfo from './SelectingPathInfo';
@@ -205,6 +206,7 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
           onItemClick={setTarget}
           storageKeySuffix={storageKeySuffix}
         />
+        {currentPathNode && <DirectoryItem dir={currentPathNode} />}
         <ResizeContainer.Wrapper>
           {/* 当前文件夹的子文件夹 */}
           <ErrorBoundary>

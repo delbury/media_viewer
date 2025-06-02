@@ -1,10 +1,15 @@
-import { Box, IconButton, styled } from '@mui/material';
+import { Box, IconButton, styled, svgIconClasses } from '@mui/material';
 
 export const StyledSwitchBtnWrapper = styled(Box)`
   flex-shrink: 0;
   width: 24px;
   height: 24px;
   overflow: hidden;
+
+  & .${svgIconClasses.root} {
+    height: 18px;
+    width: 18px;
+  }
 `;
 export const StyledSwitchBtn = styled(IconButton, {
   shouldForwardProp: prop => prop !== 'isWrap',

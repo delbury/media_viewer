@@ -1,5 +1,6 @@
 import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { formatDate } from '#/utils';
+import { EMPTY_SYMBOL } from '#/utils/constant';
 import { DirectoryInfo } from '#pkgs/apis';
 import { MediaFileType } from '#pkgs/shared';
 import { AlbumRounded, ImageRounded, MovieRounded, PlayCircleRounded } from '@mui/icons-material';
@@ -31,11 +32,11 @@ const LIST_ITEM_TEXT_SLOT_PROPS: ListItemTextProps['slotProps'] = {
   },
   secondary: {
     sx: {
-      display: 'flex',
+      display: 'flex !important',
       justifyContent: 'space-between',
       alignItems: 'center',
       fontSize: '0.65rem',
-      lineHeight: 1.2,
+      // lineHeight: 1.2,
     },
   },
 };
@@ -117,9 +118,12 @@ const DirectoryItem = ({ dir, onClick, sx }: DirectoryItemProps) => {
         </PlayIconBtn>
       </ListItemIcon>
 
-      <StyledListItemButton onClick={() => onClick?.(dir)}>
+      <StyledListItemButton
+        disabled={!onClick}
+        onClick={() => onClick?.(dir)}
+      >
         <ListItemText
-          primary={dir.name}
+          primary={dir.name || EMPTY_SYMBOL}
           secondary={
             <>
               <span>{timeInfo}</span>
