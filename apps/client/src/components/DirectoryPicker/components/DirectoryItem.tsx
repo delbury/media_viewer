@@ -34,7 +34,7 @@ const LIST_ITEM_TEXT_SLOT_PROPS: ListItemTextProps['slotProps'] = {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      fontSize: '0.75rem',
+      fontSize: '0.65rem',
       lineHeight: 1.2,
     },
   },
@@ -79,7 +79,7 @@ const DirectoryItem = ({ dir, onClick, sx }: DirectoryItemProps) => {
     [t, dir.updated]
   );
   const fileInfo = useMemo(
-    () => `${t('Common.Total')} ${dir.totalFilesCount} ${t('Common.Files')}`,
+    () => `${dir.totalFilesCount} ${t('Common.Files')}`,
     [t, dir.totalFilesCount]
   );
 
