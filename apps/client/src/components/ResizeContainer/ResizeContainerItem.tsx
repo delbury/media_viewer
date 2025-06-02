@@ -45,7 +45,6 @@ const ResizeContainer = ({
     };
   }, [resizePosition, sx]);
   const [sizeOffset, setSizeOffset] = usePersistentConfig<[number, number]>([0, 0], persistentKey);
-
   const currentHeight = useMemo(() => {
     if (height) {
       const symbol = resizePosition === 'top' ? '-' : '+';
