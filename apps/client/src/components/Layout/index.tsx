@@ -17,8 +17,6 @@ const Layout = ({
         snackbar: {
           sx: {
             zIndex: NOTIFICATION_Z_INDEX,
-            top: '8px',
-            bottom: 'unset',
           },
         },
       }}
