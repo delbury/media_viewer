@@ -102,6 +102,28 @@ const RotateSetting = ({ mediaRef }: RotateSettingProps) => {
     [setDegree]
   );
 
+  // 进入/退出全屏，进入自动旋转模式
+  useEffect(() => {
+    const controller = new AbortController();
+    document.addEventListener(
+      'fullscreenchange',
+      () => {
+        if (document.fullscreenElement) {
+          setAuto(true);
+        } else {
+          setDegree(0);
+          setAuto(false);
+        }
+      },
+      {
+        signal: controller.signal,
+      }
+    );
+    return () => {
+      controller.abort();
+    };
+  }, [setDegree]);
+
   // 切换旋转
   // 未旋转 -> 自动旋转，自动旋转 -> 未旋转，手动旋转 -> 未旋转
   const handleToggleRotate = useCallback(() => {
