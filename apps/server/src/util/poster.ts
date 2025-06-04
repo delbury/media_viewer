@@ -3,14 +3,39 @@ import { MediaDetailInfo } from '#pkgs/shared';
 import { execCommand } from '#pkgs/tools/cli';
 import { DEFAULT_AUDIO_POSTER_RATIO, detectFileType, logError } from '#pkgs/tools/common';
 import path from 'node:path';
-import {
-  LONG_VIDEO_DURATION_THRESHOLD,
-  LONG_VIDEO_POSTER_FRAME_TIME,
-  POSTER_FILE_EXT,
-  POSTER_FILE_NAME_PREFIX,
-  POSTER_MAX_SIZE,
-  SHORT_VIDEO_POSTER_FRAME_TIME,
-} from '../config';
+import { POSTER_FILE_EXT, POSTER_FILE_NAME_PREFIX, POSTER_MAX_SIZE } from '../config';
+
+export const POSTER_FRAME_TIME_RULES: {
+  min: number;
+  frameTime: number;
+}[] = [
+  {
+    min: 60 * 3,
+    frameTime: 15,
+  },
+  {
+    min: 60,
+    frameTime: 10,
+  },
+  {
+    min: 30,
+    frameTime: 5,
+  },
+];
+
+// 获取视频封面的帧时间
+export const getVideoPosterFrameTime = (duration: number) => {
+  let frameTime = 0;
+
+  for (const it of POSTER_FRAME_TIME_RULES) {
+    if (duration >= it.min) {
+      frameTime = it.frameTime;
+      break;
+    }
+  }
+
+  return frameTime;
+};
 
 // 缩略图文件名
 export const getPosterFileName = (fileName: string) =>
@@ -36,10 +61,7 @@ const getGenerateVideoPosterCommand = async (rawFilePath: string, posterFilePath
   const isAvi = info.format.format_name.includes('avi');
   // 视频时长，单位为秒
   const duration = parseFloat(info.format.duration);
-  const frameTime =
-    duration < LONG_VIDEO_DURATION_THRESHOLD
-      ? SHORT_VIDEO_POSTER_FRAME_TIME
-      : LONG_VIDEO_POSTER_FRAME_TIME;
+  const frameTime = getVideoPosterFrameTime(duration);
 
   // 生成缩略图命令
   const inputArgs = [`-ss ${frameTime}`, `-i "${rawFilePath}"`];
