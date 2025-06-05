@@ -75,8 +75,8 @@ export const StyledList = styled(List)`
 `;
 
 export const StyledImgContainer = styled(Box)`
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   background-color: ${({ theme }) => theme.palette.common.black};
 
   > img {
@@ -96,6 +96,7 @@ export const StyledListItem = styled(ListItem)`
 `;
 
 export const StyledListItemText = styled(ListItemText)`
+  margin-inline-start: 8px;
   font-size: 0.75rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -103,4 +104,9 @@ export const StyledListItemText = styled(ListItemText)`
   word-break: break-all;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
+`;
+
+export const StyledShortDir = styled(Box)`
+  margin-top: 4px;
+  color: ${({ theme }) => theme.palette.text.secondary};
 `;

@@ -65,7 +65,7 @@ export const StyledFileExtraInfoWrapper = styled(Box)`
 export const StyledFileExtraInfoItem = styled(Box)`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 
   :nth-child(1),
   :nth-child(2) {

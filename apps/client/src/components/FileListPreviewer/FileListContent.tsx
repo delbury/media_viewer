@@ -36,8 +36,8 @@ interface FileListPreviewerProps {
   rowHeight?: number;
   // 额外信息组件
   RowExtraComp?: React.FC<{ file: FileInfo }>;
-
   isLoading?: boolean;
+  titleLineClamp?: number;
 }
 
 type ChildItemProps = FileListPreviewerProps & VirtualListChildItemProps;
@@ -55,6 +55,7 @@ const ChildItem = (props: ChildItemProps) => {
     rowHeight,
     RowExtraComp,
     onItemDelete,
+    titleLineClamp,
   } = props;
   const file = files?.[index] as FileInfo;
   const posterUrl = useMemo(() => getFilePosterUrl(file), [file]);
@@ -105,7 +106,7 @@ const ChildItem = (props: ChildItemProps) => {
 
         <StyleChildItemInfo>
           <StyleChildItemNameRow>
-            <StyleChildItemName>{title}</StyleChildItemName>
+            <StyleChildItemName lineClamp={titleLineClamp}>{title}</StyleChildItemName>
             <StyleChildItemSize>{size}</StyleChildItemSize>
           </StyleChildItemNameRow>
           <StyleChildItemDir>{secondaryTitle}</StyleChildItemDir>
@@ -136,6 +137,7 @@ const FileListContent = ({
   rowHeight,
   RowExtraComp,
   isLoading,
+  titleLineClamp,
 }: FileListPreviewerProps) => {
   const t = useTranslations();
   const defaultScroll = FILE_ITEM_ROW_HEIGHT * ((selectedIndex ?? 0) - 0.5);
@@ -152,6 +154,7 @@ const FileListContent = ({
       onItemDelete,
       rowHeight,
       RowExtraComp,
+      titleLineClamp,
     }),
     [
       files,
@@ -163,6 +166,7 @@ const FileListContent = ({
       onItemDelete,
       rowHeight,
       RowExtraComp,
+      titleLineClamp,
     ]
   );
 

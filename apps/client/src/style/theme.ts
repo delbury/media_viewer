@@ -5,8 +5,8 @@ import { COMMON_DIALOG_Z_INDEX } from './constant';
 
 export const theme = createTheme({
   cssVariables: true,
-  // 禁用所有过渡动画，避免产生 detached nodes
   transitions: {
+    // 禁用所有过渡动画，避免产生 detached nodes
     create: () => 'none',
   },
   components: {

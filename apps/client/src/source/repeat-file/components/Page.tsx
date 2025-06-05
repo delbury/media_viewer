@@ -25,7 +25,7 @@ import {
   StyledSelectedDirInfoWrapper,
 } from '../style';
 
-const ROW_HEIGHT = 72;
+const ROW_HEIGHT = 88;
 
 export default function RepeatFile() {
   const t = useTranslations();
@@ -217,6 +217,7 @@ export default function RepeatFile() {
           onImgClick={handleImgClick}
           selectedIdSet={selectedSet}
           isLoading={isLoading}
+          titleLineClamp={3}
         />
       </StyledFileContentContainer>
 
