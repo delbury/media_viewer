@@ -199,9 +199,6 @@ export const createFileNameRegExp = (pureName: string, ext: string | string[]) =
   return new RegExp(fullRule);
 };
 
-// 获取随机 index
-export const getRandomIndex = (length: number) => Math.floor(Math.random() * length);
-
 // 获取文件夹下的所有文件
 export const getAllFiles = (type: MediaFileType, dir: DirectoryInfo, list: FileInfo[] = []) => {
   dir.files.forEach(f => {

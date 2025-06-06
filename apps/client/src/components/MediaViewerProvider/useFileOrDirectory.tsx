@@ -1,6 +1,7 @@
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { MediaFileType } from '#pkgs/shared';
-import { getAllFiles, getRandomIndex } from '#pkgs/tools/common';
+import { getAllFiles } from '#pkgs/tools/common';
+import { getRandomIndex, RandomStrategy } from '#pkgs/tools/randomStrategy';
 import { isNil } from 'lodash-es';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -10,6 +11,7 @@ interface UseFileOrDirectoryParams {
   list?: FileInfo[];
   mediaType?: MediaFileType;
   defaultRandom?: boolean;
+  randomStrategy?: RandomStrategy;
 }
 
 export const useFileOrDirectory = ({
@@ -18,6 +20,7 @@ export const useFileOrDirectory = ({
   list,
   mediaType,
   defaultRandom = true,
+  randomStrategy,
 }: UseFileOrDirectoryParams) => {
   /**
    * 播放模式：
@@ -53,7 +56,7 @@ export const useFileOrDirectory = ({
     randomToPlayIndexes.current.clear();
     randomPlayedIndexes.current.clear();
     if (defaultRandom) {
-      const startIndex = getRandomIndex(fileList.length);
+      const startIndex = getRandomIndex(fileList.length, randomStrategy);
       setCurrentFileIndex(startIndex);
       const newSet = new Set(Array.from({ length: fileList.length }, (_, k) => k));
       newSet.delete(startIndex);
@@ -81,7 +84,9 @@ export const useFileOrDirectory = ({
       if (isRandomPlay) {
         // 随机播放
         const nextIndex = isNil(index)
-          ? [...randomToPlayIndexes.current][getRandomIndex(randomToPlayIndexes.current.size)]
+          ? [...randomToPlayIndexes.current][
+              getRandomIndex(randomToPlayIndexes.current.size, randomStrategy)
+            ]
           : index;
         randomToPlayIndexes.current.delete(nextIndex);
         setCurrentFileIndex(nextIndex);

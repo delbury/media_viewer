@@ -19,7 +19,7 @@ import {
 import { Theme } from '@emotion/react';
 import {
   AccessTimeRounded,
-  PlayCircleOutlineRounded,
+  HistoryToggleOffRounded,
   SubscriptionsRounded,
 } from '@mui/icons-material';
 import { Badge, Chip, Divider, IconButton, ListItemAvatar, SxProps } from '@mui/material';
@@ -290,7 +290,11 @@ export default function RecentFile() {
   }, [filterFileType, openMediaViewer, recentItems]);
 
   const handlePlayRecentAll = useCallback(() => {
-    openMediaViewer({ list: allRecentItems, mediaType: filterFileType });
+    openMediaViewer({
+      list: allRecentItems,
+      mediaType: filterFileType,
+      randomStrategy: 'smallerHigher',
+    });
   }, [filterFileType, openMediaViewer, allRecentItems]);
 
   const { visible, stateValue, handleClose, handleOpen } = useDialogStateByValue<DirectoryInfo>();
@@ -313,7 +317,7 @@ export default function RecentFile() {
             size="small"
             onClick={handlePlayRecent}
             icon={
-              <AccessTimeRounded
+              <HistoryToggleOffRounded
                 fontSize="small"
                 color="info"
               />
@@ -325,7 +329,7 @@ export default function RecentFile() {
             size="small"
             onClick={handlePlayRecentAll}
             icon={
-              <PlayCircleOutlineRounded
+              <AccessTimeRounded
                 fontSize="small"
                 color="info"
               />

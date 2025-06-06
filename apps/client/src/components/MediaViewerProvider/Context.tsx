@@ -2,6 +2,7 @@
 
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { MediaFileType } from '#pkgs/shared';
+import { RandomStrategy } from '#pkgs/tools/randomStrategy';
 import { noop } from 'lodash-es';
 import { createContext } from 'react';
 
@@ -10,6 +11,7 @@ export const INIT_VALUE: MediaContextState = {
   file: void 0,
   list: void 0,
   mediaType: void 0,
+  randomStrategy: void 0,
 };
 
 export interface MediaContextState {
@@ -17,6 +19,7 @@ export interface MediaContextState {
   file?: FileInfo;
   dir?: DirectoryInfo;
   list?: FileInfo[];
+  randomStrategy?: RandomStrategy;
 }
 
 interface MediaContextValue {

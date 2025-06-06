@@ -41,6 +41,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     dir: state.dir,
     list: state.list,
     mediaType: state.mediaType,
+    randomStrategy: state.randomStrategy,
   });
   const [detailVisible, setDetailVisible] = useState(false);
 
