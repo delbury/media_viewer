@@ -17,11 +17,16 @@ import {
   splitPath,
 } from '#pkgs/tools/common';
 import { Theme } from '@emotion/react';
-import { PlayCircleRounded, SubscriptionsRounded } from '@mui/icons-material';
-import { Badge, Box, Chip, Divider, IconButton, ListItemAvatar, SxProps } from '@mui/material';
+import {
+  AccessTimeRounded,
+  PlayCircleOutlineRounded,
+  SubscriptionsRounded,
+} from '@mui/icons-material';
+import { Badge, Chip, Divider, IconButton, ListItemAvatar, SxProps } from '@mui/material';
 import React, { useCallback, useMemo, useState } from 'react';
 import PlayDirDialog from './components/PlayDirDialog';
 import {
+  StyledBtnContainer,
   StyledCardHeader,
   StyledContainer,
   StyledContent,
@@ -30,6 +35,7 @@ import {
   StyledList,
   StyledListItem,
   StyledListItemText,
+  StyledNameRow,
   StyledRecentFileWrapper,
   StyledShortDir,
   StyledToolsRow,
@@ -175,7 +181,17 @@ export default function RecentFile() {
   const [filterFileType, setFilterFileType] = useState<MediaFileType>('video');
 
   const treeRequest = useSwr('dirTree');
-  const { audioList, videoList, imageList, audioCount, videoCount, imageCount } = useMemo(() => {
+  const {
+    audioList,
+    videoList,
+    imageList,
+    audioCount,
+    videoCount,
+    imageCount,
+    audioSorted,
+    videoSorted,
+    imageSorted,
+  } = useMemo(() => {
     if (!treeRequest.data) return {};
 
     const {
@@ -200,6 +216,9 @@ export default function RecentFile() {
     );
 
     return {
+      audioSorted: audio,
+      videoSorted: video,
+      imageSorted: image,
       audioList,
       videoList,
       imageList,
@@ -209,30 +228,45 @@ export default function RecentFile() {
     };
   }, [treeRequest.data]);
 
-  const { recentItems, recentItemsCount } = useMemo(() => {
+  const { allRecentItems, recentItems, recentItemsCount } = useMemo(() => {
     switch (filterFileType) {
       case 'audio':
         return {
           recentItems: audioList ?? [],
           recentItemsCount: audioCount,
+          allRecentItems: audioSorted ?? [],
         };
       case 'image':
         return {
           recentItems: imageList ?? [],
           recentItemsCount: imageCount,
+          allRecentItems: imageSorted ?? [],
         };
       case 'video':
         return {
           recentItems: videoList ?? [],
           recentItemsCount: videoCount,
+          allRecentItems: videoSorted ?? [],
         };
       default:
         return {
           recentItems: [],
           recentItemsCount: 0,
+          allRecentItems: [],
         };
     }
-  }, [audioCount, audioList, filterFileType, imageCount, imageList, videoCount, videoList]);
+  }, [
+    audioCount,
+    audioList,
+    audioSorted,
+    filterFileType,
+    imageCount,
+    imageList,
+    imageSorted,
+    videoCount,
+    videoList,
+    videoSorted,
+  ]);
 
   // 打开媒体浏览器
   const { openMediaViewer } = useMediaViewerContext();
@@ -255,6 +289,10 @@ export default function RecentFile() {
     openMediaViewer({ list: recentItems.map(it => it.files).flat(), mediaType: filterFileType });
   }, [filterFileType, openMediaViewer, recentItems]);
 
+  const handlePlayRecentAll = useCallback(() => {
+    openMediaViewer({ list: allRecentItems, mediaType: filterFileType });
+  }, [filterFileType, openMediaViewer, allRecentItems]);
+
   const { visible, stateValue, handleClose, handleOpen } = useDialogStateByValue<DirectoryInfo>();
 
   return (
@@ -270,19 +308,31 @@ export default function RecentFile() {
           }}
         />
 
-        <Box>
+        <StyledBtnContainer>
           <Chip
             size="small"
             onClick={handlePlayRecent}
             icon={
-              <PlayCircleRounded
+              <AccessTimeRounded
                 fontSize="small"
                 color="info"
               />
             }
             label={recentItemsCount}
           />
-        </Box>
+
+          <Chip
+            size="small"
+            onClick={handlePlayRecentAll}
+            icon={
+              <PlayCircleOutlineRounded
+                fontSize="small"
+                color="info"
+              />
+            }
+            label={allRecentItems.length}
+          />
+        </StyledBtnContainer>
       </StyledToolsRow>
 
       <ScrollBox
@@ -333,10 +383,10 @@ export default function RecentFile() {
                         <StyledListItemText
                           disableTypography
                           primary={
-                            <Box>
+                            <StyledNameRow lineClamp={3}>
                               <StyledCreatedTime>{createdTime}</StyledCreatedTime>
                               {file.name}
-                            </Box>
+                            </StyledNameRow>
                           }
                           secondary={<StyledShortDir>{shortDir}</StyledShortDir>}
                         />

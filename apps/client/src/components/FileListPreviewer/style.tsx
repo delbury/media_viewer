@@ -1,3 +1,4 @@
+import { StyleBaseLineClamp } from '#/style/baseComps';
 import styled from '@emotion/styled';
 import { badgeClasses, Box, iconButtonClasses } from '@mui/material';
 
@@ -78,15 +79,9 @@ export const StyleChildItemNameRow = styled(Box)`
   width: 100%;
 `;
 
-export const StyleChildItemName = styled(Box, {
+export const StyleChildItemName = styled(StyleBaseLineClamp, {
   shouldForwardProp: prop => prop !== 'lineClamp',
 })<{ lineClamp?: number }>`
-  text-overflow: ellipsis;
-  overflow: hidden;
-  word-break: break-all;
-  display: -webkit-box;
-  -webkit-line-clamp: ${({ lineClamp }) => lineClamp ?? 1};
-  -webkit-box-orient: vertical;
   line-height: 1;
   font-weight: 700;
   font-size: 0.75rem;

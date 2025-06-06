@@ -1,3 +1,4 @@
+import { StyleBaseLineClamp } from '#/style/baseComps';
 import {
   badgeClasses,
   Box,
@@ -75,8 +76,8 @@ export const StyledList = styled(List)`
 `;
 
 export const StyledImgContainer = styled(Box)`
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   background-color: ${({ theme }) => theme.palette.common.black};
 
   > img {
@@ -109,4 +110,13 @@ export const StyledListItemText = styled(ListItemText)`
 export const StyledShortDir = styled(Box)`
   margin-top: 4px;
   color: ${({ theme }) => theme.palette.text.secondary};
+`;
+
+export const StyledBtnContainer = styled(Box)`
+  display: flex;
+  gap: 8px;
+`;
+
+export const StyledNameRow = styled(StyleBaseLineClamp)`
+  line-height: 1.1;
 `;
