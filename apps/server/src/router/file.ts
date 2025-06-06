@@ -83,9 +83,6 @@ fileRouter[API_CONFIGS.fileDelete.method](API_CONFIGS.fileDelete.url, async ctx 
 
   if (!cachedData?.treeNode?.children) throw new Error(ERROR_MSG.noFile);
 
-  // debug
-  ctx.body = returnBody();
-
   try {
     deleteFileTask.start();
 
