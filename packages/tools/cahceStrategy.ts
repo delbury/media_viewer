@@ -2,13 +2,16 @@
 export class FIFO<T> {
   #maxSize: number = 0;
   #caches: Map<string, T> = new Map();
+  #cachePromises: Map<string, Promise<T>> = new Map();
 
   constructor(size: number) {
     this.#maxSize = size;
   }
 
-  public get(key: string) {
-    return this.#caches.get(key);
+  public async get(key: string) {
+    if (this.#caches.has(key)) return this.#caches.get(key);
+    if (this.#cachePromises.has(key)) return await this.#cachePromises.get(key);
+    return null;
   }
 
   public set(key: string, data: T) {
@@ -17,6 +20,20 @@ export class FIFO<T> {
       if (k) this.#caches.delete(k);
     }
     this.#caches.set(key, data);
+  }
+
+  // 创建异步任务
+  public async setAsync(key: string, dataPromise: Promise<T>) {
+    if (!this.#cachePromises.has(key) && !this.#caches.has(key)) {
+      this.#cachePromises.set(key, dataPromise);
+      await dataPromise
+        .then(data => {
+          this.set(key, data);
+        })
+        .finally(() => {
+          this.#cachePromises.delete(key);
+        });
+    }
   }
 
   public clear() {

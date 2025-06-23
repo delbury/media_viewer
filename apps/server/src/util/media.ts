@@ -1,5 +1,6 @@
 import { ERROR_MSG } from '#pkgs/i18n/errorMsg';
 import { CodecName, MediaDetailInfo } from '#pkgs/shared';
+import { FIFO } from '#pkgs/tools/cahceStrategy';
 import { execCommand } from '#pkgs/tools/cli';
 import { isDev, logError, logWarn as RawLogWarn, switchFnByFlag } from '#pkgs/tools/common';
 import { ParameterizedContext } from 'koa';
@@ -11,68 +12,43 @@ import {
 } from '../config';
 import { logCommand } from './debug';
 
-interface VideoDetailTasks {
-  [key: string]: {
-    done: boolean;
-    data?: MediaDetailInfo;
-    promise?: Promise<MediaDetailInfo>;
-  };
-}
-// 进行中的任务信息
-const VIDEO_DETAIL_TASKS: VideoDetailTasks = {};
+// 缓存
+const videoDetailFifo = new FIFO<MediaDetailInfo>(16);
 
 const logWarn = switchFnByFlag(RawLogWarn, isDev());
 
 // 获取视频详细信息
-export const getMediaDetail = async (
-  filaPath: string,
-  {
-    forceUpdate,
-  }: {
-    forceUpdate?: boolean;
-  } = {}
-) => {
-  const task = VIDEO_DETAIL_TASKS[filaPath];
-  if (task && !forceUpdate) {
-    // 有缓存则取缓存
-    if (task.done) return task.data;
-
-    // 有任务则等待任务完成并返回结果
-    return await task.promise;
-  }
+export const getMediaDetail = async (filaPath: string) => {
+  const cachedData = await videoDetailFifo.get(filaPath);
+  if (cachedData) return cachedData;
 
   // 没有缓存或者正在进行的任务，则创建新任务
-  VIDEO_DETAIL_TASKS[filaPath] = {
-    done: false,
-    promise: new Promise((resolve, reject) => {
-      try {
-        const command = [
-          'ffprobe -v error',
-          '-print_format json',
-          '-show_streams',
-          '-show_format',
-          `"${filaPath}"`,
-        ].join(' ');
+  const promise = new Promise<MediaDetailInfo>((resolve, reject) => {
+    try {
+      const command = [
+        'ffprobe -v error',
+        '-print_format json',
+        '-show_streams',
+        '-show_format',
+        `"${filaPath}"`,
+      ].join(' ');
 
-        execCommand(command)
-          .then(({ stdout }) => {
-            const info = JSON.parse(stdout as string);
-            VIDEO_DETAIL_TASKS[filaPath].data = info;
-            VIDEO_DETAIL_TASKS[filaPath].done = true;
-            VIDEO_DETAIL_TASKS[filaPath].promise = void 0;
-            resolve(info);
-          })
-          .catch(error => {
-            Reflect.deleteProperty(VIDEO_DETAIL_TASKS, filaPath);
-            reject(error);
-          });
-      } catch (error) {
-        reject(error);
-      }
-    }),
-  };
+      execCommand(command)
+        .then(({ stdout }) => {
+          const info = JSON.parse(stdout as string);
+          resolve(info);
+        })
+        .catch(error => {
+          reject(error);
+        });
+    } catch (error) {
+      reject(error);
+    }
+  });
 
-  return await VIDEO_DETAIL_TASKS[filaPath].promise;
+  await videoDetailFifo.setAsync(filaPath, promise);
+
+  return await videoDetailFifo.get(filaPath);
 };
 
 const CODEC_CUVID_MAP = {

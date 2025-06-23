@@ -30,7 +30,7 @@ export const resolveRange = async (range: string, filePath: string) => {
   const positions = range.replace(/bytes=/, '').split('-');
 
   // 获取文件信息
-  let fileInfo = fileStatFifo.get(filePath);
+  let fileInfo = await fileStatFifo.get(filePath);
   if (!fileInfo) {
     try {
       fileInfo = await stat(filePath);
