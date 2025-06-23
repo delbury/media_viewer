@@ -12,6 +12,7 @@ export const INIT_VALUE: MediaContextState = {
   list: void 0,
   mediaType: void 0,
   randomStrategy: void 0,
+  noFileDetailPathDirClickEvent: void 0,
 };
 
 export interface MediaContextState {
@@ -19,7 +20,10 @@ export interface MediaContextState {
   file?: FileInfo;
   dir?: DirectoryInfo;
   list?: FileInfo[];
+  // 随机播放的策略
   randomStrategy?: RandomStrategy;
+  // 无文件详情的路径文件夹点击事件
+  noFileDetailPathDirClickEvent?: boolean;
 }
 
 interface MediaContextValue {

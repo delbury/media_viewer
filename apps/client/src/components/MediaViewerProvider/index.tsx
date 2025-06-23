@@ -207,7 +207,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           visible
           onClose={() => setDetailVisible(false)}
           hidePoster
-          onPathClick={handleDetailPathClick}
+          onPathClick={state.noFileDetailPathDirClickEvent ? void 0 : handleDetailPathClick}
         />
       )}
     </MediaContext.Provider>

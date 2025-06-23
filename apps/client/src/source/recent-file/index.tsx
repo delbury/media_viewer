@@ -273,20 +273,24 @@ export default function RecentFile() {
 
   const handleFileClick = useCallback(
     (file: FileInfo) => {
-      openMediaViewer({ file, mediaType: filterFileType });
+      openMediaViewer({ file, mediaType: filterFileType, noFileDetailPathDirClickEvent: true });
     },
     [filterFileType, openMediaViewer]
   );
 
   const handlePlayDirFiles = useCallback(
     (dir: DirectoryInfo) => {
-      openMediaViewer({ dir, mediaType: filterFileType });
+      openMediaViewer({ dir, mediaType: filterFileType, noFileDetailPathDirClickEvent: true });
     },
     [filterFileType, openMediaViewer]
   );
 
   const handlePlayRecent = useCallback(() => {
-    openMediaViewer({ list: recentItems.map(it => it.files).flat(), mediaType: filterFileType });
+    openMediaViewer({
+      list: recentItems.map(it => it.files).flat(),
+      mediaType: filterFileType,
+      noFileDetailPathDirClickEvent: true,
+    });
   }, [filterFileType, openMediaViewer, recentItems]);
 
   const handlePlayRecentAll = useCallback(() => {
@@ -294,6 +298,7 @@ export default function RecentFile() {
       list: allRecentItems,
       mediaType: filterFileType,
       randomStrategy: 'smallerHigher',
+      noFileDetailPathDirClickEvent: true,
     });
   }, [filterFileType, openMediaViewer, allRecentItems]);
 

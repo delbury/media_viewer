@@ -29,6 +29,7 @@ const PlayDirDialog = ({ rootDir, dir, visible, onClose, mediaType }: PlayDirDia
         openMediaViewer({
           mediaType,
           dir: target,
+          noFileDetailPathDirClickEvent: true,
         });
     },
     [mediaType, openMediaViewer, rootDir]

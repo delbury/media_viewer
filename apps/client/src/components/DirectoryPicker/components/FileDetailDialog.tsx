@@ -40,6 +40,7 @@ export const renderPathInfo = (
 ): React.ReactNode => {
   if (!path) return null;
   const paths = splitPath(path);
+
   return (
     <Box sx={{ lineHeight: onPathClick ? 2 : void 0 }}>
       {paths.map((p, i) => (
