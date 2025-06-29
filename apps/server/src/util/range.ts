@@ -44,8 +44,7 @@ export const resolveRange = async (range: string, filePath: string) => {
   if (isVideo) {
     const videoDetail = await getMediaDetail(filePath);
     fileSize = +(videoDetail?.format.size ?? '');
-    const bitRate = Math.ceil(+(videoDetail?.format.bit_rate ?? '') / 8 / MB);
-    sizeStep = getFileStep(fileSize);
+    const bitRate = Math.ceil(+(videoDetail?.format.bit_rate ?? '') / 8);
     // 根据视频码率，限制单个请求的最大大小
     sizeStep = clamp(bitRate, BASE_RANGE_SIZE_STEP, MAX_STEP);
   } else {
