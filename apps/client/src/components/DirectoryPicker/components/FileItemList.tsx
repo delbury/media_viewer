@@ -3,6 +3,7 @@
 import ResizeContainer from '#/components/ResizeContainer';
 import ScrollBox from '#/components/ScrollBox';
 import { GridLayout, VirtualListChildItemProps } from '#/components/ScrollBox/hooks/useVirtualList';
+import ToolGroupBtn from '#/components/ToolGroupBtn';
 import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { h5Max } from '#/style/device';
@@ -32,7 +33,6 @@ import {
 } from '../style/file-item-list';
 import FileDetailDialog from './FileDetailDialog';
 import FileItem from './FileItem';
-import ToolGroupBtn from './ToolGroupBtn';
 
 const calcGridLayout = (isH5: boolean, childCount: number, contentWidth: number): GridLayout => {
   // padding 4px

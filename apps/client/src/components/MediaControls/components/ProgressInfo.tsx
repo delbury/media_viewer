@@ -1,5 +1,5 @@
 import RollingText from '#/components/RollingText';
-import { formatCurrentPath } from '#/hooks/useFileTitle';
+import { useFormatCurrentPath } from '#/hooks/useFileTitle';
 import { h5Max } from '#/style/device';
 import { formatTime } from '#/utils';
 import { MULTIPLE_SYMBOL } from '#/utils/constant';
@@ -38,7 +38,7 @@ const ProgressInfo = ({ currentTime, videoDuration, loopTimes, file }: ProgressI
   const isH5 = useMediaQuery(h5Max);
   const showLoopTimes = isH5 && loopTimes !== 1;
   // 展示的路径信息
-  const pathText = useMemo(() => formatCurrentPath(file), [file]);
+  const pathText = useFormatCurrentPath(file);
 
   // 是否全屏
   const [isFullScreen, setIsFullScreen] = useState(false);

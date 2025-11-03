@@ -1,7 +1,6 @@
 import { ToggleButtonGroupProps, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { StyledToggleButtonGroup } from '../style/file-item-list';
-import { StyledSelectedBadge, StyledToggleButton } from '../style/tool-group-btn';
+import { StyledSelectedBadge, StyledToggleButton, StyledToggleButtonGroup } from './style';
 
 const ToolGroupBtn = ({
   items,
@@ -11,7 +10,7 @@ const ToolGroupBtn = ({
   ...props
 }: ToggleButtonGroupProps & {
   items: {
-    value: string;
+    value: string | number;
     label: string;
   }[];
   showOrder?: boolean;

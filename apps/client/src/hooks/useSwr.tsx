@@ -10,9 +10,6 @@ import useSWR, { KeyedMutator } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { useMessage } from './useMessage';
 
-const AUTO_HIDE_DURATION_ERROR = 2000;
-const AUTO_HIDE_DURATION_SUCCESS = 1000;
-
 interface UseSwrOptions<T, P extends ApiKeys> {
   key?: string;
   lazy?: boolean;

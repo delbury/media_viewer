@@ -1,9 +1,9 @@
 'use client';
 
 import ScrollBox from '#/components/ScrollBox';
+import ToolGroupBtn from '#/components/ToolGroupBtn';
 import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { useMemo } from 'react';
-import ToolGroupBtn from '../components/ToolGroupBtn';
 import { FileSortField } from '../constant';
 import { StyledFileToolRow } from '../style/file-item-list';
 import { useResetBtn } from './useResetBtn';

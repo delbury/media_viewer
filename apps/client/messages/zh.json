@@ -25,6 +25,12 @@
     "AreYouSureRemoveTheDir": "确定移除该文件夹？",
     "AreYouSureRemoveAll": "确定清空所有文件？"
   },
+  "Setting": {
+    "DirectoryOrderReverse": "文件夹路径反序",
+    "VideoDurationSortRoundTo": "排序视频时长精确到",
+    "FileSizeSortRoundTo": "排序文件大小精确到",
+    "GlobalSetting": "全局设置"
+  },
   "Common": {
     "AreYouSure": "确定？",
     "AreYouSureDoOperation": "确定执行该操作？",

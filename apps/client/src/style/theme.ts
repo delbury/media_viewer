@@ -7,7 +7,7 @@ export const theme = createTheme({
   cssVariables: true,
   transitions: {
     // 禁用所有过渡动画，避免产生 detached nodes
-    create: () => 'none',
+    // create: () => 'none',
   },
   components: {
     MuiButton: {

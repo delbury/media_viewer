@@ -1,29 +1,57 @@
+import { DIR_PATH_REVERSE_KEY } from '#/components/GlobalSetting';
 import { EMPTY_SYMBOL } from '#/utils/constant';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { splitPath } from '#pkgs/tools/common';
 import { useMemo } from 'react';
+import { usePersistentConfigValue } from './usePersistentConfig';
 
+const DEFAULT_PATH_DIVIDER_SYMBOL = ' / ';
 const PATH_DIVIDER_SYMBOL = ' ⋱ ';
 const LEFT_SYMBOL = '⇝ ';
 const RIGHT_SYMBOL = ' ⇜';
 
+const defaultFormatShowPath = (file?: FileInfo | DirectoryInfo) =>
+  file ? splitPath(file.showPath).join(DEFAULT_PATH_DIVIDER_SYMBOL) : EMPTY_SYMBOL;
+
+const defaultFormatParentShowPath = (file?: FileInfo | DirectoryInfo) =>
+  file
+    ? splitPath(file.showPath, { ignoreLast: true }).join(DEFAULT_PATH_DIVIDER_SYMBOL)
+    : EMPTY_SYMBOL;
+
 // 格式化当前文件路径
-export const formatCurrentPath = (file?: FileInfo | DirectoryInfo) =>
+const formatCurrentPathReverse = (file?: FileInfo | DirectoryInfo) =>
   file ? splitPath(file.showPath).reverse().join(PATH_DIVIDER_SYMBOL) : EMPTY_SYMBOL;
 
 // 格式化父文件夹
-export const formatParentDir = (file?: FileInfo | DirectoryInfo) =>
+const formatParentDirReverse = (file?: FileInfo | DirectoryInfo) =>
   file
     ? splitPath(file.showPath, { ignoreLast: true }).reverse().join(PATH_DIVIDER_SYMBOL)
     : EMPTY_SYMBOL;
 
+export const useFormatCurrentPath = (file?: FileInfo | DirectoryInfo) => {
+  const reverse = usePersistentConfigValue<boolean>(DIR_PATH_REVERSE_KEY);
+  return useMemo(
+    () => (reverse ? defaultFormatShowPath(file) : formatCurrentPathReverse(file)),
+    [file, reverse]
+  );
+};
+
+export const useFormatParentDirHandler = () => {
+  const reverse = usePersistentConfigValue<boolean>(DIR_PATH_REVERSE_KEY);
+  return reverse ? formatParentDirReverse : defaultFormatParentShowPath;
+};
+
 export const useFileTitle = ({ file }: { file?: FileInfo } = {}) => {
+  const reverse = usePersistentConfigValue<boolean>(DIR_PATH_REVERSE_KEY);
+
   const secondaryTitle = useMemo(() => {
     if (!file) return;
 
-    const text = formatParentDir(file);
-
-    return `${LEFT_SYMBOL}${text}${RIGHT_SYMBOL}`;
+    if (reverse) {
+      const text = formatParentDirReverse(file);
+      return `${LEFT_SYMBOL}${text}${RIGHT_SYMBOL}`;
+    }
+    return defaultFormatParentShowPath(file);
 
     // const list = file.showPath.split('/').filter(it => !!it);
     // // ./a/b/c/file
@@ -38,7 +66,7 @@ export const useFileTitle = ({ file }: { file?: FileInfo } = {}) => {
     // }
 
     // return `.../${textArr.join('/')}/`;
-  }, [file]);
+  }, [file, reverse]);
 
   return {
     secondaryTitle,

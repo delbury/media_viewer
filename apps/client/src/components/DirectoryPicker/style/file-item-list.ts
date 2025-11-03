@@ -1,5 +1,5 @@
 import { h5Max } from '#/style/device';
-import { Box, styled, ToggleButtonGroup } from '@mui/material';
+import { Box, styled } from '@mui/material';
 
 export const StyledFileToolRow = styled(Box)`
   display: flex;
@@ -65,10 +65,4 @@ export const StyledFileGrid = styled(Box)`
   @media ${h5Max} {
     gap: ${FILE_GRID_SIZE.gapH5}px;
   }
-`;
-
-export const StyledToggleButtonGroup = styled(ToggleButtonGroup)`
-  height: 20px;
-  display: flex;
-  /* align-self: flex-start; */
 `;

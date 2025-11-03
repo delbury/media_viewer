@@ -1,35 +1,56 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useSyncExternalStore } from 'react';
 import { useIdleCallback } from './useIdleCallback';
 
 const LOCAL_STORAGE_CONFIG_KEY = '_persistent_config';
 
-let localConfig: Record<string, unknown> | null = null;
+const STORE = {
+  localConfig: null as Record<string, unknown> | null,
+};
+
+const listeners = new Set<() => void>();
+const subscribe = (listener: () => void) => {
+  listeners.add(listener);
+  // 返回一个取消订阅的函数
+  return () => {
+    listeners.delete(listener);
+  };
+};
+
+const getSnapshot = () => {
+  return STORE.localConfig;
+};
+
 const initLocalConfig = () => {
   const item = window?.localStorage.getItem(LOCAL_STORAGE_CONFIG_KEY);
   try {
     const itemObj = item ? JSON.parse(item) : {};
-    localConfig = itemObj;
+    STORE.localConfig = itemObj;
   } catch {
     window?.localStorage.removeItem(LOCAL_STORAGE_CONFIG_KEY);
-    localConfig = {};
+    STORE.localConfig = {};
   }
 };
 const getLocalConfig = (key?: string) => {
-  if (!localConfig) initLocalConfig();
+  if (!STORE.localConfig) initLocalConfig();
 
   if (!key) return null;
 
-  return localConfig?.[key];
+  return STORE.localConfig?.[key];
 };
 const setLocalConfig = (key: string, val?: unknown) => {
-  if (!localConfig) initLocalConfig();
+  if (!STORE.localConfig) initLocalConfig();
 
-  if (localConfig) localConfig[key] = val;
+  if (STORE.localConfig) {
+    STORE.localConfig[key] = val;
+    STORE.localConfig = { ...STORE.localConfig };
+  }
+
+  listeners.values().forEach(fn => fn());
 };
 const saveLocalConfig = () => {
-  localStorage.setItem(LOCAL_STORAGE_CONFIG_KEY, JSON.stringify(localConfig));
+  localStorage.setItem(LOCAL_STORAGE_CONFIG_KEY, JSON.stringify(STORE.localConfig));
 };
 
 export function usePersistentConfig<T = unknown>(
@@ -55,7 +76,7 @@ export function usePersistentConfig<T = unknown>(
   const setValueWithLocal = useCallback(
     (val: T) => {
       setValue(val);
-      if (key && localConfig) {
+      if (key && STORE.localConfig) {
         setLocalConfig(key, val);
 
         saveLocalConfigIdle();
@@ -66,3 +87,8 @@ export function usePersistentConfig<T = unknown>(
 
   return [value, setValueWithLocal];
 }
+
+export const usePersistentConfigValue = function <T>(key: string) {
+  const config = useSyncExternalStore(subscribe, getSnapshot);
+  return config?.[key] as T;
+};

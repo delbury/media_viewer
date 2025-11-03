@@ -1,6 +1,10 @@
-import { Box, ToggleButton } from '@mui/material';
+import { Box, styled, ToggleButton, ToggleButtonGroup } from '@mui/material';
 
-import { styled } from '@mui/material';
+export const StyledToggleButtonGroup = styled(ToggleButtonGroup)`
+  height: 20px;
+  display: flex;
+  /* align-self: flex-start; */
+`;
 
 export const StyledToggleButton = styled(ToggleButton)`
   position: relative;

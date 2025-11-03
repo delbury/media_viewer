@@ -1,10 +1,10 @@
 'use client';
 
-import ToolGroupBtn from '#/components/DirectoryPicker/components/ToolGroupBtn';
 import { FILE_FILTER_OPTIONS } from '#/components/DirectoryPicker/constant';
 import ScrollBox from '#/components/ScrollBox';
+import ToolGroupBtn from '#/components/ToolGroupBtn';
 import { useDialogStateByValue } from '#/hooks/useDialogState';
-import { formatParentDir } from '#/hooks/useFileTitle';
+import { useFormatParentDirHandler } from '#/hooks/useFileTitle';
 import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
 import { useSwr } from '#/hooks/useSwr';
 import { formatDate, getFilePosterUrl } from '#/utils';
@@ -303,6 +303,7 @@ export default function RecentFile() {
   }, [filterFileType, openMediaViewer, allRecentItems]);
 
   const { visible, stateValue, handleClose, handleOpen } = useDialogStateByValue<DirectoryInfo>();
+  const formatParentDir = useFormatParentDirHandler();
 
   return (
     <StyledRecentFileWrapper>

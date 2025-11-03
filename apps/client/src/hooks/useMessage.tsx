@@ -1,10 +1,18 @@
 import { ShowNotificationOptions, useNotifications } from '@toolpad/core';
 import { useCallback } from 'react';
 
+type MessageType = NonNullable<ShowNotificationOptions['severity']>;
+
 interface ShowParams {
   message: string;
-  type: ShowNotificationOptions['severity'];
+  type: MessageType;
+  duration?: number;
 }
+
+const TYPE_DEFAULT_DURATION: Partial<Record<MessageType, number>> = {
+  error: 2000,
+  success: 1000,
+};
 
 export const useMessage = () => {
   const notifications = useNotifications();
@@ -12,7 +20,7 @@ export const useMessage = () => {
   const show = useCallback(
     (params: ShowParams) => {
       notifications.show(params.message, {
-        autoHideDuration: 1000,
+        autoHideDuration: params.duration ?? TYPE_DEFAULT_DURATION[params.type] ?? 1000,
         severity: params.type,
       });
     },

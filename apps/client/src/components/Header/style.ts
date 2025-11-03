@@ -1,5 +1,3 @@
-'use client';
-
 import { HEADER_HEIGHT } from '#/style/constant';
 import styled from '@emotion/styled';
 import { Box, svgIconClasses } from '@mui/material';
@@ -16,7 +14,7 @@ export const StyledHeaderWrapper = styled(Box)`
 
 export const StyledHeaderLinkGroup = styled(Box)`
   display: flex;
-  gap: 24px;
+  gap: 20px;
   align-items: center;
   font-size: 0;
 
@@ -24,4 +22,10 @@ export const StyledHeaderLinkGroup = styled(Box)`
     font-size: 24px;
     color: var(--color-text-light);
   }
+`;
+
+export const StyledHeaderRight = styled(Box)`
+  display: flex;
+  align-items: center;
+  gap: 20px;
 `;
