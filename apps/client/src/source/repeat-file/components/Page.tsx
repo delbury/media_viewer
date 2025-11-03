@@ -3,16 +3,23 @@
 import DirectoryPicker from '#/components/DirectoryPicker';
 import { FILE_BROWSER_DIR_TREE_REQUEST_KEY } from '#/components/DirectoryPicker/components/FileBrowser';
 import FileDetailDialog from '#/components/DirectoryPicker/components/FileDetailDialog';
-import { FILE_SORT_API_FIELD_MAP, FILE_SORT_OPTIONS } from '#/components/DirectoryPicker/constant';
+import {
+  FILE_SORT_API_FIELD_MAP,
+  FILE_SORT_OPTIONS,
+  FileSortField,
+} from '#/components/DirectoryPicker/constant';
 import { useSortList } from '#/components/DirectoryPicker/hooks/useSortList';
 import { FileListContent } from '#/components/FileListPreviewer';
+import { FILE_SIZE_ROUND_TO_KEY, VIDEO_DURATION_ROUND_TO_KEY } from '#/components/GlobalSetting';
 import { useConfirmDialogByKeys } from '#/hooks/useConfirmDialog';
+import { usePersistentConfigStore } from '#/hooks/usePersistentConfig';
 import { useShortcut } from '#/hooks/useShortcut';
 import { useSwrMutation } from '#/hooks/useSwr';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { INFO_ID_FIELD, getAllFiles } from '#pkgs/tools/common';
 import { DeleteForeverRounded } from '@mui/icons-material';
 import { Box, IconButton } from '@mui/material';
+import { isNil } from 'lodash-es';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { mutate } from 'swr';
@@ -26,6 +33,23 @@ import {
 } from '../style';
 
 const ROW_HEIGHT = 88;
+
+// 全局配置，部分数值字段在排序时，进行比较时需要精确到某位上
+const FIELD_ROUND_KEY_MAP: Record<FileSortField | string, string> = {
+  duration: VIDEO_DURATION_ROUND_TO_KEY,
+  size: FILE_SIZE_ROUND_TO_KEY,
+};
+
+// 数值精确
+const numberRoundTo = function <T>(val: T, roundTo?: number | null) {
+  if (isNil(roundTo) || (val as number) < roundTo) return val;
+
+  if (roundTo) {
+    return (Math.round((val as number) / roundTo) * roundTo) as T;
+  } else {
+    return Math.trunc(val as number) as T;
+  }
+};
 
 export default function RepeatFile() {
   const t = useTranslations();
@@ -46,6 +70,8 @@ export default function RepeatFile() {
     const list = currentDir ? getAllFiles('video', currentDir) : [];
     setFiles(list);
   }, []);
+
+  const configStore = usePersistentConfigStore();
 
   const { trigger: deleteTrigger, isLoading } = useSwrMutation('fileDelete');
   // 删除操作
@@ -113,7 +139,18 @@ export default function RepeatFile() {
 
     const tempMap = new Map<string, Set<number>>();
     sortedItems.forEach((item, index) => {
-      const key = item[sf];
+      // 使用值来作为判断重复项的 key
+      let key = item[sf];
+      // 判断 number 是否需要进行 round to
+      if (
+        typeof key === 'number' &&
+        FIELD_ROUND_KEY_MAP[sf] &&
+        configStore &&
+        FIELD_ROUND_KEY_MAP[sf] in configStore
+      ) {
+        key = numberRoundTo(key, configStore[FIELD_ROUND_KEY_MAP[sf]] as number);
+      }
+
       const set = tempMap.get(key);
       if (set) set.add(index);
       else tempMap.set(key, new Set([index]));
@@ -125,7 +162,7 @@ export default function RepeatFile() {
       }
     }
     return resList;
-  }, [sortField, sortedItems]);
+  }, [configStore, sortField, sortedItems]);
 
   const realShowItem = useMemo(() => {
     if (showFileGroup === 'selected') return selectedItems;

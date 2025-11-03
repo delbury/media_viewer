@@ -92,3 +92,8 @@ export const usePersistentConfigValue = function <T>(key: string) {
   const config = useSyncExternalStore(subscribe, getSnapshot);
   return config?.[key] as T;
 };
+
+export const usePersistentConfigStore = function () {
+  const config = useSyncExternalStore(subscribe, getSnapshot);
+  return config;
+};

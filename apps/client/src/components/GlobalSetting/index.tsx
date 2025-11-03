@@ -9,7 +9,7 @@ import ToolGroupBtn from '../ToolGroupBtn';
 import { StyledSettingContainer, StyledSettingItem, StyledSettingLabel } from './style';
 
 const DURATION_ROUND_TO_OPTIONS = [
-  { label: '0', value: 0 },
+  // { label: '0', value: 0 },
   { label: '1', value: 1 },
   { label: '10', value: 10 },
 ];
@@ -63,7 +63,7 @@ const GlobalSetting = ({ visible, onClose }: GlobalSettingProps) => {
           />
         </StyledSettingItem>
         <StyledSettingItem>
-          <StyledSettingLabel>{t('Setting.VideoDurationSortRoundTo')}</StyledSettingLabel>
+          <StyledSettingLabel>{t('Setting.VideoDurationRoundTo')}</StyledSettingLabel>
           <ToolGroupBtn
             exclusive
             rawLabel
@@ -74,7 +74,7 @@ const GlobalSetting = ({ visible, onClose }: GlobalSettingProps) => {
           />
         </StyledSettingItem>
         <StyledSettingItem>
-          <StyledSettingLabel>{t('Setting.FileSizeSortRoundTo')}</StyledSettingLabel>
+          <StyledSettingLabel>{t('Setting.FileSizeRoundTo')}</StyledSettingLabel>
           <ToolGroupBtn
             exclusive
             rawLabel
