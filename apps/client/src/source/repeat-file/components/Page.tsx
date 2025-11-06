@@ -45,7 +45,7 @@ const numberRoundTo = function <T>(val: T, roundTo?: number | null) {
   if (isNil(roundTo) || (val as number) < roundTo) return val;
 
   if (roundTo) {
-    return (Math.round((val as number) / roundTo) * roundTo) as T;
+    return (Math.trunc((val as number) / roundTo) * roundTo) as T;
   } else {
     return Math.trunc(val as number) as T;
   }

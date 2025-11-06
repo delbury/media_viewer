@@ -6,8 +6,13 @@ export const StyledSettingContainer = styled(Box)`
   flex-direction: column;
 `;
 
+export const StyledSettingGroupTitle = styled(Box)`
+  margin-block: 8px 4px;
+  font-size: 14px;
+  font-weight: 700;
+`;
+
 export const StyledSettingItem = styled(Box)`
-  min-height: 64px;
   padding-block: 12px;
   display: flex;
   justify-content: space-between;

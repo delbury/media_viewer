@@ -1,6 +1,8 @@
 'use client';
 
+import { RANDOM_PLAY_STRATEGY_KEY, RandomPlayStrategy } from '#/components/GlobalSetting';
 import { FILE_PATH_CHANGE_EVENT, useCustomEvent } from '#/hooks/useCustomEvent';
+import { usePersistentConfigValue } from '#/hooks/usePersistentConfig';
 import { generateUrlWithSearch } from '#/utils';
 import { VIEWER_QUERY_KEY, ViewerQueryValue } from '#/utils/constant';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -22,6 +24,9 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     return flags;
   }, [state.dir, state.file, state.list, state.mediaType]);
 
+  // 随机播放策略
+  const randomStrategy = usePersistentConfigValue<RandomPlayStrategy>(RANDOM_PLAY_STRATEGY_KEY);
+
   // 是否关闭
   const closed = !show.audio && !show.image && !show.video;
 
@@ -41,7 +46,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     dir: state.dir,
     list: state.list,
     mediaType: state.mediaType,
-    randomStrategy: state.randomStrategy,
+    randomStrategy,
   });
   const [detailVisible, setDetailVisible] = useState(false);
 

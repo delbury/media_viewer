@@ -1,9 +1,10 @@
+import { getRandomIndex } from '#/utils/randomStrategy';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { MediaFileType } from '#pkgs/shared';
 import { getAllFiles } from '#pkgs/tools/common';
-import { getRandomIndex, RandomStrategy } from '#pkgs/tools/randomStrategy';
 import { isNil } from 'lodash-es';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { RandomPlayStrategy } from '../GlobalSetting';
 
 interface UseFileOrDirectoryParams {
   file?: FileInfo;
@@ -11,7 +12,7 @@ interface UseFileOrDirectoryParams {
   list?: FileInfo[];
   mediaType?: MediaFileType;
   defaultRandom?: boolean;
-  randomStrategy?: RandomStrategy;
+  randomStrategy?: RandomPlayStrategy;
 }
 
 export const useFileOrDirectory = ({
@@ -20,7 +21,7 @@ export const useFileOrDirectory = ({
   list,
   mediaType,
   defaultRandom = true,
-  randomStrategy,
+  randomStrategy = RandomPlayStrategy.Default,
 }: UseFileOrDirectoryParams) => {
   /**
    * 播放模式：

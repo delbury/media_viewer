@@ -2,9 +2,9 @@
 
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { MediaFileType } from '#pkgs/shared';
-import { RandomStrategy } from '#pkgs/tools/randomStrategy';
 import { noop } from 'lodash-es';
 import { createContext } from 'react';
+import { RandomPlayStrategy } from '../GlobalSetting';
 
 export const INIT_VALUE: MediaContextState = {
   dir: void 0,
@@ -21,7 +21,7 @@ export interface MediaContextState {
   dir?: DirectoryInfo;
   list?: FileInfo[];
   // 随机播放的策略
-  randomStrategy?: RandomStrategy;
+  randomStrategy?: RandomPlayStrategy;
   // 无文件详情的路径文件夹点击事件
   noFileDetailPathDirClickEvent?: boolean;
 }

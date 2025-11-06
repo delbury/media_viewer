@@ -27,9 +27,13 @@
   },
   "Setting": {
     "DirectoryOrderReverse": "文件夹路径反序",
-    "VideoDurationRoundTo": "相同视频时长精确到",
-    "FileSizeRoundTo": "相同文件大小精确到",
-    "GlobalSetting": "全局设置"
+    "VideoDurationRoundTo": "相同视频时长精确到[x]位",
+    "FileSizeRoundTo": "相同文件大小精确到[x]位",
+    "GlobalSetting": "全局设置",
+    "General": "通用",
+    "RandomPlayStrategy": "随机播放策略",
+    "NewFirst": "最新优先",
+    "OldFirst": "最旧优先"
   },
   "Common": {
     "AreYouSure": "确定？",
