@@ -297,7 +297,6 @@ export default function RecentFile() {
     openMediaViewer({
       list: allRecentItems,
       mediaType: filterFileType,
-      randomStrategy: 'smallerHigher',
       noFileDetailPathDirClickEvent: true,
     });
   }, [filterFileType, openMediaViewer, allRecentItems]);
