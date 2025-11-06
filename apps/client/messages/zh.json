@@ -33,6 +33,7 @@
     "General": "通用",
     "RandomPlayStrategy": "随机播放策略",
     "NewFirst": "最新优先",
+    "CenterFirst": "中间优先",
     "OldFirst": "最旧优先"
   },
   "Common": {

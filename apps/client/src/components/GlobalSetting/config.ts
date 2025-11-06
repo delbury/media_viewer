@@ -14,11 +14,13 @@ export const DURATION_ROUND_TO_OPTIONS: ItemOption[] = [
 export enum RandomPlayStrategy {
   Default,
   NewFirst,
+  CenterFirst,
   OldFirst,
 }
 
 export const RANDOM_PLAY_STRATEGIES: ItemOption[] = [
   { label: 'Common.Default', value: RandomPlayStrategy.Default },
   { label: 'Setting.NewFirst', value: RandomPlayStrategy.NewFirst },
+  { label: 'Setting.CenterFirst', value: RandomPlayStrategy.CenterFirst },
   { label: 'Setting.OldFirst', value: RandomPlayStrategy.OldFirst },
 ];
