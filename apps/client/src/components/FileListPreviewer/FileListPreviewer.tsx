@@ -20,7 +20,11 @@ import { useSortList } from '../DirectoryPicker/hooks/useSortList';
 import { LessFileExtraInfo } from '../FileExtraInfo';
 import GlobalSetting from '../GlobalSetting';
 import { ScrollBoxInstance } from '../ScrollBox';
-import DurationFilter, { FILE_LIST_PREVIEW_KEY, getRealValue } from './DurationFilter';
+import DurationFilter, {
+  DEFAULT_DURATION_RANGE,
+  FILE_LIST_PREVIEW_KEY,
+  getRealValue,
+} from './DurationFilter';
 import FileListContent from './FileListContent';
 import {
   FILE_ITEM_ROW_HEIGHT,
@@ -57,7 +61,9 @@ const FileListPreviewer = ({
 
   // 筛选
   const defaultDuration = usePersistentConfigValue<number[]>(FILE_LIST_PREVIEW_KEY);
-  const [durationRange, setDurationRange] = useState(getRealValue(defaultDuration));
+  const [durationRange, setDurationRange] = useState(
+    getRealValue(defaultDuration ?? DEFAULT_DURATION_RANGE)
+  );
   const { filteredFiles } = useMediaDurationFilter({ files: rawFiles, durationRange });
 
   // 排序

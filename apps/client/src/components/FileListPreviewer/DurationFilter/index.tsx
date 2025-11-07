@@ -25,7 +25,7 @@ const DURATION_OPTIONS = [
 export const getRealValue = (indexes: number[]) => indexes.map(ind => DURATION_OPTIONS[ind].value);
 
 const MAX = DURATION_OPTIONS.length - 1;
-const DEFAULT_DURATION_RANGE = [0, MAX];
+export const DEFAULT_DURATION_RANGE = [0, MAX];
 
 const MARKS = DURATION_OPTIONS.map((it, index) => ({
   label: it.label,
