@@ -18,7 +18,7 @@
     "RootDirectory": "根目录",
     "AreYouSureReGenerateDirectoryInfo": "确定重新生成文件目录数据？",
     "AreYouSureClearUselessPoster": "确定删除无用的封面缩略图？",
-    "FileListPreviewer": "文件列表预览",
+    "FileListPreviewer": "文件列表",
     "AreYouSureDeleteSelectedFiles": "确定删除已选择的文件？",
     "ExistRepeatItem": "存在重复",
     "AreYouSureRemoveTheFile": "确定移除该文件？",
@@ -61,7 +61,8 @@
     "Selected": "已选",
     "Copied": "已复制",
     "Prev": "上一个",
-    "Next": "下一个"
+    "Next": "下一个",
+    "Play": "播放"
   },
   "Btn": {
     "AutoScroll": "自动滚动"

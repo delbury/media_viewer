@@ -2,6 +2,7 @@ import { mapToOptions, stringToMap } from '#/utils';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { FullFileType } from '#pkgs/shared';
 import { AUDIO_EXTS, IMAGE_EXTS, VIDEO_EXTS } from '#pkgs/tools/constant';
+import { pick } from 'lodash-es';
 
 export const PATH_SEPARATOR = '/';
 
@@ -32,19 +33,19 @@ export const DIRECTORY_ITEM_HEIGHT = 40;
 
 // 文件排序选项
 export type FileSortField = Extract<
-  FileInfo,
-  'name' | 'size' | 'type' | 'updated' | 'created' | 'duration'
+  keyof FileInfo,
+  'name' | 'size' | 'fileType' | 'updated' | 'created' | 'duration'
 >;
 export const FILE_SORT_API_FIELD_MAP: Record<FileSortField, keyof FileInfo> = {
   name: 'name',
   size: 'size',
-  type: 'fileType',
+  fileType: 'fileType',
   updated: 'updated',
   created: 'created',
   duration: 'duration',
 };
 const FILE_SORT_MAP: Record<FileSortField, string> = {
-  type: 'File.Type',
+  fileType: 'File.Type',
   size: 'File.Size',
   duration: 'File.Duration',
   name: 'File.Name',
@@ -52,6 +53,9 @@ const FILE_SORT_MAP: Record<FileSortField, string> = {
   created: 'File.Created',
 };
 export const FILE_SORT_OPTIONS = mapToOptions(FILE_SORT_MAP);
+export const LESS_FILE_SORT_OPTIONS = mapToOptions(
+  pick(FILE_SORT_MAP, ['size', 'duration', 'created', 'updated'])
+);
 
 // 文件夹排序选项
 export type DirectorySortField = 'name' | 'updated' | 'created' | 'totalCount' | 'selfCount';

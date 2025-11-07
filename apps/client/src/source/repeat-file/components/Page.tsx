@@ -9,6 +9,7 @@ import {
   FileSortField,
 } from '#/components/DirectoryPicker/constant';
 import { useSortList } from '#/components/DirectoryPicker/hooks/useSortList';
+import { FullFileExtraInfo } from '#/components/FileExtraInfo';
 import { FileListContent } from '#/components/FileListPreviewer';
 import { FILE_SIZE_ROUND_TO_KEY, VIDEO_DURATION_ROUND_TO_KEY } from '#/components/GlobalSetting';
 import { useConfirmDialogByKeys } from '#/hooks/useConfirmDialog';
@@ -23,7 +24,6 @@ import { isNil } from 'lodash-es';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { mutate } from 'swr';
-import FileExtraInfo from '../components/FileExtraInfo';
 import {
   StyledFileContentContainer,
   StyledFileGroupBtn,
@@ -150,7 +150,7 @@ export default function RepeatFile() {
       ) {
         key = numberRoundTo(key, configStore[FIELD_ROUND_KEY_MAP[sf]] as number);
       }
-
+      key = String(key);
       const set = tempMap.get(key);
       if (set) set.add(index);
       else tempMap.set(key, new Set([index]));
@@ -248,7 +248,7 @@ export default function RepeatFile() {
       <StyledFileContentContainer>
         <FileListContent
           files={realShowItem}
-          RowExtraComp={FileExtraInfo}
+          RowExtraComp={FullFileExtraInfo}
           rowHeight={ROW_HEIGHT}
           onItemClick={handleItemClick}
           onImgClick={handleImgClick}

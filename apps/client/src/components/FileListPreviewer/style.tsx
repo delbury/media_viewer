@@ -2,7 +2,7 @@ import { StyleBaseLineClamp } from '#/style/baseComps';
 import styled from '@emotion/styled';
 import { badgeClasses, Box, iconButtonClasses } from '@mui/material';
 
-export const FILE_ITEM_ROW_HEIGHT = 48;
+export const FILE_ITEM_ROW_HEIGHT = 80;
 
 export const StyledListPreviewerWrapper = styled(Box)`
   & .${badgeClasses.badge} {
@@ -23,7 +23,7 @@ export const StyledListPreviewerWrapper = styled(Box)`
 export const StyledSlotWrapper = styled(Box)`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   font-size: 0.75rem;
 `;
 

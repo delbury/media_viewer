@@ -98,7 +98,7 @@ const GlobalSetting = ({ visible, onClose }: GlobalSettingProps) => {
           />
         </StyledSettingItem>
 
-        <StyledSettingGroupTitle>{t('Common.Video')}</StyledSettingGroupTitle>
+        <StyledSettingGroupTitle>{t('Common.Play')}</StyledSettingGroupTitle>
         <StyledSettingItem>
           <StyledSettingLabel>{t('Setting.RandomPlayStrategy')}</StyledSettingLabel>
           <ToolGroupBtn
