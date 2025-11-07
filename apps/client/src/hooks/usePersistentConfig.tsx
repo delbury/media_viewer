@@ -72,17 +72,18 @@ export function usePersistentConfig<T = unknown>(
   // }, []);
 
   const saveLocalConfigIdle = useIdleCallback(saveLocalConfig, 1000);
+  const setLocalConfigIdle = useIdleCallback(setLocalConfig, 1000);
 
   const setValueWithLocal = useCallback(
     (val: T) => {
       setValue(val);
       if (key && STORE.localConfig) {
-        setLocalConfig(key, val);
+        setLocalConfigIdle(key, val);
 
         saveLocalConfigIdle();
       }
     },
-    [key, saveLocalConfigIdle]
+    [key, saveLocalConfigIdle, setLocalConfigIdle]
   );
 
   return [value, setValueWithLocal];

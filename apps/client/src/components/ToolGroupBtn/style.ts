@@ -10,6 +10,7 @@ export const StyledToggleButton = styled(ToggleButton)`
   position: relative;
   padding: 0 6px;
   white-space: nowrap;
+  text-transform: none;
 `;
 
 export const StyledSelectedBadge = styled(Box)(({ theme }) => ({

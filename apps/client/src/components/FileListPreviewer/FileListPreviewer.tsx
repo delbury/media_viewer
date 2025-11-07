@@ -10,13 +10,14 @@ import {
 import { Badge, IconButton } from '@mui/material';
 import { isNil } from 'lodash-es';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import Dialog from '../Dialog';
 import { FILE_SORT_API_FIELD_MAP, LESS_FILE_SORT_OPTIONS } from '../DirectoryPicker/constant';
 import { useSortList } from '../DirectoryPicker/hooks/useSortList';
 import { LessFileExtraInfo } from '../FileExtraInfo';
 import GlobalSetting from '../GlobalSetting';
 import { ScrollBoxInstance } from '../ScrollBox';
+import DurationFilter from './DurationFilter';
 import FileListContent from './FileListContent';
 import {
   FILE_ITEM_ROW_HEIGHT,
@@ -51,6 +52,8 @@ const FileListPreviewer = ({ files, currentFileIndex }: FileListPreviewerProps) 
     fileSortOptions: LESS_FILE_SORT_OPTIONS,
     exclusive: true,
   });
+
+  const [durationRange, setDurationRange] = useState([0, Infinity]);
 
   // 排序后的当前视频 index
   const realFileIndex = useMemo(() => {
@@ -125,6 +128,7 @@ const FileListPreviewer = ({ files, currentFileIndex }: FileListPreviewerProps) 
           }
         >
           {SortToolRow}
+          <DurationFilter onChange={setDurationRange} />
           <StyleFilesContainer>
             <FileListContent
               scrollBoxRef={scrollBoxRef}
