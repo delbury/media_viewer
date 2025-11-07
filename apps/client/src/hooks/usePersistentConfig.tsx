@@ -88,12 +88,14 @@ export function usePersistentConfig<T = unknown>(
   return [value, setValueWithLocal];
 }
 
+const getServerSnapshot = () => STORE.localConfig;
+
 export const usePersistentConfigValue = function <T>(key: string) {
-  const config = useSyncExternalStore(subscribe, getSnapshot);
+  const config = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   return config?.[key] as T;
 };
 
 export const usePersistentConfigStore = function () {
-  const config = useSyncExternalStore(subscribe, getSnapshot);
+  const config = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   return config;
 };

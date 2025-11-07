@@ -13,11 +13,17 @@ export const StyledSettingGroupTitle = styled(Box)`
 `;
 
 export const StyledSettingItem = styled(Box)`
+  flex-wrap: wrap;
   padding-block: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 24px;
+  column-gap: 24px;
+  row-gap: 8px;
+
+  > * {
+    flex-shrink: 0;
+  }
 `;
 
 export const StyledSettingLabel = styled(Box)`
