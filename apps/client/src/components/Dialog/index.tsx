@@ -28,6 +28,7 @@ const DIALOG_SX = {
 
 interface DialogProps {
   open: boolean;
+  okBtnText?: string;
   onClose?: () => void;
   onOk?: () => void | Promise<void>;
   onCancel?: () => void;
@@ -41,6 +42,7 @@ interface DialogProps {
 const CompDialog = (props: DialogProps) => {
   const {
     open,
+    okBtnText,
     onClose,
     onCancel,
     onOk,
@@ -131,7 +133,7 @@ const CompDialog = (props: DialogProps) => {
               variant="contained"
               size="small"
             >
-              {t('Common.OK')}
+              {okBtnText ?? t('Common.OK')}
             </Button>
           )}
         </Stack>

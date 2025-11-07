@@ -17,17 +17,17 @@ const sortItems = <T, F extends string>({
   sortField,
   apiFieldMap,
 }: {
-  items: T[];
+  items?: T[];
   sortMode: SortMode | null;
   sortField: F[] | F;
   apiFieldMap: Record<F, keyof T>;
 }) => {
   // 转换为数组
   if (sortField && typeof sortField === 'string') sortField = [sortField];
-  if (!sortMode || !Array.isArray(sortField) || !sortField.length) return items;
+  if (!sortMode || !Array.isArray(sortField) || !sortField.length) return items ?? [];
 
   const biggerNum = sortMode === 'asc' ? 1 : -1;
-  const newList = [...items];
+  const newList = items ? [...items] : [];
   newList.sort((a, b) => {
     for (const field of sortField) {
       // 依次比较每个排序字段，直到字段的值不相同
@@ -48,7 +48,7 @@ const DEFAULT_VALUES = {
 };
 
 interface SortItemParams<T, F extends string> {
-  items: T[];
+  items?: T[];
   apiFieldMap: Record<F, keyof T>;
   persistentKeyPrefix?: string;
   persistentKeySuffix?: string;

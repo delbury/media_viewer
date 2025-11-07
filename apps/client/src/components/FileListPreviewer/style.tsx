@@ -27,6 +27,11 @@ export const StyledSlotWrapper = styled(Box)`
   font-size: 0.75rem;
 `;
 
+export const StyledCountInfo = styled(Box)`
+  display: flex;
+  flex-direction: column;
+`;
+
 export const StyleFilesContainer = styled(Box)`
   height: 65dvh;
   overflow: hidden;

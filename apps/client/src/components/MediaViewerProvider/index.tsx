@@ -32,6 +32,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
 
   const {
     fileList,
+    rawFileList,
     currentFile,
     currentFileIndex,
     isList,
@@ -41,6 +42,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     prevDisabled,
     toggleRandom,
     isRandomPlay,
+    changeFileList,
   } = useFileOrDirectory({
     file: state.file,
     dir: state.dir,
@@ -151,7 +153,9 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
             isList && (
               <FileListPreviewer
                 files={fileList}
+                rawFiles={rawFileList}
                 currentFileIndex={currentFileIndex}
+                onFilterFiles={changeFileList}
               />
             )
           }
@@ -175,7 +179,9 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
             isList && (
               <FileListPreviewer
                 files={fileList}
+                rawFiles={rawFileList}
                 currentFileIndex={currentFileIndex}
+                onFilterFiles={changeFileList}
               />
             )
           }
@@ -199,7 +205,9 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
             isList && (
               <FileListPreviewer
                 files={fileList}
+                rawFiles={rawFileList}
                 currentFileIndex={currentFileIndex}
+                onFilterFiles={changeFileList}
               />
             )
           }

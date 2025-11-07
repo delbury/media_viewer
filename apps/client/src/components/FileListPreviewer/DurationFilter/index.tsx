@@ -2,8 +2,10 @@ import { useDebounce } from '#/hooks/useDebounce';
 import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { AllInclusiveRounded } from '@mui/icons-material';
 import { SliderProps } from '@mui/material';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { StyledSlider, StyledWrapper } from './style';
+
+export const FILE_LIST_PREVIEW_KEY = 'fileListPreviewDurationRange';
 
 const DURATION_OPTIONS = [
   { label: '0', value: 0 },
@@ -19,6 +21,8 @@ const DURATION_OPTIONS = [
     value: Infinity,
   },
 ];
+
+export const getRealValue = (indexes: number[]) => indexes.map(ind => DURATION_OPTIONS[ind].value);
 
 const MAX = DURATION_OPTIONS.length - 1;
 const DEFAULT_DURATION_RANGE = [0, MAX];
@@ -36,7 +40,7 @@ interface DurationFilterProps {
 const DurationFilter = ({ onChange }: DurationFilterProps) => {
   const [value, setValue] = usePersistentConfig<number[]>(
     DEFAULT_DURATION_RANGE,
-    'fileListPreviewDurationRange'
+    FILE_LIST_PREVIEW_KEY
   );
 
   const handleRealValueChange = useCallback(
@@ -58,9 +62,9 @@ const DurationFilter = ({ onChange }: DurationFilterProps) => {
     [handleRealValueChangeIdle, setValue]
   );
 
-  useEffect(() => {
-    handleRealValueChangeIdle?.(value);
-  }, []);
+  // useEffect(() => {
+  //   handleRealValueChangeIdle?.(value);
+  // }, []);
 
   return (
     <StyledWrapper>

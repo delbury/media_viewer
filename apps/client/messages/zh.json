@@ -65,7 +65,8 @@
     "Play": "播放"
   },
   "Btn": {
-    "AutoScroll": "自动滚动"
+    "AutoScroll": "自动滚动",
+    "ApplyFilter": "应用筛选"
   },
   "Error": {
     "NetError": "网络错误",

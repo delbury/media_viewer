@@ -1,5 +1,8 @@
 import { useDialogState } from '#/hooks/useDialogState';
+import { useMediaDurationFilter } from '#/hooks/useMediaDurationFilter';
 import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
+import { usePersistentConfigValue } from '#/hooks/usePersistentConfig';
+import { EMPTY_SYMBOL } from '#/utils/constant';
 import { FileInfo } from '#pkgs/apis';
 import {
   FormatListBulletedRounded,
@@ -17,10 +20,11 @@ import { useSortList } from '../DirectoryPicker/hooks/useSortList';
 import { LessFileExtraInfo } from '../FileExtraInfo';
 import GlobalSetting from '../GlobalSetting';
 import { ScrollBoxInstance } from '../ScrollBox';
-import DurationFilter from './DurationFilter';
+import DurationFilter, { FILE_LIST_PREVIEW_KEY, getRealValue } from './DurationFilter';
 import FileListContent from './FileListContent';
 import {
   FILE_ITEM_ROW_HEIGHT,
+  StyledCountInfo,
   StyledListPreviewerWrapper,
   StyledSlotWrapper,
   StyleFilesContainer,
@@ -28,32 +32,42 @@ import {
 
 interface FileListPreviewerProps {
   currentFileIndex?: number;
+  rawFiles?: FileInfo[];
   files?: FileInfo[];
+  onFilterFiles?: (files: FileInfo[]) => void;
 }
 
 const isSibling = (files: FileInfo[], currentIndex: number, selectedIndex?: number) => {
-  return isNil(selectedIndex)
+  return isNil(selectedIndex) || !files?.[selectedIndex]
     ? false
     : files?.[selectedIndex].showDir === files?.[currentIndex].showDir;
 };
 
-const FileListPreviewer = ({ files, currentFileIndex }: FileListPreviewerProps) => {
+const FileListPreviewer = ({
+  files,
+  rawFiles,
+  currentFileIndex,
+  onFilterFiles,
+}: FileListPreviewerProps) => {
   const t = useTranslations();
   const { visible, handleOpen, handleClose } = useDialogState();
   const settingDialog = useDialogState(false);
   const fileCount = useMemo(() => files?.length ?? 0, [files]);
   const scrollBoxRef = useRef<ScrollBoxInstance>(null);
 
+  // 筛选
+  const defaultDuration = usePersistentConfigValue<number[]>(FILE_LIST_PREVIEW_KEY);
+  const [durationRange, setDurationRange] = useState(getRealValue(defaultDuration));
+  const { filteredFiles } = useMediaDurationFilter({ files: rawFiles, durationRange });
+
   // 排序
   const { sortedItems, SortToolRow } = useSortList({
-    items: files ?? [],
+    items: filteredFiles ?? [],
     apiFieldMap: FILE_SORT_API_FIELD_MAP,
     persistentKeyPrefix: 'filePlayPreviewList',
     fileSortOptions: LESS_FILE_SORT_OPTIONS,
     exclusive: true,
   });
-
-  const [durationRange, setDurationRange] = useState([0, Infinity]);
 
   // 排序后的当前视频 index
   const realFileIndex = useMemo(() => {
@@ -89,6 +103,12 @@ const FileListPreviewer = ({ files, currentFileIndex }: FileListPreviewerProps) 
     [files, handleClose, jumpToFile, sortedItems]
   );
 
+  // 应用筛选
+  const handleApplyFilter = useCallback(() => {
+    onFilterFiles?.(sortedItems);
+    handleClose();
+  }, [handleClose, onFilterFiles, sortedItems]);
+
   return (
     <StyledListPreviewerWrapper>
       <IconButton onClick={handleOpen}>
@@ -105,7 +125,8 @@ const FileListPreviewer = ({ files, currentFileIndex }: FileListPreviewerProps) 
           title={t('Tools.FileListPreviewer')}
           open={visible}
           onClose={handleClose}
-          onlyClose
+          onOk={handleApplyFilter}
+          okBtnText={t('Btn.ApplyFilter')}
           titleRightSlot={
             <StyledSlotWrapper>
               <IconButton onClick={scrollToTop}>
@@ -116,9 +137,12 @@ const FileListPreviewer = ({ files, currentFileIndex }: FileListPreviewerProps) 
                 <PinDropRounded fontSize="small" />
               </IconButton>
 
-              <span>
-                {realFileIndex + 1} / {files?.length ?? 0}
-              </span>
+              <StyledCountInfo>
+                <span>{realFileIndex + 1 || EMPTY_SYMBOL}</span>
+                <span>
+                  {sortedItems.length} / {files?.length ?? 0}
+                </span>
+              </StyledCountInfo>
             </StyledSlotWrapper>
           }
           leftFooterSlot={

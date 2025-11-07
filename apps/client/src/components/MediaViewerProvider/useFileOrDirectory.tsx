@@ -35,12 +35,30 @@ export const useFileOrDirectory = ({
   // 顺当前播放的文件 index
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
 
+  const [rawFileList, setRawFileList] = useState<FileInfo[]>([]);
   const [fileList, setFileList] = useState<FileInfo[]>([]);
 
   // 随机播放，未播放的文件 index 列表
   const randomToPlayIndexes = useRef(new Set<number>());
   // 随机播放，已播放的文件 index
   const randomPlayedIndexes = useRef(new Set<number>());
+
+  const initPlayVideo = useCallback(
+    (files: FileInfo[]) => {
+      randomToPlayIndexes.current.clear();
+      randomPlayedIndexes.current.clear();
+      if (defaultRandom) {
+        const startIndex = getRandomIndex(files.length, randomStrategy);
+        setCurrentFileIndex(startIndex);
+        const newSet = new Set(Array.from({ length: files.length }, (_, k) => k));
+        newSet.delete(startIndex);
+        randomToPlayIndexes.current = newSet;
+      } else {
+        setCurrentFileIndex(0);
+      }
+    },
+    [defaultRandom, randomStrategy]
+  );
 
   // 文件列表
   useEffect(() => {
@@ -54,18 +72,11 @@ export const useFileOrDirectory = ({
         fileList = [file];
       }
     }
-    randomToPlayIndexes.current.clear();
-    randomPlayedIndexes.current.clear();
-    if (defaultRandom) {
-      const startIndex = getRandomIndex(fileList.length, randomStrategy);
-      setCurrentFileIndex(startIndex);
-      const newSet = new Set(Array.from({ length: fileList.length }, (_, k) => k));
-      newSet.delete(startIndex);
-      randomToPlayIndexes.current = newSet;
-    } else {
-      setCurrentFileIndex(0);
-    }
+
+    initPlayVideo(fileList);
+
     setFileList(fileList);
+    setRawFileList(fileList);
   }, [dir, file, list, mediaType]);
 
   // 上一个
@@ -116,8 +127,19 @@ export const useFileOrDirectory = ({
     setIsRandomPlay(v => !v);
   }, []);
 
+  // 更新播放列表
+  const changeFileList = useCallback(
+    (files: FileInfo[]) => {
+      initPlayVideo(files);
+      setFileList(files);
+    },
+    [initPlayVideo]
+  );
+
   return {
     fileList,
+    setFileList,
+    rawFileList,
     currentFileIndex,
     setCurrentFileIndex,
     currentFile: fileList[currentFileIndex] as FileInfo | undefined,
@@ -128,5 +150,6 @@ export const useFileOrDirectory = ({
     goPrevFile: handlePrev,
     goNextFile: handleNext,
     toggleRandom: handleToggleRandom,
+    changeFileList,
   };
 };
