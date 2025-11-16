@@ -31,7 +31,7 @@ const formatParentDirReverse = (file?: FileInfo | DirectoryInfo) =>
 export const useFormatCurrentPath = (file?: FileInfo | DirectoryInfo) => {
   const reverse = usePersistentConfigValue<boolean>(DIR_PATH_REVERSE_KEY);
   return useMemo(
-    () => (reverse ? defaultFormatShowPath(file) : formatCurrentPathReverse(file)),
+    () => (reverse ? formatCurrentPathReverse(file) : defaultFormatShowPath(file)),
     [file, reverse]
   );
 };
