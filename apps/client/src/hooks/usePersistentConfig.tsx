@@ -92,11 +92,15 @@ export function usePersistentConfig<T = unknown>(
 const getServerSnapshot = () => STORE.localConfig;
 
 export const usePersistentConfigValue = function <T>(key: string) {
+  if (!STORE.localConfig && typeof window !== 'undefined') initLocalConfig();
+
   const config = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   return config?.[key] as T;
 };
 
 export const usePersistentConfigStore = function () {
+  if (!STORE.localConfig && typeof window !== 'undefined') initLocalConfig();
+
   const config = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   return config;
 };
