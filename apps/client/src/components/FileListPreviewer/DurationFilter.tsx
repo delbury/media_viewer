@@ -1,7 +1,9 @@
 import RangeSlider, { getRealValue } from '#/components/RangeSlider';
 import { AllInclusiveRounded } from '@mui/icons-material';
+import { useTranslations } from 'next-intl';
+import { StyledFilterLabel } from './style';
 
-export const FILE_LIST_PREVIEW_KEY = 'fileListPreviewDurationRange';
+export const FILE_LIST_FILTER_DURATION_KEY = 'fileListPreviewDurationRange';
 
 const DURATION_OPTIONS = [
   { label: '0', value: 0 },
@@ -13,7 +15,12 @@ const DURATION_OPTIONS = [
   { label: '30m', value: 60 * 30 },
   { label: '1h', value: 60 * 60 },
   {
-    label: <AllInclusiveRounded fontSize="inherit" />,
+    label: (
+      <AllInclusiveRounded
+        fontSize="inherit"
+        style={{ marginTop: '2px' }}
+      />
+    ),
     value: Infinity,
   },
 ];
@@ -27,12 +34,15 @@ interface DurationFilterProps {
 }
 
 const DurationFilter = ({ onChange }: DurationFilterProps) => {
+  const t = useTranslations();
+
   return (
     <RangeSlider
       onChange={onChange}
       defaultRange={DEFAULT_DURATION_RANGE}
-      storageKey={FILE_LIST_PREVIEW_KEY}
+      storageKey={FILE_LIST_FILTER_DURATION_KEY}
       options={DURATION_OPTIONS}
+      label={<StyledFilterLabel>{t('File.MediaDuration')}</StyledFilterLabel>}
     />
   );
 };

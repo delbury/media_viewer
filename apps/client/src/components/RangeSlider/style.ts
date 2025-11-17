@@ -3,10 +3,17 @@ import styled from '@emotion/styled';
 import { Box, Slider, sliderClasses } from '@mui/material';
 
 export const StyledWrapper = styled(Box)`
+  width: 100%;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const StyledSliderContainer = styled(Box)`
   padding-top: 8px;
   padding-inline: 8px;
-  width: 100%;
-  margin-bottom: 12px;
+  flex: 1;
 `;
 
 export const StyledSlider = styled(Slider)`

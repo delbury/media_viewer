@@ -134,3 +134,9 @@ export const StyledChildItem = styled(Box, { shouldForwardProp: prop => prop !==
     }
   }
 `;
+
+export const StyledFilterLabel = styled(Box)`
+  flex-shrink: 0;
+  font-size: 12px;
+  color: ${({ theme }) => theme.palette.text.secondary};
+`;

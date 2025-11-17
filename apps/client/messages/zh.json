@@ -83,6 +83,7 @@
     "Updated": "更新时间",
     "Created": "创建时间",
     "Duration": "时长",
+    "MediaDuration": "媒体时长",
     "TotalCount": "总文件数",
     "SelfCount": "文件数"
   },

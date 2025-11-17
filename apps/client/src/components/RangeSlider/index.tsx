@@ -2,14 +2,15 @@ import { useDebounce } from '#/hooks/useDebounce';
 import { usePersistentConfig } from '#/hooks/usePersistentConfig';
 import { SliderProps } from '@mui/material';
 import { useCallback, useMemo } from 'react';
-import { StyledSlider, StyledWrapper } from './style';
+import { StyledSlider, StyledSliderContainer, StyledWrapper } from './style';
 
 export interface RangeSliderOption {
   label: React.ReactNode;
   value: number;
+  [key: string]: unknown;
 }
 
-export const getRealValue = (indexes: number[], options: RangeSliderOption[]) =>
+export const getRealValue = (indexes: number[], options: Pick<RangeSliderOption, 'value'>[]) =>
   indexes.map(ind => options[ind].value);
 
 interface DurationFilterProps {
@@ -17,9 +18,16 @@ interface DurationFilterProps {
   defaultRange: number[];
   storageKey?: string;
   options: RangeSliderOption[];
+  label?: React.ReactNode;
 }
 
-const RangeSlider = ({ defaultRange, storageKey, options, onChange }: DurationFilterProps) => {
+const RangeSlider = ({
+  defaultRange,
+  storageKey,
+  options,
+  label,
+  onChange,
+}: DurationFilterProps) => {
   const [value, setValue] = usePersistentConfig<number[]>(defaultRange, storageKey, {
     lazySave: true,
   });
@@ -58,15 +66,19 @@ const RangeSlider = ({ defaultRange, storageKey, options, onChange }: DurationFi
 
   return (
     <StyledWrapper>
-      <StyledSlider
-        size="small"
-        min={0}
-        max={max}
-        step={1}
-        value={value}
-        onChange={handleChange}
-        marks={marks}
-      />
+      {label}
+
+      <StyledSliderContainer>
+        <StyledSlider
+          size="small"
+          min={0}
+          max={max}
+          step={1}
+          value={value}
+          onChange={handleChange}
+          marks={marks}
+        />
+      </StyledSliderContainer>
     </StyledWrapper>
   );
 };

@@ -124,7 +124,7 @@ export const useFileOrDirectory = ({
         setCurrentFileIndex(newIndex);
       }
     },
-    [currentFileIndex, fileList.length, isRandomPlay]
+    [currentFileIndex, fileList.length, isRandomPlay, randomStrategy]
   );
 
   const handleToggleRandom = useCallback(() => {

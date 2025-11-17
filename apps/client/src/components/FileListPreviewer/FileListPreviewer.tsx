@@ -20,9 +20,14 @@ import { useSortList } from '../DirectoryPicker/hooks/useSortList';
 import { LessFileExtraInfo } from '../FileExtraInfo';
 import GlobalSetting from '../GlobalSetting';
 import { ScrollBoxInstance } from '../ScrollBox';
+import CreatedTimeFilter, {
+  DEFAULT_CREATED_TIME_RANGE,
+  FILE_LIST_FILTER_CREATED_TIME_KEY,
+  getRealCreatedTimeValue,
+} from './CreatedTimeFilter';
 import DurationFilter, {
   DEFAULT_DURATION_RANGE,
-  FILE_LIST_PREVIEW_KEY,
+  FILE_LIST_FILTER_DURATION_KEY,
   getRealDurationValue,
 } from './DurationFilter';
 import FileListContent from './FileListContent';
@@ -59,12 +64,23 @@ const FileListPreviewer = ({
   const fileCount = useMemo(() => files?.length ?? 0, [files]);
   const scrollBoxRef = useRef<ScrollBoxInstance>(null);
 
-  // 筛选
-  const defaultDuration = usePersistentConfigValue<number[]>(FILE_LIST_PREVIEW_KEY);
+  // 时长筛选
+  const defaultDuration = usePersistentConfigValue<number[]>(FILE_LIST_FILTER_DURATION_KEY);
   const [durationRange, setDurationRange] = useState(
     getRealDurationValue(defaultDuration ?? DEFAULT_DURATION_RANGE)
   );
-  const { filteredFiles } = useMediaDurationFilter({ files: rawFiles, durationRange });
+
+  // 创建时间筛选
+  const defaultCreatedTime = usePersistentConfigValue<number[]>(FILE_LIST_FILTER_CREATED_TIME_KEY);
+  const [createdTimeRange, setCreatedTimeRange] = useState(
+    getRealCreatedTimeValue(defaultCreatedTime ?? DEFAULT_CREATED_TIME_RANGE)
+  );
+
+  const { filteredFiles } = useMediaDurationFilter({
+    files: rawFiles,
+    durationRange,
+    createdTimeRange,
+  });
 
   // 排序
   const { sortedItems, SortToolRow } = useSortList({
@@ -112,7 +128,7 @@ const FileListPreviewer = ({
   // 应用筛选
   const handleApplyFilter = useCallback(() => {
     onFilterFiles?.(sortedItems);
-    saveTempConfigByKey([FILE_LIST_PREVIEW_KEY]);
+    saveTempConfigByKey([FILE_LIST_FILTER_DURATION_KEY, FILE_LIST_FILTER_CREATED_TIME_KEY]);
     handleClose();
   }, [handleClose, onFilterFiles, sortedItems]);
 
@@ -165,6 +181,7 @@ const FileListPreviewer = ({
           {/* 排序 */}
           {SortToolRow}
           {/* 创建时间筛选 */}
+          <CreatedTimeFilter onChange={setCreatedTimeRange} />
 
           {/* 时长筛选 */}
           <DurationFilter onChange={setDurationRange} />
