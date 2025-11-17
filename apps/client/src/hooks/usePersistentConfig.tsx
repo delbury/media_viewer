@@ -7,6 +7,8 @@ const LOCAL_STORAGE_CONFIG_KEY = '_persistent_config';
 
 const STORE = {
   localConfig: null as Record<string, unknown> | null,
+  // 临时配置，需要手动保存到本地
+  tempConfig: {} as Record<string, unknown>,
 };
 
 const listeners = new Set<() => void>();
@@ -39,10 +41,13 @@ const getLocalConfig = (key?: string) => {
 
   return STORE.localConfig?.[key];
 };
-const setLocalConfig = (key: string, val?: unknown) => {
+const setLocalConfig = (key: string, val?: unknown, lazySave?: boolean) => {
   if (!STORE.localConfig) initLocalConfig();
 
-  if (STORE.localConfig) {
+  if (lazySave) {
+    STORE.tempConfig[key] = val;
+    STORE.tempConfig = { ...STORE.tempConfig };
+  } else if (STORE.localConfig) {
     STORE.localConfig[key] = val;
     STORE.localConfig = { ...STORE.localConfig };
   }
@@ -55,7 +60,8 @@ const saveLocalConfig = () => {
 
 export function usePersistentConfig<T = unknown>(
   defaultValue: T,
-  storageKey?: string | { prefix?: string; suffix?: string }
+  storageKey?: string | { prefix?: string; suffix?: string },
+  { lazySave }: { lazySave?: boolean } = {}
 ): [T, (val: T) => void] {
   const key =
     typeof storageKey === 'object'
@@ -71,19 +77,18 @@ export function usePersistentConfig<T = unknown>(
   //   setValue(key ? ((getLocalConfig(key) as T) ?? defaultValue) : defaultValue);
   // }, []);
 
-  const saveLocalConfigIdle = useIdleCallback(saveLocalConfig, 1000);
   const setLocalConfigIdle = useIdleCallback(setLocalConfig, 1000);
+  const saveLocalConfigIdle = useIdleCallback(saveLocalConfig, 1000);
 
   const setValueWithLocal = useCallback(
     (val: T) => {
       setValue(val);
       if (key && STORE.localConfig) {
-        setLocalConfigIdle(key, val);
-
+        setLocalConfigIdle(key, val, lazySave);
         saveLocalConfigIdle();
       }
     },
-    [key, saveLocalConfigIdle, setLocalConfigIdle]
+    [key, lazySave, saveLocalConfigIdle, setLocalConfigIdle]
   );
 
   return [value, setValueWithLocal];

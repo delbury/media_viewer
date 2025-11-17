@@ -23,7 +23,7 @@ import { ScrollBoxInstance } from '../ScrollBox';
 import DurationFilter, {
   DEFAULT_DURATION_RANGE,
   FILE_LIST_PREVIEW_KEY,
-  getRealValue,
+  getRealDurationValue,
 } from './DurationFilter';
 import FileListContent from './FileListContent';
 import {
@@ -62,7 +62,7 @@ const FileListPreviewer = ({
   // 筛选
   const defaultDuration = usePersistentConfigValue<number[]>(FILE_LIST_PREVIEW_KEY);
   const [durationRange, setDurationRange] = useState(
-    getRealValue(defaultDuration ?? DEFAULT_DURATION_RANGE)
+    getRealDurationValue(defaultDuration ?? DEFAULT_DURATION_RANGE)
   );
   const { filteredFiles } = useMediaDurationFilter({ files: rawFiles, durationRange });
 
@@ -161,8 +161,13 @@ const FileListPreviewer = ({
             </IconButton>
           }
         >
+          {/* 排序 */}
           {SortToolRow}
+          {/* 创建时间筛选 */}
+
+          {/* 时长筛选 */}
           <DurationFilter onChange={setDurationRange} />
+
           <StyleFilesContainer>
             <FileListContent
               scrollBoxRef={scrollBoxRef}

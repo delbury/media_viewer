@@ -1,9 +1,5 @@
-import { useDebounce } from '#/hooks/useDebounce';
-import { usePersistentConfig } from '#/hooks/usePersistentConfig';
+import RangeSlider, { getRealValue } from '#/components/RangeSlider';
 import { AllInclusiveRounded } from '@mui/icons-material';
-import { SliderProps } from '@mui/material';
-import { useCallback } from 'react';
-import { StyledSlider, StyledWrapper } from './style';
 
 export const FILE_LIST_PREVIEW_KEY = 'fileListPreviewDurationRange';
 
@@ -22,62 +18,22 @@ const DURATION_OPTIONS = [
   },
 ];
 
-export const getRealValue = (indexes: number[]) => indexes.map(ind => DURATION_OPTIONS[ind].value);
+export const DEFAULT_DURATION_RANGE = [0, DURATION_OPTIONS.length - 1];
 
-const MAX = DURATION_OPTIONS.length - 1;
-export const DEFAULT_DURATION_RANGE = [0, MAX];
-
-const MARKS = DURATION_OPTIONS.map((it, index) => ({
-  label: it.label,
-  realValue: it.value,
-  value: index,
-}));
+export const getRealDurationValue = (indexes: number[]) => getRealValue(indexes, DURATION_OPTIONS);
 
 interface DurationFilterProps {
   onChange?: (val: number[]) => void;
 }
 
 const DurationFilter = ({ onChange }: DurationFilterProps) => {
-  const [value, setValue] = usePersistentConfig<number[]>(
-    DEFAULT_DURATION_RANGE,
-    FILE_LIST_PREVIEW_KEY
-  );
-
-  const handleRealValueChange = useCallback(
-    (val: number[]) => {
-      onChange?.(val.map(it => DURATION_OPTIONS[it].value));
-    },
-    [onChange]
-  );
-
-  const handleRealValueChangeIdle = useDebounce(handleRealValueChange, 800);
-
-  const handleChange = useCallback<NonNullable<SliderProps['onChange']>>(
-    (_, val) => {
-      if (Array.isArray(val)) {
-        setValue(val);
-        handleRealValueChangeIdle?.(val);
-      }
-    },
-    [handleRealValueChangeIdle, setValue]
-  );
-
-  // useEffect(() => {
-  //   handleRealValueChangeIdle?.(value);
-  // }, []);
-
   return (
-    <StyledWrapper>
-      <StyledSlider
-        size="small"
-        min={0}
-        max={MAX}
-        step={1}
-        value={value}
-        onChange={handleChange}
-        marks={MARKS}
-      />
-    </StyledWrapper>
+    <RangeSlider
+      onChange={onChange}
+      defaultRange={DEFAULT_DURATION_RANGE}
+      storageKey={FILE_LIST_PREVIEW_KEY}
+      options={DURATION_OPTIONS}
+    />
   );
 };
 
