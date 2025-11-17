@@ -30,6 +30,9 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
   // 是否关闭
   const closed = !show.audio && !show.image && !show.video;
 
+  // 文件详情弹框
+  const [detailVisible, setDetailVisible] = useState(false);
+
   const {
     fileList,
     rawFileList,
@@ -42,15 +45,16 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     prevDisabled,
     toggleRandom,
     isRandomPlay,
-    changeFileList,
+    filterFileList,
+    clearFileList,
   } = useFileOrDirectory({
     file: state.file,
     dir: state.dir,
     list: state.list,
     mediaType: state.mediaType,
     randomStrategy,
+    lazyInit: true,
   });
-  const [detailVisible, setDetailVisible] = useState(false);
 
   const value = useMemo(
     () => ({
@@ -60,6 +64,11 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     }),
     [goNextFile, state]
   );
+
+  // 关闭后清除播放列表
+  useEffect(() => {
+    clearFileList();
+  }, [closed]);
 
   // 用于拦截浏览器返回上一个历史记录
   useEffect(() => {
@@ -155,7 +164,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
                 files={fileList}
                 rawFiles={rawFileList}
                 currentFileIndex={currentFileIndex}
-                onFilterFiles={changeFileList}
+                onFilterFiles={filterFileList}
               />
             )
           }
@@ -181,7 +190,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
                 files={fileList}
                 rawFiles={rawFileList}
                 currentFileIndex={currentFileIndex}
-                onFilterFiles={changeFileList}
+                onFilterFiles={filterFileList}
               />
             )
           }
@@ -207,7 +216,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
                 files={fileList}
                 rawFiles={rawFileList}
                 currentFileIndex={currentFileIndex}
-                onFilterFiles={changeFileList}
+                onFilterFiles={filterFileList}
               />
             )
           }

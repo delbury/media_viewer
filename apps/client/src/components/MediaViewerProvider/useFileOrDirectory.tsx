@@ -13,6 +13,7 @@ interface UseFileOrDirectoryParams {
   mediaType?: MediaFileType;
   defaultRandom?: boolean;
   randomStrategy?: RandomPlayStrategy;
+  lazyInit?: boolean;
 }
 
 export const useFileOrDirectory = ({
@@ -22,6 +23,7 @@ export const useFileOrDirectory = ({
   mediaType,
   defaultRandom = true,
   randomStrategy = RandomPlayStrategy.Default,
+  lazyInit,
 }: UseFileOrDirectoryParams) => {
   /**
    * 播放模式：
@@ -73,9 +75,11 @@ export const useFileOrDirectory = ({
       }
     }
 
-    initPlayVideo(fileList);
+    if (!lazyInit) {
+      initPlayVideo(fileList);
+      setFileList(fileList);
+    }
 
-    setFileList(fileList);
     setRawFileList(fileList);
   }, [dir, file, list, mediaType]);
 
@@ -127,14 +131,19 @@ export const useFileOrDirectory = ({
     setIsRandomPlay(v => !v);
   }, []);
 
-  // 更新播放列表
-  const changeFileList = useCallback(
+  // 过滤播放列表
+  const filterFileList = useCallback(
     (files: FileInfo[]) => {
       initPlayVideo(files);
       setFileList(files);
     },
     [initPlayVideo]
   );
+
+  const clearFileList = useCallback(() => {
+    initPlayVideo([]);
+    setFileList([]);
+  }, [initPlayVideo]);
 
   return {
     fileList,
@@ -143,13 +152,14 @@ export const useFileOrDirectory = ({
     currentFileIndex,
     setCurrentFileIndex,
     currentFile: fileList[currentFileIndex] as FileInfo | undefined,
-    isList: fileList.length > 1,
+    isList: rawFileList.length > 1,
     prevDisabled: isRandomPlay || (!isRandomPlay && currentFileIndex === 0),
     nextDisabled: !isRandomPlay && currentFileIndex === fileList.length - 1,
     isRandomPlay,
     goPrevFile: handlePrev,
     goNextFile: handleNext,
     toggleRandom: handleToggleRandom,
-    changeFileList,
+    filterFileList,
+    clearFileList,
   };
 };

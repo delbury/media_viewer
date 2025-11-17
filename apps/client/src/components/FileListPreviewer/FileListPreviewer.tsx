@@ -13,7 +13,7 @@ import {
 import { Badge, IconButton } from '@mui/material';
 import { isNil } from 'lodash-es';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Dialog from '../Dialog';
 import { FILE_SORT_API_FIELD_MAP, LESS_FILE_SORT_OPTIONS } from '../DirectoryPicker/constant';
 import { useSortList } from '../DirectoryPicker/hooks/useSortList';
@@ -114,6 +114,10 @@ const FileListPreviewer = ({
     onFilterFiles?.(sortedItems);
     handleClose();
   }, [handleClose, onFilterFiles, sortedItems]);
+
+  useEffect(() => {
+    onFilterFiles?.(sortedItems);
+  }, []);
 
   return (
     <StyledListPreviewerWrapper>
