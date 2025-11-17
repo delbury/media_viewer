@@ -9,6 +9,8 @@ const STORE = {
   localConfig: null as Record<string, unknown> | null,
   // 临时配置，需要手动保存到本地
   tempConfig: {} as Record<string, unknown>,
+  // 合并配置
+  mergeConfig: {} as Record<string, unknown>,
 };
 
 const listeners = new Set<() => void>();
@@ -21,7 +23,7 @@ const subscribe = (listener: () => void) => {
 };
 
 const getSnapshot = () => {
-  return STORE.localConfig;
+  return STORE.mergeConfig;
 };
 
 const initLocalConfig = () => {
@@ -29,6 +31,7 @@ const initLocalConfig = () => {
   try {
     const itemObj = item ? JSON.parse(item) : {};
     STORE.localConfig = itemObj;
+    STORE.mergeConfig = { ...itemObj };
   } catch {
     window?.localStorage.removeItem(LOCAL_STORAGE_CONFIG_KEY);
     STORE.localConfig = {};
@@ -39,12 +42,13 @@ const getLocalConfig = (key?: string) => {
 
   if (!key) return null;
 
-  return STORE.localConfig?.[key];
+  return STORE.mergeConfig?.[key];
 };
-const setLocalConfig = (key: string, val?: unknown, lazySave?: boolean) => {
+const setLocalConfig = (key: string, val?: unknown, lazySet?: boolean) => {
   if (!STORE.localConfig) initLocalConfig();
 
-  if (lazySave) {
+  if (lazySet) {
+    // 懒设置到临时配置中
     STORE.tempConfig[key] = val;
     STORE.tempConfig = { ...STORE.tempConfig };
   } else if (STORE.localConfig) {
@@ -52,10 +56,33 @@ const setLocalConfig = (key: string, val?: unknown, lazySave?: boolean) => {
     STORE.localConfig = { ...STORE.localConfig };
   }
 
+  STORE.mergeConfig = {
+    ...STORE.localConfig,
+    ...STORE.tempConfig,
+  };
+
   listeners.values().forEach(fn => fn());
 };
+// 将内存配置保存到本地
 const saveLocalConfig = () => {
   localStorage.setItem(LOCAL_STORAGE_CONFIG_KEY, JSON.stringify(STORE.localConfig));
+};
+// 将对应 key 的临时配置保存到本地
+export const saveTempConfigByKey = (keys: string | string[]) => {
+  const configs: Record<string, unknown> = {};
+  keys = Array.isArray(keys) ? keys : [keys];
+
+  for (const k of keys) {
+    if (k in STORE.tempConfig) configs[k] = STORE.tempConfig[k];
+  }
+
+  localStorage.setItem(
+    LOCAL_STORAGE_CONFIG_KEY,
+    JSON.stringify({
+      ...STORE.localConfig,
+      ...configs,
+    })
+  );
 };
 
 export function usePersistentConfig<T = unknown>(
@@ -85,16 +112,16 @@ export function usePersistentConfig<T = unknown>(
       setValue(val);
       if (key && STORE.localConfig) {
         setLocalConfigIdle(key, val, lazySave);
-        saveLocalConfigIdle();
+        if (!lazySave) saveLocalConfigIdle();
       }
     },
-    [key, lazySave, saveLocalConfigIdle, setLocalConfigIdle]
+    [key, lazySave, setLocalConfigIdle, saveLocalConfigIdle]
   );
 
   return [value, setValueWithLocal];
 }
 
-const getServerSnapshot = () => STORE.localConfig;
+const getServerSnapshot = () => STORE.mergeConfig;
 
 export const usePersistentConfigValue = function <T>(key: string) {
   if (!STORE.localConfig && typeof window !== 'undefined') initLocalConfig();

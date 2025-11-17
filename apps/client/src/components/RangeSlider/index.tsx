@@ -20,7 +20,9 @@ interface DurationFilterProps {
 }
 
 const RangeSlider = ({ defaultRange, storageKey, options, onChange }: DurationFilterProps) => {
-  const [value, setValue] = usePersistentConfig<number[]>(defaultRange, storageKey);
+  const [value, setValue] = usePersistentConfig<number[]>(defaultRange, storageKey, {
+    lazySave: true,
+  });
 
   const handleRealValueChange = useCallback(
     (val: number[]) => {

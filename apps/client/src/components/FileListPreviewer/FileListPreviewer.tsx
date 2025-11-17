@@ -1,7 +1,7 @@
 import { useDialogState } from '#/hooks/useDialogState';
 import { useMediaDurationFilter } from '#/hooks/useMediaDurationFilter';
 import { useMediaViewerContext } from '#/hooks/useMediaViewerContext';
-import { usePersistentConfigValue } from '#/hooks/usePersistentConfig';
+import { saveTempConfigByKey, usePersistentConfigValue } from '#/hooks/usePersistentConfig';
 import { EMPTY_SYMBOL } from '#/utils/constant';
 import { FileInfo } from '#pkgs/apis';
 import {
@@ -112,6 +112,7 @@ const FileListPreviewer = ({
   // 应用筛选
   const handleApplyFilter = useCallback(() => {
     onFilterFiles?.(sortedItems);
+    saveTempConfigByKey([FILE_LIST_PREVIEW_KEY]);
     handleClose();
   }, [handleClose, onFilterFiles, sortedItems]);
 
