@@ -26,20 +26,18 @@ export const useMediaDurationFilter = ({
     const rightTime = createdTimeRange[1];
     const isFilterTime = leftTime !== Infinity || !!rightTime;
 
-    if (!isFilterDuration && !isFilterTime) {
+    const isFiltered = isFilterDuration || isFilterTime;
+
+    // 无需筛选
+    if (!isFiltered) {
       return {
         filteredFiles: files,
-        isFiltered: isFilterDuration,
+        isFiltered,
       };
     }
 
     const filteredFiles: FileInfo[] = [];
-    if (
-      files &&
-      isFilterDuration &&
-      leftDurationEdge < rightDurationEdge &&
-      leftTime >= rightTime
-    ) {
+    if (files && isFiltered && leftDurationEdge < rightDurationEdge && leftTime >= rightTime) {
       // 确定创建时间边界
       const today = new Date();
       const leftTimeEdge = today.setHours(0, 0, 0, 0) - leftTime * OneDayMs;
@@ -61,7 +59,7 @@ export const useMediaDurationFilter = ({
 
     return {
       filteredFiles,
-      isFiltered: isFilterDuration,
+      isFiltered,
     };
   }, [durationRange, createdTimeRange, files]);
 
