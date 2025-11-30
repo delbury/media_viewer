@@ -153,10 +153,6 @@ export const useShortcut = ({
         // 防止触发 dialog 的关闭事件
         { signal: controller.signal, capture: false }
       );
-
-      return () => {
-        controller.abort();
-      };
     }
   }, []);
 
