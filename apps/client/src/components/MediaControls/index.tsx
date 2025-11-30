@@ -9,6 +9,7 @@ import {
   SkipPreviousRounded,
 } from '@mui/icons-material';
 import { IconButton, useMediaQuery } from '@mui/material';
+import { isNil } from 'lodash-es';
 import {
   forwardRef,
   RefObject,
@@ -27,7 +28,7 @@ import LoopSetting from './components/LoopSetting';
 import { MediaProgress } from './components/MediaProgress';
 import ModeSetting from './components/ModeSetting';
 import ProgressInfo from './components/ProgressInfo';
-import RateSetting from './components/RateSetting';
+import RateSetting, { MAX_RATE } from './components/RateSetting';
 import RotateSetting from './components/RotateSetting';
 import SourceSetting from './components/SourceSetting';
 import SubtitleSetting from './components/SubtitleSetting';
@@ -121,6 +122,26 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
 
     const subtitles = useMemo(() => file?.subtitles, [file]);
 
+    // 之前的播放速度
+    const lastRate = useRef<number>(null);
+    // 设置临时加速播放
+    const toggleMaxPlaybackRate = useCallback(
+      (isMax: boolean) => {
+        const elm = mediaRef.current;
+        if (!elm) return;
+        if (isMax && isNil(lastRate.current)) {
+          lastRate.current = elm.playbackRate;
+          elm.playbackRate = MAX_RATE;
+          return;
+        }
+        if (!isMax && !isNil(lastRate.current)) {
+          elm.playbackRate = lastRate.current;
+          lastRate.current = null;
+        }
+      },
+      [mediaRef]
+    );
+
     // handlers
     const {
       handleTogglePlay,
@@ -145,6 +166,9 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       onRightPressed: handleForward,
       onSpacePressed: handleTogglePlay,
       onEnterPressed: handleTogglePlay,
+      onFPressed: () => toggleMaxPlaybackRate(true),
+      onFReleased: () => toggleMaxPlaybackRate(false),
+      arrowKeyAliasEnabled: true,
     });
 
     // 移动端，手势拖拽的操作
@@ -156,6 +180,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       nextDisabled: nextDisabled,
       handlePrev,
       handleNext,
+      toggleMaxPlaybackRate,
     });
 
     // 在模拟双击播放时，记录处于的阶段

@@ -1,4 +1,5 @@
 import { stopPropagation } from '#/utils';
+import { isNil } from 'lodash-es';
 import { useEffect } from 'react';
 
 enum BoardKey {
@@ -10,6 +11,17 @@ enum BoardKey {
   Space = 'Space',
   Enter = 'Enter',
   Backspace = 'Backspace',
+  A = 'KeyA',
+  D = 'KeyD',
+  W = 'KeyW',
+  S = 'KeyS',
+  F = 'KeyF',
+  X = 'KeyX',
+}
+
+enum EventType {
+  Pressed,
+  Released,
 }
 
 interface UseShortcutParams {
@@ -21,7 +33,11 @@ interface UseShortcutParams {
   onSpacePressed?: (ev: KeyboardEvent) => void;
   onEnterPressed?: (ev: KeyboardEvent) => void;
   onBackspacePressed?: (ev: KeyboardEvent) => void;
+  onFPressed?: (ev: KeyboardEvent) => void;
+  onFReleased?: (ev: KeyboardEvent) => void;
+  onXPressed?: (ev: KeyboardEvent) => void;
   eventOption?: EventItem['option'];
+  arrowKeyAliasEnabled?: boolean;
 }
 
 // 单例
@@ -31,12 +47,20 @@ interface EventItem {
 }
 const GLOBAL_STATE = {
   eventController: null as AbortController | null,
-  events: {} as Record<BoardKey, Set<EventItem>>,
+  pressedEvents: {} as Record<BoardKey, Set<EventItem>>,
+  releasedEvents: {} as Record<BoardKey, Set<EventItem>>,
 };
 
 // 全局回调
-const keyboardCallback = (ev: KeyboardEvent) => {
-  const events = GLOBAL_STATE.events[ev.code as BoardKey];
+const keyboardPressedCallback = (ev: KeyboardEvent, type: EventType) => {
+  const events = (
+    type === EventType.Pressed
+      ? GLOBAL_STATE.pressedEvents
+      : type === EventType.Released
+        ? GLOBAL_STATE.releasedEvents
+        : null
+  )?.[ev.code as BoardKey];
+
   if (events?.size) {
     stopPropagation(ev);
     const list = [...events];
@@ -60,13 +84,25 @@ const keyboardCallback = (ev: KeyboardEvent) => {
 const useBindKeyEvent = (
   key: BoardKey,
   cb?: (ev: KeyboardEvent) => void,
-  { eventOption }: { eventOption?: EventItem['option'] } = {}
+  {
+    eventOption,
+    type = EventType.Pressed,
+  }: { eventOption?: EventItem['option']; type?: EventType } = {}
 ) => {
   useEffect(() => {
     if (!cb) return;
 
+    const eventField: keyof Pick<typeof GLOBAL_STATE, 'pressedEvents' | 'releasedEvents'> | null =
+      type === EventType.Pressed
+        ? 'pressedEvents'
+        : type === EventType.Released
+          ? 'releasedEvents'
+          : null;
+
+    if (isNil(eventField)) return;
+
     // 添加事件回调
-    if (!GLOBAL_STATE.events[key]) GLOBAL_STATE.events[key] = new Set();
+    if (!GLOBAL_STATE[eventField][key]) GLOBAL_STATE[eventField][key] = new Set();
 
     const item: EventItem = {
       callback: cb,
@@ -74,13 +110,13 @@ const useBindKeyEvent = (
         stopWhenFirstCalled: eventOption?.stopWhenFirstCalled,
       },
     };
-    GLOBAL_STATE.events[key].add(item);
+    GLOBAL_STATE[eventField][key].add(item);
 
     return () => {
       // 移除
-      GLOBAL_STATE.events[key].delete(item);
+      GLOBAL_STATE[eventField][key].delete(item);
     };
-  }, [key, cb, eventOption?.stopWhenFirstCalled]);
+  }, [key, cb, eventOption?.stopWhenFirstCalled, type]);
 };
 
 export const useShortcut = ({
@@ -92,7 +128,11 @@ export const useShortcut = ({
   onSpacePressed,
   onEnterPressed,
   onBackspacePressed,
+  onFPressed,
+  onFReleased,
+  onXPressed,
   eventOption,
+  arrowKeyAliasEnabled,
 }: UseShortcutParams = {}) => {
   // 初始化，单例模式
   useEffect(() => {
@@ -102,18 +142,41 @@ export const useShortcut = ({
 
       window.addEventListener(
         'keydown',
-        keyboardCallback,
+        ev => keyboardPressedCallback(ev, EventType.Pressed),
         // 防止触发 dialog 的关闭事件
         { signal: controller.signal, capture: false }
       );
+
+      window.addEventListener(
+        'keyup',
+        ev => keyboardPressedCallback(ev, EventType.Released),
+        // 防止触发 dialog 的关闭事件
+        { signal: controller.signal, capture: false }
+      );
+
+      return () => {
+        controller.abort();
+      };
     }
   }, []);
 
-  useBindKeyEvent(BoardKey.Escape, onEscPressed, { eventOption });
+  // 上下左右
   useBindKeyEvent(BoardKey.ArrowLeft, onLeftPressed, { eventOption });
   useBindKeyEvent(BoardKey.ArrowRight, onRightPressed, { eventOption });
   useBindKeyEvent(BoardKey.ArrowUp, onUpPressed, { eventOption });
   useBindKeyEvent(BoardKey.ArrowDown, onDownPressed, { eventOption });
+
+  // 上下左右，别名
+  useBindKeyEvent(BoardKey.A, arrowKeyAliasEnabled ? onLeftPressed : void 0, { eventOption });
+  useBindKeyEvent(BoardKey.D, arrowKeyAliasEnabled ? onRightPressed : void 0, { eventOption });
+  useBindKeyEvent(BoardKey.W, arrowKeyAliasEnabled ? onUpPressed : void 0, { eventOption });
+  useBindKeyEvent(BoardKey.S, arrowKeyAliasEnabled ? onDownPressed : void 0, { eventOption });
+
+  useBindKeyEvent(BoardKey.F, onFPressed, { eventOption });
+  useBindKeyEvent(BoardKey.F, onFReleased, { eventOption, type: EventType.Released });
+  useBindKeyEvent(BoardKey.X, onXPressed, { eventOption });
+
+  useBindKeyEvent(BoardKey.Escape, onEscPressed, { eventOption });
   useBindKeyEvent(BoardKey.Space, onSpacePressed, { eventOption });
   useBindKeyEvent(BoardKey.Enter, onEnterPressed, { eventOption });
   useBindKeyEvent(BoardKey.Backspace, onBackspacePressed, { eventOption });

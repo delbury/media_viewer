@@ -1,3 +1,4 @@
+import { useShortcut } from '#/hooks/useShortcut';
 import { useSwrMutation } from '#/hooks/useSwr';
 import { FileInfo } from '#pkgs/apis';
 import { ThumbDownAltRounded, ThumbDownOffAltRounded } from '@mui/icons-material';
@@ -40,6 +41,11 @@ const DislikeSetting = ({ file }: DislikeSettingProps) => {
     });
     setDislike(newVal);
   }, [dislike, file, setTrigger]);
+
+  // 快捷键
+  useShortcut({
+    onXPressed: handleToggleDislike,
+  });
 
   return (
     <IconButton

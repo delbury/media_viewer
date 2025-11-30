@@ -3,9 +3,7 @@ import { useDrag } from '#/hooks/useDrag';
 import { useGesture } from '#/hooks/useGesture';
 import { formatTime, preventDefault } from '#/utils';
 import { SxProps, Theme } from '@mui/material';
-import { isNil } from 'lodash-es';
 import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { MAX_RATE } from '../components/RateSetting';
 import { bindEvent, findFullscreenRoot } from '../util';
 
 // 在 video 上拖动时，每像素的偏移时间
@@ -25,6 +23,7 @@ interface UseMobileDragParams {
   showExtraAreas?: boolean;
   prevDisabled?: boolean;
   nextDisabled?: boolean;
+  toggleMaxPlaybackRate?: (isMax: boolean) => void;
 }
 
 export const useMobileGesture = ({
@@ -35,14 +34,13 @@ export const useMobileGesture = ({
   showExtraAreas,
   prevDisabled,
   nextDisabled,
+  toggleMaxPlaybackRate,
 }: UseMobileDragParams) => {
   // 拖拽方向
   const currentDragDirection = useRef<'x' | 'y' | null>(null);
   // 判断当前拖拽距离
   const currentDragOffsetInstant = useRef<[number, number] | null>(null);
   const [currentDragOffset, setCurrentDragOffset] = useState<[number, number] | null>(null);
-  // 之前的播放速度
-  const lastRate = useRef<number>(null);
 
   // 重置
   const handleResetDrag = useCallback(() => {
@@ -146,8 +144,7 @@ export const useMobileGesture = ({
           if (gesture.type === 'single-move') dragEventHandler(ev);
           // 单指按下，进入快速播放模式
           if (gesture.type === 'single-down') {
-            lastRate.current = elm.playbackRate;
-            elm.playbackRate = MAX_RATE;
+            toggleMaxPlaybackRate?.(true);
           }
         })
       : null;
@@ -158,10 +155,7 @@ export const useMobileGesture = ({
           if (ev.pointerType === 'mouse') return;
           // preventDefault(ev);
           detectGesture(ev);
-          if (!isNil(lastRate.current)) {
-            elm.playbackRate = lastRate.current;
-            lastRate.current = null;
-          }
+          toggleMaxPlaybackRate?.(false);
         })
       : null;
 
@@ -181,7 +175,7 @@ export const useMobileGesture = ({
       pointerUpController?.abort();
       pointerMoveController?.abort();
     };
-  }, [detectGesture, dragEventHandler, mediaRef]);
+  }, [detectGesture, dragEventHandler, mediaRef, toggleMaxPlaybackRate]);
 
   return {
     currentDragDiffTime,
