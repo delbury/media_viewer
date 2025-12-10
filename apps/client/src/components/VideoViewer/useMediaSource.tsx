@@ -174,7 +174,7 @@ export const useMediaSource = ({ mediaRef, file, forceSource }: UseMediaSourcePa
         setIsLoading(false);
       }
     },
-    [file, isLoading, mediaRef]
+    [file, isLoading]
   );
   const lazyLoadSegmentDebounce = useDebounce(lazyLoadSegment, 200);
 

@@ -89,7 +89,8 @@ const VideoViewer = ({
         <video
           ref={videoRef}
           poster={posterUrl}
-          preload="metadata"
+          // preload="metadata"
+          preload="auto"
           playsInline
           // controls
           {...progressEvents}

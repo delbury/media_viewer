@@ -15,14 +15,14 @@ const MB = 2 ** 20;
 // 每次的最大 size，MB
 const BASE_RANGE_SIZE_STEP = 4 * MB;
 // 获取文件的单次 range 大小
-const BASE_BIG_FILE_SIZE_THRESHOLD = 2 ** 30;
+const BASE_BIG_FILE_SIZE_THRESHOLD = 32 * MB;
 // 倍数，index + 2
 const BIG_FILE_SIZE_THRESHOLD_SCALES = [1.5, 5, 10];
 
 // 每个 range 分片的秒数
-const RANGE_STEP_SECOND = 4;
+const RANGE_STEP_SECONDS = 4;
 // 最大 range 分片大小
-const RANGE_STEP_MAX = 40 * MB;
+const RANGE_STEP_MAX = 60 * MB;
 
 const getFileStep = (fileSize: number) => {
   let multi = 1;
@@ -49,7 +49,7 @@ export const resolveRange = async (range: string, filePath: string) => {
     fileSize = +(videoDetail?.format.size ?? '');
     const bitRate = Math.ceil(+(videoDetail?.format.bit_rate ?? '') / 8);
     // 根据视频码率，限制单个请求的最大大小
-    sizeStep = clamp(bitRate * RANGE_STEP_SECOND, BASE_RANGE_SIZE_STEP, RANGE_STEP_MAX);
+    sizeStep = clamp(bitRate * RANGE_STEP_SECONDS, BASE_RANGE_SIZE_STEP, RANGE_STEP_MAX);
   } else {
     // 获取文件信息
     let fileInfo = await fileStatFifo.get(filePath);
