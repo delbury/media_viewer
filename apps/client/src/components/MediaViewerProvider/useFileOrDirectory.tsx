@@ -75,7 +75,8 @@ export const useFileOrDirectory = ({
       }
     }
 
-    if (!lazyInit) {
+    // 当懒初始化或打开单个文件时
+    if (!lazyInit || fileList.length === 1) {
       initPlayVideo(fileList);
       setFileList(fileList);
     }

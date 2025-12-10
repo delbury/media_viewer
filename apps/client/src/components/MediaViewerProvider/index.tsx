@@ -67,7 +67,9 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
 
   // 关闭后清除播放列表
   useEffect(() => {
-    clearFileList();
+    if (closed) {
+      clearFileList();
+    }
   }, [closed]);
 
   // 用于拦截浏览器返回上一个历史记录
