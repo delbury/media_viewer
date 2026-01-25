@@ -1,5 +1,16 @@
 import { Box, styled, ToggleButton, ToggleButtonGroup } from '@mui/material';
 
+export const StyledToolGroupWrapper = styled('div')`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const StyledToolGroupTitle = styled('span')`
+  font-size: 10px;
+  color: ${({ theme }) => theme.palette.text.secondary};
+`;
+
 export const StyledToggleButtonGroup = styled(ToggleButtonGroup)`
   height: 20px;
   display: flex;

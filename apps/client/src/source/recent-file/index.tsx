@@ -10,12 +10,7 @@ import { useSwr } from '#/hooks/useSwr';
 import { formatDate, getFilePosterUrl } from '#/utils';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { MediaFileType } from '#pkgs/shared';
-import {
-  INFO_ID_FIELD,
-  findDirInfoInRootDir,
-  getAllMediaFileGroup,
-  splitPath,
-} from '#pkgs/tools/common';
+import { getAllMediaFileGroup, INFO_ID_FIELD } from '#pkgs/tools/common';
 import { Theme } from '@emotion/react';
 import {
   AccessTimeRounded,
@@ -23,6 +18,7 @@ import {
   SubscriptionsRounded,
 } from '@mui/icons-material';
 import { Badge, Chip, Divider, IconButton, ListItemAvatar, SxProps } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import React, { useCallback, useMemo, useState } from 'react';
 import PlayDirDialog from './components/PlayDirDialog';
 import {
@@ -40,145 +36,23 @@ import {
   StyledShortDir,
   StyledToolsRow,
 } from './style';
+import {
+  createTimeSorter,
+  getRecentFilesWithParentDir,
+  RECENT_FILE_SAME_DIR_COUNT_OPTIONS,
+} from './utils';
 
 const SCROLL_BOX_SX: SxProps<Theme> = {
   flex: 1,
   minHeight: 0,
 };
 
-const createTimeSorter = (a: FileInfo, b: FileInfo) => {
-  return b.created - a.created;
-};
-
-/**
- * 可以按 video / audio / image 筛选
- * 取最近的 N 个文件，相同文件夹下的最多取 M 个文件
- */
-const RECENT_FILE_MAX_COUNT = 100;
-const SAME_DIR_FILE_MAX_COUNT = 1;
-
-// 前 n 层相同的文件夹可以合并
-const CAN_MERGE_SAME_DIR_COUNT = 3;
-
-/**
- * /a/b/c/d/e/f/g
- * /a/b/c/m/p
- * ==>
- * /a/b/c
- *
- * /a/b/c/d/e/f/g
- * /a/b/c/d/t/o
- * ==>
- * /a/b/c/d
- *
- * /a/b/c/d/e/f/g
- * /a/b/y/z
- * xxx
- *
- * /a/b/c/d/e/f/g
- * /1/2/3
- * xxx
- */
-const getMergeType = (
-  rootDir: DirectoryInfo,
-  a: DirectoryInfo,
-  b: DirectoryInfo
-): DirectoryInfo | null => {
-  const pathA = a.showPath + '/';
-  const pathB = b.showPath + '/';
-
-  // 父子关系
-  if (a.showPath.startsWith(pathB)) return b;
-  else if (b.showPath.startsWith(pathA)) return a;
-
-  // 兄弟关系
-  const dirsA = splitPath(a.showPath);
-  const dirsB = splitPath(b.showPath);
-  let curIndex = 0;
-  while (curIndex < dirsA.length && curIndex < dirsB.length) {
-    if (dirsA[curIndex] === dirsB[curIndex]) {
-      curIndex++;
-    } else {
-      break;
-    }
-  }
-
-  // 存在相同路径
-  if (curIndex >= CAN_MERGE_SAME_DIR_COUNT) {
-    const newParent = findDirInfoInRootDir(rootDir, dirsA.slice(0, curIndex));
-    return newParent;
-  }
-
-  return null;
-};
-
-// 获取最近文件并包括父文件夹
-const getRecentFilesWithParentDir = (
-  files: FileInfo[],
-  parentMap: Record<string, DirectoryInfo>,
-  rootDir: DirectoryInfo
-) => {
-  const map = new Map<DirectoryInfo, FileInfo[]>();
-
-  // 还剩的文件数
-  let reset = RECENT_FILE_MAX_COUNT;
-
-  for (let i = 0; i < files.length; i++) {
-    // 到达上限，结束
-    if (reset <= 0) break;
-    // 所属文件夹
-    const parent = parentMap[files[i][INFO_ID_FIELD]];
-
-    // 初始化数组
-    let list = map.get(parent);
-    if (!list) {
-      list = [];
-      map.set(parent, list);
-    }
-
-    // 到达上限，跳过
-    if (list.length >= SAME_DIR_FILE_MAX_COUNT) continue;
-    list.push(files[i]);
-    reset--;
-  }
-
-  /**
-   * 合并相同的文件夹
-   * n2 遍历，判断当前的 parent 是否可以和其中某个进行合并
-   */
-  const mergedList: { parent: DirectoryInfo; files: FileInfo[] }[] = [];
-  for (const [curParent, curFiles] of map.entries()) {
-    let merged = false;
-    for (let i = 0; i < mergedList.length; i++) {
-      const { parent } = mergedList[i];
-      // 判断两个 parent 是否可以合并
-      const mergedParent = getMergeType(rootDir, parent, curParent);
-      // 无法合并，跳过
-      if (!mergedParent) continue;
-
-      mergedList[i].parent = mergedParent;
-      // 合并后，合并所有文件
-      mergedList[i].files.push(...curFiles);
-      merged = true;
-      break;
-    }
-    if (!merged) {
-      // 无法合并
-      mergedList.push({
-        parent: curParent,
-        files: curFiles,
-      });
-    }
-  }
-
-  return {
-    list: mergedList,
-    count: RECENT_FILE_MAX_COUNT - reset,
-  };
-};
-
 export default function RecentFile() {
+  const t = useTranslations();
   const [filterFileType, setFilterFileType] = useState<MediaFileType>('video');
+  const [sameDirMaxCount, setSameDirMaxCount] = useState<number>(
+    RECENT_FILE_SAME_DIR_COUNT_OPTIONS[1].value as number
+  );
 
   const treeRequest = useSwr('dirTree');
   const {
@@ -202,17 +76,20 @@ export default function RecentFile() {
     const { list: audioList, count: audioCount } = getRecentFilesWithParentDir(
       audio.sort(createTimeSorter),
       parentMap,
-      treeRequest.data
+      treeRequest.data,
+      sameDirMaxCount
     );
     const { list: videoList, count: videoCount } = getRecentFilesWithParentDir(
       video.sort(createTimeSorter),
       parentMap,
-      treeRequest.data
+      treeRequest.data,
+      sameDirMaxCount
     );
     const { list: imageList, count: imageCount } = getRecentFilesWithParentDir(
       image.sort(createTimeSorter),
       parentMap,
-      treeRequest.data
+      treeRequest.data,
+      sameDirMaxCount
     );
 
     return {
@@ -226,7 +103,7 @@ export default function RecentFile() {
       videoCount,
       imageCount,
     };
-  }, [treeRequest.data]);
+  }, [sameDirMaxCount, treeRequest.data]);
 
   const { allRecentItems, recentItems, recentItemsCount } = useMemo(() => {
     switch (filterFileType) {
@@ -342,6 +219,21 @@ export default function RecentFile() {
             label={allRecentItems.length}
           />
         </StyledBtnContainer>
+      </StyledToolsRow>
+
+      <StyledToolsRow>
+        <div />
+        <ToolGroupBtn
+          title={t('Setting.SameDirMaxCount')}
+          rawLabel
+          exclusive
+          items={RECENT_FILE_SAME_DIR_COUNT_OPTIONS}
+          value={sameDirMaxCount}
+          onChange={(_, value) => {
+            if (!value) return;
+            setSameDirMaxCount(value);
+          }}
+        />
       </StyledToolsRow>
 
       <ScrollBox

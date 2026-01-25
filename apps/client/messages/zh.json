@@ -34,7 +34,8 @@
     "RandomPlayStrategy": "随机播放策略",
     "NewFirst": "最新优先",
     "CenterFirst": "中间优先",
-    "OldFirst": "最旧优先"
+    "OldFirst": "最旧优先",
+    "SameDirMaxCount": "同个文件夹最多数量"
   },
   "Common": {
     "AreYouSure": "确定？",
