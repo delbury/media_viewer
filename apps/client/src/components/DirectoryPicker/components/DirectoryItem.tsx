@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import { DIRECTORY_ITEM_HEIGHT } from '../constant';
 import {
+  StyledCheckbox,
   StyledListItem,
   StyledListItemButton,
   StyledSubIcon,
@@ -19,6 +20,12 @@ interface DirectoryItemProps {
   dir: DirectoryInfo;
   onClick?: (dir: DirectoryInfo) => void;
   sx?: SxProps<Theme>;
+  showCheckbox?: boolean;
+  checked?: boolean;
+  onCheckChange?: (val: boolean) => void;
+  indeterminate?: boolean;
+  disabled?: boolean;
+  subDirCheckedList?: boolean[];
 }
 
 const LIST_ITEM_TEXT_SLOT_PROPS: ListItemTextProps['slotProps'] = {
@@ -64,7 +71,17 @@ const PlayIconBtn = ({
   );
 };
 
-const DirectoryItem = ({ dir, onClick, sx }: DirectoryItemProps) => {
+const DirectoryItem = ({
+  dir,
+  onClick,
+  sx,
+  showCheckbox,
+  checked,
+  onCheckChange,
+  indeterminate,
+  disabled,
+  subDirCheckedList,
+}: DirectoryItemProps) => {
   const t = useTranslations();
 
   const { noAudio, noImage, noVideo } = useMemo(() => {
@@ -88,30 +105,47 @@ const DirectoryItem = ({ dir, onClick, sx }: DirectoryItemProps) => {
   const { openMediaViewer } = useMediaViewerContext();
   const handleMediaInfoClick = useCallback(
     (type: MediaFileType) => {
-      if (dir) openMediaViewer({ dir, mediaType: type });
+      if (dir) {
+        let ignoreSubDirs: number[] | undefined = void 0;
+        if (subDirCheckedList) {
+          ignoreSubDirs = [];
+          subDirCheckedList.forEach((flag, index) => {
+            if (flag) ignoreSubDirs?.push(index);
+          });
+        }
+        openMediaViewer({ dir, mediaType: type, ignoreSubDirs });
+      }
     },
-    [dir, openMediaViewer]
+    [dir, openMediaViewer, subDirCheckedList]
   );
 
   return (
     <StyledListItem sx={{ height: `${DIRECTORY_ITEM_HEIGHT}px`, ...sx }}>
       <ListItemIcon sx={{ gap: '8px' }}>
+        {showCheckbox && (
+          <StyledCheckbox
+            checked={checked}
+            onChange={(_, val) => onCheckChange?.(val)}
+            indeterminate={indeterminate}
+          />
+        )}
+
         <PlayIconBtn
-          disabled={noVideo}
+          disabled={noVideo || disabled}
           onClick={() => handleMediaInfoClick('video')}
         >
           <MovieRounded />
         </PlayIconBtn>
 
         <PlayIconBtn
-          disabled={noAudio}
+          disabled={noAudio || disabled}
           onClick={() => handleMediaInfoClick('audio')}
         >
           <AlbumRounded />
         </PlayIconBtn>
 
         <PlayIconBtn
-          disabled={noImage}
+          disabled={noImage || disabled}
           onClick={() => handleMediaInfoClick('image')}
         >
           <ImageRounded />

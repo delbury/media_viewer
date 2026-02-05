@@ -13,6 +13,7 @@ export const INIT_VALUE: MediaContextState = {
   mediaType: void 0,
   randomStrategy: void 0,
   noFileDetailPathDirClickEvent: void 0,
+  ignoreSubDirs: void 0,
 };
 
 export interface MediaContextState {
@@ -24,6 +25,8 @@ export interface MediaContextState {
   randomStrategy?: RandomPlayStrategy;
   // 无文件详情的路径文件夹点击事件
   noFileDetailPathDirClickEvent?: boolean;
+  // 打开文件夹时，需要忽略的子文件夹
+  ignoreSubDirs?: number[];
 }
 
 interface MediaContextValue {

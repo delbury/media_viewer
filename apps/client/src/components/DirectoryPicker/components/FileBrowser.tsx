@@ -198,6 +198,40 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
       }
     }, [currentPathNode]);
 
+    // 选择文件夹播放
+    const [subDirCheckedList, setSubDirCheckedList] = useState<boolean[]>([]);
+    const { allChecked, noChecked, indeterminate } = useMemo(() => {
+      const checkedCount = subDirCheckedList.reduce((sum, it) => Number(it) + sum, 0);
+      const allChecked = checkedCount === subDirCheckedList.length;
+      const noChecked = checkedCount === 0;
+
+      return {
+        allChecked,
+        noChecked,
+        indeterminate: !allChecked && !noChecked,
+      };
+    }, [subDirCheckedList]);
+
+    const handleAllCheckedChange = useCallback(
+      (val: boolean) => {
+        setSubDirCheckedList(Array(subDirCheckedList.length).fill(val));
+      },
+      [subDirCheckedList.length]
+    );
+
+    const handleItemCheckedChange = useCallback(
+      (val: boolean, index: number) => {
+        const newList = [...subDirCheckedList];
+        newList[index] = val;
+        setSubDirCheckedList(newList);
+      },
+      [subDirCheckedList]
+    );
+
+    useEffect(() => {
+      setSubDirCheckedList(Array(currentDirs.length).fill(true));
+    }, [currentDirs]);
+
     return (
       <StyledFileBrowserWrapper height={height || '100%'}>
         {/* 已选文件夹 */}
@@ -206,11 +240,24 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
           onItemClick={setTarget}
           storageKeySuffix={storageKeySuffix}
         />
-        {currentPathNode && <DirectoryItem dir={currentPathNode} />}
+        {currentPathNode && (
+          <DirectoryItem
+            dir={currentPathNode}
+            showCheckbox
+            checked={allChecked}
+            indeterminate={indeterminate}
+            onCheckChange={handleAllCheckedChange}
+            disabled={noChecked}
+            subDirCheckedList={subDirCheckedList}
+          />
+        )}
         <ResizeContainer.Wrapper>
           {/* 当前文件夹的子文件夹 */}
           <ErrorBoundary>
             <DirectoryItemList
+              showCheckbox
+              checkedList={subDirCheckedList}
+              onCheckedChange={handleItemCheckedChange}
               dirs={currentDirs}
               onClick={handleSelectChild}
               storageKeySuffix={storageKeySuffix}

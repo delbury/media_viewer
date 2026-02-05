@@ -54,6 +54,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     mediaType: state.mediaType,
     randomStrategy,
     lazyInit: true,
+    ignoreSubDirs: state.ignoreSubDirs,
   });
 
   const value = useMemo(

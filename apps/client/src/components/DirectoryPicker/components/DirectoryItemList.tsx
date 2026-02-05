@@ -13,6 +13,9 @@ import { useSortList } from '../hooks/useSortList';
 import DirectoryItem from './DirectoryItem';
 
 interface DirectoryItemListProps {
+  showCheckbox?: boolean;
+  checkedList?: boolean[];
+  onCheckedChange?: (val: boolean, index: number) => void;
   dirs: DirectoryInfo[];
   onClick?: (dir: DirectoryInfo) => void;
   storageKeySuffix?: string;
@@ -28,6 +31,9 @@ const ChildItem = (
   props: VirtualListChildItemProps & {
     sortedItems?: DirectoryInfo[];
     onClick?: (dir: DirectoryInfo) => void;
+    showCheckbox?: boolean;
+    checked?: boolean;
+    onCheckedChange?: (val: boolean, index: number) => void;
   }
 ) => {
   const {
@@ -35,12 +41,18 @@ const ChildItem = (
     params: { offsetY },
     sortedItems,
     onClick,
+    showCheckbox,
+    checked,
+    onCheckedChange,
   } = props;
 
   const dir = sortedItems?.[index];
   return (
     !!dir && (
       <DirectoryItem
+        showCheckbox={showCheckbox}
+        checked={checked}
+        onCheckChange={val => onCheckedChange?.(val, index)}
         dir={dir}
         onClick={() => onClick?.(dir)}
         sx={{
@@ -52,6 +64,9 @@ const ChildItem = (
 };
 
 const DirectoryItemList = ({
+  showCheckbox,
+  checkedList,
+  onCheckedChange,
   dirs,
   onClick,
   scrollBoxProps,
@@ -85,6 +100,9 @@ const DirectoryItemList = ({
               : null,
             sortedItems,
             onClick,
+            showCheckbox,
+            checked: checkedList?.[index],
+            onCheckedChange,
           }),
           RowWrapperComponent,
           overRowCount: 5,

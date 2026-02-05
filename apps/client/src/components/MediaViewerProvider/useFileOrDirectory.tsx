@@ -14,6 +14,7 @@ interface UseFileOrDirectoryParams {
   defaultRandom?: boolean;
   randomStrategy?: RandomPlayStrategy;
   lazyInit?: boolean;
+  ignoreSubDirs?: number[];
 }
 
 export const useFileOrDirectory = ({
@@ -24,6 +25,7 @@ export const useFileOrDirectory = ({
   defaultRandom = true,
   randomStrategy = RandomPlayStrategy.Default,
   lazyInit,
+  ignoreSubDirs,
 }: UseFileOrDirectoryParams) => {
   /**
    * 播放模式：
@@ -69,7 +71,12 @@ export const useFileOrDirectory = ({
       if (list?.length) {
         fileList = list;
       } else if (dir) {
-        fileList = getAllFiles(mediaType, dir);
+        const tempDir = { ...dir };
+        if (ignoreSubDirs?.length) {
+          const set = new Set(ignoreSubDirs);
+          tempDir.children = tempDir.children.filter((_, index) => set.has(index));
+        }
+        fileList = getAllFiles(mediaType, tempDir);
       } else if (file) {
         fileList = [file];
       }

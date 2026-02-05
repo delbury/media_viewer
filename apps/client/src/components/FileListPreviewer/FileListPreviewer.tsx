@@ -132,6 +132,7 @@ const FileListPreviewer = ({
     handleClose();
   }, [handleClose, onFilterFiles, sortedItems]);
 
+  // 初始化时，更新一次
   useEffect(() => {
     onFilterFiles?.(sortedItems);
   }, []);

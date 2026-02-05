@@ -1,5 +1,12 @@
 import styled from '@emotion/styled';
-import { Box, IconButton, iconButtonClasses, ListItem, ListItemButton } from '@mui/material';
+import {
+  Box,
+  Checkbox,
+  IconButton,
+  iconButtonClasses,
+  ListItem,
+  ListItemButton,
+} from '@mui/material';
 
 export const StyledListItem = styled(ListItem)`
   padding: 4px;
@@ -41,4 +48,8 @@ export const StyleIconBtn = styled(IconButton)`
   &.${iconButtonClasses.disabled} {
     color: ${({ theme }) => theme.palette.text.disabled};
   }
+`;
+
+export const StyledCheckbox = styled(Checkbox)`
+  padding: 0;
 `;
