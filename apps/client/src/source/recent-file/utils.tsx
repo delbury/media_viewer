@@ -21,6 +21,21 @@ export const RECENT_FILE_SAME_DIR_COUNT_OPTIONS: ItemOption[] = [
   },
 ];
 
+export const RECENT_FILE_OFFSET_OPTIONS: ItemOption[] = [
+  { label: '0', value: 0 },
+  { label: '100', value: 100 },
+  { label: '200', value: 200 },
+  { label: '300', value: 300 },
+];
+
+export enum RecentMode {
+  Preset = 1,
+  Custom = 2,
+}
+export const RECENT_MODE_OPTIONS: ItemOption[] = [
+  { label: 'Setting.RecentPresetMode', value: RecentMode.Preset },
+  { label: 'Setting.RecentCustomMode', value: RecentMode.Custom },
+];
 export const createTimeSorter = (a: FileInfo, b: FileInfo) => {
   return b.created - a.created;
 };
@@ -91,14 +106,15 @@ export const getRecentFilesWithParentDir = (
   files: FileInfo[],
   parentMap: Record<string, DirectoryInfo>,
   rootDir: DirectoryInfo,
-  sameDirMaxCount: number
+  sameDirMaxCount: number,
+  recentOffset: number
 ) => {
   const map = new Map<DirectoryInfo, FileInfo[]>();
 
   // 还剩的文件数
   let reset = RECENT_FILE_MAX_COUNT;
 
-  for (let i = 0; i < files.length; i++) {
+  for (let i = recentOffset; i < files.length; i++) {
     // 到达上限，结束
     if (reset <= 0) break;
     // 所属文件夹

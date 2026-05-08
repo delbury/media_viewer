@@ -35,7 +35,10 @@
     "NewFirst": "最新优先",
     "CenterFirst": "中间优先",
     "OldFirst": "最旧优先",
-    "SameDirMaxCount": "同个文件夹最多数量"
+    "SameDirMaxCount": "同目录数量上限",
+    "RecentFileOffset": "跳过最近文件数",
+    "RecentPresetMode": "预设",
+    "RecentCustomMode": "自定义"
   },
   "Common": {
     "AreYouSure": "确定？",
@@ -90,5 +93,6 @@
   },
   ":": "：",
   ",": "，",
-  "-": "——"
+  "-": "——",
+  "~": "~"
 }

@@ -18,6 +18,7 @@ import {
   SubscriptionsRounded,
 } from '@mui/icons-material';
 import { Badge, Chip, Divider, IconButton, ListItemAvatar, SxProps } from '@mui/material';
+import { isNil } from 'lodash-es';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useMemo, useState } from 'react';
 import PlayDirDialog from './components/PlayDirDialog';
@@ -39,7 +40,9 @@ import {
 import {
   createTimeSorter,
   getRecentFilesWithParentDir,
+  RECENT_FILE_OFFSET_OPTIONS,
   RECENT_FILE_SAME_DIR_COUNT_OPTIONS,
+  RecentMode,
 } from './utils';
 
 const SCROLL_BOX_SX: SxProps<Theme> = {
@@ -53,6 +56,8 @@ export default function RecentFile() {
   const [sameDirMaxCount, setSameDirMaxCount] = useState<number>(
     RECENT_FILE_SAME_DIR_COUNT_OPTIONS[1].value as number
   );
+  const [recentMode, setRecentMode] = useState(RecentMode.Preset);
+  const [recentOffset, setRecentOffset] = useState(RECENT_FILE_OFFSET_OPTIONS[0].value as number);
 
   const treeRequest = useSwr('dirTree');
   const {
@@ -77,19 +82,22 @@ export default function RecentFile() {
       audio.sort(createTimeSorter),
       parentMap,
       treeRequest.data,
-      sameDirMaxCount
+      sameDirMaxCount,
+      recentOffset
     );
     const { list: videoList, count: videoCount } = getRecentFilesWithParentDir(
       video.sort(createTimeSorter),
       parentMap,
       treeRequest.data,
-      sameDirMaxCount
+      sameDirMaxCount,
+      recentOffset
     );
     const { list: imageList, count: imageCount } = getRecentFilesWithParentDir(
       image.sort(createTimeSorter),
       parentMap,
       treeRequest.data,
-      sameDirMaxCount
+      sameDirMaxCount,
+      recentOffset
     );
 
     return {
@@ -103,7 +111,7 @@ export default function RecentFile() {
       videoCount,
       imageCount,
     };
-  }, [sameDirMaxCount, treeRequest.data]);
+  }, [sameDirMaxCount, treeRequest.data, recentOffset]);
 
   const { allRecentItems, recentItems, recentItemsCount } = useMemo(() => {
     switch (filterFileType) {
@@ -181,6 +189,11 @@ export default function RecentFile() {
   const { visible, stateValue, handleClose, handleOpen } = useDialogStateByValue<DirectoryInfo>();
   const formatParentDir = useFormatParentDirHandler();
 
+  const playRecentItemsLabel = useMemo(
+    () => `${recentOffset} ${t('~')} ${recentOffset + (recentItemsCount ?? 0)}`,
+    [recentOffset, t, recentItemsCount]
+  );
+
   return (
     <StyledRecentFileWrapper>
       <StyledToolsRow>
@@ -189,7 +202,7 @@ export default function RecentFile() {
           items={FILE_FILTER_OPTIONS}
           value={filterFileType}
           onChange={(_, value) => {
-            if (!value) return;
+            if (isNil(value)) return;
             setFilterFileType(value);
           }}
         />
@@ -204,7 +217,7 @@ export default function RecentFile() {
                 color="info"
               />
             }
-            label={recentItemsCount}
+            label={playRecentItemsLabel}
           />
 
           <Chip
@@ -223,6 +236,34 @@ export default function RecentFile() {
 
       <StyledToolsRow>
         <div />
+        {/* TODO 待实现 */}
+        {/* <ToolGroupBtn
+          exclusive
+          items={RECENT_MODE_OPTIONS}
+          value={recentMode}
+          onChange={(_, value) => {
+            if (isNil(value)) return;
+            setRecentMode(value);
+          }}
+        /> */}
+
+        {recentMode === RecentMode.Preset && (
+          <ToolGroupBtn
+            title={t('Setting.RecentFileOffset')}
+            rawLabel
+            exclusive
+            items={RECENT_FILE_OFFSET_OPTIONS}
+            value={recentOffset}
+            onChange={(_, value) => {
+              if (isNil(value)) return;
+              setRecentOffset(value);
+            }}
+          />
+        )}
+      </StyledToolsRow>
+
+      <StyledToolsRow>
+        <div />
         <ToolGroupBtn
           title={t('Setting.SameDirMaxCount')}
           rawLabel
@@ -230,7 +271,7 @@ export default function RecentFile() {
           items={RECENT_FILE_SAME_DIR_COUNT_OPTIONS}
           value={sameDirMaxCount}
           onChange={(_, value) => {
-            if (!value) return;
+            if (isNil(value)) return;
             setSameDirMaxCount(value);
           }}
         />
