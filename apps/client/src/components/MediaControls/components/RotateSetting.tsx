@@ -127,13 +127,13 @@ const RotateSetting = ({ mediaRef }: RotateSettingProps) => {
   // 切换旋转
   // 未旋转 -> 自动旋转，自动旋转 -> 未旋转，手动旋转 -> 未旋转
   const handleToggleRotate = useCallback(() => {
-    if (!degree) {
+    if (!degree && !auto) {
       setAuto(true);
-    } else {
+    } else if (auto) {
       setDegree(0);
       setAuto(false);
     }
-  }, [degree, setDegree]);
+  }, [auto, degree, setDegree]);
 
   // 自动旋转控制
   useEffect(() => {

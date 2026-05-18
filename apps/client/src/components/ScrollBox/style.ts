@@ -85,4 +85,5 @@ export const StyledEmptyWrapper = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: center;
+  user-select: none;
 `;
