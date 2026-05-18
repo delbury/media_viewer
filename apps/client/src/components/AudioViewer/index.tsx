@@ -59,6 +59,7 @@ const AudioViewer = ({
   onToggleRandom,
   onTitleClick,
   headerLeftSlot,
+  onLockSameDirChange,
 }: AudioViewerProps) => {
   const t = useTranslations();
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -127,6 +128,14 @@ const AudioViewer = ({
     });
   }, [currentLyricIndex]);
 
+  const handleLockSameDirChange = useCallback(
+    (paths?: string[]) => {
+      setLockSameDirPaths(paths);
+      onLockSameDirChange?.(paths);
+    },
+    [onLockSameDirChange]
+  );
+
   return (
     <FixedModal
       visible={visible}
@@ -150,7 +159,7 @@ const AudioViewer = ({
           onNext={onNext}
           onPrev={onPrev}
           onToggleRandom={onToggleRandom}
-          onLockSameDirChange={setLockSameDirPaths}
+          onLockSameDirChange={handleLockSameDirChange}
         />
       }
     >

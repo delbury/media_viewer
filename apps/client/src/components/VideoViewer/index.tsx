@@ -1,7 +1,7 @@
 import { useFileTitle } from '#/hooks/useFileTitle';
 import { getFilePosterUrl } from '#/utils';
 import { FileInfo } from '#pkgs/apis';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import FixedModal, { FixedModalProps } from '../FixedModal';
 import Loading from '../Loading';
 import MediaControls from '../MediaControls';
@@ -35,6 +35,7 @@ const VideoViewer = ({
   onToggleRandom,
   onTitleClick,
   headerLeftSlot,
+  onLockSameDirChange,
 }: VideoViewerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   // 链接
@@ -61,6 +62,14 @@ const VideoViewer = ({
   // 标题
   const { title, secondaryTitle } = useFileTitle({ file, highlightDirs: lockSameDirPaths });
 
+  const handleLockSameDirChange = useCallback(
+    (paths?: string[]) => {
+      setLockSameDirPaths(paths);
+      onLockSameDirChange?.(paths);
+    },
+    [onLockSameDirChange]
+  );
+
   return (
     <FixedModal
       visible={visible}
@@ -85,7 +94,7 @@ const VideoViewer = ({
           useSource={isForced}
           isRawSource={isRawSource}
           onUseSourceChange={setForceSource}
-          onLockSameDirChange={setLockSameDirPaths}
+          onLockSameDirChange={handleLockSameDirChange}
         />
       }
     >

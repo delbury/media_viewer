@@ -66,6 +66,28 @@ export const useFileOrDirectory = ({
     [defaultRandom, randomStrategy]
   );
 
+  const sameDirFileIndexes = useRef<Set<number>>(new Set());
+  const findSameDirFileIndexes = useCallback(() => {
+    if (!lockSameDirPaths?.length) {
+      sameDirFileIndexes.current = new Set();
+      return;
+    }
+
+    const pathPrefix = `/${lockSameDirPaths.join('/')}/`;
+    const filteredFileIndexes = new Set<number>();
+
+    fileList.forEach((file, index) => {
+      if (randomToPlayIndexes.current.has(index) && file.showPath.startsWith(pathPrefix)) {
+        filteredFileIndexes.add(index);
+      }
+    });
+
+    sameDirFileIndexes.current = filteredFileIndexes;
+  }, [fileList, lockSameDirPaths]);
+  useEffect(() => {
+    findSameDirFileIndexes();
+  }, [findSameDirFileIndexes]);
+
   // 文件列表
   useEffect(() => {
     let fileList: FileInfo[] = [];
@@ -109,11 +131,20 @@ export const useFileOrDirectory = ({
 
       if (isRandomPlay) {
         // 随机播放
-        const nextIndex = isNil(index)
-          ? [...randomToPlayIndexes.current][
-              getRandomIndex(randomToPlayIndexes.current.size, randomStrategy)
-            ]
-          : index;
+        let nextIndex;
+
+        if (sameDirFileIndexes.current.size) {
+          const ri = getRandomIndex(sameDirFileIndexes.current.size, randomStrategy);
+          nextIndex = [...sameDirFileIndexes.current][ri];
+          sameDirFileIndexes.current.delete(ri);
+        } else {
+          nextIndex = isNil(index)
+            ? [...randomToPlayIndexes.current][
+                getRandomIndex(randomToPlayIndexes.current.size, randomStrategy)
+              ]
+            : index;
+        }
+
         randomToPlayIndexes.current.delete(nextIndex);
         setCurrentFileIndex(nextIndex);
 
