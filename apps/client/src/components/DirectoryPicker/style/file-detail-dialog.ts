@@ -71,8 +71,11 @@ export const StyledFileItem = styled('span')`
   padding: 0 8px;
 `;
 
-export const StyledPathItem = styled(StyledFileItem)`
-  color: ${({ theme }) => theme.palette.primary.light};
+export const StyledPathItem = styled(StyledFileItem, {
+  shouldForwardProp: prop => prop !== 'selected' && prop !== 'noHighlightColor',
+})<{ selected?: boolean; noHighlightColor?: boolean }>`
+  color: ${({ theme, selected, noHighlightColor }) =>
+    selected || !noHighlightColor ? theme.palette.primary.light : ''};
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;

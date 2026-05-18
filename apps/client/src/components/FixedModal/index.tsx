@@ -31,7 +31,7 @@ export interface FixedModalProps {
   // 点击空白处关闭
   closeWhenClickBlank?: boolean;
   title?: string;
-  secondaryTitle?: string;
+  secondaryTitle?: React.ReactNode;
   // 放在底部的元素
   footerSlot?: React.ReactNode;
   // 放在 header 左侧的元素

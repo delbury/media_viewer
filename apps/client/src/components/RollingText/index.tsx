@@ -12,7 +12,7 @@ const TEXT_GAP = 48;
 interface RollingTextProps {
   disabled?: boolean;
   sx?: SxProps<Theme>;
-  text?: string;
+  text?: React.ReactNode;
 }
 
 const RollingText = ({ sx, text, disabled }: RollingTextProps) => {

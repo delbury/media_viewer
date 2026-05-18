@@ -19,6 +19,7 @@ interface ProgressInfoProps {
   videoDuration: number;
   loopTimes: number;
   file?: FileInfo;
+  highlightDirs?: string[];
 }
 
 const PATH_TITLE_SX: SxProps<Theme> = {
@@ -28,7 +29,13 @@ const PATH_TITLE_SX: SxProps<Theme> = {
   marginRight: 0,
 };
 
-const ProgressInfo = ({ currentTime, videoDuration, loopTimes, file }: ProgressInfoProps) => {
+const ProgressInfo = ({
+  currentTime,
+  videoDuration,
+  loopTimes,
+  file,
+  highlightDirs,
+}: ProgressInfoProps) => {
   // 当前播放的进度信息，用于展示
   const ct = Math.floor(currentTime);
   const tt = Math.floor(videoDuration);
@@ -38,10 +45,11 @@ const ProgressInfo = ({ currentTime, videoDuration, loopTimes, file }: ProgressI
   const isH5 = useMediaQuery(h5Max);
   const showLoopTimes = isH5 && loopTimes !== 1;
   // 展示的路径信息
-  const pathText = useFormatCurrentPath(file);
+  const pathText = useFormatCurrentPath(file, highlightDirs);
 
   // 是否全屏
-  const [isFullScreen, setIsFullScreen] = useState(false);
+  // TODO debug
+  const [isFullScreen, setIsFullScreen] = useState(true);
 
   useEffect(() => {
     const controller = new AbortController();

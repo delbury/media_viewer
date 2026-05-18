@@ -32,6 +32,7 @@ type AudioViewerProps = {
   onToggleRandom?: () => void;
   onTitleClick?: () => void;
   headerLeftSlot?: React.ReactNode;
+  onLockSameDirChange?: (paths?: string[]) => void;
 } & Omit<FixedModalProps, 'children'>;
 
 const MEDIA_BTN_SX: SxProps<Theme> = {
@@ -79,8 +80,10 @@ const AudioViewer = ({
   const [currentLyricIndex, setCurrentLyricIndex] = useState(0);
   const { lyrics, isLoading, hasLyric } = useLyric(file);
 
+  const [lockSameDirPaths, setLockSameDirPaths] = useState<string[]>();
+
   // 标题
-  const { title, secondaryTitle } = useFileTitle({ file });
+  const { title, secondaryTitle } = useFileTitle({ file, highlightDirs: lockSameDirPaths });
 
   // 播放回调
   const handleTimeUpdate = useCallback(
@@ -147,6 +150,7 @@ const AudioViewer = ({
           onNext={onNext}
           onPrev={onPrev}
           onToggleRandom={onToggleRandom}
+          onLockSameDirChange={setLockSameDirPaths}
         />
       }
     >

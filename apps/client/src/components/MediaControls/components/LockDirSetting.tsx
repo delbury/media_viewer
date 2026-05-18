@@ -1,0 +1,72 @@
+import Dialog from '#/components/Dialog';
+import { renderPathInfo } from '#/components/DirectoryPicker/components/FileDetailDialog';
+import { useDialogState } from '#/hooks/useDialogState';
+import { FileInfo } from '#pkgs/apis';
+import { LockRounded, NoEncryptionRounded } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
+import { useCallback, useEffect, useMemo } from 'react';
+import { StyledLockDirContainer } from '../style';
+
+interface LockDirSettingProps {
+  value?: string[];
+  onChange: (val?: string[]) => void;
+  disabled?: boolean;
+  file: FileInfo;
+}
+
+const LockDirSetting = ({ value, onChange, disabled, file }: LockDirSettingProps) => {
+  const { visible, handleClose, handleOpen } = useDialogState();
+
+  const onPathClick = useCallback(
+    (paths: string[]) => {
+      onChange(paths);
+      handleClose();
+    },
+    [handleClose, onChange]
+  );
+
+  const DirPath = useMemo(
+    () =>
+      renderPathInfo(file.showPath, onPathClick, { selectedDirs: value, noHighlightColor: true }),
+    [file.showPath, onPathClick, value]
+  );
+
+  const handleClick = useCallback(() => {
+    if (!value) {
+      handleOpen();
+    } else {
+      onChange(void 0);
+    }
+  }, [handleOpen, onChange, value]);
+
+  useEffect(() => {
+    if (disabled) {
+      onChange(void 0);
+    }
+  }, [disabled, onChange]);
+
+  return (
+    <>
+      <IconButton
+        disabled={disabled}
+        onClick={handleClick}
+      >
+        {value ? <LockRounded color="primary" /> : <NoEncryptionRounded />}
+      </IconButton>
+
+      <Dialog
+        open={visible}
+        onClose={handleClose}
+        title={file.name}
+        onlyClose
+        dialogProps={{
+          maxWidth: 'xs',
+        }}
+      >
+        <StyledLockDirContainer>{DirPath}</StyledLockDirContainer>
+      </Dialog>
+    </>
+  );
+};
+
+export default LockDirSetting;

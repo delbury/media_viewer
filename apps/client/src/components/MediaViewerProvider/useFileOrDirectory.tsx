@@ -15,6 +15,7 @@ interface UseFileOrDirectoryParams {
   randomStrategy?: RandomPlayStrategy;
   lazyInit?: boolean;
   ignoreSubDirs?: number[];
+  lockSameDirPaths?: string[];
 }
 
 export const useFileOrDirectory = ({
@@ -26,6 +27,7 @@ export const useFileOrDirectory = ({
   randomStrategy = RandomPlayStrategy.Default,
   lazyInit,
   ignoreSubDirs,
+  lockSameDirPaths,
 }: UseFileOrDirectoryParams) => {
   /**
    * 播放模式：

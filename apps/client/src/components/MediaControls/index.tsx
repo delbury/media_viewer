@@ -24,6 +24,7 @@ import TooltipSetting from '../TooltipSetting';
 import AlertInfo from './components/AlertInfo';
 import DislikeSetting from './components/DislikeSetting';
 import FullscreenSetting from './components/FullscreenSetting';
+import LockDirSetting from './components/LockDirSetting';
 import LoopSetting from './components/LoopSetting';
 import { MediaProgress } from './components/MediaProgress';
 import ModeSetting from './components/ModeSetting';
@@ -62,6 +63,7 @@ interface MediaControls {
   isRawSource?: boolean;
   useSource?: boolean;
   onUseSourceChange?: (v: boolean) => void;
+  onLockSameDirChange?: (paths?: string[]) => void;
 }
 
 const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
@@ -81,6 +83,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       isRawSource,
       useSource,
       onUseSourceChange,
+      onLockSameDirChange,
     },
     ref
   ) => {
@@ -89,6 +92,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const [videoDuration, setVideoDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const [loopTimes, setLoopTimes] = useState(1);
+    const [lockSameDirPaths, setLockSameDirPaths] = useState<string[]>();
 
     const isPausedInstant = useRef(true);
     useEffect(() => {
@@ -108,6 +112,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const showVolume = !isVideo || !isH5;
     const showLoop = !isH5;
     const hasPlayMode = isList && !!onToggleRandom;
+    const showLockSameDir = isList && !!file;
 
     const [moreOpen, setMoreOpen] = useState(false);
     const handleToggleMoreOpen = useCallback(() => setMoreOpen(v => !v), []);
@@ -119,6 +124,10 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     useEffect(() => {
       onWaitingStateChange?.(isWaiting);
     }, [isWaiting, onWaitingStateChange]);
+
+    useEffect(() => {
+      onLockSameDirChange?.(lockSameDirPaths);
+    }, [lockSameDirPaths, onLockSameDirChange]);
 
     const subtitles = useMemo(() => file?.subtitles, [file]);
 
@@ -327,6 +336,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
             videoDuration={videoDuration}
             loopTimes={loopTimes}
             file={file}
+            highlightDirs={lockSameDirPaths}
           />
 
           <StyledBtnsContainer>
@@ -398,11 +408,21 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
               )}
 
               {/* 手动转码 */}
-              {showSource && (
+              {showSource && !showMore && (
                 <SourceSetting
                   isAuto={isRawSource}
                   useSource={useSource}
                   onUseSourceChange={onUseSourceChange}
+                />
+              )}
+
+              {/* 锁定播放文件夹为当前播放视频的某个父目录 */}
+              {showLockSameDir && (
+                <LockDirSetting
+                  value={lockSameDirPaths}
+                  onChange={setLockSameDirPaths}
+                  file={file}
+                  disabled={!isRandomPlay}
                 />
               )}
 
@@ -436,13 +456,13 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
                         subtitleOptions={subtitles}
                       />
 
-                      {/* {showSource && (
+                      {showSource && (
                         <SourceSetting
                           isAuto={isRawSource}
                           useSource={useSource}
                           onUseSourceChange={onUseSourceChange}
                         />
-                      )} */}
+                      )}
 
                       <VolumeSetting mediaRef={mediaRef} />
                     </StyledBtnsGroup>

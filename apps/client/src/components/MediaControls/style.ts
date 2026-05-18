@@ -241,3 +241,12 @@ export const StyledLoopText = styled(StyledRateText)`
 export const StyledLoopTimes = styled(Box)`
   margin-inline-start: 12px;
 `;
+
+// 锁定文件夹相关
+export const StyledLockDirContainer = styled(Box)`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  word-break: break-all;
+  color: ${({ theme }) => theme.palette.grey[600]};
+`;

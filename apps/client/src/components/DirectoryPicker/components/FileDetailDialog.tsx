@@ -36,7 +36,11 @@ import {
 export const renderPathInfo = (
   path?: string,
   onPathClick?: (paths: string[]) => void,
-  { lastClickable }: { lastClickable?: boolean } = {}
+  {
+    lastClickable,
+    selectedDirs,
+    noHighlightColor,
+  }: { lastClickable?: boolean; selectedDirs?: string[]; noHighlightColor?: boolean } = {}
 ): React.ReactNode => {
   if (!path) return null;
   const paths = splitPath(path);
@@ -49,7 +53,11 @@ export const renderPathInfo = (
           {!lastClickable && (i === paths.length - 1 || !onPathClick) ? (
             <StyledFileItem>{p}</StyledFileItem>
           ) : (
-            <StyledPathItem onClick={() => onPathClick?.(paths.slice(0, i + 1))}>
+            <StyledPathItem
+              noHighlightColor={noHighlightColor}
+              selected={selectedDirs?.includes(p)}
+              onClick={() => onPathClick?.(paths.slice(0, i + 1))}
+            >
               {p}
             </StyledPathItem>
           )}

@@ -33,6 +33,9 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
   // 文件详情弹框
   const [detailVisible, setDetailVisible] = useState(false);
 
+  // 随机播放时，在指定的目录下随机
+  const [lockSameDirPaths, setLockSameDirPaths] = useState<string[]>();
+
   const {
     fileList,
     rawFileList,
@@ -55,6 +58,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
     randomStrategy,
     lazyInit: true,
     ignoreSubDirs: state.ignoreSubDirs,
+    lockSameDirPaths,
   });
 
   const value = useMemo(
@@ -187,6 +191,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           onToggleRandom={toggleRandom}
           onClose={handleClose}
           onTitleClick={handleTitleClick}
+          onLockSameDirChange={setLockSameDirPaths}
           headerLeftSlot={
             isList && (
               <FileListPreviewer
@@ -213,6 +218,7 @@ const MediaViewerProvider = ({ children }: { children?: React.ReactNode }) => {
           onToggleRandom={toggleRandom}
           onClose={handleClose}
           onTitleClick={handleTitleClick}
+          onLockSameDirChange={setLockSameDirPaths}
           headerLeftSlot={
             isList && (
               <FileListPreviewer

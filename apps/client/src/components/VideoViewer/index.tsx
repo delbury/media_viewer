@@ -19,6 +19,7 @@ type VideoViewerProps = {
   onToggleRandom?: () => void;
   onTitleClick?: () => void;
   headerLeftSlot?: React.ReactNode;
+  onLockSameDirChange?: (paths?: string[]) => void;
 } & Omit<FixedModalProps, 'children'>;
 
 const VideoViewer = ({
@@ -44,6 +45,8 @@ const VideoViewer = ({
   const [forceSource, setForceSource] = useState(false);
   useEffect(() => setForceSource(false), [file]);
 
+  const [lockSameDirPaths, setLockSameDirPaths] = useState<string[]>();
+
   // 自定义流媒体控制
   const {
     events: progressEvents,
@@ -56,7 +59,7 @@ const VideoViewer = ({
   });
 
   // 标题
-  const { title, secondaryTitle } = useFileTitle({ file });
+  const { title, secondaryTitle } = useFileTitle({ file, highlightDirs: lockSameDirPaths });
 
   return (
     <FixedModal
@@ -82,6 +85,7 @@ const VideoViewer = ({
           useSource={isForced}
           isRawSource={isRawSource}
           onUseSourceChange={setForceSource}
+          onLockSameDirChange={setLockSameDirPaths}
         />
       }
     >
