@@ -10,6 +10,7 @@ interface Options {
 export const useAnimationFrame = (cb: CustomCallback, { minGapTime, onStop }: Options = {}) => {
   const requestId = useRef<number>(null);
   const prevTime = useRef<number>(null);
+  const timer = useRef<number>(null);
 
   const callback = useCallback(() => {
     requestId.current = window.requestAnimationFrame(time => {
@@ -29,10 +30,20 @@ export const useAnimationFrame = (cb: CustomCallback, { minGapTime, onStop }: Op
     });
   }, [cb, minGapTime]);
 
-  const start = useCallback((delay?: number) => window.setTimeout(callback, delay), [callback]);
+  const start = useCallback(
+    (delay?: number) => {
+      if (timer.current) window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => {
+        callback();
+        timer.current = null;
+      }, delay);
+    },
+    [callback]
+  );
 
   const stop = useCallback(() => {
     if (requestId.current) window.cancelAnimationFrame(requestId.current);
+    if (timer.current) window.clearTimeout(timer.current);
     requestId.current = null;
     prevTime.current = null;
     onStop?.();

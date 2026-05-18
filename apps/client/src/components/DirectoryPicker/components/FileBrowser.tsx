@@ -247,7 +247,7 @@ const FileBrowser = forwardRef<FileBrowserInstance, FileBrowserProps>(
             checked={allChecked}
             indeterminate={indeterminate}
             onCheckChange={handleAllCheckedChange}
-            disabled={noChecked}
+            disabled={noChecked && !currentFiles.length}
             subDirCheckedList={subDirCheckedList}
           />
         )}

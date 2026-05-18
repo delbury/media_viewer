@@ -59,7 +59,7 @@ const RollingText = ({ sx, text, disabled }: RollingTextProps) => {
       stop();
     }
     return stop;
-  }, [disabled, text]);
+  }, [disabled, isOversize, start, stop, text]);
 
   return (
     <StyledTextWrapper ref={wrapperRef}>
