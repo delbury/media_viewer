@@ -136,7 +136,7 @@ export const useFileOrDirectory = ({
         if (sameDirFileIndexes.current.size) {
           const ri = getRandomIndex(sameDirFileIndexes.current.size, randomStrategy);
           nextIndex = [...sameDirFileIndexes.current][ri];
-          sameDirFileIndexes.current.delete(ri);
+          sameDirFileIndexes.current.delete(nextIndex);
         } else {
           nextIndex = isNil(index)
             ? [...randomToPlayIndexes.current][
