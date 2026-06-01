@@ -1,3 +1,5 @@
+import { FileInfo } from '#pkgs/apis';
+import { splitPath } from '#pkgs/tools/common';
 import { isNil, noop } from 'lodash-es';
 import { RefObject, useCallback } from 'react';
 
@@ -13,9 +15,20 @@ interface UseHandlersParams {
   isPaused: boolean;
   onPrev?: () => void;
   onNext?: () => void;
+  file?: FileInfo;
+  lockSameDirPaths?: string[];
+  setLockSameDirPaths: (paths: string[] | undefined) => void;
 }
 
-export const useHandlers = ({ mediaRef, isPaused, onPrev, onNext }: UseHandlersParams) => {
+export const useHandlers = ({
+  mediaRef,
+  isPaused,
+  onPrev,
+  onNext,
+  file,
+  lockSameDirPaths,
+  setLockSameDirPaths,
+}: UseHandlersParams) => {
   // 播放切换
   const handleTogglePlay = useCallback(() => {
     if (!mediaRef.current) return;
@@ -89,6 +102,26 @@ export const useHandlers = ({ mediaRef, isPaused, onPrev, onNext }: UseHandlersP
     }
   }, [mediaRef, onNext]);
 
+  const handleToggleLockSameDirAuto = useCallback(() => {
+    if (!file) return;
+
+    // 第一次设置，默认设置为一级目录
+    if (!lockSameDirPaths || !lockSameDirPaths.length) {
+      const paths = splitPath(file?.showPath);
+      setLockSameDirPaths(paths.slice(0, 3));
+      return;
+    }
+
+    // 清空
+    if (lockSameDirPaths?.length <= 2) {
+      setLockSameDirPaths(void 0);
+      return;
+    }
+
+    // 往上一级目录
+    setLockSameDirPaths(lockSameDirPaths.slice(0, lockSameDirPaths.length - 1));
+  }, [file, lockSameDirPaths, setLockSameDirPaths]);
+
   return {
     handleTogglePlay,
     handleBack,
@@ -97,5 +130,6 @@ export const useHandlers = ({ mediaRef, isPaused, onPrev, onNext }: UseHandlersP
     handlePrev,
     handleNext,
     handleNextAndPlay,
+    handleToggleLockSameDirAuto,
   };
 };

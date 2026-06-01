@@ -3,7 +3,7 @@ import { renderPathInfo } from '#/components/DirectoryPicker/components/FileDeta
 import { useDialogState } from '#/hooks/useDialogState';
 import { FileInfo } from '#pkgs/apis';
 import { LockRounded, NoEncryptionRounded } from '@mui/icons-material';
-import { IconButton } from '@mui/material';
+import { Badge, IconButton } from '@mui/material';
 import { RefObject, useCallback, useEffect, useMemo } from 'react';
 import { StyledLockDirContainer } from '../style';
 import { findFullscreenRoot } from '../util';
@@ -55,7 +55,20 @@ const LockDirSetting = ({ value, onChange, disabled, file, mediaRef }: LockDirSe
         disabled={disabled}
         onClick={handleClick}
       >
-        {value ? <LockRounded color="primary" /> : <NoEncryptionRounded />}
+        {value ? (
+          <Badge
+            badgeContent={value?.length}
+            max={99}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+          >
+            <LockRounded color="primary" />
+          </Badge>
+        ) : (
+          <NoEncryptionRounded />
+        )}
       </IconButton>
 
       <Dialog

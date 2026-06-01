@@ -160,11 +160,15 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       handleNext,
       handleNextAndPlay,
       handlePrev,
+      handleToggleLockSameDirAuto,
     } = useHandlers({
       mediaRef,
       isPaused,
       onPrev,
       onNext,
+      file,
+      lockSameDirPaths,
+      setLockSameDirPaths,
     });
 
     // 快捷键
@@ -177,6 +181,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       onEnterPressed: handleTogglePlay,
       onFPressed: () => toggleMaxPlaybackRate(true),
       onFReleased: () => toggleMaxPlaybackRate(false),
+      onGPressed: handleToggleLockSameDirAuto,
       arrowKeyAliasEnabled: true,
     });
 

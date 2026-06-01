@@ -17,6 +17,7 @@ enum BoardKey {
   S = 'KeyS',
   F = 'KeyF',
   X = 'KeyX',
+  G = 'KeyG',
 }
 
 enum EventType {
@@ -36,6 +37,7 @@ interface UseShortcutParams {
   onFPressed?: (ev: KeyboardEvent) => void;
   onFReleased?: (ev: KeyboardEvent) => void;
   onXPressed?: (ev: KeyboardEvent) => void;
+  onGPressed?: (ev: KeyboardEvent) => void;
   eventOption?: EventItem['option'];
   arrowKeyAliasEnabled?: boolean;
 }
@@ -131,6 +133,7 @@ export const useShortcut = ({
   onFPressed,
   onFReleased,
   onXPressed,
+  onGPressed,
   eventOption,
   arrowKeyAliasEnabled,
 }: UseShortcutParams = {}) => {
@@ -171,6 +174,7 @@ export const useShortcut = ({
   useBindKeyEvent(BoardKey.F, onFPressed, { eventOption });
   useBindKeyEvent(BoardKey.F, onFReleased, { eventOption, type: EventType.Released });
   useBindKeyEvent(BoardKey.X, onXPressed, { eventOption });
+  useBindKeyEvent(BoardKey.G, onGPressed, { eventOption });
 
   useBindKeyEvent(BoardKey.Escape, onEscPressed, { eventOption });
   useBindKeyEvent(BoardKey.Space, onSpacePressed, { eventOption });
