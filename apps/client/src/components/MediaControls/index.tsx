@@ -423,6 +423,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
                   onChange={setLockSameDirPaths}
                   file={file}
                   disabled={!isRandomPlay}
+                  mediaRef={mediaRef}
                 />
               )}
 

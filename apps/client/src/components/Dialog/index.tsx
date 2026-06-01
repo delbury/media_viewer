@@ -38,6 +38,7 @@ interface DialogProps {
   titleRightSlot?: React.ReactNode;
   dialogProps?: Partial<RawDialogProps>;
   onlyClose?: boolean;
+  container?: RawDialogProps['container'];
 }
 const CompDialog = (props: DialogProps) => {
   const {
@@ -52,6 +53,7 @@ const CompDialog = (props: DialogProps) => {
     titleRightSlot,
     dialogProps,
     onlyClose,
+    container,
   } = props;
   const t = useTranslations();
   const [loading, setLoading] = useState(false);
@@ -77,7 +79,7 @@ const CompDialog = (props: DialogProps) => {
 
   return (
     <Dialog
-      {...dialogProps}
+      // {...dialogProps}
       open={open}
       onClose={onClose}
       fullWidth
@@ -87,6 +89,7 @@ const CompDialog = (props: DialogProps) => {
       }}
       aria-modal={false}
       disableEscapeKeyDown
+      container={container}
     >
       <StyledDialogHeader>
         <IconButton

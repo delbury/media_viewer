@@ -4,17 +4,19 @@ import { useDialogState } from '#/hooks/useDialogState';
 import { FileInfo } from '#pkgs/apis';
 import { LockRounded, NoEncryptionRounded } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
-import { useCallback, useEffect, useMemo } from 'react';
+import { RefObject, useCallback, useEffect, useMemo } from 'react';
 import { StyledLockDirContainer } from '../style';
+import { findFullscreenRoot } from '../util';
 
 interface LockDirSettingProps {
   value?: string[];
   onChange: (val?: string[]) => void;
   disabled?: boolean;
   file: FileInfo;
+  mediaRef: RefObject<HTMLMediaElement | null>;
 }
 
-const LockDirSetting = ({ value, onChange, disabled, file }: LockDirSettingProps) => {
+const LockDirSetting = ({ value, onChange, disabled, file, mediaRef }: LockDirSettingProps) => {
   const { visible, handleClose, handleOpen } = useDialogState();
 
   const onPathClick = useCallback(
@@ -39,6 +41,8 @@ const LockDirSetting = ({ value, onChange, disabled, file }: LockDirSettingProps
     }
   }, [handleOpen, onChange, value]);
 
+  const findContainer = useCallback(() => findFullscreenRoot(mediaRef.current), [mediaRef]);
+
   useEffect(() => {
     if (disabled) {
       onChange(void 0);
@@ -62,6 +66,7 @@ const LockDirSetting = ({ value, onChange, disabled, file }: LockDirSettingProps
         dialogProps={{
           maxWidth: 'xs',
         }}
+        container={findContainer}
       >
         <StyledLockDirContainer>{DirPath}</StyledLockDirContainer>
       </Dialog>
