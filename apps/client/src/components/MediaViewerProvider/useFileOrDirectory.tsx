@@ -78,6 +78,12 @@ export const useFileOrDirectory = ({
 
     if (!lockSameDirPaths?.length) {
       setFileList(rawFileList);
+      setCurrentFileIndex(
+        Math.max(
+          rawFileList.findIndex(f => f === fileList[currentFileIndex]),
+          0
+        )
+      );
       return;
     }
 
@@ -173,10 +179,12 @@ export const useFileOrDirectory = ({
   // 过滤播放列表
   const filterFileList = useCallback(
     (files: FileInfo[]) => {
+      if (lockSameDirPaths?.length) return;
+
       initPlayVideo(files);
       setFileList(files);
     },
-    [initPlayVideo]
+    [initPlayVideo, lockSameDirPaths]
   );
 
   const clearFileList = useCallback(() => {
@@ -191,7 +199,7 @@ export const useFileOrDirectory = ({
     currentFileIndex,
     setCurrentFileIndex,
     currentFile: fileList[currentFileIndex] as FileInfo | undefined,
-    isList: rawFileList.length > 1,
+    isList: fileList.length > 1 || rawFileList.length > 1,
     prevDisabled: isRandomPlay || (!isRandomPlay && currentFileIndex === 0),
     nextDisabled: !isRandomPlay && currentFileIndex === fileList.length - 1,
     isRandomPlay,
