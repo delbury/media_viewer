@@ -1,9 +1,11 @@
+import { useSwr } from '#/hooks/useSwr';
 import { getRandomIndex } from '#/utils/randomStrategy';
 import { DirectoryInfo, FileInfo } from '#pkgs/apis';
 import { MediaFileType } from '#pkgs/shared';
-import { getAllFiles } from '#pkgs/tools/common';
+import { findDirInfoInRootDir, getAllFiles } from '#pkgs/tools/common';
 import { isNil } from 'lodash-es';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { FILE_BROWSER_DIR_TREE_REQUEST_KEY } from '../DirectoryPicker/components/FileBrowser';
 import { RandomPlayStrategy } from '../GlobalSetting';
 
 interface UseFileOrDirectoryParams {
@@ -50,11 +52,12 @@ export const useFileOrDirectory = ({
   const randomPlayedIndexes = useRef(new Set<number>());
 
   const initPlayVideo = useCallback(
-    (files: FileInfo[]) => {
+    (files: FileInfo[], forceStartIndex?: number) => {
       randomToPlayIndexes.current.clear();
       randomPlayedIndexes.current.clear();
+
       if (defaultRandom) {
-        const startIndex = getRandomIndex(files.length, randomStrategy);
+        const startIndex = forceStartIndex ?? getRandomIndex(files.length, randomStrategy);
         setCurrentFileIndex(startIndex);
         const newSet = new Set(Array.from({ length: files.length }, (_, k) => k));
         newSet.delete(startIndex);
@@ -66,27 +69,29 @@ export const useFileOrDirectory = ({
     [defaultRandom, randomStrategy]
   );
 
-  const sameDirFileIndexes = useRef<Set<number>>(new Set());
-  const findSameDirFileIndexes = useCallback(() => {
+  // 获取全量数据
+  const dirRequest = useSwr('dirTree', {
+    key: FILE_BROWSER_DIR_TREE_REQUEST_KEY,
+  });
+  useEffect(() => {
+    if (!dirRequest.data || !mediaType) return;
+
     if (!lockSameDirPaths?.length) {
-      sameDirFileIndexes.current = new Set();
+      setFileList(rawFileList);
       return;
     }
 
-    const pathPrefix = `/${lockSameDirPaths.join('/')}/`;
-    const filteredFileIndexes = new Set<number>();
+    const dir = findDirInfoInRootDir(dirRequest.data, lockSameDirPaths);
+    const files = dir ? getAllFiles(mediaType, dir) : null;
 
-    fileList.forEach((file, index) => {
-      if (randomToPlayIndexes.current.has(index) && file.showPath.startsWith(pathPrefix)) {
-        filteredFileIndexes.add(index);
-      }
-    });
-
-    sameDirFileIndexes.current = filteredFileIndexes;
-  }, [fileList, lockSameDirPaths]);
-  useEffect(() => {
-    findSameDirFileIndexes();
-  }, [findSameDirFileIndexes]);
+    if (files) {
+      initPlayVideo(
+        files,
+        files.findIndex(f => f === fileList[currentFileIndex])
+      );
+      setFileList(files);
+    }
+  }, [lockSameDirPaths, dirRequest.data, mediaType]);
 
   // 文件列表
   useEffect(() => {
@@ -126,24 +131,17 @@ export const useFileOrDirectory = ({
   // 下一个
   const handleNext = useCallback(
     (index?: number) => {
+      // 全量播放列表
       // 将当前正在播放的文件加入到随机播放已播放列表
       randomPlayedIndexes.current.add(currentFileIndex);
 
       if (isRandomPlay) {
         // 随机播放
-        let nextIndex;
-
-        if (sameDirFileIndexes.current.size) {
-          const ri = getRandomIndex(sameDirFileIndexes.current.size, randomStrategy);
-          nextIndex = [...sameDirFileIndexes.current][ri];
-          sameDirFileIndexes.current.delete(nextIndex);
-        } else {
-          nextIndex = isNil(index)
-            ? [...randomToPlayIndexes.current][
-                getRandomIndex(randomToPlayIndexes.current.size, randomStrategy)
-              ]
-            : index;
-        }
+        const nextIndex = isNil(index)
+          ? [...randomToPlayIndexes.current][
+              getRandomIndex(randomToPlayIndexes.current.size, randomStrategy)
+            ]
+          : index;
 
         randomToPlayIndexes.current.delete(nextIndex);
         setCurrentFileIndex(nextIndex);
@@ -165,7 +163,7 @@ export const useFileOrDirectory = ({
         setCurrentFileIndex(newIndex);
       }
     },
-    [currentFileIndex, fileList.length, isRandomPlay, randomStrategy]
+    [currentFileIndex, fileList, isRandomPlay, randomStrategy]
   );
 
   const handleToggleRandom = useCallback(() => {

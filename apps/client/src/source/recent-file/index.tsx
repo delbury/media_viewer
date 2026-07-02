@@ -1,5 +1,6 @@
 'use client';
 
+import { FILE_BROWSER_DIR_TREE_REQUEST_KEY } from '#/components/DirectoryPicker/components/FileBrowser';
 import { FILE_FILTER_OPTIONS } from '#/components/DirectoryPicker/constant';
 import ScrollBox from '#/components/ScrollBox';
 import ToolGroupBtn from '#/components/ToolGroupBtn';
@@ -59,7 +60,9 @@ export default function RecentFile() {
   const [recentMode, setRecentMode] = useState(RecentMode.Preset);
   const [recentOffset, setRecentOffset] = useState(RECENT_FILE_OFFSET_OPTIONS[0].value as number);
 
-  const treeRequest = useSwr('dirTree');
+  const treeRequest = useSwr('dirTree', {
+    key: FILE_BROWSER_DIR_TREE_REQUEST_KEY,
+  });
   const {
     audioList,
     videoList,

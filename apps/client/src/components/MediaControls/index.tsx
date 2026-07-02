@@ -112,7 +112,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
     const showVolume = !isVideo || !isH5;
     const showLoop = !isH5;
     const hasPlayMode = isList && !!onToggleRandom;
-    const showLockSameDir = isList && !!file;
+    const showLockSameDir = !!file;
 
     const [moreOpen, setMoreOpen] = useState(false);
     const handleToggleMoreOpen = useCallback(() => setMoreOpen(v => !v), []);
