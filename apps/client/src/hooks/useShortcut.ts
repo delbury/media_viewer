@@ -23,6 +23,7 @@ enum BoardKey {
 enum EventType {
   Pressed,
   Released,
+  Double,
 }
 
 interface UseShortcutParams {
@@ -36,6 +37,7 @@ interface UseShortcutParams {
   onBackspacePressed?: (ev: KeyboardEvent) => void;
   onFPressed?: (ev: KeyboardEvent) => void;
   onFReleased?: (ev: KeyboardEvent) => void;
+  onFDouble?: (ev?: KeyboardEvent) => void;
   onXPressed?: (ev: KeyboardEvent) => void;
   onGPressed?: (ev: KeyboardEvent) => void;
   eventOption?: EventItem['option'];
@@ -51,6 +53,9 @@ const GLOBAL_STATE = {
   eventController: null as AbortController | null,
   pressedEvents: {} as Record<BoardKey, Set<EventItem>>,
   releasedEvents: {} as Record<BoardKey, Set<EventItem>>,
+  doubleEvents: {} as Record<BoardKey, Set<EventItem>>,
+  lastReleasedKey: null as BoardKey | null,
+  lastReleasedTime: -Infinity,
 };
 
 // 全局回调
@@ -71,6 +76,21 @@ const keyboardPressedCallback = (ev: KeyboardEvent, type: EventType) => {
       const item = list[i];
       item.callback(ev);
       if (item.option?.stopWhenFirstCalled) break;
+    }
+  }
+
+  if (type === EventType.Released) {
+    const now = performance.now();
+    if (GLOBAL_STATE.lastReleasedKey === ev.code && now - GLOBAL_STATE.lastReleasedTime < 250) {
+      GLOBAL_STATE.lastReleasedKey = null;
+      GLOBAL_STATE.lastReleasedTime = -Infinity;
+      if (GLOBAL_STATE.doubleEvents?.[ev.code as BoardKey]?.size) {
+        const list = [...GLOBAL_STATE.doubleEvents[ev.code as BoardKey]];
+        list.forEach(item => item.callback(ev));
+      }
+    } else {
+      GLOBAL_STATE.lastReleasedKey = ev.code as BoardKey;
+      GLOBAL_STATE.lastReleasedTime = now;
     }
   }
 };
@@ -94,12 +114,16 @@ const useBindKeyEvent = (
   useEffect(() => {
     if (!cb) return;
 
-    const eventField: keyof Pick<typeof GLOBAL_STATE, 'pressedEvents' | 'releasedEvents'> | null =
+    const eventField:
+      | keyof Pick<typeof GLOBAL_STATE, 'pressedEvents' | 'releasedEvents' | 'doubleEvents'>
+      | null =
       type === EventType.Pressed
         ? 'pressedEvents'
         : type === EventType.Released
           ? 'releasedEvents'
-          : null;
+          : type === EventType.Double
+            ? 'doubleEvents'
+            : null;
 
     if (isNil(eventField)) return;
 
@@ -132,6 +156,7 @@ export const useShortcut = ({
   onBackspacePressed,
   onFPressed,
   onFReleased,
+  onFDouble,
   onXPressed,
   onGPressed,
   eventOption,
@@ -173,6 +198,8 @@ export const useShortcut = ({
 
   useBindKeyEvent(BoardKey.F, onFPressed, { eventOption });
   useBindKeyEvent(BoardKey.F, onFReleased, { eventOption, type: EventType.Released });
+  useBindKeyEvent(BoardKey.F, onFDouble, { eventOption, type: EventType.Double });
+
   useBindKeyEvent(BoardKey.X, onXPressed, { eventOption });
   useBindKeyEvent(BoardKey.G, onGPressed, { eventOption });
 

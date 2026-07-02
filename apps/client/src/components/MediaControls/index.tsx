@@ -138,6 +138,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       (isMax: boolean) => {
         const elm = mediaRef.current;
         if (!elm) return;
+
         if (isMax && isNil(lastRate.current)) {
           lastRate.current = elm.playbackRate;
           elm.playbackRate = MAX_RATE;
@@ -146,6 +147,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
         if (!isMax && !isNil(lastRate.current)) {
           elm.playbackRate = lastRate.current;
           lastRate.current = null;
+          return;
         }
       },
       [mediaRef]
@@ -181,6 +183,7 @@ const MediaControls = forwardRef<MediaControlsInstance, MediaControls>(
       onEnterPressed: handleTogglePlay,
       onFPressed: () => toggleMaxPlaybackRate(true),
       onFReleased: () => toggleMaxPlaybackRate(false),
+      onFDouble: () => toggleMaxPlaybackRate(true),
       onGPressed: handleToggleLockSameDirAuto,
       arrowKeyAliasEnabled: true,
     });

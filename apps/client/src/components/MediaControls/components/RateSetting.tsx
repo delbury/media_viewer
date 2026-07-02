@@ -17,7 +17,7 @@ interface RateSettingProps {
 }
 
 const FULL_RATE_OPTIONS = [0.5, 1, 1.5, 2];
-export const SWITCH_RATE_OPTIONS = at(FULL_RATE_OPTIONS, [1, 2]);
+export const SWITCH_RATE_OPTIONS = at(FULL_RATE_OPTIONS, [1, 3]);
 // 最大播放速度
 export const MAX_RATE = FULL_RATE_OPTIONS[FULL_RATE_OPTIONS.length - 1];
 
@@ -34,6 +34,7 @@ const RateSetting = ({ mediaRef }: RateSettingProps) => {
     (ev, val) => {
       if (!isNil(val) && mediaRef.current) {
         mediaRef.current.playbackRate = val;
+        mediaRef.current.defaultPlaybackRate = val;
       }
       tooltipSettingRef.current?.close();
     },
@@ -48,6 +49,7 @@ const RateSetting = ({ mediaRef }: RateSettingProps) => {
     let newRate = 1;
     if (index > -1) newRate = SWITCH_RATE_OPTIONS[(index + 1) % SWITCH_RATE_OPTIONS.length];
     mediaRef.current.playbackRate = newRate;
+    mediaRef.current.defaultPlaybackRate = newRate;
   }, [mediaRef]);
 
   useEffect(() => {
